@@ -15,7 +15,7 @@ import numpy as np
 
 class MDP:
     """
-    Represents a discounted MDP with states
+    An abstract class that represents a discounted MDP with states
     {x_1, ..., x_{num_of_states}} and actions {a_1, ..., a_{num_of_actions}}.
 
     self.R is a vector of rewards where R[i] = R(x_i)
@@ -47,7 +47,7 @@ class MDP:
     def bellman_operator(self, V):
         """Computes T^pi(V), where T^pi is the Bellman operator of the policy pi
         self.P is the transition probability kernel of."""
-        return self.R + self.gamma * self.P @ V
+        raise NotImplementedError
 
     def attach_controllers(self, *controllers):
         """Attaches the inputted controllers to the MDP, so that their valuation
@@ -56,9 +56,29 @@ class MDP:
         self.controllers.extend(controllers)
 
 
+class PolicyEvaluation(MDP):
+    """
+    An MDP where self.P is the transition probability kernel of a policy pi
+    of dimension num_states * num_states,
+    and value iteration performs policy evaluation.
+    """
+    def bellman_operator(self, V):
+        return self.R + self.gamma * self.P @ V
+
+
+class Control(MDP):
+    """
+    An MDP where self.P is the transition probability kernel
+    of dimension num_states * num_states * num_actions,
+    and value iteration performs control.
+    """
+    def bellman_operator(self, V):
+        return np.max(self.R + self.gamma * self.P[:, :, :] @ V, axis=0)
+
+
 class Controller:
     """
-    A generic controller class to control the dynamics of value iteration.
+    An abstract controller class to control the dynamics of value iteration.
 
     Recall that the plant is a simple integrator with u_k as its input,
     V_{k + 1} = V_k + u_k
