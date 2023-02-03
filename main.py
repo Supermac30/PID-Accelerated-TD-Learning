@@ -18,7 +18,7 @@ class MDP:
     An abstract class that represents a discounted MDP with states
     {x_1, ..., x_{num_of_states}} and actions {a_1, ..., a_{num_of_actions}}.
 
-    self.R is a vector of rewards where R[i] = R(x_i)
+    self.R is the reward distribution
     self.P is the transition probability kernel of some policy
     self.gamma is the discount factor
     """
@@ -45,8 +45,10 @@ class MDP:
         return V1
 
     def bellman_operator(self, V):
-        """Computes T^pi(V), where T^pi is the Bellman operator of the policy pi
-        self.P is the transition probability kernel of."""
+        """Computes the Bellman Operator.
+        The implementation depending on whether we are using policy evaluation
+        or control.
+        """
         raise NotImplementedError
 
     def attach_controllers(self, *controllers):
@@ -58,8 +60,9 @@ class MDP:
 
 class PolicyEvaluation(MDP):
     """
-    An MDP where self.P is the transition probability kernel of a policy pi
-    of dimension num_states * num_states,
+    An MDP where:
+    - self.P is the transition probability kernel of a policy pi of dimension num_states * num_states,
+    - self.R is the expected reward under policy pi, r^pi, of dimension num_states * 1,
     and value iteration performs policy evaluation.
     """
     def bellman_operator(self, V):
@@ -68,12 +71,13 @@ class PolicyEvaluation(MDP):
 
 class Control(MDP):
     """
-    An MDP where self.P is the transition probability kernel
-    of dimension num_states * num_states * num_actions,
+    An MDP where:
+    - self.P is the transition probability kernel of dimension num_states * num_states * num_actions,
+    - self.R is the expected value of the reward distribution of dimension num_states * num_actions,
     and value iteration performs control.
     """
     def bellman_operator(self, V):
-        return np.max(self.R + self.gamma * self.P[:, :, :] @ V, axis=0)
+        return np.max(self.R + self.gamma * (self.P @ V).reshape(self.R.shape), axis=1)
 
 
 class Controller:
