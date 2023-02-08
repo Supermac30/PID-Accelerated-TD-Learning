@@ -23,7 +23,7 @@ class P_Controller(Controller):
 
 
 class I_Controller(Controller):
-    def __init__(self, alpha, beta, Ki, initial_z = 0):
+    def __init__(self, alpha, beta, Ki, initial_z=0):
         self.alpha = alpha
         self.beta = beta
         self.Ki = Ki
@@ -31,8 +31,8 @@ class I_Controller(Controller):
 
     def evaluate_controller(self, TV, V, V_prev):
         BR = TV - V
-        evaluation = self.Ki @ (self.beta @ self.z + self.alpha @ BR)
-        self.z = self.beta + self.alpha @ BR
+        evaluation = self.Ki @ (self.beta * self.z + self.alpha * BR)
+        self.z = self.beta * self.z + self.alpha * BR
 
         return evaluation
 
