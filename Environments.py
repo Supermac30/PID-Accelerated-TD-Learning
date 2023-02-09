@@ -10,11 +10,12 @@ class InvalidAction(Exception):
 
 class Environment:
     """An abstract class that represents the finite environment the agent will run in."""
-    def __init__(self, num_states, num_actions):
+    def __init__(self, num_states, num_actions, start_state):
         """Create the Environment. Every environment must store the number
         of states and actions."""
         self.num_states = num_states
         self.num_actions = num_actions
+        self.current_state = start_state
 
     def take_action(self, action):
         """Take action action, updating the current state, and returning a reward
@@ -48,6 +49,45 @@ class Environment:
         """
         return np.einsum('ijk,ik->ij', self.build_probability_transition_kernel(), policy)
 
+    def generate_episode(self, policy, num_steps=1000):
+        """Return a full episode following the policy matrix policy"""
+        trajectory = []
+        seen = set()
+        for _ in range(num_steps):
+            state = self.current_state
+            first_time_seen = False
+            if state not in seen:
+                seen.add(state)
+                first_time_seen = True
+
+            # Pick an action
+            random_number = np.random.uniform()
+            action = 0
+            total = policy[state][0]
+            while total < random_number:
+                action += 1
+                total += policy[state][action]
+
+            reward = self.take_action(action)[1]
+
+            trajectory.append((state, action, reward, first_time_seen))
+
+        return trajectory
+
+    def monte_carlo_estimate(self, gamma, policy, num_steps=100000):
+        """For the purpose of debugging, return a naive monte carlo estimate of V_pi
+        The algorithm can be found in Sutton and Barto page 99, Monte Carlo Exploring Starts
+        """
+        V = np.zeros((self.num_states, 1))
+        G = 0
+        trajectory = self.generate_episode(policy, num_steps)
+        for state, action, reward, first_time_seen in trajectory[::-1]:
+            G = gamma * G + reward
+            if first_time_seen:
+                V[state] = G
+
+        return V
+
 
 class Garnet(Environment):
     """An implementation of the Garnet found, as described in section H.2
@@ -61,8 +101,6 @@ class Garnet(Environment):
         self.bP = bP
         self.bR = bR
 
-        self.current_state = 0
-
         self.transitions = np.zeros((num_states, num_states, num_actions), dtype=float)
         for i in range(num_states):
             for j in range(num_actions):
@@ -74,7 +112,7 @@ class Garnet(Environment):
         self.rewards[rewarded_states] = 1
         self.rewards *= np.random.uniform(0, 1, (num_states, 1))
 
-        super().__init__(num_states, num_actions)
+        super().__init__(num_states, num_actions, 0)
 
     def take_action(self, action):
         """Take action action, updating the current state,
@@ -115,27 +153,26 @@ class ChainWalk(Environment):
     We assume self.num_states > 10
     """
     def __init__(self, num_states):
-        self.current_state = 0
-
-        super().__init__(num_states, 2)
+        super().__init__(num_states, 2, num_states - 1)
 
     def take_action(self, action):
-        """Moves left if action is -1, and right if action is 1,
+        """Moves left if action is 0, and right if action is 1,
         and raises an InvalidAction error otherwise.
 
         Returns the next state and reward.
         """
+        shift = -1 if action == 0 else 1
         random_number = np.random.uniform()
         if random_number < 0.7:
-            self.current_state = (self.current_state + action) % self.N
+            self.current_state = (self.current_state + shift) % self.num_states
         elif random_number < 0.9:
-            self.current_state = (self.current_state - action) % self.N
+            self.current_state = (self.current_state - shift) % self.num_states
         # else: Don't move
 
         reward = 0
         if self.current_state == 10:
             reward = -1
-        if self.current_state == self.N - 10:
+        if self.current_state == self.num_states - 10:
             reward = 1
 
         return self.current_state, reward

@@ -46,7 +46,7 @@ class MDP:
             V0, V1 = V1, V1 + sum(map(lambda n: n.evaluate_controller(TV, V1, V0), controllers))
 
             if V is not None:
-                history.append(np.log10(np.max(V1 - V)))
+                history.append(np.max(np.abs(V1 - V)))
 
         if V is not None:
             plt.plot(history, label=label)
@@ -55,7 +55,7 @@ class MDP:
 
     def bellman_operator(self, V):
         """Computes the Bellman Operator.
-        The implementation depending on whether we are using policy evaluation
+        The implementation depends on whether we are using policy evaluation
         or control.
         """
         raise NotImplementedError
@@ -80,4 +80,4 @@ class Control(MDP):
     and value iteration performs control.
     """
     def bellman_operator(self, V):
-        return np.max(self.R + self.gamma * (self.P @ V).reshape(self.R.shape), axis=1)
+        return np.max(self.R + self.gamma * np.einsum('ijk,j->ik', self.P, V.reshape(-1)), axis=1).reshape(-1, 1)
