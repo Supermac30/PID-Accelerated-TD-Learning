@@ -15,7 +15,15 @@ class Environment:
         of states and actions."""
         self.num_states = num_states
         self.num_actions = num_actions
+        self.start_state = start_state
         self.current_state = start_state
+
+    def reset(self):
+        """Reset the Environment back to the initial state.
+        Of course, by the MDP property, this is equivalent to starting
+        from a blank slate.
+        """
+        self.current_state = self.start_state
 
     def take_action(self, action):
         """Take action action, updating the current state, and returning a reward
@@ -48,45 +56,6 @@ class Environment:
         entry is the probability of going from state i to j when following policy k.
         """
         return np.einsum('ijk,ik->ij', self.build_probability_transition_kernel(), policy)
-
-    def generate_episode(self, policy, num_steps=1000):
-        """Return a full episode following the policy matrix policy"""
-        trajectory = []
-        seen = set()
-        for _ in range(num_steps):
-            state = self.current_state
-            first_time_seen = False
-            if state not in seen:
-                seen.add(state)
-                first_time_seen = True
-
-            # Pick an action
-            random_number = np.random.uniform()
-            action = 0
-            total = policy[state][0]
-            while total < random_number:
-                action += 1
-                total += policy[state][action]
-
-            reward = self.take_action(action)[1]
-
-            trajectory.append((state, action, reward, first_time_seen))
-
-        return trajectory
-
-    def monte_carlo_estimate(self, gamma, policy, num_steps=100000):
-        """For the purpose of debugging, return a naive monte carlo estimate of V_pi
-        The algorithm can be found in Sutton and Barto page 99, Monte Carlo Exploring Starts
-        """
-        V = np.zeros((self.num_states, 1))
-        G = 0
-        trajectory = self.generate_episode(policy, num_steps)
-        for state, action, reward, first_time_seen in trajectory[::-1]:
-            G = gamma * G + reward
-            if first_time_seen:
-                V[state] = G
-
-        return V
 
 
 class Garnet(Environment):
@@ -159,7 +128,7 @@ class ChainWalk(Environment):
         """Moves left if action is 0, and right if action is 1,
         and raises an InvalidAction error otherwise.
 
-        Returns the next state and reward.
+        Returns the reward.
         """
         shift = -1 if action == 0 else 1
         random_number = np.random.uniform()
@@ -175,7 +144,7 @@ class ChainWalk(Environment):
         if self.current_state == self.num_states - 10:
             reward = 1
 
-        return self.current_state, reward
+        return reward
 
     def build_reward_matrix(self):
         """Return a vector of dimensions self.num_states by self.num_actions where the

@@ -9,7 +9,7 @@ class Controller:
     error, and so we have the controller be a function of T(V_k), V_k, V_{k - 1},
     which is all that is needed for the P, PI, PD, and PID controllers.
     """
-    def evaluate_controller(self, TV, V, V_prev):
+    def evaluate_controller(self, BR, V, V_prev):
         raise NotImplementedError
 
 
@@ -17,8 +17,7 @@ class P_Controller(Controller):
     def __init__(self, Kp):
         self.Kp = Kp
 
-    def evaluate_controller(self, TV, V, V_prev):
-        BR = TV - V
+    def evaluate_controller(self, BR, V, V_prev):
         return self.Kp @ BR
 
 
@@ -29,8 +28,7 @@ class I_Controller(Controller):
         self.Ki = Ki
         self.z = initial_z
 
-    def evaluate_controller(self, TV, V, V_prev):
-        BR = TV - V
+    def evaluate_controller(self, BR, V, V_prev):
         evaluation = self.Ki @ (self.beta * self.z + self.alpha * BR)
         self.z = self.beta * self.z + self.alpha * BR
 
@@ -41,5 +39,5 @@ class D_Controller(Controller):
     def __init__(self, Kd):
         self.Kd = Kd
 
-    def evaluate_controller(self, TV, V, V_prev):
+    def evaluate_controller(self, BR, V, V_prev):
         return self.Kd @ (V - V_prev)

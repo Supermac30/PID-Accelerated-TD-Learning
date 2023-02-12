@@ -69,10 +69,10 @@ def ControlExperiment():
     # Plot vanilla VI
     agent.value_iteration(p_controller, V=V_pi, label="VI (conventional)")
 
-    p_controller = P_Controller(1.2 * np.identity(num_states))
-    d_controller = D_Controller(0 * np.identity(num_states))
-    i_controller = I_Controller(0.05, 0.95, 0 * np.identity(num_states))
-    agent.value_iteration(p_controller, d_controller, i_controller, V=V_pi, label="(k_p, k_i, k_d) = (1.2, 0, 0)")
+    #p_controller = P_Controller(1.2 * np.identity(num_states))
+    #d_controller = D_Controller(0 * np.identity(num_states))
+    #i_controller = I_Controller(0.05, 0.95, 0 * np.identity(num_states))
+    #agent.value_iteration(p_controller, d_controller, i_controller, V=V_pi, label="(k_p, k_i, k_d) = (1.2, 0, 0)")
 
     p_controller = P_Controller(1 * np.identity(num_states))
     d_controller = D_Controller(0.4 * np.identity(num_states))

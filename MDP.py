@@ -43,7 +43,8 @@ class MDP:
 
         for _ in range(num_iterations):
             TV = self.bellman_operator(V1)
-            V0, V1 = V1, V1 + sum(map(lambda n: n.evaluate_controller(TV, V1, V0), controllers))
+            BR = TV - V1
+            V0, V1 = V1, V1 + sum(map(lambda n: n.evaluate_controller(BR, V1, V0), controllers))
 
             if V is not None:
                 history.append(np.max(np.abs(V1 - V)))
