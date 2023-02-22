@@ -92,6 +92,60 @@ class MonteCarloPE(Agent):
 
         return V
 
+class SoftControlledTDLearning(Agent):
+    """The bread and butter of our work, this is the agent that
+    can be augmented with controllers, namely the PID controller.
+
+    The updates to the past value of Vp are made in a soft fashion,
+    unlike the ControlledTDLearner below.
+    """
+    def __init__(self, environment, policy, gamma, learning_rate):
+        self.learning_rate = learning_rate
+        super().__init__(environment, policy, gamma)
+
+    def estimate_value_function(self, *controllers, num_iterations=1000, test_function=None, label=""):
+        """Computes V^pi of the inputted policy using TD learning augmented with controllers.
+        Takes in Controller objects that the agent will use to control the dynamics of learning.
+        If test_function is not None,
+        we record the value of test_function on V, Vp
+        """
+        self.environment.reset()
+        # V is the current value function, Vp is the previous value function
+        # Vp stores the previous value of the x state when it was last changed
+        Vp = np.zeros((self.num_states, 1))
+        V = np.zeros((self.num_states, 1))
+
+        # A vector storing the number of times we have seen a state.
+        frequency = np.zeros((self.num_states, 1))
+
+        # The history of test_function
+        history = np.zeros(num_iterations)
+
+        for k in range(num_iterations):
+            current_state = self.environment.current_state
+            action, reward = self.take_action()
+            next_state = self.environment.current_state
+
+            frequency[current_state] += 1
+
+            # An estimate of the bellman update
+            BR = np.zeros((self.num_states, 1))
+            BR[current_state] = reward + self.gamma * V[next_state] - V[current_state]
+
+            update = sum(map(lambda n: n.evaluate_controller(BR, V, Vp), controllers))
+            learning_rate = self.learning_rate(frequency[current_state])
+
+            Vp[current_state] = (1 - learning_rate) * Vp[current_state] + learning_rate * V[current_state]
+            V = V + learning_rate * update
+
+            if test_function is not None:
+                history[k] = test_function(V, Vp, BR)
+
+        if test_function is None:
+            return V
+
+        return history, V
+
 
 class ControlledTDLearning(Agent):
     """The bread and butter of our work, this is the agent that
@@ -104,21 +158,22 @@ class ControlledTDLearning(Agent):
         self.learning_rate = learning_rate
         super().__init__(environment, policy, gamma)
 
-    def estimate_value_function(self, *controllers, num_iterations=50000, V=None, label=""):
+    def estimate_value_function(self, *controllers, num_iterations=1000, test_function=None, label=""):
         """Computes V^pi of the inputted policy using TD learning augmented with controllers.
         Takes in Controller objects that the agent will use to control the dynamics of learning.
-        If V is not None, we record the difference between the current value estimate and V during learning.
+        If test_function is not None,
+        we record the value of test_function on V, Vp
         """
         self.environment.reset()
-        # V1 is the current value function, V0 is the previous value function
-        # V0(x) stores the previous value of the x state when it was last changed
-        V0 = np.zeros((self.num_states, 1))
-        V1 = np.zeros((self.num_states, 1))
+        # V is the current value function, Vp is the previous value function
+        # Vp stores the previous value of the x state when it was last changed
+        Vp = np.zeros((self.num_states, 1))
+        V = np.zeros((self.num_states, 1))
 
         # A vector storing the number of times we have seen a state.
         frequency = np.zeros((self.num_states, 1))
 
-        # The history of the norms
+        # The history of test_function
         history = np.zeros(num_iterations)
 
         for k in range(num_iterations):
@@ -130,18 +185,21 @@ class ControlledTDLearning(Agent):
 
             # An estimate of the bellman update
             BR = np.zeros((self.num_states, 1))
-            BR[current_state] = reward + self.gamma * V1[next_state] - V1[current_state]
+            BR[current_state] = reward + self.gamma * V[next_state] - V[current_state]
 
-            update = sum(map(lambda n: n.evaluate_controller(BR, V1, V0), controllers))
+            update = sum(map(lambda n: n.evaluate_controller(BR, V, Vp), controllers))
             learning_rate = self.learning_rate(frequency[current_state])
 
-            V0[current_state] = V1[current_state]
-            V1 = V1 + learning_rate * update
+            Vp[current_state] = V[current_state]
+            V = V + learning_rate * update
 
-            if V is not None:
-                history[k] = np.max(np.abs(V - V1))
+            if test_function is not None:
+                history[k] = test_function(V, Vp, BR)
 
-        return history, V1
+        if test_function is None:
+            return V
+
+        return history, V
 
 class ControlledQLearning(Agent):
     # TODO: Implement

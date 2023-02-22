@@ -3,10 +3,12 @@ import numpy as np
 
 from Environments import Garnet, ChainWalk
 from Controllers import P_Controller, D_Controller, I_Controller
-from Agents import ControlledTDLearning
+from Agents import ControlledTDLearning, SoftControlledTDLearning
 from MDP import PolicyEvaluation
+from ExperimentHelpers import *
 
-def PolicyEvaluationExperiment():
+
+def policy_evaluation_experiment():
     """Experiments with policy evaluation and TD"""
     num_states = 50
     num_actions = 2
@@ -18,65 +20,112 @@ def PolicyEvaluationExperiment():
         env,
         policy,
         0.99,
-        lambda k: min(0.02, 10/k)
+        lambda k: min(0.03, 10/k)
     )
 
-    oracle = PolicyEvaluation(
-        env.num_states,
-        env.num_actions,
-        env.build_policy_reward_vector(policy),
-        env.build_policy_probability_transition_kernel(policy),
-        0.99
-    )
+    V_pi = find_Vpi(env, policy)
+    test_function=lambda V, Vp, BR: np.max(np.abs(V - V_pi))
 
-    # Vanilla Value Iteration is simply a P-controller with a gain equal to I
-    p_controller = P_Controller(np.identity(num_states))
-    V_pi = oracle.value_iteration(p_controller, num_iterations=10000)
+    def run_pid_experiment(kp, kd, ki):
+        run_TD_experiment(agent, kp, kd, ki, test_function, plt)
 
     # Plot vanilla VI
-    total_history = 0
-    for _ in range(10):
-        history, V = agent.estimate_value_function(p_controller, V=V_pi)
-        total_history += history
-    total_history /= 10
-    plt.plot(total_history, label="VI (Conventional)")
+    # run_pid_experiment(1, 0, 0)
 
-    p_controller = P_Controller(1 * np.identity(num_states))
-    d_controller = D_Controller(0.25 * np.identity(num_states))
-    i_controller = I_Controller(0.05, 0.95, 0 * np.identity(num_states))
+    # for i in range(1, 8):
+    #     run_pid_experiment(1, i/10, 0)
 
-    total_history = 0
-    for _ in range(10):
-        history, V = agent.estimate_value_function(p_controller, d_controller, i_controller, V=V_pi)
-        total_history += history
-    total_history /= 10
-    plt.plot(total_history, label="(k_p, k_i, k_d) = (1, 0, 0.25)")
+    run_pid_experiment(1, 0.15, 0)
+    # run_pid_experiment(1, 0.2, 0)
+    # run_pid_experiment(1, 0.7, 0.2)
 
-    p_controller = P_Controller(1 * np.identity(num_states))
-    d_controller = D_Controller(0.2 * np.identity(num_states))
-    i_controller = I_Controller(0.05, 0.95, 0 * np.identity(num_states))
-
-    total_history = 0
-    for _ in range(10):
-        history, V = agent.estimate_value_function(p_controller, d_controller, i_controller, V=V_pi)
-        total_history += history
-    total_history /= 10
-    plt.plot(total_history, label="(k_p, k_i, k_d) = (1, 0, 0.2)")
-
-    p_controller = P_Controller(1 * np.identity(num_states))
-    d_controller = D_Controller(0.2 * np.identity(num_states))
-    i_controller = I_Controller(0.05, 0.95, 0.7 * np.identity(num_states))
-    total_history = 0
-    for _ in range(10):
-        history, V = agent.estimate_value_function(p_controller, d_controller, i_controller, V=V_pi)
-        total_history += history
-    total_history /= 10
-    plt.plot(total_history, label="(k_p, k_i, k_d) = (1, 0.7, 0.2)")
 
     plt.legend()
     plt.xlabel('Iteration')
     plt.ylabel('$||V_k - V^\pi||_\infty$')
     plt.show()
 
+def soft_policy_evaluation_experiment():
+    """Experiments with policy evaluation and TD"""
+    num_states = 50
+    num_actions = 2
+    env = ChainWalk(num_states)
+    policy = np.zeros((num_states, num_actions))
+    for i in range(num_states):
+        policy[i,0] = 1
+    agent = SoftControlledTDLearning(
+        env,
+        policy,
+        0.99,
+        lambda k: min(0.02, 10/k)
+    )
+
+    V_pi = find_Vpi(env, policy)
+    test_function=lambda V, Vp, BR: np.max(np.abs(V - V_pi))
+
+    def run_pid_experiment(kp, kd, ki):
+        run_TD_experiment(agent, kp, kd, ki, test_function, plt)
+
+    # Plot vanilla VI
+    # run_pid_experiment(1, 0, 0)
+
+    # for i in range(1, 8):
+    #     run_pid_experiment(1, i/10, 0)
+
+    run_pid_experiment(1, 0.15, 0)
+    # run_pid_experiment(1, 0.2, 0)
+    # run_pid_experiment(1, 0.7, 0.2)
+
+    plt.legend()
+    plt.xlabel('Iteration')
+    plt.ylabel('$||V_k - V^\pi||_\infty$')
+    plt.show()
+
+
+def find_average_update_experiment():
+    """
+    Experiment with what the expectation of
+
+    \frac{\kappa_p}{\kappa_p - \kappa_d}\Bhat V_k - \frac{\kappa_d}{\kappa_p - \kappa_d}V_{p(k)}
+
+    looks like. This experimentally verifies theorem 2.1 in the manuscript.
+    """
+    num_states = 50
+    num_actions = 2
+    gamma = 0.99
+    env = ChainWalk(num_states)
+    policy = np.zeros((num_states, num_actions))
+    for i in range(num_states):
+        policy[i,0] = 1
+    agent = ControlledTDLearning(
+        env,
+        policy,
+        gamma,
+        lambda k: min(0.03, 10/k)
+    )
+
+    R = env.build_policy_reward_vector(policy)
+    P = env.build_policy_probability_transition_kernel(policy)
+
+    V_pi = find_Vpi(env, policy)
+
+    def bellman(V):
+        return R.reshape((-1, 1)) + gamma * P @ V
+
+    def run_experiment(kp, kd):
+        test_function=lambda V, Vp, BR: np.max(np.abs(V_pi - bellman(V) * (kp / (kp - kd)) + Vp * (kd / (kp - kd))))
+        run_TD_experiment(agent, kp, kd, 0, test_function, plt)
+
+    run_TD_experiment(1, 0.2)
+
+    # run_pid_experiment(1, 0.25, 0)
+    # run_pid_experiment(1, 0.2, 0)
+    # run_pid_experiment(1, 0.7, 0.2)
+
+    plt.legend()
+    plt.xlabel('Iteration')
+    plt.ylabel('$||V^{\pi} - ((\kappa_p)/(\kappa_p - \kappa_d)T^{\pi} V_k - (\kappa_d)/(\kappa_p - \kappa_d) V_{p(k)})||_\infty$')
+    plt.show()
+
 if __name__ == "__main__":
-    PolicyEvaluationExperiment()
+    soft_policy_evaluation_experiment()

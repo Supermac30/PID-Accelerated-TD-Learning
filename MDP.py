@@ -30,29 +30,30 @@ class MDP:
         self.P = P
         self.gamma = gamma
 
-    def value_iteration(self, *controllers, num_iterations=500, V=None, label=""):
+    def value_iteration(self, *controllers, num_iterations=500, test_function=None):
         """Compute the value function via VI using the added controllers.
-        If V is not None, the norm of V1-V per iteration is plotted
+        If test_function is not None, the history of test_function evaluated at V1, V0, BR is returned,
+        otherwise, history is full of zeroes.
         """
         # V1 is the current value function, V0 is the previous value function
         V0 = np.zeros((self.num_states, 1))
         V1 = np.zeros((self.num_states, 1))
 
         # The history of the norms
-        history = []
+        history = np.zeros(num_iterations)
 
-        for _ in range(num_iterations):
+        for k in range(num_iterations):
             TV = self.bellman_operator(V1)
             BR = TV - V1
             V0, V1 = V1, V1 + sum(map(lambda n: n.evaluate_controller(BR, V1, V0), controllers))
 
-            if V is not None:
-                history.append(np.max(np.abs(V1 - V)))
+            if test_function is not None:
+                history[k] = test_function(V1, V0, BR)
 
-        if V is not None:
-            plt.plot(history, label=label)
+        if test_function is None:
+            return V1
 
-        return V1
+        return history, V1
 
     def bellman_operator(self, V):
         """Computes the Bellman Operator.
