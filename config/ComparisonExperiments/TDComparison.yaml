@@ -1,0 +1,12 @@
+kp: [1, 1, 1, 1, 1, 1, 1, 1, 1]
+kd: [0.1, 0.125, 0.15, 0.175, 0.2, 0.225, 0.25, 0.275, 0.3]
+ki: [0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+threshold: 0.2
+num_iterations: 10000
+
+hydra:
+  run:
+    dir: ${oc.env:OUTPUT_DIR,./outputs}/${hydra.job.config_name}/${now:%Y-%m-%d}/${now:%H-%M-%S}
+  job:
+    chdir: True

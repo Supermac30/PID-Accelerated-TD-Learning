@@ -12,7 +12,6 @@ class Agent():
     self.environment: An Environment object that the agent is interacting with
     self.policy: A matrix of size self.environment.num_states x self.environment.num_actions,
     where the sum of each row is one. An off-policy agent can safely ignore this.
-    (TODO: Consider building off-policy, on-policy classes?)
     """
     def __init__(self, environment, policy, gamma):
         self.gamma = gamma
@@ -76,7 +75,7 @@ class MonteCarloPE(Agent):
     def __init__(self, environment, policy, gamma):
         super().__init__(environment, policy, gamma)
 
-    def estimate_value_function(self, num_steps=1000):
+    def estimate_value_function(self, num_iterations=1000):
         """For the purpose of debugging, return a naive monte carlo estimate of V_pi
         The algorithm can be found in Sutton and Barto page 99, Monte Carlo Exploring Starts.
 
@@ -84,7 +83,7 @@ class MonteCarloPE(Agent):
         """
         V = np.zeros((self.num_states, 1))
         G = 0
-        trajectory = self.generate_episode(num_steps=num_steps)
+        trajectory = self.generate_episode(num_iterations=num_iterations)
         for state, action, reward, first_time_seen in trajectory[::-1]:
             G = self.gamma * G + reward
             if first_time_seen:
@@ -98,16 +97,19 @@ class SoftControlledTDLearning(Agent):
 
     The updates to the past value of Vp are made in a soft fashion,
     unlike the ControlledTDLearner below.
+
+    The update_rate controls how strong the soft updates are.
     """
-    def __init__(self, environment, policy, gamma, learning_rate):
+    def __init__(self, environment, policy, gamma, learning_rate, update_rate):
         self.learning_rate = learning_rate
+        self.update_rate = update_rate
         super().__init__(environment, policy, gamma)
 
-    def estimate_value_function(self, *controllers, num_iterations=1000, test_function=None, label=""):
+    def estimate_value_function(self, *controllers, num_iterations=1000, test_function=None, threshold=None):
         """Computes V^pi of the inputted policy using TD learning augmented with controllers.
         Takes in Controller objects that the agent will use to control the dynamics of learning.
-        If test_function is not None,
-        we record the value of test_function on V, Vp
+        If test_function is not None, we record the value of test_function on V, Vp.
+        If threshold and test_function are not None, we stop after test_function outputs a value smaller than threshold.
         """
         self.environment.reset()
         # V is the current value function, Vp is the previous value function
@@ -134,12 +136,17 @@ class SoftControlledTDLearning(Agent):
 
             update = sum(map(lambda n: n.evaluate_controller(BR, V, Vp), controllers))
             learning_rate = self.learning_rate(frequency[current_state])
+            update_rate = self.update_rate(frequency[current_state])
 
-            Vp[current_state] = (1 - learning_rate) * Vp[current_state] + learning_rate * V[current_state]
+            Vp[current_state] = (1 - update_rate) * Vp[current_state] + update_rate * V[current_state]
             V = V + learning_rate * update
 
             if test_function is not None:
                 history[k] = test_function(V, Vp, BR)
+                if threshold is not None and history[k] < threshold:
+                    break
+
+        history = history[:k]
 
         if test_function is None:
             return V
@@ -147,59 +154,23 @@ class SoftControlledTDLearning(Agent):
         return history, V
 
 
-class ControlledTDLearning(Agent):
+class ControlledTDLearning(SoftControlledTDLearning):
     """The bread and butter of our work, this is the agent that
     can be augmented with controllers, namely the PID controller.
 
     self.learning_rate: A function that takes in the current iteration number
     and returns a learning rate
+
+    This is SoftControlledTDLearning with a constant update rate of 1.
     """
     def __init__(self, environment, policy, gamma, learning_rate):
-        self.learning_rate = learning_rate
-        super().__init__(environment, policy, gamma)
-
-    def estimate_value_function(self, *controllers, num_iterations=1000, test_function=None, label=""):
-        """Computes V^pi of the inputted policy using TD learning augmented with controllers.
-        Takes in Controller objects that the agent will use to control the dynamics of learning.
-        If test_function is not None,
-        we record the value of test_function on V, Vp
-        """
-        self.environment.reset()
-        # V is the current value function, Vp is the previous value function
-        # Vp stores the previous value of the x state when it was last changed
-        Vp = np.zeros((self.num_states, 1))
-        V = np.zeros((self.num_states, 1))
-
-        # A vector storing the number of times we have seen a state.
-        frequency = np.zeros((self.num_states, 1))
-
-        # The history of test_function
-        history = np.zeros(num_iterations)
-
-        for k in range(num_iterations):
-            current_state = self.environment.current_state
-            action, reward = self.take_action()
-            next_state = self.environment.current_state
-
-            frequency[current_state] += 1
-
-            # An estimate of the bellman update
-            BR = np.zeros((self.num_states, 1))
-            BR[current_state] = reward + self.gamma * V[next_state] - V[current_state]
-
-            update = sum(map(lambda n: n.evaluate_controller(BR, V, Vp), controllers))
-            learning_rate = self.learning_rate(frequency[current_state])
-
-            Vp[current_state] = V[current_state]
-            V = V + learning_rate * update
-
-            if test_function is not None:
-                history[k] = test_function(V, Vp, BR)
-
-        if test_function is None:
-            return V
-
-        return history, V
+        super().__init__(
+            environment,
+            policy,
+            gamma,
+            learning_rate,
+            lambda n: 1
+        )
 
 class ControlledQLearning(Agent):
     # TODO: Implement
