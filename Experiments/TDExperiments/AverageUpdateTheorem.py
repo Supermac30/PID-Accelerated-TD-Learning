@@ -17,12 +17,11 @@ def find_average_update_experiment(cfg):
     looks like. This experimentally verifies theorem 2.1 in the manuscript.
     """
     logger = logging.getLogger(__name__)
-    set_seed(cfg['seed'], logger)
 
     num_states = 50
     num_actions = 2
     gamma = 0.99
-    env = ChainWalk(num_states)
+    env = ChainWalk(num_states, cfg['seed'])
     policy = np.zeros((num_states, num_actions))
     for i in range(num_states):
         policy[i,0] = 1

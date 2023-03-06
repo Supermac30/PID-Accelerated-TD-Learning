@@ -1,4 +1,5 @@
 import numpy as np
+import logging
 
 
 class InvalidAction(Exception):
@@ -10,13 +11,26 @@ class InvalidAction(Exception):
 
 class Environment:
     """An abstract class that represents the finite environment the agent will run in."""
-    def __init__(self, num_states, num_actions, start_state):
+    def __init__(self, num_states, num_actions, start_state, seed=-1):
         """Create the Environment. Every environment must store the number
-        of states and actions."""
+        of states and actions.
+
+        If the seed is uninitialized (equal to -1), then create a random seed
+        and log it.
+        """
         self.num_states = num_states
         self.num_actions = num_actions
         self.start_state = start_state
         self.current_state = start_state
+
+        if seed == -1:
+            # Create a random seed
+            seed = np.random.randint(1, 1000000)
+            # Log it for reproducibility
+            logger = logging.getLogger(__name__)
+            logger.info(f"Random seed for environment: {seed}")
+
+        self.prg = np.random.default_rng(seed)
 
     def reset(self):
         """Reset the Environment back to the initial state.
@@ -66,7 +80,9 @@ class Garnet(Environment):
     self.rewards: An n dimensional vector, where the ith entry is the
         reward of being in state i.
     """
-    def __init__(self, num_states, num_actions, bP, bR):
+    def __init__(self, num_states, num_actions, bP, bR, seed=-1):
+        super().__init__(num_states, num_actions, 0, seed)
+
         self.bP = bP
         self.bR = bR
 
@@ -76,12 +92,10 @@ class Garnet(Environment):
                 next_states = np.random.choice(num_states, bP, replace=False)
                 self.transitions[i, next_states, j] = 1/self.bP
 
-        rewarded_states = np.random.choice(num_states, bR, replace=False)
+        rewarded_states = self.rng.choice(num_states, bR, replace=False)
         self.rewards = np.zeros((num_states, 1))
         self.rewards[rewarded_states] = 1
-        self.rewards *= np.random.uniform(0, 1, (num_states, 1))
-
-        super().__init__(num_states, num_actions, 0)
+        self.rewards *= self.prg.uniform(0, 1, (num_states, 1))
 
     def take_action(self, action):
         """Take action action, updating the current state,
@@ -94,7 +108,7 @@ class Garnet(Environment):
             raise InvalidAction(action)
 
         # Find next state and reward
-        random_transition = np.random.randint(0, self.b)
+        random_transition = self.prg.randint(0, self.b)
 
         self.current_state = self.transitions[self.current_state, action, random_transition]
         reward = self.reward[self.current_state]
@@ -121,8 +135,8 @@ class ChainWalk(Environment):
 
     We assume self.num_states > 10
     """
-    def __init__(self, num_states):
-        super().__init__(num_states, 2, num_states - 1)
+    def __init__(self, num_states, seed=-1):
+        super().__init__(num_states, 2, num_states - 1, seed)
 
     def take_action(self, action):
         """Moves left if action is 0, and right if action is 1,
@@ -131,7 +145,7 @@ class ChainWalk(Environment):
         Returns the reward.
         """
         shift = -1 if action == 0 else 1
-        random_number = np.random.uniform()
+        random_number = self.prg.uniform()
         if random_number < 0.7:
             self.current_state = (self.current_state + shift) % self.num_states
         elif random_number < 0.9:

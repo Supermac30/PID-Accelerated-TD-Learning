@@ -11,11 +11,10 @@ from Experiments.ExperimentHelpers import *
 def control_experiment(cfg):
     """Attempt to replicate results in figure 2 of PID Accelerated VI"""
     logger = logging.getLogger(__name__)
-    set_seed(cfg['seed'], logger)
 
     num_states = 50
     num_actions = 2
-    env = ChainWalk(num_states)
+    env = ChainWalk(num_states, cfg['seed'])
     agent = Control(
         env.num_states,
         env.num_actions,

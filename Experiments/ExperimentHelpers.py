@@ -9,13 +9,6 @@ import os
 
 # def create_env_policy()
 
-def set_seed(seed, logger):
-    if seed == -1:
-        seed = np.random.randint(1, 100000)
-        logger.info(f"Random seed value: {seed}")
-
-    np.random.seed(seed)
-
 
 def learning_rate_function(alpha, N):
     """Return the learning rate function alpha(k) parameterized by alpha and N"""

@@ -11,11 +11,10 @@ from Experiments.ExperimentHelpers import *
 def policy_evaluation_experiment(cfg):
     """Attempt to replicate results in figure 1 of PID Accelerated VI"""
     logger = logging.getLogger(__name__)
-    set_seed(cfg['seed'], logger)
 
     num_states = 50
     num_actions = 2
-    env = ChainWalk(num_states)
+    env = ChainWalk(num_states, cfg['seed'])
     policy = np.zeros((num_states, num_actions))
     for i in range(num_states):
         policy[i,0] = 1
