@@ -7,7 +7,7 @@ alpha: 0.03
 update_alpha: 0.03
 update_N: 100
 
-
+seed: -1
 hydra:
   run:
     dir: ${oc.env:OUTPUT_DIR,./outputs}/${hydra.job.config_name}/${now:%Y-%m-%d}/${now:%H-%M-%S}

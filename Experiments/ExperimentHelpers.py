@@ -9,6 +9,13 @@ import os
 
 # def create_env_policy()
 
+def set_seed(seed, logger):
+    if seed == -1:
+        seed = np.random.randint(1, 100000)
+        logger.info(f"Random seed value: {seed}")
+
+    np.random.seed(seed)
+
 
 def learning_rate_function(alpha, N):
     """Return the learning rate function alpha(k) parameterized by alpha and N"""
@@ -31,7 +38,7 @@ def find_optimal_learning_rates(agent, value_function_estimator, isSoft):
     learning_rates = {
         0.2: {10, 100},
         0.15: {10, 100},
-        0.09: {10, 100, 1000, 10000},
+        0.1: {10, 100, 1000, 10000},
         0.05: {10, 100, 1000, 10000},
         0.01: {1000, 10000},
         0.001: {1000, 10000},
