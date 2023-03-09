@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import hydra
-import logging
 
 from Environments import ChainWalk
 from MDP import Control
@@ -10,8 +9,6 @@ from Experiments.ExperimentHelpers import *
 @hydra.main(version_base=None, config_path="../../config/VIExperiments", config_name="VIControl")
 def control_experiment(cfg):
     """Attempt to replicate results in figure 2 of PID Accelerated VI"""
-    logger = logging.getLogger(__name__)
-
     num_states = 50
     num_actions = 2
     env = ChainWalk(num_states, cfg['seed'])

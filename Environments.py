@@ -25,19 +25,24 @@ class Environment:
 
         if seed == -1:
             # Create a random seed
-            seed = np.random.randint(1, 1000000)
+            self.seed = np.random.randint(1, 1000000)
             # Log it for reproducibility
             logger = logging.getLogger(__name__)
-            logger.info(f"Random seed for environment: {seed}")
+            logger.info(f"Random seed for environment: {self.seed}")
+        else:
+            self.seed = seed
 
-        self.prg = np.random.default_rng(seed)
+        self.prg = np.random.default_rng(self.seed)
 
     def reset(self):
         """Reset the Environment back to the initial state.
+        Reset the prg to ensure fair experiments.
         Of course, by the MDP property, this is equivalent to starting
         from a blank slate.
         """
         self.current_state = self.start_state
+        self.prg = np.random.default_rng(self.seed)
+
 
     def take_action(self, action):
         """Take action action, updating the current state, and returning a reward

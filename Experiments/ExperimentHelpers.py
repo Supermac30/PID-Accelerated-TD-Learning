@@ -3,7 +3,6 @@ import matplotlib.pyplot as plt
 from Controllers import P_Controller, D_Controller, I_Controller
 from MDP import PolicyEvaluation, Control
 
-import logging
 import os
 
 
@@ -17,11 +16,11 @@ def learning_rate_function(alpha, N):
 
 def find_optimal_learning_rates(agent, value_function_estimator, isSoft):
     """Run a grid search for values of N and alpha that makes the
-    value_function_estimator reach an error of at most the threshold as fast as possible.
+    value_function_estimator have the lowest possible error.
 
     agent should be an Agent object.
     value_function_estimator should be a function that runs agent.estimate_value_function with
-        the correct parameters when called with a threshold, and does not plot
+        the correct parameters, and does not plot
 
     isSoft is True when we update the update_rate as well.
 
@@ -29,35 +28,46 @@ def find_optimal_learning_rates(agent, value_function_estimator, isSoft):
     """
     # A dictionary from alpha to possible Ns
     learning_rates = {
+        0.6: {10, 100},
+        0.4: {10, 100},
         0.2: {10, 100},
-        0.15: {10, 100},
         0.1: {10, 100, 1000, 10000},
-        0.05: {10, 100, 1000, 10000},
-        0.01: {1000, 10000},
-        0.001: {1000, 10000},
-        0.0001: {1000, 10000}
+        0.05: {10, 100, 1000, 10000}
+    }
+
+    update_rates = {
+        1: {1},
+        0.999: {1000, 10000},
+        0.99: {1000, 10000},
     }
 
     # Store for later restoration to avoid spooky action at a distance
     original_learning_rate = agent.learning_rate
 
-    minimum_length = float('inf')
     minimum_params = None
-    minimum_history = None
+    minimum_history = [float('inf')]
+
+    def try_params(params):
+        """Run the current value function with the parameters set, and return
+        the optimal length, optimal params, and optimal history.
+        params: an object representing the parameters we initialized the value_function_estimator to
+        """
+        history = value_function_estimator()
+        if history[-1] < minimum_history[-1]:
+            return params, history
+        return minimum_params, minimum_history
 
     for alpha in learning_rates:
         for N in learning_rates[alpha]:
             agent.learning_rate = learning_rate_function(alpha, N)
             if isSoft:
-                # For now, the update and learning rates are the same in grid search
-                # We should try separate learning rates for more extensive experiments later.
-                agent.update_rate = learning_rate_function(alpha, N)
-            history = value_function_estimator()
-            if history.shape[0] < minimum_length or (history.shape[0] == minimum_length and history[-1] < minimum_history[-1]):
-                minimum_length = history.shape[0]
-                minimum_params = (N, alpha)
-                minimum_history = history
-
+                # If isSoft, perform a grid search on the learning rate of V' (i.e. the update rate)
+                for beta in update_rates:
+                    for M in update_rates[beta]:
+                        agent.update_rate = learning_rate_function(beta, M)
+                        minimum_params, minimum_history = try_params((N, alpha, M, beta))
+            else:
+                minimum_params, minimum_history = try_params((N, alpha))
 
     # Restore original learning rate
     agent.learning_rate = original_learning_rate
@@ -65,17 +75,17 @@ def find_optimal_learning_rates(agent, value_function_estimator, isSoft):
     return minimum_history, minimum_params
 
 
-def find_optimal_pid_learning_rates(agent, kp, kd, ki, test_function, num_iterations, threshold, isSoft):
+def find_optimal_pid_learning_rates(agent, kp, kd, ki, test_function, num_iterations, isSoft):
     """Runs the find_optimal_learning_rates function for a agent that uses a PID controller."""
 
     return find_optimal_learning_rates(
         agent,
-        lambda: run_TD_experiment(agent, kp, kd, ki, test_function, num_iterations, threshold),
+        lambda: run_TD_experiment(agent, kp, kd, ki, test_function, num_iterations),
         isSoft
     )
 
 
-def run_TD_experiment(agent, kp, kd, ki, test_function, num_iterations=5000, threshold=None):
+def run_TD_experiment(agent, kp, kd, ki, test_function, num_iterations=5000):
     """Have the agent estimate the value function using some choice of control gains,
     and graph the value of test_function during training.
 
@@ -89,20 +99,16 @@ def run_TD_experiment(agent, kp, kd, ki, test_function, num_iterations=5000, thr
     i_controller = I_Controller(0.05, 0.95, ki * np.identity(agent.num_states))
 
     average_history = [0]
-    min_size = float('inf')
     for _ in range(10):
         history, V = agent.estimate_value_function(
             p_controller,
             d_controller,
             i_controller,
             test_function=test_function,
-            num_iterations=num_iterations,
-            threshold=threshold
+            num_iterations=num_iterations
         )
 
-        # To deal with different sizes arrays, we sum the common indices only
-        min_size = min(min_size, history.shape[0])
-        average_history = average_history[:min_size] + history[:min_size]
+        average_history = average_history + history
     average_history /= 10
 
     return average_history

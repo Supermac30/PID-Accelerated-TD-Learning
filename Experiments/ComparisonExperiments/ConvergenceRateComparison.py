@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import hydra
-import logging
 
 from Environments import ChainWalk
 from Agents import ControlledTDLearning, SoftControlledTDLearning
@@ -11,8 +10,6 @@ from Experiments.ExperimentHelpers import *
 @hydra.main(version_base=None, config_path="../../config/ComparisonExperiments", config_name="ConvergenceRateComparison")
 def convergence_rate_VI_experiment(cfg):
     """Compare convergence rate of PID-TD and PID-VI"""
-    logger = logging.getLogger(__name__)
-
     num_states = 50
     num_actions = 2
     env = ChainWalk(num_states, cfg['seed'])
@@ -45,7 +42,7 @@ def convergence_rate_VI_experiment(cfg):
     fig, (ax1, ax2) = plt.subplots(2)
 
     for kp, kd, ki in zip(cfg['kp'], cfg['kd'], cfg['ki']):
-        TD_history, td_rates = find_optimal_pid_learning_rates(TDagent, kp, kd, ki, test_function, cfg['num_iterations'], cfg['threshold'], cfg['isSoft'])
+        TD_history, td_rates = find_optimal_pid_learning_rates(TDagent, kp, kd, ki, test_function, cfg['num_iterations'], cfg['isSoft'])
         VI_history = run_VI_experiment(VIagent, kp, kd, ki, test_function)
 
         save_array(TD_history, f"{kp=} {kd=} {ki=} {td_rates}", ax2)

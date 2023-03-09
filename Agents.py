@@ -105,7 +105,7 @@ class SoftControlledTDLearning(Agent):
         self.update_rate = update_rate
         super().__init__(environment, policy, gamma)
 
-    def estimate_value_function(self, *controllers, num_iterations=1000, test_function=None, threshold=None):
+    def estimate_value_function(self, *controllers, num_iterations=1000, test_function=None):
         """Computes V^pi of the inputted policy using TD learning augmented with controllers.
         Takes in Controller objects that the agent will use to control the dynamics of learning.
         If test_function is not None, we record the value of test_function on V, Vp.
@@ -143,10 +143,6 @@ class SoftControlledTDLearning(Agent):
 
             if test_function is not None:
                 history[k] = test_function(V, Vp, BR)
-                if threshold is not None and history[k] < threshold:
-                    break
-
-        history = history[:k]
 
         if test_function is None:
             return V

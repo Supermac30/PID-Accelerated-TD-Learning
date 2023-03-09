@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import hydra
-import logging
 
 from Environments import ChainWalk
 from Agents import ControlledTDLearning
@@ -10,8 +9,6 @@ from Experiments.ExperimentHelpers import *
 @hydra.main(version_base=None, config_path="../../config/TDExperiments", config_name="HardTDPolicyEvaluation")
 def policy_evaluation_experiment(cfg):
     """Experiments with policy evaluation and TD"""
-    logger = logging.getLogger(__name__)
-
     num_states = 50
     num_actions = 2
     env = ChainWalk(num_states, cfg['seed'])

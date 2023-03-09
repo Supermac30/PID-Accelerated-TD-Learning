@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import hydra
-import logging
 
 from Environments import ChainWalk
 from Agents import ControlledTDLearning
@@ -16,8 +15,6 @@ def find_average_update_experiment(cfg):
 
     looks like. This experimentally verifies theorem 2.1 in the manuscript.
     """
-    logger = logging.getLogger(__name__)
-
     num_states = 50
     num_actions = 2
     gamma = 0.99
