@@ -1,3 +1,5 @@
+import numpy as np
+
 class Controller:
     """
     An abstract controller class to control the dynamics of value iteration.
@@ -41,3 +43,38 @@ class D_Controller(Controller):
 
     def evaluate_controller(self, BR, V, V_prev):
         return self.Kd @ (V - V_prev)
+
+
+# Variations on the D Controller
+class Adagrad_Controller(Controller):
+    def __init__(self, Kd):
+        self.Kd = Kd
+        self.G = 0
+
+    def evaluate_controller(self, BR, V, V_prev):
+        grad = V - V_prev
+        self.G += np.outer(grad, grad)
+        return self.Kd @ self.G @ grad
+
+
+class Adam_Controller(Controller):
+    def __init__(self, Kd, beta1, beta2, epsilon):
+        self.Kd = Kd
+        self.m = 0
+        self.v = 0
+        self.t = 0
+
+        self.beta1 = beta1
+        self.beta2 = beta2
+        self.epsilon = epsilon
+
+    def evaluate_controller(self, BR, V, V_prev):
+        grad = V - V_prev
+        self.t += 1
+        self.m = self.beta1 * self.m + (1 - self.beta1) * grad
+        self.v = self.beta2 * self.v + (1 - self.beta2) * np.multiply(grad, grad)
+
+        m_hat = self.m / (1 - pow(self.beta1, self.t))
+        v_hat = self.b / (1 - pow(self.beta2, self.t))
+
+        return self.Kd @ np.divide(m_hat, np.sqrt(v_hat) + self.epsilon)
