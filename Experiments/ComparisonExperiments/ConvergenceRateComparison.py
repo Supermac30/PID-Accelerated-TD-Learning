@@ -2,7 +2,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import hydra
 
-from Environments import ChainWalk
 from Agents import ControlledTDLearning, SoftControlledTDLearning
 from MDP import PolicyEvaluation
 from Experiments.ExperimentHelpers import *
@@ -10,24 +9,28 @@ from Experiments.ExperimentHelpers import *
 @hydra.main(version_base=None, config_path="../../config/ComparisonExperiments", config_name="ConvergenceRateComparison")
 def convergence_rate_VI_experiment(cfg):
     """Compare convergence rate of PID-TD and PID-VI"""
-    num_states = 50
-    num_actions = 2
-    env = ChainWalk(num_states, cfg['seed'])
-    policy = np.zeros((num_states, num_actions))
-    for i in range(num_states):
-        policy[i,0] = 1
+    seed = cfg['seed']
+    if cfg['env'] == 'chain walk':
+        env, policy = chain_walk_left(50, 2, seed)
+    else:
+        env, policy = garnet_problem(50, 4, 3, 5, seed)
 
     if cfg['isSoft']:
-        TDalg = SoftControlledTDLearning
+        TDagent = SoftControlledTDLearning(
+            env,
+            policy,
+            0.99,
+            learning_rate_function(1, 0),
+            learning_rate_function(1, 0)
+        )
     else:
-        TDalg = ControlledTDLearning
+        TDagent = ControlledTDLearning(
+            env,
+            policy,
+            0.99,
+            learning_rate_function(1, 0)
+        )
 
-    TDagent = TDalg(
-        env,
-        policy,
-        0.99,
-        learning_rate_function(1, 0)
-    )
     VIagent = PolicyEvaluation(
         env.num_states,
         env.num_actions,

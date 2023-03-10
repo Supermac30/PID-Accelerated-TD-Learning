@@ -1,0 +1,24 @@
+num_iterations: 5000
+type: Adagrad
+
+# Adam Parameters
+beta1: 0.9
+beta2: 0.999
+epsilon: 0.000000001
+# ka: 0.001
+
+# Adagrad Paramaters
+ka: 3
+
+learning_rates: {}
+update_rates: {}
+
+#learning_rates: {}
+#update_rates: {}
+
+seed: -1
+hydra:
+  run:
+    dir: ${oc.env:OUTPUT_DIR,./outputs}/${hydra.job.config_name}/${now:%Y-%m-%d}/${now:%H-%M-%S}
+  job:
+    chdir: True

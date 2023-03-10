@@ -43,7 +43,7 @@ class Agent():
         Return the action played, and the reward.
         """
         action = self.pick_action()
-        return action, self.environment.take_action(action)
+        return action, *self.environment.take_action(action)
 
     def generate_episode(self, num_steps=1000):
         """Return a full episode following the policy matrix policy
@@ -105,11 +105,16 @@ class SoftControlledTDLearning(Agent):
         self.update_rate = update_rate
         super().__init__(environment, policy, gamma)
 
-    def estimate_value_function(self, *controllers, num_iterations=1000, test_function=None):
+    def estimate_value_function(self, *controllers, num_iterations=1000, test_function=None, stop_if_diverging=True):
         """Computes V^pi of the inputted policy using TD learning augmented with controllers.
         Takes in Controller objects that the agent will use to control the dynamics of learning.
+
         If test_function is not None, we record the value of test_function on V, Vp.
+
         If threshold and test_function are not None, we stop after test_function outputs a value smaller than threshold.
+
+        If stop_if_diverging is True, then when the test_function is 10 times as large as its initial value,
+        we stop learning and return a history with the last element being float('inf')
         """
         self.environment.reset()
         # V is the current value function, Vp is the previous value function
@@ -125,8 +130,7 @@ class SoftControlledTDLearning(Agent):
 
         for k in range(num_iterations):
             current_state = self.environment.current_state
-            action, reward = self.take_action()
-            next_state = self.environment.current_state
+            action, next_state, reward = self.take_action()
 
             frequency[current_state] += 1
 
@@ -143,6 +147,13 @@ class SoftControlledTDLearning(Agent):
 
             if test_function is not None:
                 history[k] = test_function(V, Vp, BR)
+                """
+                if history[k] > 10 * history[0]:
+                    breakpoint()
+                    # If we are too large, stop learning
+                    history[-1] = float('inf')
+                    break
+                """
 
         if test_function is None:
             return V
@@ -167,6 +178,72 @@ class ControlledTDLearning(SoftControlledTDLearning):
             learning_rate,
             lambda n: 1
         )
+
+class FarSightedHardControlledTD(Agent):
+    """Hard updates, with V_k - V_{k - N} for some large N
+    """
+    def __init__(self, environment, policy, gamma, learning_rate, delay):
+        self.learning_rate = learning_rate
+        self.delay = delay
+        super().__init__(environment, policy, gamma)
+
+    def estimate_value_function(self, *controllers, num_iterations=1000, test_function=None, stop_if_diverging=True):
+        """Computes V^pi of the inputted policy using TD learning augmented with controllers.
+        Takes in Controller objects that the agent will use to control the dynamics of learning.
+
+        If test_function is not None, we record the value of test_function on V, Vp.
+
+        If threshold and test_function are not None, we stop after test_function outputs a value smaller than threshold.
+
+        If stop_if_diverging is True, then when the test_function is 10 times as large as its initial value,
+        we stop learning and return a history with the last element being float('inf')
+        """
+        self.environment.reset()
+        # V is the current value function, Vp is the previous value function
+        # Vp stores the previous value of the x state when it was last changed
+        Vp = np.zeros((self.num_states, 1))
+        V = np.zeros((self.num_states, 1))
+
+        # A vector storing the number of times we have seen a state.
+        frequency = np.zeros((self.num_states, 1))
+
+        # The history of test_function
+        history = np.zeros(num_iterations)
+
+        # To look back N steps, we store the full learning history
+        history_of_Vs = [[] for _ in range(self.num_states)]
+
+        for k in range(num_iterations):
+            current_state = self.environment.current_state
+            action, next_state, reward = self.take_action()
+
+            frequency[current_state] += 1
+
+            # An estimate of the bellman update
+            BR = np.zeros((self.num_states, 1))
+            BR[current_state] = reward + self.gamma * V[next_state] - V[current_state]
+
+            update = sum(map(lambda n: n.evaluate_controller(BR, V, Vp), controllers))
+            learning_rate = self.learning_rate(frequency[current_state])
+
+            if frequency[current_state] > self.delay:
+                Vp[current_state] = history_of_Vs[current_state][-self.delay]
+            V = V + learning_rate * update
+            history_of_Vs[current_state].append(V[current_state])
+
+            if test_function is not None:
+                history[k] = test_function(V, Vp, BR)
+                """
+                if history[k] > 10 * history[0]:
+                    # If we are too large, stop learning
+                    history[-1] = float('inf')
+                    break
+                """
+
+        if test_function is None:
+            return V
+
+        return history, V
 
 class ControlledQLearning(Agent):
     # TODO: Implement

@@ -97,14 +97,13 @@ class Garnet(Environment):
                 next_states = np.random.choice(num_states, bP, replace=False)
                 self.transitions[i, next_states, j] = 1/self.bP
 
-        rewarded_states = self.rng.choice(num_states, bR, replace=False)
+        rewarded_states = self.prg.choice(num_states, bR, replace=False)
         self.rewards = np.zeros((num_states, 1))
         self.rewards[rewarded_states] = 1
         self.rewards *= self.prg.uniform(0, 1, (num_states, 1))
 
     def take_action(self, action):
         """Take action action, updating the current state,
-        and replacing a state with probability self.tau * self.n,
         and returning a (next_state, reward) pair.
 
         InvalidActionError is raised if 0 <= a < self.num_states is false.
@@ -113,10 +112,9 @@ class Garnet(Environment):
             raise InvalidAction(action)
 
         # Find next state and reward
-        random_transition = self.prg.randint(0, self.b)
-
-        self.current_state = self.transitions[self.current_state, action, random_transition]
-        reward = self.reward[self.current_state]
+        transition_probs = self.transitions[self.current_state, :, action]
+        self.current_state = np.random.choice(len(transition_probs), p=transition_probs)
+        reward = self.rewards[self.current_state]
 
         return self.current_state, reward
 
@@ -163,7 +161,7 @@ class ChainWalk(Environment):
         if self.current_state == self.num_states - 10:
             reward = 1
 
-        return reward
+        return self.current_state, reward
 
     def build_reward_matrix(self):
         """Return a vector of dimensions self.num_states by self.num_actions where the

@@ -3,10 +3,31 @@ import matplotlib.pyplot as plt
 from Controllers import P_Controller, D_Controller, I_Controller
 from MDP import PolicyEvaluation, Control
 
+from Environments import ChainWalk, Garnet
+
 import os
 
 
-# def create_env_policy()
+def garnet_problem(num_states, num_actions, bP, bR, seed):
+    """Return the Garnet Environment with the policy that chooses the first move at each iteration"""
+    env = Garnet(
+        num_states, num_actions, bP, bR, seed
+    )
+    policy = np.zeros((num_states, num_actions))
+    for i in range(num_states):
+        policy[i, :] = 0
+        policy[i, 0] = 1
+
+    return env, policy
+
+
+def chain_walk_left(num_states, num_actions, seed):
+    """Return the chain walk environment with the policy that always moves left"""
+    env = ChainWalk(num_states, seed)
+    policy = np.zeros((num_states, num_actions))
+    for i in range(num_states):
+        policy[i,0] = 1
+    return env, policy
 
 
 def learning_rate_function(alpha, N):
@@ -14,7 +35,7 @@ def learning_rate_function(alpha, N):
     return lambda k: min(alpha, N/(k + 1))
 
 
-def find_optimal_learning_rates(agent, value_function_estimator, isSoft):
+def find_optimal_learning_rates(agent, value_function_estimator, isSoft, learning_rates={}, update_rates={}):
     """Run a grid search for values of N and alpha that makes the
     value_function_estimator have the lowest possible error.
 
@@ -27,19 +48,21 @@ def find_optimal_learning_rates(agent, value_function_estimator, isSoft):
     Return the optimal parameters and the associated history
     """
     # A dictionary from alpha to possible Ns
-    learning_rates = {
-        0.6: {10, 100},
-        0.4: {10, 100},
-        0.2: {10, 100},
-        0.1: {10, 100, 1000, 10000},
-        0.05: {10, 100, 1000, 10000}
-    }
+    if learning_rates == {}:
+        learning_rates = {
+            0.5: {1000, 10000},
+            0.25: {1000, 10000},
+            0.1: {10, 100, 1000, 10000},
+            0.05: {10, 100, 1000, 10000}
+        }
 
-    update_rates = {
-        1: {1},
-        0.999: {1000, 10000},
-        0.99: {1000, 10000},
-    }
+    if update_rates == {}:
+        update_rates = {
+            1: {float("inf")},  # Mimics hard update
+            0.9: {10, 100, 1000},
+            0.8: {10, 100, 1000},
+            0.7: {10, 100, 1000}
+        }
 
     # Store for later restoration to avoid spooky action at a distance
     original_learning_rate = agent.learning_rate
@@ -75,17 +98,19 @@ def find_optimal_learning_rates(agent, value_function_estimator, isSoft):
     return minimum_history, minimum_params
 
 
-def find_optimal_pid_learning_rates(agent, kp, kd, ki, test_function, num_iterations, isSoft):
+def find_optimal_pid_learning_rates(agent, kp, kd, ki, test_function, num_iterations, isSoft, learning_rates={}, update_rates={}):
     """Runs the find_optimal_learning_rates function for a agent that uses a PID controller."""
 
     return find_optimal_learning_rates(
         agent,
-        lambda: run_TD_experiment(agent, kp, kd, ki, test_function, num_iterations),
-        isSoft
+        lambda: run_PID_TD_experiment(agent, kp, kd, ki, test_function, num_iterations),
+        isSoft,
+        learning_rates,
+        update_rates
     )
 
 
-def run_TD_experiment(agent, kp, kd, ki, test_function, num_iterations=5000):
+def run_PID_TD_experiment(agent, kp, kd, ki, test_function, num_iterations=5000):
     """Have the agent estimate the value function using some choice of control gains,
     and graph the value of test_function during training.
 

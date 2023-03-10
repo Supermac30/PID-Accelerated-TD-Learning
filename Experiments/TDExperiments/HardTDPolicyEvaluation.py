@@ -26,7 +26,7 @@ def policy_evaluation_experiment(cfg):
     test_function=lambda V, Vp, BR: np.max(np.abs(V - V_pi))
 
     for kp, kd, ki in zip(cfg['kp'], cfg['kd'], cfg['ki']):
-        history = run_TD_experiment(agent, kp, kd, ki, test_function)
+        history = run_PID_TD_experiment(agent, kp, kd, ki, test_function)
         save_array(history, f"{kp=} {kd=} {ki=}", plt)
 
 

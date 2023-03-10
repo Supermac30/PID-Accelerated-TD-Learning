@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.linalg import fractional_matrix_power
 
 class Controller:
     """
@@ -50,11 +51,12 @@ class Adagrad_Controller(Controller):
     def __init__(self, Kd):
         self.Kd = Kd
         self.G = 0
+        self.epsilon = pow(10, -8)  # For numerical stability
 
     def evaluate_controller(self, BR, V, V_prev):
         grad = V - V_prev
         self.G += np.outer(grad, grad)
-        return self.Kd @ self.G @ grad
+        return self.Kd @ np.power(self.G + self.epsilon, -0.5) @ grad
 
 
 class Adam_Controller(Controller):
@@ -75,6 +77,6 @@ class Adam_Controller(Controller):
         self.v = self.beta2 * self.v + (1 - self.beta2) * np.multiply(grad, grad)
 
         m_hat = self.m / (1 - pow(self.beta1, self.t))
-        v_hat = self.b / (1 - pow(self.beta2, self.t))
+        v_hat = self.v / (1 - pow(self.beta2, self.t))
 
         return self.Kd @ np.divide(m_hat, np.sqrt(v_hat) + self.epsilon)

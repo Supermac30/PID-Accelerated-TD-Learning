@@ -39,7 +39,7 @@ def find_average_update_experiment(cfg):
 
     for kp, kd in zip(cfg['kp'], cfg['kd']):
         test_function=lambda V, Vp, BR: np.max(np.abs(V_pi - bellman(V) * (kp / (kp - kd)) + Vp * (kd / (kp - kd))))
-        history = run_TD_experiment(agent, kp, kd, 0, test_function)
+        history = run_PID_TD_experiment(agent, kp, kd, 0, test_function)
 
         save_array(history, f"{kp=} {kd=}", plt)
 

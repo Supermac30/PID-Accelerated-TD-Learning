@@ -1,9 +1,11 @@
-kp: [1, 1, 1, 1, 1, 1]
-kd: [0.5, 0.6, 0.7, 0.8, 0.9, 1]
-ki: [0, 0, 0, 0, 0, 0]
+kp: [1, 1, 1, 1]
+kd: [0.0, 0.1, 0.2, 0.3]
+ki: [0, 0, 0, 0]
 
-isSoft: False
+isSoft: True
 num_iterations: 10000
+
+env: Garnet
 
 seed: -1
 hydra:
