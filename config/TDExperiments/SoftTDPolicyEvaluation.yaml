@@ -1,11 +1,17 @@
-kp: [1, 1, 1, 1]
-kd: [0.4, 0, 0.4, 0.2]
-ki: [0, 0.75, 0.75, 0.7]
+kp: [1, 1, 1]
+kd: [0, 0.1, 0.2]
+ki: [0, 0, 0]
 
-N: 100
-alpha: 0.03
-update_alpha: 0.03
-update_N: 100
+N: 1000
+alpha: 0.05
+update_D_alpha: 0.9
+update_D_N: 1000
+update_I_alpha: 0.01
+update_I_N: 10
+
+env: chain walk  # 'chain walk' or 'garnet'
+num_iterations: 10000
+norm: 1
 
 seed: -1
 hydra:

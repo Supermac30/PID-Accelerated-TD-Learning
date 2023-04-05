@@ -13,7 +13,7 @@ def convergence_rate_VI_experiment(cfg):
     if cfg['env'] == 'chain walk':
         env, policy = chain_walk_left(50, 2, seed)
     else:
-        env, policy = garnet_problem(50, 4, 3, 5, seed)
+        env, policy = PAVIA_garnet_settings(seed)
 
     if cfg['isSoft']:
         TDagent = SoftControlledTDLearning(
@@ -21,7 +21,6 @@ def convergence_rate_VI_experiment(cfg):
             policy,
             0.99,
             learning_rate_function(1, 0),
-            learning_rate_function(1, 0)
         )
     else:
         TDagent = ControlledTDLearning(
@@ -40,7 +39,11 @@ def convergence_rate_VI_experiment(cfg):
     )
 
     V_pi = find_Vpi(env, policy)
-    test_function = lambda V, Vp, BR: np.max(np.abs(V - V_pi))
+    if cfg['norm'] == 'inf':
+        test_function = lambda V, Vp, BR: np.max(np.abs(V - V_pi))
+    else:
+        test_function = lambda V, Vp, BR: np.linalg.norm(V - V_pi, cfg['norm'])
+
 
     fig, (ax1, ax2) = plt.subplots(2)
 
@@ -51,7 +54,7 @@ def convergence_rate_VI_experiment(cfg):
         save_array(TD_history, f"{kp=} {kd=} {ki=} {td_rates}", ax2)
         save_array(VI_history, f"{kp=} {kd=} {ki=}", ax1)
 
-    plot_comparison(fig, ax1, ax2, 'PID Accelerated VI', 'PID Accelerated TD', '$||V_k - V^\pi||_\infty$')
+    plot_comparison(fig, ax1, ax2, f"PID Accelerated VI: {cfg['env']}", f"PID Accelerated TD: {cfg['env']}", f"$||V_k - V^\pi||_{cfg['norm']}$")
 
 if __name__ == '__main__':
     convergence_rate_VI_experiment()

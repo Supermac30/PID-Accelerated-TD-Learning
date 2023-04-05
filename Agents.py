@@ -40,7 +40,7 @@ class Agent():
 
     def take_action(self):
         """Use the current policy to play an action in the environment.
-        Return the action played, and the reward.
+        Return the action, next_state, and the reward.
         """
         action = self.pick_action()
         return action, *self.environment.take_action(action)
@@ -75,7 +75,7 @@ class MonteCarloPE(Agent):
     def __init__(self, environment, policy, gamma):
         super().__init__(environment, policy, gamma)
 
-    def estimate_value_function(self, num_iterations=1000):
+    def estimate_value_function(self, num_iterations=1000, test_function=None):
         """For the purpose of debugging, return a naive monte carlo estimate of V_pi
         The algorithm can be found in Sutton and Barto page 99, Monte Carlo Exploring Starts.
 
@@ -83,13 +83,18 @@ class MonteCarloPE(Agent):
         """
         V = np.zeros((self.num_states, 1))
         G = 0
+
+        history = np.zeroes(num_iterations)
+
         trajectory = self.generate_episode(num_iterations=num_iterations)
         for state, action, reward, first_time_seen in trajectory[::-1]:
             G = self.gamma * G + reward
             if first_time_seen:
                 V[state] = G
 
-        return V
+            # TODO: Update history
+
+        return history, V
 
 class SoftControlledTDLearning(Agent):
     """The bread and butter of our work, this is the agent that
@@ -97,12 +102,23 @@ class SoftControlledTDLearning(Agent):
 
     The updates to the past value of Vp are made in a soft fashion,
     unlike the ControlledTDLearner below.
-
-    The update_rate controls how strong the soft updates are.
     """
-    def __init__(self, environment, policy, gamma, learning_rate, update_rate):
-        self.learning_rate = learning_rate
-        self.update_rate = update_rate
+    def __init__(self, environment, policy, gamma, learning_rate):
+        """learning_rate is either:
+            - a triple of three functions, the first updates the P
+                component, the second the I component, and the third the D component.
+            - a learning rate function for the P component, and the other rates have hard updates.
+
+            Note: From a design perspective, this was a bad choice. In the summer,
+            I should come back and clean up this part of the code
+        """
+        if type(learning_rate) == type(()):
+            self.learning_rate = learning_rate[0]
+            self.update_I_rate = learning_rate[1]
+            self.update_D_rate = learning_rate[2]
+        else:
+            self.learning_rate = learning_rate
+            self.update_D_rate = self.update_I_rate = lambda _: 1  # Hard updates
         super().__init__(environment, policy, gamma)
 
     def estimate_value_function(self, *controllers, num_iterations=1000, test_function=None, stop_if_diverging=True):
@@ -114,7 +130,7 @@ class SoftControlledTDLearning(Agent):
         If threshold and test_function are not None, we stop after test_function outputs a value smaller than threshold.
 
         If stop_if_diverging is True, then when the test_function is 10 times as large as its initial value,
-        we stop learning and return a history with the last element being float('inf')
+        we stop learning and return a history with the last element being very large
         """
         self.environment.reset()
         # V is the current value function, Vp is the previous value function
@@ -138,22 +154,20 @@ class SoftControlledTDLearning(Agent):
             BR = np.zeros((self.num_states, 1))
             BR[current_state] = reward + self.gamma * V[next_state] - V[current_state]
 
-            update = sum(map(lambda n: n.evaluate_controller(BR, V, Vp), controllers))
             learning_rate = self.learning_rate(frequency[current_state])
-            update_rate = self.update_rate(frequency[current_state])
+            update_D_rate = self.update_D_rate(frequency[current_state])
+            update_I_rate = self.update_I_rate(frequency[current_state])
+            update = sum(map(lambda n: n.evaluate_controller(BR, V, Vp, update_I_rate), controllers))
 
-            Vp[current_state] = (1 - update_rate) * Vp[current_state] + update_rate * V[current_state]
+            Vp[current_state] = (1 - update_D_rate) * Vp[current_state] + update_D_rate * V[current_state]
             V = V + learning_rate * update
 
             if test_function is not None:
                 history[k] = test_function(V, Vp, BR)
-                """
-                if history[k] > 10 * history[0]:
-                    breakpoint()
+                if stop_if_diverging and history[k] > 2 * history[0]:
                     # If we are too large, stop learning
-                    history[-1] = float('inf')
+                    history[k:] = float('inf')
                     break
-                """
 
         if test_function is None:
             return V
@@ -175,18 +189,15 @@ class ControlledTDLearning(SoftControlledTDLearning):
             environment,
             policy,
             gamma,
-            learning_rate,
-            lambda n: 1
+            learning_rate
         )
 
-class FarSightedHardControlledTD(Agent):
-    """Hard updates, with V_k - V_{k - N} for some large N
+class FarSightedControlledTD(SoftControlledTDLearning):
+    """Soft updates, with V_k - V_{k - N} for some large N
     """
     def __init__(self, environment, policy, gamma, learning_rate, delay):
-        self.learning_rate = learning_rate
         self.delay = delay
-        super().__init__(environment, policy, gamma)
-
+        super().__init__(environment, policy, gamma, learning_rate)
     def estimate_value_function(self, *controllers, num_iterations=1000, test_function=None, stop_if_diverging=True):
         """Computes V^pi of the inputted policy using TD learning augmented with controllers.
         Takes in Controller objects that the agent will use to control the dynamics of learning.
@@ -196,7 +207,7 @@ class FarSightedHardControlledTD(Agent):
         If threshold and test_function are not None, we stop after test_function outputs a value smaller than threshold.
 
         If stop_if_diverging is True, then when the test_function is 10 times as large as its initial value,
-        we stop learning and return a history with the last element being float('inf')
+        we stop learning and return a history with the last element being very large
         """
         self.environment.reset()
         # V is the current value function, Vp is the previous value function
@@ -223,22 +234,22 @@ class FarSightedHardControlledTD(Agent):
             BR = np.zeros((self.num_states, 1))
             BR[current_state] = reward + self.gamma * V[next_state] - V[current_state]
 
-            update = sum(map(lambda n: n.evaluate_controller(BR, V, Vp), controllers))
             learning_rate = self.learning_rate(frequency[current_state])
+            update_D_rate = self.update_D_rate(frequency[current_state])
+            update_I_rate = self.update_I_rate(frequency[current_state])
+            update = sum(map(lambda n: n.evaluate_controller(BR, V, Vp, update_I_rate), controllers))
 
             if frequency[current_state] > self.delay:
-                Vp[current_state] = history_of_Vs[current_state][-self.delay]
+                Vp[current_state] = Vp[current_state] * (1 - update_D_rate) + update_D_rate * history_of_Vs[current_state][-self.delay]
             V = V + learning_rate * update
             history_of_Vs[current_state].append(V[current_state])
 
             if test_function is not None:
                 history[k] = test_function(V, Vp, BR)
-                """
-                if history[k] > 10 * history[0]:
+                if stop_if_diverging and history[k] > 5 * history[0]:
                     # If we are too large, stop learning
-                    history[-1] = float('inf')
+                    history[k:] = float('inf')
                     break
-                """
 
         if test_function is None:
             return V

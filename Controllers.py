@@ -1,5 +1,6 @@
 import numpy as np
-from scipy.linalg import fractional_matrix_power
+
+# TODO: Remove controllers from the code
 
 class Controller:
     """
@@ -12,7 +13,7 @@ class Controller:
     error, and so we have the controller be a function of T(V_k), V_k, V_{k - 1},
     which is all that is needed for the P, PI, PD, and PID controllers.
     """
-    def evaluate_controller(self, BR, V, V_prev):
+    def evaluate_controller(self, BR, V, V_prev, lr=1):
         raise NotImplementedError
 
 
@@ -20,7 +21,7 @@ class P_Controller(Controller):
     def __init__(self, Kp):
         self.Kp = Kp
 
-    def evaluate_controller(self, BR, V, V_prev):
+    def evaluate_controller(self, BR, V, V_prev, lr=1):
         return self.Kp @ BR
 
 
@@ -31,29 +32,31 @@ class I_Controller(Controller):
         self.Ki = Ki
         self.z = initial_z
 
-    def evaluate_controller(self, BR, V, V_prev):
+    def evaluate_controller(self, BR, V, V_prev, lr=1):
         evaluation = self.Ki @ (self.beta * self.z + self.alpha * BR)
-        self.z = self.beta * self.z + self.alpha * BR
+        self.z = self.z * (1 - lr) + lr * (self.beta * self.z + self.alpha * BR)
 
         return evaluation
 
 
 class D_Controller(Controller):
     def __init__(self, Kd):
+        super().__init__()
         self.Kd = Kd
 
-    def evaluate_controller(self, BR, V, V_prev):
+    def evaluate_controller(self, BR, V, V_prev, lr=1):
         return self.Kd @ (V - V_prev)
 
 
 # Variations on the D Controller
 class Adagrad_Controller(Controller):
     def __init__(self, Kd):
+        super().__init__()
         self.Kd = Kd
         self.G = 0
         self.epsilon = pow(10, -8)  # For numerical stability
 
-    def evaluate_controller(self, BR, V, V_prev):
+    def evaluate_controller(self, BR, V, V_prev, lr=1):
         grad = V - V_prev
         self.G += np.outer(grad, grad)
         return self.Kd @ np.power(self.G + self.epsilon, -0.5) @ grad
@@ -61,6 +64,7 @@ class Adagrad_Controller(Controller):
 
 class Adam_Controller(Controller):
     def __init__(self, Kd, beta1, beta2, epsilon):
+        super().__init__()
         self.Kd = Kd
         self.m = 0
         self.v = 0
@@ -70,7 +74,7 @@ class Adam_Controller(Controller):
         self.beta2 = beta2
         self.epsilon = epsilon
 
-    def evaluate_controller(self, BR, V, V_prev):
+    def evaluate_controller(self, BR, V, V_prev, lr=1):
         grad = V - V_prev
         self.t += 1
         self.m = self.beta1 * self.m + (1 - self.beta1) * grad

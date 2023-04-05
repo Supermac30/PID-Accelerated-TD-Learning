@@ -46,8 +46,8 @@ def find_average_update_experiment(cfg):
     plt.legend()
     plt.xlabel('Iteration')
     plt.ylabel('$||V^{\pi} - ((\kappa_p)/(\kappa_p - \kappa_d)T^{\pi} V_k - (\kappa_d)/(\kappa_p - \kappa_d) V_{p(k)})||_\infty$')
-    plt.show()
     plt.savefig("plot")
+    plt.show()
 
 
 if __name__ == "__main__":

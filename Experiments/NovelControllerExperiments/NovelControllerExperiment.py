@@ -46,7 +46,8 @@ def adam_controller_experiment(cfg):
         lambda: estimate_value(),
         True,
         learning_rates=cfg['learning_rates'],
-        update_rates=cfg['update_rates']
+        update_D_rates=cfg['update_D_rates'],
+        update_I_rates=cfg['update_I_rates']
     )
     save_array(history, f"{cfg['type']} {params}", plt)
 

@@ -12,7 +12,6 @@ all possible controllers from there, as well as easily test different controller
 """
 
 import numpy as np
-import matplotlib.pyplot as plt
 
 class MDP:
     """

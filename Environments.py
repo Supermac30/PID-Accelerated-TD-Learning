@@ -43,7 +43,6 @@ class Environment:
         self.current_state = self.start_state
         self.prg = np.random.default_rng(self.seed)
 
-
     def take_action(self, action):
         """Take action action, updating the current state, and returning a reward
         and the next state.

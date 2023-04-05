@@ -1,11 +1,13 @@
-kp: [1, 1, 1, 1]
-kd: [0.4, 0, 0.4, 0.2]
-ki: [0, 0.75, 0.75, 0.7]
+kp: [1]
+kd: [0]
+ki: [0]
 
 N: 1000
 alpha: 0.03
 
-seed: -1
+num_iterations: 30000
+
+seed: 424242
 hydra:
   run:
     dir: ${oc.env:OUTPUT_DIR,./outputs}/${hydra.job.config_name}/${now:%Y-%m-%d}/${now:%H-%M-%S}

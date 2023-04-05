@@ -31,7 +31,6 @@ def control_experiment(cfg):
     plt.yscale('log')
     plt.xlabel('Iteration')
     plt.ylabel('$||V_k - V^*||$')
-
     plt.savefig("plot")
     plt.show()
 

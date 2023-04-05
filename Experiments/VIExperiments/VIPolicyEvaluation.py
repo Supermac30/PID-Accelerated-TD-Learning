@@ -34,7 +34,7 @@ def policy_evaluation_experiment(cfg):
     plt.legend()
     plt.yscale('log')
     plt.xlabel('Iteration')
-    plt.ylabel('$||V_k - V^\pi||$')
+    plt.ylabel('$||V_k - V^\pi||_\infty$')
     plt.savefig("plot")
     plt.show()
 

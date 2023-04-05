@@ -30,7 +30,10 @@ def hard_soft_convergence_experiment(cfg):
     )
 
     V_pi = find_Vpi(env, policy)
-    test_function = lambda V, Vp, BR: np.linalg.norm(V - V_pi, 1)
+    if cfg['norm'] == 'inf':
+        test_function = lambda V, Vp, BR: np.max(np.abs(V - V_pi))
+    else:
+        test_function = lambda V, Vp, BR: np.linalg.norm(V - V_pi, cfg['norm'])
 
     fig, (ax1, ax2) = plt.subplots(2)
 
@@ -45,7 +48,7 @@ def hard_soft_convergence_experiment(cfg):
         save_array(soft_history, f"soft {kp=} {kd=} {ki=} {soft_rates}", ax1)
         save_array(hard_history, f"hard {kp=} {kd=} {ki=} {hard_rates}", ax2)
 
-    plot_comparison(fig, ax1, ax2, 'Soft Updates', 'Hard Updates', '$||V_k - V^\pi||_1$')
+    plot_comparison(fig, ax1, ax2, 'Soft Updates', 'Hard Updates', f"$||V_k - V^\pi||_{cfg['norm']}$")
 
 
 if __name__ == '__main__':
