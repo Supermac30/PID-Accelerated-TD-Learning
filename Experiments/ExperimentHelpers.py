@@ -1,11 +1,49 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import itertools
+import os
+
 from Controllers import P_Controller, D_Controller, I_Controller
 from MDP import PolicyEvaluation, Control
+from Environments import ChainWalk, Garnet, CliffWalk
 
-from Environments import ChainWalk, Garnet
+def build_test_function(norm, V_pi):
+    """Return the function that tests how far away our current estimate is from V_pi
+    in the format that the Agent class expects.
+    """
+    if norm == "inf":
+        return lambda V, Vp, BR: np.max(np.abs(V - V_pi))
+    else:
+        return lambda V, Vp, BR: np.linalg.norm(V - V_pi, norm)
 
-import os
+def get_env_policy(name, seed):
+    """Return an environment, policy tuple given its string name as input. A seed is inputted as well
+    for reproducibility.
+    The environments are as follows:
+        - "garnet": The garnet problem with the default settings in PAVIA
+        - "chain walk": The chain walk problem with 50 states, and a policy that always moves left
+        - "chain walk random": The chain walk problem with 50 states, and a policy that takes random choices
+        - "cliff walk": The Cliff walk problem as implemented in OS-Dyna
+    """
+    if name == "garnet":
+        return PAVIA_garnet_settings(seed)
+    elif name == "chain walk":
+        return chain_walk_left(50, 2, seed)
+    elif name == "chain walk random":
+        return chain_walk_random(50, 2, seed)
+    elif name == "cliff walk":
+        return cliff_walk(seed)
+    else:
+        raise Exception("Environment not indexed")
+
+def cliff_walk(seed):
+    """Return the CliffWalk Environment with the policy that moves randomly"""
+    env = CliffWalk(0.9, seed)
+    policy = np.zeros((env.num_states, env.num_actions))
+    for i in range(env.num_states):
+        policy[i, :] = 1 / env.num_actions
+    
+    return env, policy
 
 
 def garnet_problem(num_states, num_actions, bP, bR, seed):
@@ -15,27 +53,45 @@ def garnet_problem(num_states, num_actions, bP, bR, seed):
     )
     policy = np.zeros((num_states, num_actions))
     for i in range(num_states):
-        policy[i, :] = 0
-        policy[i, 0] = 1
+        policy[i, :] = 1/num_actions
 
+    return env, policy
+
+
+def PAVIA_garnet_settings(seed):
+    """Return Garnet used in the experiments of PAVIA."""
+    return garnet_problem(50, 1, 3, 5, seed)
+
+
+def chain_walk_random(num_states, num_actions, seed):
+    """Return the chain walk environment with the policy that takes random moves."""
+    env = ChainWalk(num_states, seed)
+    policy = np.zeros((num_states, num_actions))
+    for i in range(num_states):
+        policy[i,:] = 1/num_actions
     return env, policy
 
 
 def chain_walk_left(num_states, num_actions, seed):
-    """Return the chain walk environment with the policy that always moves left"""
+    """Return the chain walk environment with the policy that always moves left."""
     env = ChainWalk(num_states, seed)
     policy = np.zeros((num_states, num_actions))
     for i in range(num_states):
         policy[i,0] = 1
+        policy[i,1] = 0
     return env, policy
 
 
 def learning_rate_function(alpha, N):
-    """Return the learning rate function alpha(k) parameterized by alpha and N"""
+    """Return the learning rate function alpha(k) parameterized by alpha and N.
+    If N is infinity, return a constant function that outputs alpha.
+    """
+    if N == 'inf':
+        return lambda k: alpha
     return lambda k: min(alpha, N/(k + 1))
 
 
-def find_optimal_learning_rates(agent, value_function_estimator, isSoft, learning_rates={}, update_rates={}):
+def find_optimal_learning_rates(agent, value_function_estimator, isSoft, learning_rates={}, update_D_rates={}, update_I_rates={}):
     """Run a grid search for values of N and alpha that makes the
     value_function_estimator have the lowest possible error.
 
@@ -50,18 +106,29 @@ def find_optimal_learning_rates(agent, value_function_estimator, isSoft, learnin
     # A dictionary from alpha to possible Ns
     if learning_rates == {}:
         learning_rates = {
-            0.5: {1000, 10000},
-            0.25: {1000, 10000},
-            0.1: {10, 100, 1000, 10000},
-            0.05: {10, 100, 1000, 10000}
+            # 0.5: {1000, 10000},
+            # 0.25: {1000, 10000},
+            # 0.1: {10, 100, 1000, 10000},
+            0.05: {1, 10, 100, 1000},
+            0.01: {1, 10, 100, 1000}
         }
 
-    if update_rates == {}:
-        update_rates = {
+    if update_D_rates == {}:
+        update_D_rates = {
             1: {float("inf")},  # Mimics hard update
-            0.9: {10, 100, 1000},
-            0.8: {10, 100, 1000},
-            0.7: {10, 100, 1000}
+            0.9: {1, 10, 100, 1000},
+            # 0.8: {1, 10, 100, 1000},
+            # 0.7: {1, 10, 100, 1000},
+            # 0.6: {1, 10, 100}
+        }
+
+    if update_I_rates == {}:
+        update_I_rates = {
+            1: {float("inf")},  # Mimics hard update
+            # 0.9: {1, 10, 100, 1000},
+            # 0.8: {1, 10, 100, 1000},
+            # 0.7: {1, 10, 100, 1000},
+            # 0.6: {1, 10, 100}
         }
 
     # Store for later restoration to avoid spooky action at a distance
@@ -83,14 +150,16 @@ def find_optimal_learning_rates(agent, value_function_estimator, isSoft, learnin
     for alpha in learning_rates:
         for N in learning_rates[alpha]:
             agent.learning_rate = learning_rate_function(alpha, N)
-            if isSoft:
-                # If isSoft, perform a grid search on the learning rate of V' (i.e. the update rate)
-                for beta in update_rates:
-                    for M in update_rates[beta]:
-                        agent.update_rate = learning_rate_function(beta, M)
-                        minimum_params, minimum_history = try_params((N, alpha, M, beta))
-            else:
+            if not isSoft:
                 minimum_params, minimum_history = try_params((N, alpha))
+                continue
+
+            # If isSoft, perform a grid search on the learning rate of V' (i.e. the update rate)
+            for beta, gamma in itertools.product(update_D_rates, update_I_rates):
+                for M, L in itertools.product(update_D_rates[beta], update_I_rates[gamma]):
+                    agent.update_D_rate = learning_rate_function(beta, M)
+                    agent.update_I_rate = learning_rate_function(gamma, L)
+                    minimum_params, minimum_history = try_params((N, alpha, M, beta, L, gamma))
 
     # Restore original learning rate
     agent.learning_rate = original_learning_rate

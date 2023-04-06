@@ -86,7 +86,6 @@ class Garnet(Environment):
     """
     def __init__(self, num_states, num_actions, bP, bR, seed=-1):
         super().__init__(num_states, num_actions, 0, seed)
-
         self.bP = bP
         self.bR = bR
 
@@ -199,3 +198,102 @@ class ChainWalk(Environment):
             transitions[i, (i + 1) % self.num_states, 1] = 0.7
 
         return transitions
+
+
+class CliffWalk(Environment):
+    """Taken from the OS-Dyna Code"""
+    def __init__(self, success_prob, seed):
+        self.n_columns = 6
+        self.n_rows = 6
+
+        self.terminal_states = [self.n_columns-1]
+
+        for state in range(self.n_columns * self.n_rows):
+            if state // self.n_columns in [0,2,4] and state % self.n_columns in range(1, self.n_columns-1):
+                self.terminal_states.append(state)
+
+        self.walls = []
+        self.success_prob = success_prob
+
+        self.reward_matrix = self.build_reward_matrix()
+
+        super().__init__(self.n_columns * self.n_rows, 4, 0, seed)
+
+    def build_probability_transition_kernel(self):
+        n_states = self.n_columns * self.n_rows
+        P = np.zeros((n_states, n_states, 4))
+        unif_prob = (1 - self.success_prob) / 3
+        for r in range(self.n_rows):
+            for c in range(self.n_columns):
+                state = r * self.n_columns + c
+                if state in self.terminal_states:
+                    P[state, state, :] = 1
+                else:
+                    for a in range(4):
+                        for dir in range(4):
+                            self.current_state = state
+                            target, _ = self.take_action(dir)
+                            if dir == a:
+                                P[state, target, a] += self.success_prob
+                            else:
+                                P[state, target, a] += unif_prob
+
+        self.reset()
+
+        return P
+
+    def build_reward_matrix(self):
+        goal_state = self.n_columns - 1
+        n_states = self.n_columns * self.n_rows
+
+        R = np.zeros((n_states, 4))
+
+        for state in range(n_states):
+            if state in self.terminal_states:
+                if state == goal_state:
+                    R[state, :] = 20
+                elif state % self.n_columns in range(1, self.n_columns-1):
+                    if state // self.n_columns == 0:
+                        R[state, :] = -32
+                    if state // self.n_columns == 2:
+                        R[state, :] = -16
+                    if state // self.n_columns == 4:
+                        R[state, :] = -8
+                    if state // self.n_columns == 6:
+                        R[state, :] = -4
+                    if state // self.n_columns == 8:
+                        R[state, :] = -2
+                    if state // self.n_columns == 10:
+                        R[state, :] = -1
+            else:
+                R[state, :] = -1
+        return R
+
+    def take_action(self, action):
+        state = self.current_state
+        column = state % self.n_columns
+        row = int((state - column) / self.n_columns)
+
+        if action == 0:
+            top_c = column
+            top_r = max(row - 1, 0)
+            target = top_r * self.n_columns + top_c
+        elif action == 1:
+            right_c = min(column + 1, self.n_columns - 1)
+            right_r = row
+            target = right_r * self.n_columns + right_c
+        elif action == 2:
+            bottom_c = column
+            bottom_r = min(row + 1, self.n_rows - 1)
+            target = bottom_r * self.n_columns + bottom_c
+        elif action == 3:
+            left_c = max(column - 1, 0)
+            left_r = row
+            target = left_r * self.n_columns + left_c
+        else:
+            raise Exception("Illegal action")
+
+        reward = self.reward_matrix[self.current_state, action]
+        self.current_state = target
+
+        return target, reward

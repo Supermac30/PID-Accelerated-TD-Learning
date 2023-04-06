@@ -84,17 +84,13 @@ class MonteCarloPE(Agent):
         V = np.zeros((self.num_states, 1))
         G = 0
 
-        history = np.zeroes(num_iterations)
-
         trajectory = self.generate_episode(num_iterations=num_iterations)
         for state, action, reward, first_time_seen in trajectory[::-1]:
             G = self.gamma * G + reward
             if first_time_seen:
                 V[state] = G
 
-            # TODO: Update history
-
-        return history, V
+        return [], V
 
 class SoftControlledTDLearning(Agent):
     """The bread and butter of our work, this is the agent that

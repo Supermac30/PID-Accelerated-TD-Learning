@@ -8,10 +8,7 @@ from Experiments.ExperimentHelpers import *
 @hydra.main(version_base=None, config_path="../../config/TDExperiments", config_name="FarSightedUpdate")
 def far_sighted_update_experiment(cfg):
     """Experiments with policy evaluation and TD"""
-    if cfg['env'] == 'chain walk':
-        env, policy = chain_walk_random(50, 2, cfg['seed'])
-    if cfg['env'] == 'garnet':
-        env, policy = PAVIA_garnet_settings(cfg['seed'])
+    env, policy = get_env_policy(cfg['env'], cfg['seed'])
 
     V_pi = find_Vpi(env, policy)
 
@@ -24,7 +21,7 @@ def far_sighted_update_experiment(cfg):
             delay
         )
 
-        test_function=lambda V, Vp, BR: np.max(np.abs(V - V_pi))
+        test_function = build_test_function(cfg['norm'], V_pi)
 
         for kp, kd, ki in zip(cfg['kp'], cfg['kd'], cfg['ki']):
             history, params = find_optimal_pid_learning_rates(
@@ -34,6 +31,7 @@ def far_sighted_update_experiment(cfg):
             save_array(history, f"{kp=} {kd=} {ki=} {delay=} {params=}", plt)
 
 
+    plt.title(f"Far Sighted Updates: {cfg['env']}")
     plt.legend()
     plt.xlabel('Iteration')
     plt.ylabel('$||V_k - V^\pi||_\infty$')

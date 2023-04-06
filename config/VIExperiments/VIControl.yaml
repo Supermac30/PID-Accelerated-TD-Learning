@@ -2,6 +2,11 @@ kp: [1, 1, 1, 1]  # 1.2
 kd: [0.4, 0, 0.4, 0.2]  # 0
 ki: [0, 0.75, 0.75, 0.7]  # 0
 
+env: cliff walk
+
+norm: 1
+num_iterations: 1000
+
 seed: -1
 hydra:
   run:

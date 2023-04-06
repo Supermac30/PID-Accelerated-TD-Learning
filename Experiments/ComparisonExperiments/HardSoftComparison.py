@@ -9,12 +9,7 @@ from Experiments.ExperimentHelpers import *
 @hydra.main(version_base=None, config_path="../../config/ComparisonExperiments", config_name="HardSoftComparison")
 def hard_soft_convergence_experiment(cfg):
     """Experiment with the convergence rate of hard and soft derivative updates."""
-    num_states = 50
-    num_actions = 2
-    env = ChainWalk(num_states, cfg['seed'])
-    policy = np.zeros((num_states, num_actions))
-    for i in range(num_states):
-        policy[i,0] = 1
+    env, policy = get_env_policy(cfg['env'], cfg['seed'])
     soft = SoftControlledTDLearning(
         env,
         policy,
@@ -30,10 +25,7 @@ def hard_soft_convergence_experiment(cfg):
     )
 
     V_pi = find_Vpi(env, policy)
-    if cfg['norm'] == 'inf':
-        test_function = lambda V, Vp, BR: np.max(np.abs(V - V_pi))
-    else:
-        test_function = lambda V, Vp, BR: np.linalg.norm(V - V_pi, cfg['norm'])
+    test_function = build_test_function(cfg['norm'], V_pi)
 
     fig, (ax1, ax2) = plt.subplots(2)
 

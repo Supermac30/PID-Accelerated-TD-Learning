@@ -4,6 +4,7 @@ ki: [0, 0, 0, 0, 0, 0, 0, 0]
 
 num_iterations: 10000
 norm: 1  # Type inf for infinity norm, and a number p for the ||.||_p norm
+env: chain walk
 
 seed: -1
 hydra:

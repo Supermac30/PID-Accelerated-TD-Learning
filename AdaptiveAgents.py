@@ -33,7 +33,7 @@ class AdaptiveAgent(Agent):
         self.kp, self.ki, self.kd = 1, 0, 0
         self.alpha, self.beta = 0.95, 0.05
 
-        self.running_BRs = 0  # Used to estimate the partials with respect to beta and kappa_I
+        self.running_BRs = np.zeros((self.environment.num_states, 1))  # Used to estimate the partials with respect to beta and kappa_I
         self.planning = planning
 
     def estimate_value_function(self, num_iterations=1000, test_function=None, initial_V=None):
@@ -70,25 +70,28 @@ class AdaptiveAgent(Agent):
             update_D_rate = self.update_D_rate(frequencies[current_state])
             update_I_rate = self.update_I_rate(frequencies[current_state])
 
-            self.update_gradients(V, Vp, Vpp, lr)
-
-            # P Component:
-            BR = reward + self.gamma * V[next_state] - V[current_state]
-            # I Component:
-            average = self.beta * z[current_state] + self.alpha * BR
-            z = (1 - update_I_rate) * z + update_I_rate * (self.beta * z + self.alpha * BR)
-            # D Component:
-            difference = V[current_state] - Vp[current_state]
-
-            # A soft update of the value functions
             if self.planning:
-                Vpp, Vp, V = Vp, V, V + self.kp * (self.policy_evaluator.bellman_operator(V) - V) + self.kd * (V - Vp)
+                self.update_gradients(V, Vp, Vpp, 1)
+                # The Planning Setting
+                BR = self.policy_evaluator.bellman_operator(V) - V
+                Vpp, Vp, V = Vp, V, V + self.kp * BR + self.kd * (V - Vp) + self.ki * (self.beta * z + self.alpha * BR)
+                z = self.beta * z + self.alpha * BR
+
             else:
+                # The RL Setting
+                self.update_gradients(V, Vp, Vpp, lr)
+                # P Component:
+                BR = reward + self.gamma * V[next_state] - V[current_state]
+                # I Component:
+                average = self.beta * z[current_state] + self.alpha * BR
+                z = (1 - update_I_rate) * z + update_I_rate * (self.beta * z + self.alpha * BR)
+                # D Component:
+                difference = V[current_state] - Vp[current_state]
+
                 update = V[current_state] + self.kp * BR + self.ki * average + self.kd * difference
                 Vpp[current_state] = Vp[current_state]
                 Vp[current_state] = (1 - update_D_rate) * Vp[current_state] + update_D_rate * V[current_state]
                 V[current_state] = (1 - lr) * V[current_state] + lr * update
-
 
             # Keep a record
             gain_history[k][0] = self.kp
@@ -120,14 +123,19 @@ class AdaptiveAgent(Agent):
         kp_grad = (BR_current.T @ partial_br_kp) / normalizer
         kd_grad = (BR_current.T @ partial_br_kd) / normalizer
 
-        self.alpha -= self.meta_lr * self.ki * kp_grad
+        partial_br_beta = self.alpha * self.running_BRs
+        beta_grad = (BR_current.T @ partial_br_beta) / normalizer
 
-        self.beta, self.running_BRs = \
-            self.beta - self.meta_lr * self.ki * self.running_BRs, \
-            self.beta * self.running_BRs + self.beta
+        self.alpha -= lr * self.meta_lr * self.ki * kp_grad
+        self.beta -= lr * self.meta_lr * self.ki * beta_grad
+
+        self.running_BRs = self.beta * self.running_BRs + partial_br_kp
+
+        partial_br_ki = self.alpha * self.running_BRs
+        ki_grad = (BR_current.T @ partial_br_ki) / normalizer
 
         self.kp -= lr * self.meta_lr * kp_grad
-        self.ki -= lr * self.meta_lr * (self.alpha * self.running_BRs)
+        self.ki -= lr * self.meta_lr * ki_grad
         self.kd -= lr * self.meta_lr * kd_grad
 
 
@@ -136,6 +144,7 @@ class AdaptiveAgent(Agent):
         when we have access to the transition probabilities.
         This is used for testing.
 
+        V: The current value function
         Vp: The previous values of each component before being put in V
         Vpp: The previous values of each component before being put in Vp
 
@@ -156,6 +165,7 @@ class AdaptiveAgent(Agent):
 
     def approximate_gradient_terms(self, V, Vp, Vpp):
         """Find the gradient terms to update the controller gains
+        V: The current value function
         Vp: The previous values of each component before being put in V
         Vpp: The previous values of each component before being put in Vp
 

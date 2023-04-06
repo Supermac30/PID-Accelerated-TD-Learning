@@ -4,6 +4,9 @@ kd: [0.4, 0, 0.2]
 N: 100
 alpha: 0.03
 
+norm: 1
+env: chain walk
+
 seed: -1
 hydra:
   run:

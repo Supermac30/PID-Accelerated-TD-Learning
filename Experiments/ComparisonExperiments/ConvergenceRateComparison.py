@@ -9,11 +9,7 @@ from Experiments.ExperimentHelpers import *
 @hydra.main(version_base=None, config_path="../../config/ComparisonExperiments", config_name="ConvergenceRateComparison")
 def convergence_rate_VI_experiment(cfg):
     """Compare convergence rate of PID-TD and PID-VI"""
-    seed = cfg['seed']
-    if cfg['env'] == 'chain walk':
-        env, policy = chain_walk_left(50, 2, seed)
-    else:
-        env, policy = PAVIA_garnet_settings(seed)
+    env, policy = get_env_policy(cfg['name'], cfg['seed'])
 
     if cfg['isSoft']:
         TDagent = SoftControlledTDLearning(
@@ -39,11 +35,7 @@ def convergence_rate_VI_experiment(cfg):
     )
 
     V_pi = find_Vpi(env, policy)
-    if cfg['norm'] == 'inf':
-        test_function = lambda V, Vp, BR: np.max(np.abs(V - V_pi))
-    else:
-        test_function = lambda V, Vp, BR: np.linalg.norm(V - V_pi, cfg['norm'])
-
+    test_function = build_test_function(cfg['norm'], V_pi)
 
     fig, (ax1, ax2) = plt.subplots(2)
 

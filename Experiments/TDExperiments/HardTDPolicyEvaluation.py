@@ -9,7 +9,7 @@ from Experiments.ExperimentHelpers import *
 @hydra.main(version_base=None, config_path="../../config/TDExperiments", config_name="HardTDPolicyEvaluation")
 def policy_evaluation_experiment(cfg):
     """Experiments with policy evaluation and TD"""
-    env, policy = garnet_problem(50, 4, 3, 5, cfg['seed'])
+    env, policy = get_env_policy(cfg['env'], cfg['seed'])
     agent = ControlledTDLearning(
         env,
         policy,
@@ -18,7 +18,7 @@ def policy_evaluation_experiment(cfg):
     )
 
     V_pi = find_Vpi(env, policy)
-    test_function=lambda V, Vp, BR: np.max(np.abs(V - V_pi))
+    test_function = build_test_function(cfg['norm'], V_pi)
 
     for kp, kd, ki in zip(cfg['kp'], cfg['kd'], cfg['ki']):
         history = run_PID_TD_experiment(agent, kp, kd, ki, test_function,
@@ -26,6 +26,7 @@ def policy_evaluation_experiment(cfg):
         save_array(history, f"{kp=} {kd=} {ki=}", plt)
 
 
+    plt.title(f"Hard TD Updates: {cfg['env']}")
     plt.legend()
     plt.xlabel('Iteration')
     plt.ylabel('$||V_k - V^\pi||_\infty$')

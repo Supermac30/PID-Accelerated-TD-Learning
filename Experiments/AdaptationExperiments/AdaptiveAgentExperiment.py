@@ -6,16 +6,13 @@ import hydra
 
 from AdaptiveAgents import AdaptiveAgent
 from Agents import ControlledTDLearning
+from MDP import PolicyEvaluation
 from Experiments.ExperimentHelpers import *
 
 @hydra.main(version_base=None, config_path="../../config/AdaptationExperiments", config_name="AdaptiveAgentExperiment")
 def adaptive_agent_experiment(cfg):
     """Visualize the behavior of adaptation without learning rates."""
-    seed = cfg['seed']
-    if cfg['env'] == 'chain walk':
-        env, policy = chain_walk_left(50, 2, seed)
-    elif cfg['env'] == 'garnet':
-        env, policy = PAVIA_garnet_settings(cfg['seed'])
+    env, policy = get_env_policy(cfg['env'], cfg['seed'])
 
     if cfg['debug']:
         transitions = env.build_policy_probability_transition_kernel(policy)
@@ -40,10 +37,7 @@ def adaptive_agent_experiment(cfg):
     )
 
     V_pi = find_Vpi(env, policy)
-    if cfg['norm'] == 'inf':
-        test_function = lambda V, Vp, BR: np.max(np.abs(V - V_pi))
-    else:
-        test_function = lambda V, Vp, BR: np.linalg.norm(V - V_pi, cfg['norm'])
+    test_function = build_test_function(cfg['norm'], V_pi)
 
     _, history, gain_history = agent.estimate_value_function(cfg['num_iterations'], test_function)
 
@@ -52,11 +46,25 @@ def adaptive_agent_experiment(cfg):
 
     save_array(history, f"Adaptive Agent", ax)
 
-    if not cfg['planning']:
+    if cfg['planning']:
+        VIAgent = PolicyEvaluation(
+            env.num_states,
+            env.num_actions,
+            env.build_policy_reward_vector(policy),
+            env.build_policy_probability_transition_kernel(policy),
+            0.99
+        )
+        p_controller = P_Controller(np.identity(env.num_states))
+        VIHistory, _ = VIAgent.value_iteration(p_controller, num_iterations=cfg['num_iterations'], test_function=test_function)
+        save_array(VIHistory, f"VI Agent", ax)
+
+        ax.set_
+    else:
         TDagent = ControlledTDLearning(env, policy, 0.99, learning_rate_function(cfg['alpha_P'], cfg['N_P']))
         TDhistory = run_PID_TD_experiment(TDagent, 1, 0, 0, test_function, cfg['num_iterations'])
         save_array(TDhistory, f"TD Agent", ax)
 
+    ax.title(f"Adaptive Agent: {cfg['env']}")
     ax.legend()
     ax.set_xlabel('Iteration')
     ax.set_ylabel(f'$||V_k - V^\pi||_{cfg["norm"]}$')
@@ -71,6 +79,7 @@ def adaptive_agent_experiment(cfg):
     save_array(gain_history[:, 3], f"alpha", ax)
     save_array(gain_history[:, 4], f"beta", ax)
 
+    ax.title(f"Adaptive Agent: {cfg['env']}")
     ax.legend()
     ax.set_xlabel('Iteration')
     ax.set_ylabel(f'Gain Value')

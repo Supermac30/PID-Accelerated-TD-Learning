@@ -7,6 +7,9 @@ alpha: 0.03
 
 num_iterations: 30000
 
+norm: 1
+env: chain walk
+
 seed: 424242
 hydra:
   run:

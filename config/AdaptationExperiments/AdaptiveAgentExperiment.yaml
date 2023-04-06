@@ -1,17 +1,17 @@
-env: chain walk
+env: chain walk  # 'chain walk' or 'garnet'
 norm: 1
-num_iterations: 1000
-meta_lr: 0.1
-sample_size: 10
+num_iterations: 5000
+meta_lr: 0.3
+sample_size: 100
 
 alpha_P: 0.05
 N_P: 1000
 alpha_D: 0.9
 N_D: 1000
-alpha_I: 0.1
-N_I: 10
+alpha_I: 0.9
+N_I: 1000
 
-debug: False  # If true, don't estimate the gradients
+debug: True  # If true, don't estimate the gradients
 planning: False  # Reproduce PID-VI paper
 
 seed: -1

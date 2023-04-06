@@ -15,13 +15,8 @@ def find_average_update_experiment(cfg):
 
     looks like. This experimentally verifies theorem 2.1 in the manuscript.
     """
-    num_states = 50
-    num_actions = 2
     gamma = 0.99
-    env = ChainWalk(num_states, cfg['seed'])
-    policy = np.zeros((num_states, num_actions))
-    for i in range(num_states):
-        policy[i,0] = 1
+    env, policy = get_env_policy(cfg['env'], cfg['seed'])
     agent = ControlledTDLearning(
         env,
         policy,
@@ -43,6 +38,7 @@ def find_average_update_experiment(cfg):
 
         save_array(history, f"{kp=} {kd=}", plt)
 
+    plt.title(f"Average Update: {cfg['env']}")
     plt.legend()
     plt.xlabel('Iteration')
     plt.ylabel('$||V^{\pi} - ((\kappa_p)/(\kappa_p - \kappa_d)T^{\pi} V_k - (\kappa_d)/(\kappa_p - \kappa_d) V_{p(k)})||_\infty$')
