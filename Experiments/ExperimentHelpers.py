@@ -42,7 +42,7 @@ def cliff_walk(seed):
     policy = np.zeros((env.num_states, env.num_actions))
     for i in range(env.num_states):
         policy[i, :] = 1 / env.num_actions
-    
+
     return env, policy
 
 
@@ -107,8 +107,8 @@ def find_optimal_learning_rates(agent, value_function_estimator, isSoft, learnin
     if learning_rates == {}:
         learning_rates = {
             # 0.5: {1000, 10000},
-            # 0.25: {1000, 10000},
-            # 0.1: {10, 100, 1000, 10000},
+            0.25: {1000, 10000},
+            0.1: {10, 100, 1000, 10000},
             0.05: {1, 10, 100, 1000},
             0.01: {1, 10, 100, 1000}
         }
@@ -116,10 +116,8 @@ def find_optimal_learning_rates(agent, value_function_estimator, isSoft, learnin
     if update_D_rates == {}:
         update_D_rates = {
             1: {float("inf")},  # Mimics hard update
-            0.9: {1, 10, 100, 1000},
-            # 0.8: {1, 10, 100, 1000},
-            # 0.7: {1, 10, 100, 1000},
-            # 0.6: {1, 10, 100}
+            0.8: {1, 10, 100, 1000},
+            0.6: {1, 10, 100, 1000},
         }
 
     if update_I_rates == {}:
@@ -167,7 +165,7 @@ def find_optimal_learning_rates(agent, value_function_estimator, isSoft, learnin
     return minimum_history, minimum_params
 
 
-def find_optimal_pid_learning_rates(agent, kp, kd, ki, test_function, num_iterations, isSoft, learning_rates={}, update_rates={}):
+def find_optimal_pid_learning_rates(agent, kp, kd, ki, test_function, num_iterations, isSoft, learning_rates={}, update_D_rates={}, update_I_rates={}):
     """Runs the find_optimal_learning_rates function for a agent that uses a PID controller."""
 
     return find_optimal_learning_rates(
@@ -175,7 +173,8 @@ def find_optimal_pid_learning_rates(agent, kp, kd, ki, test_function, num_iterat
         lambda: run_PID_TD_experiment(agent, kp, kd, ki, test_function, num_iterations),
         isSoft,
         learning_rates,
-        update_rates
+        update_D_rates,
+        update_I_rates
     )
 
 
@@ -277,7 +276,7 @@ def save_array(nparr, name, graph=None):
         graph.plot(nparr, label=name)
 
 
-def plot_comparison(fig, ax1, ax2, title1, title2, ylabel, show_fig=True, fig_name="plot"):
+def plot_comparison(fig, ax1, ax2, title1, title2, ylabel, show_fig=True, fig_name="plot", is_log=False):
     """Configure and plot a comparison between the learning
     of two algorithms given pyplot objects"""
     plt.subplots_adjust(hspace=0.7)
@@ -286,6 +285,9 @@ def plot_comparison(fig, ax1, ax2, title1, title2, ylabel, show_fig=True, fig_na
 
     ax1.set_title(title1)
     ax2.set_title(title2)
+
+    if is_log:
+        ax1.set_yaxis('log')
 
     ax1.legend()
     ax2.legend()

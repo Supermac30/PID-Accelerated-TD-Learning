@@ -1,6 +1,6 @@
 import numpy as np
 
-# TODO: Remove controllers from the code
+# TODO: Refactor to remove controllers from the code, and make them part of the Agents themselves
 
 class Controller:
     """

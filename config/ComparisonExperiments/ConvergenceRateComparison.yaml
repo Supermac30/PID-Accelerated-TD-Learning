@@ -1,14 +1,14 @@
 kp: [1, 1, 1]
 kd: [0.0, 0.1, 0.2]
-ki: [0, 0, 0]
+ki: [0, -0.2, 0]
 
 isSoft: True
-num_iterations: 3000
+num_iterations: 20000
 norm: 1
 
-env: chain walk  # Set this to 'chain walk' or 'garnet'
+env: garnet
 
-seed: 424242
+seed: -1
 hydra:
   run:
     dir: ${oc.env:OUTPUT_DIR,./outputs}/${hydra.job.config_name}/${now:%Y-%m-%d}/${now:%H-%M-%S}

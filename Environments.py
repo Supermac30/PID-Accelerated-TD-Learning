@@ -145,7 +145,13 @@ class ChainWalk(Environment):
 
         Returns the reward.
         """
-        shift = -1 if action == 0 else 1
+        if action == 0:
+            shift = -1
+        elif action == 1:
+            shift = 1
+        else:
+            raise InvalidAction(action)
+
         random_number = self.prg.uniform()
         if random_number < 0.7:
             self.current_state = (self.current_state + shift) % self.num_states
@@ -231,8 +237,7 @@ class CliffWalk(Environment):
                 else:
                     for a in range(4):
                         for dir in range(4):
-                            self.current_state = state
-                            target, _ = self.take_action(dir)
+                            target = self.get_target(state, dir)
                             if dir == a:
                                 P[state, target, a] += self.success_prob
                             else:
@@ -270,6 +275,15 @@ class CliffWalk(Environment):
         return R
 
     def take_action(self, action):
+        if self.prg.random() > self.success_prob:
+            action = self.prg.choice([0, 1, 2, 3])
+        target = self.get_target(self.current_state, action)
+        reward = self.reward_matrix[self.current_state, action]
+        self.current_state = target
+
+        return target, reward
+
+    def get_target(self, state, action):
         state = self.current_state
         column = state % self.n_columns
         row = int((state - column) / self.n_columns)
@@ -291,9 +305,6 @@ class CliffWalk(Environment):
             left_r = row
             target = left_r * self.n_columns + left_c
         else:
-            raise Exception("Illegal action")
+            raise InvalidAction(action)
 
-        reward = self.reward_matrix[self.current_state, action]
-        self.current_state = target
-
-        return target, reward
+        return target
