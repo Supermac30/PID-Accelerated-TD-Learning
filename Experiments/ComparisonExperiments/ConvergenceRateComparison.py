@@ -9,7 +9,7 @@ from Experiments.ExperimentHelpers import *
 @hydra.main(version_base=None, config_path="../../config/ComparisonExperiments", config_name="ConvergenceRateComparison")
 def convergence_rate_VI_experiment(cfg):
     """Compare convergence rate of PID-TD and PID-VI"""
-    env, policy = get_env_policy(cfg['name'], cfg['seed'])
+    env, policy = get_env_policy(cfg['env'], cfg['seed'])
 
     if cfg['isSoft']:
         TDagent = SoftControlledTDLearning(

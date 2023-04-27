@@ -26,7 +26,9 @@ def far_sighted_update_experiment(cfg):
         for kp, kd, ki in zip(cfg['kp'], cfg['kd'], cfg['ki']):
             history, params = find_optimal_pid_learning_rates(
                 agent, kp, kd, ki, test_function, cfg['num_iterations'], True,
-                learning_rates=cfg['learning_rates'], update_rates=cfg['update_rates']
+                learning_rates=cfg['learning_rates'],
+                update_D_rates=cfg['update_D_rates'],
+                update_I_rates=cfg['update_I_rates']
             )
             save_array(history, f"{kp=} {kd=} {ki=} {delay=} {params=}", plt)
 
