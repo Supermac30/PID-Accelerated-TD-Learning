@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import itertools
 import os
+import logging
 
 from Controllers import P_Controller, D_Controller, I_Controller
 from MDP import PolicyEvaluation, Control
@@ -91,7 +92,7 @@ def learning_rate_function(alpha, N):
     return lambda k: min(alpha, N/(k + 1))
 
 
-def find_optimal_learning_rates(agent, value_function_estimator, isSoft, learning_rates={}, update_D_rates={}, update_I_rates={}):
+def find_optimal_learning_rates(agent, value_function_estimator, isSoft, learning_rates={}, update_D_rates={}, update_I_rates={}, verbose=False):
     """Run a grid search for values of N and alpha that makes the
     value_function_estimator have the lowest possible error.
 
@@ -140,6 +141,8 @@ def find_optimal_learning_rates(agent, value_function_estimator, isSoft, learnin
         the optimal length, optimal params, and optimal history.
         params: an object representing the parameters we initialized the value_function_estimator to
         """
+        if verbose:
+            logging.info(f"trying {params}")
         history = value_function_estimator()
         if history[-1] < minimum_history[-1]:
             return params, history
@@ -165,7 +168,7 @@ def find_optimal_learning_rates(agent, value_function_estimator, isSoft, learnin
     return minimum_history, minimum_params
 
 
-def find_optimal_pid_learning_rates(agent, kp, kd, ki, test_function, num_iterations, isSoft, learning_rates={}, update_D_rates={}, update_I_rates={}):
+def find_optimal_pid_learning_rates(agent, kp, kd, ki, test_function, num_iterations, isSoft, learning_rates={}, update_D_rates={}, update_I_rates={}, verbose=False):
     """Runs the find_optimal_learning_rates function for a agent that uses a PID controller."""
 
     return find_optimal_learning_rates(
@@ -174,7 +177,8 @@ def find_optimal_pid_learning_rates(agent, kp, kd, ki, test_function, num_iterat
         isSoft,
         learning_rates,
         update_D_rates,
-        update_I_rates
+        update_I_rates,
+        verbose
     )
 
 

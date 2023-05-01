@@ -11,9 +11,6 @@ Notes about the hyperparameter tuning procedure:
 from ExperimentHelpers import find_optimal_learning_rates, find_optimal_pid_learning_rates, get_env_policy, find_Vpi, build_test_function
 from AdaptiveAgentBuilder import build_adaptive_agent
 from Agents import ControlledTDLearning
-from AdaptiveAgents import AbstractAdaptiveAgent
-
-import numpy as np
 import pickle
 
 FILE_NAME = "optimal_learning_rates.pickle"
@@ -82,7 +79,8 @@ def run_pid_search(env_name, kp, kd, ki, seed, norm):
         build_test_function(norm, V_pi),
         10000,
         True,
-        *exhaustive_learning_rates
+        *exhaustive_learning_rates,
+        True
     )
 
 def run_adaptive_search(agent_name, env_name, seed, norm):
@@ -98,7 +96,8 @@ def run_adaptive_search(agent_name, env_name, seed, norm):
             build_test_function(norm, V_pi)
         ),
         True,
-        *exhaustive_learning_rates
+        *exhaustive_learning_rates,
+        True
     )
 
 def get_stored_optimal_rate(model, env_name):
