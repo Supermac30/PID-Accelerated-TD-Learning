@@ -5,7 +5,7 @@ Notes about the hyperparameter tuning procedure:
 - The parameters are turned with respect to minimizing the L1 norm, i.e. we take
                argmin_theta ||V_theta - V^pi||_1
 - We tune after 10000 steps of training.
-- The learning rate functions used are  min(c, N/(k + 1)), with a different function on each component
+- The learning rate functions used are min(c, N/(k + 1)), with a different function on each component
 """
 
 from ExperimentHelpers import find_optimal_learning_rates, find_optimal_pid_learning_rates, get_env_policy, find_Vpi, build_test_function
@@ -129,3 +129,7 @@ def put_optimal_rate(model, env_name, optimal_rate):
         optimal_rates = pickle.load(f)
         optimal_rates[(model, env_name)] = optimal_rate
         pickle.dump(optimal_rate, FILE_NAME)
+
+
+if __name__ == '__main__':
+    get_optimal_pid_rates("chain walk", 1, 0, 0)
