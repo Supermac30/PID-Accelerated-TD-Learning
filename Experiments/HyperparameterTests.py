@@ -8,7 +8,7 @@ Notes about the hyperparameter tuning procedure:
 - The learning rate functions used are min(c, N/(k + 1)), with a different function on each component
 """
 
-from Experiments.ExperimentHelpers import find_optimal_learning_rates, find_optimal_pid_learning_rates, get_env_policy, find_Vpi, build_test_function
+from Experiments.ExperimentHelpers import find_optimal_learning_rates, find_optimal_pid_learning_rates, get_env_policy, find_Vpi, build_test_function, learning_rate_function
 from Experiments.AdaptiveAgentBuilder import build_adaptive_agent
 from Agents import ControlledTDLearning
 import pickle
@@ -70,7 +70,12 @@ def run_pid_search(env_name, kp, kd, ki, seed, norm):
     """Run a grid search on the exhaustive learning rates for the choice of controller gains"""
     env, policy = get_env_policy(env_name, seed)
     V_pi = find_Vpi(env, policy)
-    agent = ControlledTDLearning()
+    agent = ControlledTDLearning(
+        env,
+        policy,
+        0.99,
+        learning_rate_function(1, 1)
+    )
     return find_optimal_pid_learning_rates(
         agent,
         kp,
