@@ -8,12 +8,12 @@ Notes about the hyperparameter tuning procedure:
 - The learning rate functions used are min(c, N/(k + 1)), with a different function on each component
 """
 
-from ExperimentHelpers import find_optimal_learning_rates, find_optimal_pid_learning_rates, get_env_policy, find_Vpi, build_test_function
-from AdaptiveAgentBuilder import build_adaptive_agent
+from Experiments.ExperimentHelpers import find_optimal_learning_rates, find_optimal_pid_learning_rates, get_env_policy, find_Vpi, build_test_function
+from Experiments.AdaptiveAgentBuilder import build_adaptive_agent
 from Agents import ControlledTDLearning
 import pickle
 
-FILE_NAME = "optimal_learning_rates.pickle"
+FILE_NAME = "Experiments/optimal_learning_rates.pickle"
 
 exhaustive_learning_rates = [
     {

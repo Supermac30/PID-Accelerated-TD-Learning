@@ -8,7 +8,7 @@ Possible agents include:
 - Sample True Cost Gradients: Finds the true gradients then samples
 - Sample Empirical Cost Gradient: Finds the cost after sampling
 """
-from ExperimentHelpers import get_env_policy, learning_rate_function
+from Experiments.ExperimentHelpers import get_env_policy, learning_rate_function
 from AdaptiveAgents import AdaptivePlannerAgent, AdaptiveSamplerAgent, ExactUpdater, SamplerUpdater
 
 default_meta_lr = 0.1
