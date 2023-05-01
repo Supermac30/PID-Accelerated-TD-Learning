@@ -24,7 +24,7 @@ def soft_policy_evaluation_experiment(cfg):
 
     for kp, kd, ki in zip(cfg['kp'], cfg['kd'], cfg['ki']):
         history = run_PID_TD_experiment(agent, kp, kd, ki, test_function, cfg['num_iterations'])
-        save_array(history, f"{kp=} {kd=} {ki=}", plt)
+        save_array(history, f"kp={kp} kd={kd} ki={ki}", plt)
 
     plt.title(f"Soft Updates: {cfg['env']}")
     plt.legend()

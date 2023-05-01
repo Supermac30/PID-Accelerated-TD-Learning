@@ -37,7 +37,7 @@ def TD_comparison_experiment(cfg):
                 cfg['num_iterations'], cfg['isSoft'], cfg['learning_rates'], cfg['update_rates']
             )
 
-        save_array(PID_TD_history, f"{kp=} {kd=} {ki=} {pid_td_rates}", plt)
+        save_array(PID_TD_history, f"kp={kp} kd={kd} ki={ki} {pid_td_rates}", plt)
 
     plt.title(f"TD Comparison: {cfg['env']}")
     plt.legend()

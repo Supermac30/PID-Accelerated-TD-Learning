@@ -43,8 +43,8 @@ def convergence_rate_VI_experiment(cfg):
         TD_history, td_rates = find_optimal_pid_learning_rates(TDagent, kp, kd, ki, test_function, cfg['num_iterations'], cfg['isSoft'])
         VI_history = run_VI_experiment(VIagent, kp, kd, ki, test_function)
 
-        save_array(TD_history, f"{kp=} {kd=} {ki=} {td_rates}", ax2)
-        save_array(VI_history, f"{kp=} {kd=} {ki=}", ax1)
+        save_array(TD_history, f"kp={kp} kd={kd} ki={ki} {td_rates}", ax2)
+        save_array(VI_history, f"kp={kp} kd={kd} ki={ki}", ax1)
 
     plot_comparison(fig, ax1, ax2, f"PID Accelerated VI: {cfg['env']}", f"PID Accelerated TD: {cfg['env']}", f"$||V_k - V^\pi||_{cfg['norm']}$")
 

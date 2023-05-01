@@ -37,8 +37,8 @@ def hard_soft_convergence_experiment(cfg):
             hard, kp, kd, ki, test_function, cfg['num_iterations'], False
         )
 
-        save_array(soft_history, f"soft {kp=} {kd=} {ki=} {soft_rates}", ax1)
-        save_array(hard_history, f"hard {kp=} {kd=} {ki=} {hard_rates}", ax2)
+        save_array(soft_history, f"soft kp={kp} kd={kd} ki={ki} {soft_rates}", ax1)
+        save_array(hard_history, f"hard kp={kp} kd={kd} ki={ki} {hard_rates}", ax2)
 
     plot_comparison(fig, ax1, ax2, 'Soft Updates', 'Hard Updates', f"$||V_k - V^\pi||_{cfg['norm']}$")
 

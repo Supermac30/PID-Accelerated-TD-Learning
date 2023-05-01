@@ -1,10 +1,10 @@
 env: garnet
 norm: 1
-num_iterations: 6100
-meta_lr: 0.01
+num_iterations: 1000
+meta_lr: 1
 sample_size: 10
 
-alpha_P: 0.01
+alpha_P: 0.1
 N_P: 1000
 alpha_D: 0.9
 N_D: 1000

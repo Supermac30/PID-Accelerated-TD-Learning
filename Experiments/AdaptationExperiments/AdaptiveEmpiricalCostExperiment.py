@@ -4,22 +4,16 @@ import matplotlib.pyplot as plt
 import numpy as np
 import hydra
 
-from AdaptiveAgents import AdaptiveSamplerAgent, ExactUpdater, SamplerUpdater
+from AdaptiveAgents import AdaptiveSamplerAgent, EmpiricalCostUpdater
 from Agents import ControlledTDLearning
 from Experiments.ExperimentHelpers import *
 
-@hydra.main(version_base=None, config_path="../../config/AdaptationExperiments", config_name="AdaptiveAgentExperiment")
+@hydra.main(version_base=None, config_path="../../config/AdaptationExperiments", config_name="AdaptiveEmpiricalCostExperiment")
 def adaptive_agent_experiment(cfg):
     """Visualize the behavior of adaptation without learning rates."""
     env, policy = get_env_policy(cfg['env'], cfg['seed'])
 
-    transitions = env.build_policy_probability_transition_kernel(policy)
-    rewards = env.build_policy_reward_vector(policy)
-
-    if cfg['planning']:
-        gain_updater = ExactUpdater(transitions, rewards, cfg['scale_by_lr'])
-    else:
-        gain_updater = SamplerUpdater(cfg['sample_size'], cfg['scale_by_lr'])
+    gain_updater = EmpiricalCostUpdater()
 
     agent = AdaptiveSamplerAgent(
         gain_updater,
@@ -31,7 +25,8 @@ def adaptive_agent_experiment(cfg):
         cfg['meta_lr'],
         env,
         policy,
-        0.99
+        0.99,
+        update_frequency=2
     )
 
     V_pi = find_Vpi(env, policy)

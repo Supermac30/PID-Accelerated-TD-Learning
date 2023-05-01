@@ -23,7 +23,7 @@ def policy_evaluation_experiment(cfg):
     for kp, kd, ki in zip(cfg['kp'], cfg['kd'], cfg['ki']):
         history = run_PID_TD_experiment(agent, kp, kd, ki, test_function,
                                         num_iterations=cfg['num_iterations'])
-        save_array(history, f"{kp=} {kd=} {ki=}", plt)
+        save_array(history, f"kp={kp} kd={kd} ki={ki}", plt)
 
 
     plt.title(f"Hard TD Updates: {cfg['env']}")

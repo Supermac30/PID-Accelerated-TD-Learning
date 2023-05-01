@@ -30,7 +30,7 @@ def far_sighted_update_experiment(cfg):
                 update_D_rates=cfg['update_D_rates'],
                 update_I_rates=cfg['update_I_rates']
             )
-            save_array(history, f"{kp=} {kd=} {ki=} {delay=} {params=}", plt)
+            save_array(history, f"kp={kp} kd={kd} ki={ki} delay={delay} params={params}", plt)
 
 
     plt.title(f"Far Sighted Updates: {cfg['env']}")
