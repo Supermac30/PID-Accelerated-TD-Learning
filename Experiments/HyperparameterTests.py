@@ -12,6 +12,8 @@ from Experiments.ExperimentHelpers import find_optimal_learning_rates, find_opti
 from Experiments.AdaptiveAgentBuilder import build_adaptive_agent
 from Agents import ControlledTDLearning
 import pickle
+import logging
+
 
 FILE_NAME = "Experiments/optimal_learning_rates.pickle"
 
@@ -47,15 +49,19 @@ def get_optimal_pid_rates(env_name, kp, kd, ki):
     if optimal_rates is None:
         optimal_rates = run_pid_search(env_name, kp, kd, ki, -1, 1)
 
+    logging.info(f"The optimal rates for {(env_name, kp, kd, ki)} are: {optimal_rates}")
+
     return optimal_rates
 
-def find_optimal_adaptive_rates(agent_name, env_name):
+def get_optimal_adaptive_rates(agent_name, env_name):
     """Find the optimal rates for the choice of adaptive agent and environment.
     If this has been done before, get the optimal rates from the file of stored rates.
     """
     optimal_rates = get_stored_optimal_rate(agent_name, env_name)
     if optimal_rates is None:
         optimal_rates = run_adaptive_search(agent_name, env_name, -1, 1)
+    
+    logging.info(f"The optimal rates for {(env_name, agent_name)} are: {optimal_rates}")
 
     return optimal_rates
 
@@ -113,7 +119,6 @@ def get_stored_optimal_rate(model, env_name):
         return optimal_rates[(model, env_name)]
     return None
 
-
 def put_optimal_rate(model, env_name, optimal_rate):
     """Store the optimal rate in FILE_NAME.
 
@@ -130,7 +135,16 @@ def put_optimal_rate(model, env_name, optimal_rate):
 
 
 if __name__ == '__main__':
-    import logging
     logging.basicConfig()
     logging.root.setLevel(logging.NOTSET)
-    get_optimal_pid_rates("chain walk", 1, 0, 0)
+
+    pid_tests = [
+        (1, 0, 0),
+        (1, 0.1, 0),
+        (1, 0.2, 0),
+        (1, 0.3, 0),
+        (1, 0.4, -0.2)
+    ]
+
+    for (kp, kd, ki) in pid_tests:
+        get_optimal_pid_rates("chain walk", kp, kd, ki)
