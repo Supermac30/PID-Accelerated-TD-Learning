@@ -4,7 +4,7 @@ Notes about the hyperparameter tuning procedure:
 - The seed is randomly chosen, i.e. not fixed. Hopefully, the results are not dependent on this. It may be worth running this again to corroborate the results.
 - The parameters are turned with respect to minimizing the L1 norm, i.e. we take
                argmin_theta ||V_theta - V^pi||_1
-- We tune after 10000 steps of training.
+- We tune after 5000 steps of training.
 - The learning rate functions used are min(c, N/(k + 1)), with a different function on each component
 """
 
@@ -48,6 +48,7 @@ def get_optimal_pid_rates(env_name, kp, kd, ki):
     optimal_rates = get_stored_optimal_rate((kp, ki, kd), env_name)
     if optimal_rates is None:
         optimal_rates = run_pid_search(env_name, kp, kd, ki, -1, 1)
+        put_optimal_rate((kp, ki, kd), env_name, optimal_rates)
 
     logging.info(f"The optimal rates for {(env_name, kp, kd, ki)} are: {optimal_rates}")
 
@@ -60,7 +61,7 @@ def get_optimal_adaptive_rates(agent_name, env_name):
     optimal_rates = get_stored_optimal_rate(agent_name, env_name)
     if optimal_rates is None:
         optimal_rates = run_adaptive_search(agent_name, env_name, -1, 1)
-    
+
     logging.info(f"The optimal rates for {(env_name, agent_name)} are: {optimal_rates}")
 
     return optimal_rates
@@ -75,7 +76,7 @@ def run_pid_search(env_name, kp, kd, ki, seed, norm):
         0.99,
         learning_rate_function(1, 1)
     )
-    return find_optimal_pid_learning_rates(
+    _, rates = find_optimal_pid_learning_rates(
         agent,
         kp,
         kd,
@@ -86,6 +87,8 @@ def run_pid_search(env_name, kp, kd, ki, seed, norm):
         *exhaustive_learning_rates,
         True
     )
+
+    return rates
 
 def run_adaptive_search(agent_name, env_name, seed, norm):
     """Run a grid search on the exhaustive learning rates for the choice of adaptive agent"""
