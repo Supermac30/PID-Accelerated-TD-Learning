@@ -131,11 +131,14 @@ def put_optimal_rate(model, env_name, optimal_rate):
 
     If the file is not found, raise a FileNotFoundException
     """
-    with open(FILE_NAME, 'rw') as f:
+    with open(FILE_NAME, 'rb') as f:
         optimal_rates = pickle.load(f)
-        optimal_rates[(model, env_name)] = optimal_rate
-        pickle.dump(optimal_rate, FILE_NAME)
 
+    optimal_rates[(model, env_name)] = optimal_rate
+
+    # save the updated dictionary to the same pickle file
+    with open(FILE_NAME, 'wb') as f:
+        pickle.dump(optimal_rates, f, protocol=pickle.HIGHEST_PROTOCOL)
 
 if __name__ == '__main__':
     logging.basicConfig()
