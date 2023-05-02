@@ -41,12 +41,14 @@ exhaustive_learning_rates = [
         }
 ]
 
-def get_optimal_pid_rates(env_name, kp, kd, ki):
+def get_optimal_pid_rates(env_name, kp, kd, ki, recompute=False):
     """Find the optimal rates for the choice of controller gains and environment.
     If this has been done before, get the optimal rates from the file of stored rates.
+
+    If recompute is True, recompute the learning rates even if it is in the file of stored rates.
     """
     optimal_rates = get_stored_optimal_rate((kp, ki, kd), env_name)
-    if optimal_rates is None:
+    if optimal_rates is None or recompute:
         optimal_rates = run_pid_search(env_name, kp, kd, ki, -1, 1)
         put_optimal_rate((kp, ki, kd), env_name, optimal_rates)
 
@@ -54,12 +56,14 @@ def get_optimal_pid_rates(env_name, kp, kd, ki):
 
     return optimal_rates
 
-def get_optimal_adaptive_rates(agent_name, env_name):
+def get_optimal_adaptive_rates(agent_name, env_name, recompute=False):
     """Find the optimal rates for the choice of adaptive agent and environment.
     If this has been done before, get the optimal rates from the file of stored rates.
+
+    If recompute is True, recompute the learning rates even if it is in the file of stored rates.
     """
     optimal_rates = get_stored_optimal_rate(agent_name, env_name)
-    if optimal_rates is None:
+    if optimal_rates is None or recompute:
         optimal_rates = run_adaptive_search(agent_name, env_name, -1, 1)
 
     logging.info(f"The optimal rates for {(env_name, agent_name)} are: {optimal_rates}")

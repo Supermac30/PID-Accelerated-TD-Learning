@@ -143,7 +143,28 @@ class AbstractGainUpdater():
 
 
 class SoftGainUpdater():
-    pass
+    def __init__(self):
+        self.fp = np.zeros((self.num_states, 1))
+        self.fd = np.zeros((self.num_states, 1))
+        self.fi = np.zeros((self.num_states, 1))
+
+        super().__init__()
+
+    def update_gains(self):
+        reward = self.agent.previous_reward, self.agent.reward
+        next_state, current_state = self.agent.next_state, self.agent.current_state, self.agent.previous_state
+        V, Vp, z = self.agent.V, self.agent.Vp, self.agent.z
+        alpha, beta = self.agent.alpha, self.agent.beta
+        gamma, lr = self.gamma, self.agent.lr, self.agent.previous_lr
+
+        BR = reward + self.gamma * V[next_state] - V[current_state]
+        self.agent.kp -= self.meta_lr * BR * self.fp[current_state]
+        self.agent.kd -= self.meta_lr * BR * self.fd[current_state]
+        self.agent.ki -= self.meta_lr * BR * self.fi[current_state]
+
+        self.fp[current_state] += lr * BR
+        self.fd[current_state] += lr * (V[current_state] - Vp[current_state])
+        self.fi[current_state] += lr * (beta * z + alpha * BR)
 
 
 class EmpiricalCostUpdater(AbstractGainUpdater):
@@ -356,6 +377,43 @@ class SamplerUpdater(AbstractOriginalCostUpdater):
 
         return partial_br_kp, partial_br_ki, partial_br_kd, partial_br_beta, BR_current, BR_previous
 
+
+class HalfExactUpdater(AbstractOriginalCostUpdater):
+    """Test having knowledge of the transitions to update the gradients, but not the Bellman residual"""
+    def __init__(self, transition, reward, sample_size, scale):
+        super().__init__(scale)
+        self.transition = transition
+        self.reward = reward.reshape(-1, 1)
+        self.sample_size = sample_size
+
+    def get_gradient_terms(self):
+        V, Vp, Vpp = self.agent.V, self.agent.previous_V, self.agent.previous_Vp
+        z, zp = self.agent.z, self.agent.previous_z
+        replay_buffer = self.agent.replay_buffer
+
+        BR_current = self.gamma * self.transition @ V + self.reward - V
+        BR_previous = self.gamma * self.transition @ Vp + self.reward - Vp
+
+        partial_br_kp = (self.gamma * self.transition @ BR_previous) - BR_previous
+        partial_br_kd = (self.gamma * self.transition @ (Vp - Vpp)) - (Vp - Vpp)
+        partial_br_ki = (self.gamma * self.transition @ z) - z
+        partial_br_beta = (self.gamma * self.transition @ zp) - zp
+
+        for state in range(self.num_state):
+            for _ in range(self.sample_size):
+                previous_reward, reward, previous_state, next_state = \
+                    replay_buffer[state][np.random.randint(0, len(replay_buffer[state]))]
+                BR_current[state] += reward + self.gamma * V[next_state] - V[state]
+
+            for _ in range(self.sample_size):
+                previous_reward, reward, previous_state, next_state = \
+                    replay_buffer[state][np.random.randint(0, len(replay_buffer[state]))]
+                BR_previous[state] += reward + self.gamma * Vp[next_state] - Vp[state]
+
+            BR_current[state] /= self.sample_size
+            BR_previous[state] /= self.sample_size
+
+        return partial_br_kp, partial_br_ki, partial_br_kd, partial_br_beta, BR_current, BR_previous
 
 
 """
