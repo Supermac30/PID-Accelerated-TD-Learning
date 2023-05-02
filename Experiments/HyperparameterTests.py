@@ -137,4 +137,7 @@ def put_optimal_rate(model, env_name, optimal_rate):
 
 
 if __name__ == '__main__':
+    import logging
+    logging.basicConfig()
+    logging.root.setLevel(logging.NOTSET)
     get_optimal_pid_rates("chain walk", 1, 0, 0)
