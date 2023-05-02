@@ -117,8 +117,6 @@ def find_optimal_learning_rates(agent, value_function_estimator, isSoft, learnin
     if update_D_rates == {}:
         update_D_rates = {
             1: {float("inf")},  # Mimics hard update
-            0.8: {1, 10, 100, 1000},
-            0.6: {1, 10, 100, 1000},
         }
 
     if update_I_rates == {}:
@@ -170,6 +168,16 @@ def find_optimal_learning_rates(agent, value_function_estimator, isSoft, learnin
 
 def find_optimal_pid_learning_rates(agent, kp, kd, ki, test_function, num_iterations, isSoft, learning_rates={}, update_D_rates={}, update_I_rates={}, verbose=False):
     """Runs the find_optimal_learning_rates function for a agent that uses a PID controller."""
+
+    # There is no reason to test parameters which aren't important
+    if kd == 0:
+        update_D_rates = {
+            1: {float("inf")},  # Mimics hard update
+        }
+    if ki == 0:
+        update_I_rates = {
+            1: {float("inf")},  # Mimics hard update
+        }
 
     return find_optimal_learning_rates(
         agent,

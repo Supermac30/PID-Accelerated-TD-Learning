@@ -142,6 +142,10 @@ class AbstractGainUpdater():
         raise NotImplementedError
 
 
+class SoftGainUpdater():
+    pass
+
+
 class EmpiricalCostUpdater(AbstractGainUpdater):
     """We need agent.update_frequency = 2 for this to mathematically make sense"""
     def update_gains(self):
