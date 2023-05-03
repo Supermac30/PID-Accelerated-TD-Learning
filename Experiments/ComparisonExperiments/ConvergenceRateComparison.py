@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import hydra
 
-from Agents import ControlledTDLearning, SoftControlledTDLearning
+from Agents import Hard_PID_TD, PID_TD
 from MDP import PolicyEvaluation
 from Experiments.ExperimentHelpers import *
 
@@ -12,14 +12,14 @@ def convergence_rate_VI_experiment(cfg):
     env, policy = get_env_policy(cfg['env'], cfg['seed'])
 
     if cfg['isSoft']:
-        TDagent = SoftControlledTDLearning(
+        TDagent = PID_TD(
             env,
             policy,
             0.99,
             learning_rate_function(1, 0),
         )
     else:
-        TDagent = ControlledTDLearning(
+        TDagent = Hard_PID_TD(
             env,
             policy,
             0.99,

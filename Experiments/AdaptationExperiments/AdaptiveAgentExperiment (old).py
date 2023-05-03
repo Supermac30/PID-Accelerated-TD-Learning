@@ -5,7 +5,6 @@ import numpy as np
 import hydra
 
 from AdaptiveAgents import AdaptiveSamplerAgent, ExactUpdater, SamplerUpdater
-from Experiments.AdaptiveAgentBuilder import build_adaptive_agent
 from Agents import Hard_PID_TD
 from Experiments.ExperimentHelpers import *
 
@@ -14,7 +13,26 @@ def adaptive_agent_experiment(cfg):
     """Visualize the behavior of adaptation without learning rates."""
     env, policy = get_env_policy(cfg['env'], cfg['seed'])
 
-    agent = build_adaptive_agent(cfg['agent_name'], cfg['env'])
+    transitions = env.build_policy_probability_transition_kernel(policy)
+    rewards = env.build_policy_reward_vector(policy)
+
+    if cfg['planning']:
+        gain_updater = ExactUpdater(transitions, rewards, cfg['scale_by_lr'])
+    else:
+        gain_updater = SamplerUpdater(cfg['sample_size'], cfg['scale_by_lr'])
+
+    agent = AdaptiveSamplerAgent(
+        gain_updater,
+        (
+            learning_rate_function(cfg['alpha_P'], cfg['N_P']),
+            learning_rate_function(cfg['alpha_I'], cfg['N_I']),
+            learning_rate_function(cfg['alpha_D'], cfg['N_D'])
+        ),
+        cfg['meta_lr'],
+        env,
+        policy,
+        0.99
+    )
 
     V_pi = find_Vpi(env, policy)
     test_function = build_test_function(cfg['norm'], V_pi)
@@ -24,9 +42,9 @@ def adaptive_agent_experiment(cfg):
     fig = plt.figure()
     ax = fig.add_subplot()
 
-    save_array(history, f"Adaptive Agent: {cfg['agent_name']}", ax)
+    save_array(history, f"Adaptive Agent", ax)
 
-    TDagent = Hard_PID_TD(env, policy, 0.999, learning_rate_function(10 * cfg['alpha_P'], cfg['N_P']))
+    TDagent = Hard_PID_TD(env, policy, 0.99, learning_rate_function(10 * cfg['alpha_P'], cfg['N_P']))
     TDhistory = run_PID_TD_experiment(TDagent, 1, 0, 0, test_function, cfg['num_iterations'])
     save_array(TDhistory, f"TD Agent", ax)
 

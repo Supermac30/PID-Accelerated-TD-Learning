@@ -3,7 +3,7 @@ import numpy as np
 import hydra
 
 from Environments import ChainWalk
-from Agents import ControlledTDLearning
+from Agents import Hard_PID_TD
 from Experiments.ExperimentHelpers import *
 
 @hydra.main(version_base=None, config_path="../../config/TDExperiments", config_name="AverageUpdateTheorem")
@@ -17,7 +17,7 @@ def find_average_update_experiment(cfg):
     """
     gamma = 0.99
     env, policy = get_env_policy(cfg['env'], cfg['seed'])
-    agent = ControlledTDLearning(
+    agent = Hard_PID_TD(
         env,
         policy,
         gamma,

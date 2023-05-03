@@ -3,21 +3,21 @@ import numpy as np
 import hydra
 
 from Environments import ChainWalk
-from Agents import ControlledTDLearning, SoftControlledTDLearning
+from Agents import Hard_PID_TD, PID_TD
 from Experiments.ExperimentHelpers import *
 
 @hydra.main(version_base=None, config_path="../../config/ComparisonExperiments", config_name="HardSoftComparison")
 def hard_soft_convergence_experiment(cfg):
     """Experiment with the convergence rate of hard and soft derivative updates."""
     env, policy = get_env_policy(cfg['env'], cfg['seed'])
-    soft = SoftControlledTDLearning(
+    soft = PID_TD(
         env,
         policy,
         0.99,
         learning_rate_function(1, 0),
         learning_rate_function(1, 0)
     )
-    hard = ControlledTDLearning(
+    hard = Hard_PID_TD(
         env,
         policy,
         0.99,

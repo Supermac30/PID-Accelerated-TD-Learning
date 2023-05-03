@@ -1,8 +1,6 @@
 import matplotlib.pyplot as plt
-import numpy as np
 import hydra
 
-from Environments import ChainWalk
 from MDP import Control
 from Experiments.ExperimentHelpers import *
 

@@ -1,0 +1,12 @@
+env: chain walk
+norm: inf
+num_iterations: 10000
+meta_lr: 0.05
+gamma: 0.999
+
+seed: -1
+hydra:
+  run:
+    dir: ${oc.env:OUTPUT_DIR,./outputs}/${hydra.job.config_name}/${now:%Y-%m-%d}/${now:%H-%M-%S}
+  job:
+    chdir: True

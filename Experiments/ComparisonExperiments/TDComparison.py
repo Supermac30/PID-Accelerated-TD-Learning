@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import hydra
 
-from Agents import ControlledTDLearning
+from Agents import Hard_PID_TD
 from Experiments.ExperimentHelpers import *
 
 @hydra.main(version_base=None, config_path="../../config/ComparisonExperiments", config_name="TDComparison")
@@ -12,13 +12,13 @@ def TD_comparison_experiment(cfg):
     """Compare convergence rate of PID-TD and PID-VI"""
     env, policy = get_env_policy(cfg['env'], cfg['seed'])
 
-    PID_TDagent = ControlledTDLearning(
+    PID_TDagent = Hard_PID_TD(
         env,
         policy,
         0.99,
         learning_rate_function(1, 0)
     )
-    TDagent = ControlledTDLearning(
+    TDagent = Hard_PID_TD(
         env,
         policy,
         0.99,

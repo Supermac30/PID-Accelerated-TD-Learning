@@ -4,18 +4,16 @@ Notes about the hyperparameter tuning procedure:
 - The seed is randomly chosen, i.e. not fixed. Hopefully, the results are not dependent on this. It may be worth running this again to corroborate the results.
 - The parameters are turned with respect to minimizing the L1 norm, i.e. we take
                argmin_theta ||V_theta - V^pi||_1
-- We tune after 5000 steps of training.
+- We tune after 10000 steps of training.
 - The learning rate functions used are min(c, N/(k + 1)), with a different function on each component
 """
 
-from Experiments.ExperimentHelpers import find_optimal_learning_rates, find_optimal_pid_learning_rates, get_env_policy, find_Vpi, build_test_function, learning_rate_function
-from Experiments.AdaptiveAgentBuilder import build_adaptive_agent
-from Agents import ControlledTDLearning
-import pickle
+from Experiments.ExperimentHelpers import find_optimal_learning_rates, find_Vpi, build_test_function, learning_rate_function
+from Experiments.AdaptiveAgentBuilder import build_adaptive_agent_and_env
+from Experiments.AgentBuilder import build_agent_and_env
+from Agents import PID_TD
 import logging
-
-
-FILE_NAME = "Experiments/optimal_learning_rates.pickle"
+from Experiments.OptimalRateDatabase import get_stored_optimal_rate, store_optimal_rate
 
 exhaustive_learning_rates = [
     {
@@ -41,120 +39,109 @@ exhaustive_learning_rates = [
         }
 ]
 
-def get_optimal_pid_rates(env_name, kp, kd, ki, recompute=False):
+exhaustive_meta_lr = [
+    0.1,
+    0.01,
+    0.001,
+    0.0001
+]
+
+def get_optimal_pid_rates(env_name, kp, kd, ki, alpha, beta, gamma, recompute=False):
     """Find the optimal rates for the choice of controller gains and environment.
     If this has been done before, get the optimal rates from the file of stored rates.
 
     If recompute is True, recompute the learning rates even if it is in the file of stored rates.
     """
-    optimal_rates = get_stored_optimal_rate((kp, ki, kd), env_name)
+    optimal_rates = get_stored_optimal_rate((kp, ki, kd), env_name, gamma)
     if optimal_rates is None or recompute:
-        optimal_rates = run_pid_search(env_name, kp, kd, ki, -1, 1)
-        put_optimal_rate((kp, ki, kd), env_name, optimal_rates)
+        optimal_rates = run_pid_search(env_name, kp, kd, ki, alpha, beta, -1, 1, gamma)
+        store_optimal_rate((kp, ki, kd), env_name, optimal_rates)
 
     logging.info(f"The optimal rates for {(env_name, kp, kd, ki)} are: {optimal_rates}")
 
     return optimal_rates
 
-def get_optimal_adaptive_rates(agent_name, env_name, recompute=False):
+def get_optimal_adaptive_rates(agent_name, env_name, gamma, recompute=False):
     """Find the optimal rates for the choice of adaptive agent and environment.
     If this has been done before, get the optimal rates from the file of stored rates.
 
     If recompute is True, recompute the learning rates even if it is in the file of stored rates.
     """
-    optimal_rates = get_stored_optimal_rate(agent_name, env_name)
+    optimal_rates = get_stored_optimal_rate(agent_name, env_name, gamma)
     if optimal_rates is None or recompute:
-        optimal_rates = run_adaptive_search(agent_name, env_name, -1, 1)
+        optimal_rates = run_adaptive_search(agent_name, env_name, -1, 1, gamma, meta_lr=set_meta_lr(agent_name))
+        store_optimal_rate(agent_name, env_name, optimal_rates, gamma)
 
     logging.info(f"The optimal rates for {(env_name, agent_name)} are: {optimal_rates}")
 
     return optimal_rates
 
-def run_pid_search(env_name, kp, kd, ki, seed, norm):
+def run_pid_search(env_name, kp, kd, ki, alpha, beta, seed, norm, gamma):
     """Run a grid search on the exhaustive learning rates for the choice of controller gains"""
-    env, policy = get_env_policy(env_name, seed)
+    agent, env, policy = build_agent_and_env(("TD", kp, ki, kd, alpha, beta), env_name, seed=seed, gamma=gamma)
     V_pi = find_Vpi(env, policy)
-    agent = ControlledTDLearning(
-        env,
-        policy,
-        0.99,
-        learning_rate_function(1, 1)
-    )
-    _, rates = find_optimal_pid_learning_rates(
+    _, rates = find_optimal_learning_rates(
         agent,
-        kp,
-        kd,
-        ki,
-        build_test_function(norm, V_pi),
-        5000,
-        True,
-        *exhaustive_learning_rates,
-        True
-    )
-
-    return rates
-
-def run_adaptive_search(agent_name, env_name, seed, norm):
-    """Run a grid search on the exhaustive learning rates for the choice of adaptive agent"""
-    env, policy = get_env_policy(env_name, seed)
-    V_pi = find_Vpi(env, policy)
-    agent = build_adaptive_agent(agent_name, env_name)
-
-    return find_optimal_learning_rates(
-        agent,
-        agent.estimate_value_function(
-            10000,
-            build_test_function(norm, V_pi)
+        lambda: agent.estimate_value_function(
+            num_iterations=10000,
+            test_function=build_test_function(norm, V_pi)
         ),
         True,
-        *exhaustive_learning_rates,
+        *exhaustive_learning_rates[0],
         True
     )
+    return rates
 
-def get_stored_optimal_rate(model, env_name):
-    """If the optimal rate is in FILE_NAME then return it,
-    otherwise return None
+def run_adaptive_search(agent_name, env_name, seed, norm, gamma, meta_lr=False):
+    """Run a grid search on the exhaustive learning rates for the choice of adaptive agent
 
-    model: A consistent description of the model name, either a string or tuple
-    env_name: A consistent description of the environment, a string
-
-    If the file is not found, raise a FileNotFoundException
+    If meta_lr is True, run a grid search on exhaustive_meta_lr. Otherwise, set it to 1.
     """
-    with open(FILE_NAME, 'rb') as f:
-        optimal_rates = pickle.load(f)
-    if (model, env_name) in optimal_rates:
-        return optimal_rates[(model, env_name)]
-    return None
+    if meta_lr:
+        search = [1]
+    else:
+        search = exhaustive_meta_lr
 
-def put_optimal_rate(model, env_name, optimal_rate):
-    """Store the optimal rate in FILE_NAME.
+    optimal_value, optimal_rates = float("inf"), None
+    for meta_lr in search:
+        agent, env, policy = build_adaptive_agent_and_env(agent_name, env_name, meta_lr_value=meta_lr, seed=seed, gamma=gamma)
+        V_pi = find_Vpi(env, policy)
 
-    model: A consistent description of the model name, either a string or tuple
-    env_name: A consistent description of the environment, a string
-    optimal_rate: A tuple of learning rates for each component
+        history, rates = find_optimal_learning_rates(
+            agent,
+            lambda: agent.estimate_value_function(
+                num_iterations=10000,
+                test_function=build_test_function(norm, V_pi)
+            ),
+            True,
+            *exhaustive_learning_rates,
+            True
+        )
 
-    If the file is not found, raise a FileNotFoundException
+        if history[-1] < optimal_value:
+            optimal_value, optimal_rates = history[-1], rates
+
+    return optimal_rates
+
+def set_meta_lr(agent_name):
+    """Return True if meta_lr should be set for this agent_name, and otherwise return False.
+    That is, simply implement a look up table that returns whether the meta learning rate actually
+    matters, or can simply be absorbed into the learning rate.
     """
-    with open(FILE_NAME, 'rb') as f:
-        optimal_rates = pickle.load(f)
-
-    optimal_rates[(model, env_name)] = optimal_rate
-
-    # save the updated dictionary to the same pickle file
-    with open(FILE_NAME, 'wb') as f:
-        pickle.dump(optimal_rates, f, protocol=pickle.HIGHEST_PROTOCOL)
+    # TODO:
+    return False
 
 if __name__ == '__main__':
     logging.basicConfig()
     logging.root.setLevel(logging.NOTSET)
 
     pid_tests = [
-        (1, 0, 0),
-        (1, 0.1, 0),
-        (1, 0.2, 0),
-        (1, 0.3, 0),
-        (1, 0.4, -0.2)
+        (1, 0, 0, 0.05, 0.95),
+        (1, 0.1, 0, 0.05, 0.95),
+        (1, 0.2, 0, 0.05, 0.95),
+        (1, 0.3, 0, 0.05, 0.95),
+        (1, 0.4, -0.2, 0.05, 0.95)
     ]
 
-    for (kp, kd, ki) in pid_tests:
-        get_optimal_pid_rates("chain walk", kp, kd, ki)
+    for (kp, kd, ki, alpha, beta) in pid_tests:
+        get_optimal_pid_rates("chain walk", kp, kd, ki, alpha, beta, gamma)

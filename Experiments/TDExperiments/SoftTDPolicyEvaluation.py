@@ -3,14 +3,14 @@ import numpy as np
 import hydra
 
 from Environments import ChainWalk
-from Agents import SoftControlledTDLearning
+from Agents import PID_TD
 from Experiments.ExperimentHelpers import *
 
 @hydra.main(version_base=None, config_path="../../config/TDExperiments", config_name="SoftTDPolicyEvaluation")
 def soft_policy_evaluation_experiment(cfg):
     """Experiments with policy evaluation and TD"""
     env, policy = get_env_policy(cfg['env'], cfg['seed'])
-    agent = SoftControlledTDLearning(
+    agent = PID_TD(
         env,
         policy,
         0.99,

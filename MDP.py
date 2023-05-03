@@ -22,37 +22,55 @@ class MDP:
     self.P is the transition probability kernel of some policy
     self.gamma is the discount factor
     """
-    def __init__(self, num_states, num_actions, R, P, gamma):
+    def __init__(self, num_states, num_actions, R, P, kp, ki, kd, alpha, beta, gamma):
         self.num_states = num_states
         self.num_actions = num_actions
         self.R = R
         self.P = P
         self.gamma = gamma
 
+        self.kp = kp
+        self.ki = ki
+        self.kd = kd
+        self.alpha = alpha
+        self.beta = beta
+
+        self.reset()
+
+    def reset(self):
+        """Reset the MDP to its initial state."""
+        self.V = np.zeros((self.num_states, 1))
+        self.Vp = np.zeros((self.num_states, 1))
+        self.z = np.zeros((self.num_states, 1))
+
     def value_iteration(self, *controllers, num_iterations=500, test_function=None):
         """Compute the value function via VI using the added controllers.
         If test_function is not None, the history of test_function evaluated at V1, V0, BR is returned,
         otherwise, history is full of zeroes.
         """
-        # V1 is the current value function, V0 is the previous value function
-        V0 = np.zeros((self.num_states, 1))
-        V1 = np.zeros((self.num_states, 1))
-
         # The history of the norms
         history = np.zeros(num_iterations)
 
         for k in range(num_iterations):
-            TV = self.bellman_operator(V1)
-            BR = TV - V1
-            V0, V1 = V1, V1 + sum(map(lambda n: n.evaluate_controller(BR, V1, V0), controllers))
+            TV = self.bellman_operator(self.V)
+            BR = TV - self.V
+
+            # Deprecated, but keeping these here to allow the novel controller experiments to work
+            # TODO: Remove these
+            if len(controllers) == 0:
+                update += sum(map(lambda n: n.evaluate_controller(BR, self.V, self.Vp), controllers))
+
+            self.z = self.beta * self.z + self.alpha * BR
+            update = self.kp * BR + self.ki * self.z + self.kd * (self.V - self.Vp)
+            self.Vp, self.V = self.V, self.V + update
 
             if test_function is not None:
-                history[k] = test_function(V1, V0, BR)
+                history[k] = test_function(self.V, self.Vp, BR)
 
         if test_function is None:
-            return V1
+            return self.V
 
-        return history, V1
+        return history, self.V
 
     def bellman_operator(self, V):
         """Computes the Bellman Operator.

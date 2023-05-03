@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import hydra
 
-from Agents import FarSightedControlledTD
+from Agents import FarSighted_PID_TD
 from Experiments.ExperimentHelpers import *
 
 @hydra.main(version_base=None, config_path="../../config/TDExperiments", config_name="FarSightedUpdate")
@@ -13,7 +13,7 @@ def far_sighted_update_experiment(cfg):
     V_pi = find_Vpi(env, policy)
 
     for delay in cfg['delays']:
-        agent = FarSightedControlledTD(
+        agent = FarSighted_PID_TD(
             env,
             policy,
             0.99,

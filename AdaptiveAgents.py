@@ -17,19 +17,18 @@ class AbstractAdaptiveAgent(Agent):
         self.gain_updater.set_agent(self)
 
         self.kp, self.ki, self.kd = 1, 0, 0
-        self.alpha, self.beta = 0.95, 0.05
+        self.alpha, self.beta = 0.05, 0.95
         self.lr = 0
 
         self.replay_buffer = defaultdict(list)
 
-        self.V, self.Vp, self.z = np.zeros((self.num_states, 1)), np.zeros((self.num_states, 1)), np.zeros((self.num_states, 1))
-        self.previous_V, self.previous_Vp, self.previous_z = np.zeros((self.num_states, 1)), np.zeros((self.num_states, 1)), np.zeros((self.num_states, 1))
-        self.previous_previous_V = np.zeros((self.num_states, 1))
+        self.V, self.Vp, self.z, self.previous_V, self.previous_Vp, self.previous_z, self.previous_previous_V \
+            = (np.zeros((self.num_states, 1), dtype=np.longdouble) for _ in range(7))
 
         self.previous_state, self.current_state, self.next_state = 0, 0, 0
         self.previous_reward, self.reward = 0, 0
 
-    def estimate_value_function(self, num_iterations=1000, test_function=None, initial_V=None):
+    def estimate_value_function(self, num_iterations=1000, test_function=None, initial_V=None, stop_if_diverging=True):
         self.environment.reset()
         # V is the current value function, Vp is the previous value function
         # Vp stores the previous value of the x state when it was last changed
@@ -51,9 +50,12 @@ class AbstractAdaptiveAgent(Agent):
             )
 
             self.frequencies[self.current_state] += 1
-            self.update_value()
             if (k + 1) % self.update_frequency == 0:
+                self.gain_updater.calculate_updated_values()
+                self.update_value()
                 self.gain_updater.update_gains()
+            else:
+                self.update_value()
 
             # Keep a record
             gain_history[k][0] = self.kp
@@ -64,6 +66,9 @@ class AbstractAdaptiveAgent(Agent):
 
             if test_function is not None:
                 history[k] = test_function(self.V, self.Vp, self.BR)
+                if stop_if_diverging and history[k] > 10 * history[0]:
+                    history[k:] = float("inf")
+                    break
 
         if test_function is not None:
             return self.V, gain_history, history
@@ -102,25 +107,25 @@ class AdaptiveSamplerAgent(AbstractAdaptiveAgent):
         self.previous_Vp[state], self.Vp[state] = self.Vp[state], (1 - update_D_rate) * self.Vp[state] + update_D_rate * new_Vp[state]
 
     def BR(self):
-        """Return the empirical bellman"""
+        """Return the empirical bellman residual"""
         return self.reward + self.gamma * self.V[self.next_state] - self.V[self.current_state]
 
 
 class AdaptivePlannerAgent(AbstractAdaptiveAgent):
     def __init__(self, R, transition, gain_updater, learning_rates, meta_lr, environment, policy, gamma, update_frequency=1):
         self.transition = transition
-        self.R = R
+        self.R = R.reshape((-1, 1))
         super().__init__(gain_updater, learning_rates, meta_lr, environment, policy, gamma, update_frequency)
 
     def update_value(self):
         BR = self.BR()
-        self.previous_V, self.V = self.V, self.V + self.kp * BR + self.kd * (self.V - self.Vp) + self.ki * (self.beta * self.z + self.alpha * BR)
         self.previous_z, self.z = self.z, self.beta * self.z + self.alpha * BR
-        self.previous_Vp, self.Vp = self.Vp, self.V
+        self.previous_Vp, self.Vp, self.previous_previous_V, self.previous_V, self.V = \
+            self.Vp, self.V, self.previous_V, self.V, self.V + self.kp * BR + self.kd * (self.V - self.previous_V) + self.ki * self.z
 
     def BR(self):
-        """Return the bellman"""
-        return self.R + self.gamma * self.transition * self.V - self.V
+        """Return the bellman residual"""
+        return self.R + self.gamma * self.transition @ self.V - self.V
 
 
 
@@ -132,14 +137,29 @@ class AbstractGainUpdater():
         self.agent = None
         self.epsilon = 1e-20
 
+        self.kp = 1
+        self.ki = 0
+        self.kd = 0
+        self.alpha = 0.05
+        self.beta = 0.95
+
     def set_agent(self, agent):
         self.agent = agent
         self.num_states = self.agent.num_states
         self.gamma = self.agent.gamma
         self.meta_lr = self.agent.meta_lr
 
-    def update_gains(self):
+    def calculate_updated_values(self):
         raise NotImplementedError
+
+    def update_gains(self):
+        self.agent.kp = self.kp
+        self.agent.ki = self.ki
+        self.agent.kd = self.kd
+
+        # For now, don't update alpha and beta, later add functionality to be able to choose whether or not to update them
+        # self.agent.alpha = self.alpha
+        # self.agent.beta = self.beta
 
 
 class SoftGainUpdater():
@@ -150,17 +170,17 @@ class SoftGainUpdater():
 
         super().__init__()
 
-    def update_gains(self):
+    def calculate_updated_values(self):
         reward = self.agent.previous_reward, self.agent.reward
         next_state, current_state = self.agent.next_state, self.agent.current_state, self.agent.previous_state
         V, Vp, z = self.agent.V, self.agent.Vp, self.agent.z
-        alpha, beta = self.agent.alpha, self.agent.beta
+        alpha, beta = self.alpha, self.beta
         gamma, lr = self.gamma, self.agent.lr, self.agent.previous_lr
 
-        BR = reward + self.gamma * V[next_state] - V[current_state]
-        self.agent.kp -= self.meta_lr * BR * self.fp[current_state]
-        self.agent.kd -= self.meta_lr * BR * self.fd[current_state]
-        self.agent.ki -= self.meta_lr * BR * self.fi[current_state]
+        BR = reward + gamma * V[next_state] - V[current_state]
+        self.kp -= self.meta_lr * BR * self.fp[current_state]
+        self.kd -= self.meta_lr * BR * self.fd[current_state]
+        self.ki -= self.meta_lr * BR * self.fi[current_state]
 
         self.fp[current_state] += lr * BR
         self.fd[current_state] += lr * (V[current_state] - Vp[current_state])
@@ -169,7 +189,7 @@ class SoftGainUpdater():
 
 class EmpiricalCostUpdater(AbstractGainUpdater):
     """We need agent.update_frequency = 2 for this to mathematically make sense"""
-    def update_gains(self):
+    def calculate_updated_values(self):
         previous_reward, reward = self.agent.previous_reward, self.agent.reward
         next_state, current_state, previous_state = self.agent.next_state, self.agent.current_state, self.agent.previous_state
         next_V, V, previous_V = self.agent.V, self.agent.previous_V, self.agent.previous_previous_V
@@ -195,7 +215,7 @@ class EmpiricalCostUpdater(AbstractGainUpdater):
         BR_kd_grad = approx_diff(current_difference, previous_difference)
 
         # Find the derivative of BR with respect to ki, alpha, and beta
-        ki, alpha, beta = self.agent.ki, self.agent.alpha, self.agent.beta
+        ki, alpha, beta = self.ki, self.alpha, self.beta
         z, previous_z = self.agent.z, self.agent.previous_z
         current_z_update = beta * z[current_state] - alpha * current_BR
         previous_z_update = beta * previous_z[previous_state] - alpha * previous_BR
@@ -225,11 +245,11 @@ class EmpiricalCostUpdater(AbstractGainUpdater):
         )
 
         meta_lr = self.meta_lr
-        self.agent.kp -= meta_lr * update(BR_kp_grad)
-        self.agent.kd -= meta_lr * update(BR_kd_grad)
-        self.agent.ki -= meta_lr * update(BR_ki_grad)
-        self.agent.alpha -= meta_lr * update(BR_alpha_grad)
-        self.agent.beta -= meta_lr * update(BR_beta_grad)
+        self.kp -= meta_lr * update(BR_kp_grad)
+        self.kd -= meta_lr * update(BR_kd_grad)
+        self.ki -= meta_lr * update(BR_ki_grad)
+        self.alpha -= meta_lr * update(BR_alpha_grad)
+        self.beta -= meta_lr * update(BR_beta_grad)
 
 
 class AbstractOriginalCostUpdater(AbstractGainUpdater):
@@ -237,16 +257,16 @@ class AbstractOriginalCostUpdater(AbstractGainUpdater):
         super().__init__()
         self.scale_by_lr = scale_by_lr
 
-    def update_gains(self):
+    def calculate_updated_values(self):
         partial_br_kp, partial_br_ki, partial_br_kd, partial_br_beta, BR_current, BR_previous = self.get_gradient_terms()
 
-        normalizer = self.epsilon + np.linalg.norm(BR_previous, 2) ** 2
+        normalizer = self.epsilon + BR_previous.T @ BR_previous
 
         kp_grad = (BR_current.T @ partial_br_kp) / normalizer
         ki_grad = (BR_current.T @ partial_br_ki) / normalizer
         kd_grad = (BR_current.T @ partial_br_kd) / normalizer
         beta_grad = (BR_current.T @ partial_br_beta) / normalizer
-        alpha_grad = self.agent.ki * kp_grad
+        alpha_grad = self.ki * kp_grad
 
         # Renormalize alpha and beta
         # self.alpha, self.beta = self.alpha / (self.alpha + self.beta), self.beta / (self.alpha + self.beta)
@@ -256,11 +276,11 @@ class AbstractOriginalCostUpdater(AbstractGainUpdater):
         else:
             lr = self.meta_lr
 
-        self.agent.alpha -= lr * alpha_grad[0][0]
-        self.agent.beta -= lr * beta_grad[0][0]
-        self.agent.kp -= lr * kp_grad[0][0]
-        self.agent.ki -= lr * ki_grad[0][0]
-        self.agent.kd -= lr * kd_grad[0][0]
+        self.kp -= lr * kp_grad[0][0]
+        self.ki -= lr * ki_grad[0][0]
+        self.kd -= lr * kd_grad[0][0]
+        self.alpha -= lr * alpha_grad[0][0]
+        self.beta -= lr * beta_grad[0][0]
 
     def get_gradient_terms():
         raise NotImplementedError
@@ -269,20 +289,27 @@ class AbstractOriginalCostUpdater(AbstractGainUpdater):
 class ExactUpdater(AbstractOriginalCostUpdater):
     def __init__(self, transition, reward, scale):
         super().__init__(scale)
-        self.transition = transition
-        self.reward = reward.reshape(-1, 1)
+        self.transition = transition.astype(np.float64)
+        self.reward = reward.reshape(-1, 1).astype(np.float64)
 
     def get_gradient_terms(self):
-        V, Vp, Vpp = self.agent.V, self.agent.previous_V, self.agent.previous_Vp
+        V, Vp, Vpp = self.agent.V, self.agent.previous_V, self.agent.previous_previous_V
         z, zp = self.agent.z, self.agent.previous_z
 
-        BR_current = self.gamma * self.transition @ V + self.reward - V
-        BR_previous = self.gamma * self.transition @ Vp + self.reward - Vp
+        # The expression for the bellman residual is
+        # BR = r + gamma * P * V - V
+        # where r is the reward vector, gamma is the discount factor, P is the transition matrix, and V is the value vector
+        BR = lambda n: self.gamma * self.transition @ n + self.reward - n
 
-        partial_br_kp = (self.gamma * self.transition @ BR_previous) - BR_previous
-        partial_br_kd = (self.gamma * self.transition @ (Vp - Vpp)) - (Vp - Vpp)
-        partial_br_ki = (self.gamma * self.transition @ z) - z
-        partial_br_beta = (self.gamma * self.transition @ zp) - zp
+        BR_current = BR(V)
+        BR_previous = BR(Vp)
+
+        mult = lambda n: (self.gamma * self.transition @ n) - n
+
+        partial_br_kp = mult(BR_previous)
+        partial_br_kd = mult(Vp - Vpp)
+        partial_br_ki = mult(z)
+        partial_br_beta = self.ki * mult(zp)
 
         return partial_br_kp, partial_br_ki, partial_br_kd, partial_br_beta, BR_current, BR_previous
 
@@ -373,7 +400,7 @@ class SamplerUpdater(AbstractOriginalCostUpdater):
             BR_current[state] /= self.sample_size
             BR_previous[state] /= self.sample_size
 
-        partial_br_beta *= self.agent.ki
+        partial_br_beta *= self.ki
 
         return partial_br_kp, partial_br_ki, partial_br_kd, partial_br_beta, BR_current, BR_previous
 
@@ -387,7 +414,7 @@ class HalfExactUpdater(AbstractOriginalCostUpdater):
         self.sample_size = sample_size
 
     def get_gradient_terms(self):
-        V, Vp, Vpp = self.agent.V, self.agent.previous_V, self.agent.previous_Vp
+        V, Vp, Vpp = self.agent.V, self.agent.previous_V, self.agent.previous_previous_V
         z, zp = self.agent.z, self.agent.previous_z
         replay_buffer = self.agent.replay_buffer
 
@@ -401,12 +428,12 @@ class HalfExactUpdater(AbstractOriginalCostUpdater):
 
         for state in range(self.num_state):
             for _ in range(self.sample_size):
-                previous_reward, reward, previous_state, next_state = \
+                _, reward, _, next_state = \
                     replay_buffer[state][np.random.randint(0, len(replay_buffer[state]))]
                 BR_current[state] += reward + self.gamma * V[next_state] - V[state]
 
             for _ in range(self.sample_size):
-                previous_reward, reward, previous_state, next_state = \
+                _, reward, _, next_state = \
                     replay_buffer[state][np.random.randint(0, len(replay_buffer[state]))]
                 BR_previous[state] += reward + self.gamma * Vp[next_state] - Vp[state]
 

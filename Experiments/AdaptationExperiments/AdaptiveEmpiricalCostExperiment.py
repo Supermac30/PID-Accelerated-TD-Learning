@@ -5,7 +5,7 @@ import numpy as np
 import hydra
 
 from AdaptiveAgents import AdaptiveSamplerAgent, EmpiricalCostUpdater
-from Agents import ControlledTDLearning
+from Agents import Hard_PID_TD
 from Experiments.ExperimentHelpers import *
 
 @hydra.main(version_base=None, config_path="../../config/AdaptationExperiments", config_name="AdaptiveEmpiricalCostExperiment")
@@ -39,7 +39,7 @@ def adaptive_agent_experiment(cfg):
 
     save_array(history, f"Adaptive Agent", ax)
 
-    TDagent = ControlledTDLearning(env, policy, 0.99, learning_rate_function(10 * cfg['alpha_P'], cfg['N_P']))
+    TDagent = Hard_PID_TD(env, policy, 0.99, learning_rate_function(10 * cfg['alpha_P'], cfg['N_P']))
     TDhistory = run_PID_TD_experiment(TDagent, 1, 0, 0, test_function, cfg['num_iterations'])
     save_array(TDhistory, f"TD Agent", ax)
 

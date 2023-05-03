@@ -166,83 +166,22 @@ def find_optimal_learning_rates(agent, value_function_estimator, isSoft, learnin
     return minimum_history, minimum_params
 
 
-def find_optimal_pid_learning_rates(agent, kp, kd, ki, test_function, num_iterations, isSoft, learning_rates={}, update_D_rates={}, update_I_rates={}, verbose=False):
-    """Runs the find_optimal_learning_rates function for a agent that uses a PID controller."""
-
-    # There is no reason to test parameters which aren't important
-    if kd == 0:
-        update_D_rates = {
-            1: {float("inf")},  # Mimics hard update
-        }
-    if ki == 0:
-        update_I_rates = {
-            1: {float("inf")},  # Mimics hard update
-        }
-
-    return find_optimal_learning_rates(
-        agent,
-        lambda: run_PID_TD_experiment(agent, kp, kd, ki, test_function, num_iterations),
-        isSoft,
-        learning_rates,
-        update_D_rates,
-        update_I_rates,
-        verbose
-    )
-
-
-def run_PID_TD_experiment(agent, kp, kd, ki, test_function, num_iterations=5000):
-    """Have the agent estimate the value function using some choice of control gains,
-    and graph the value of test_function during training.
-
-    test_function should be a function that takes in V, Vp, BR and returns a real number.
-    If graph is None, nothing is plotted.
-
-    Return the average history of test_function during training.
+def repeat_experiment(agent, num_times, **kwargs):
+    """Run the experiment num_times times and return the average history.
+    Take as input the parameters to the estimate_value_function function.
     """
-    p_controller = P_Controller(kp * np.identity(agent.num_states))
-    d_controller = D_Controller(kd * np.identity(agent.num_states))
-    i_controller = I_Controller(0.05, 0.95, ki * np.identity(agent.num_states))
+    average_history = 0
 
-    average_history = [0]
-    for _ in range(10):
-        history, V = agent.estimate_value_function(
-            p_controller,
-            d_controller,
-            i_controller,
-            test_function=test_function,
-            num_iterations=num_iterations
-        )
+    for _ in range(num_times):
+        history = agent.estimate_value_function(kwargs)
+        average_history += np.array(history)
 
-        average_history = average_history + history
-    average_history /= 10
+    average_history /= num_times
 
     return average_history
 
 
-def run_VI_experiment(agent, kp, kd, ki, test_function, num_iterations=500):
-    """Have the agent estimate the value function using some choice of control gains,
-    and graph the value of test_function during training.
-
-    test_function should be a function that takes in V, Vp, BR and returns a real number.
-    If graph is None, nothing is plotted.
-
-    Return the history of test_function during training.
-    """
-    p_controller = P_Controller(kp * np.identity(agent.num_states))
-    d_controller = D_Controller(kd * np.identity(agent.num_states))
-    i_controller = I_Controller(0.05, 0.95, ki * np.identity(agent.num_states))
-    history, V = agent.value_iteration(
-        p_controller,
-        d_controller,
-        i_controller,
-        test_function=test_function,
-        num_iterations=num_iterations
-    )
-
-    return history
-
-
-def find_Vpi(env, policy):
+def find_Vpi(env, policy, gamma=0.99):
     """Find a good approximation of the value function of policy in an environment.
     """
     oracle = PolicyEvaluation(
@@ -250,14 +189,14 @@ def find_Vpi(env, policy):
         env.num_actions,
         env.build_policy_reward_vector(policy),
         env.build_policy_probability_transition_kernel(policy),
-        0.99
+        gamma
     )
 
     p_controller = P_Controller(np.identity(env.num_states))
     return oracle.value_iteration(p_controller, num_iterations=10000)
 
 
-def find_Vstar(env):
+def find_Vstar(env, gamma=0.99):
     """Find a good approximation of the value function of the optimal policy in an environment.
     """
     oracle = Control(
@@ -265,7 +204,7 @@ def find_Vstar(env):
         env.num_actions,
         env.build_reward_matrix(),
         env.build_probability_transition_kernel(),
-        0.99
+        gamma
     )
 
     p_controller = P_Controller(np.identity(env.num_states))
