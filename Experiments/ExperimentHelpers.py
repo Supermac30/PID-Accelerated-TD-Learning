@@ -4,7 +4,6 @@ import itertools
 import os
 import logging
 
-from Controllers import P_Controller
 from MDP import PolicyEvaluation, Control
 from Environments import ChainWalk, Garnet, CliffWalk
 
@@ -189,11 +188,10 @@ def find_Vpi(env, policy, gamma=0.99):
         env.num_actions,
         env.build_policy_reward_vector(policy),
         env.build_policy_probability_transition_kernel(policy),
+        1,0,0,0,0,
         gamma
     )
-
-    p_controller = P_Controller(np.identity(env.num_states))
-    return oracle.value_iteration(p_controller, num_iterations=10000)
+    return oracle.value_iteration(num_iterations=10000)
 
 
 def find_Vstar(env, gamma=0.99):
@@ -204,11 +202,10 @@ def find_Vstar(env, gamma=0.99):
         env.num_actions,
         env.build_reward_matrix(),
         env.build_probability_transition_kernel(),
+        1,0,0,0,0,
         gamma
     )
-
-    p_controller = P_Controller(np.identity(env.num_states))
-    return oracle.value_iteration(p_controller, num_iterations=10000)
+    return oracle.value_iteration(num_iterations=10000)
 
 
 def save_array(nparr, name, graph=None):

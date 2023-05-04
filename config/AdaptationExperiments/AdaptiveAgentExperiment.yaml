@@ -2,9 +2,11 @@ env: chain walk
 norm: 1
 num_iterations: 6100
 
-agent_name: planner
+agent_name: naive soft sampler
 get_optimal: False
-meta_lr: 0.1
+meta_lr: 0.01
+
+gamma: 0.99
 
 seed: -1
 hydra:

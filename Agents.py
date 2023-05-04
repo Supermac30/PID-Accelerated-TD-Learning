@@ -110,6 +110,7 @@ class PID_TD(Agent):
             Note: From a design perspective, this was a bad choice. In the summer,
             I should come back and clean up this part of the code
         """
+        super().__init__(environment, policy, gamma)
         if type(learning_rate) == type(()):
             self.learning_rate = learning_rate[0]
             self.update_I_rate = learning_rate[1]
@@ -122,9 +123,7 @@ class PID_TD(Agent):
         self.kd = kd
         self.alpha = alpha
         self.beta = beta
-
         self.reset()
-        super().__init__(environment, policy, gamma)
 
     def reset(self):
         """Reset parameters to be able to run a new test."""

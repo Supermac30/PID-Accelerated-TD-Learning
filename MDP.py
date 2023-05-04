@@ -57,11 +57,12 @@ class MDP:
 
             # Deprecated, but keeping these here to allow the novel controller experiments to work
             # TODO: Remove these
+            update = 0
             if len(controllers) == 0:
                 update += sum(map(lambda n: n.evaluate_controller(BR, self.V, self.Vp), controllers))
 
             self.z = self.beta * self.z + self.alpha * BR
-            update = self.kp * BR + self.ki * self.z + self.kd * (self.V - self.Vp)
+            update += self.kp * BR + self.ki * self.z + self.kd * (self.V - self.Vp)
             self.Vp, self.V = self.V, self.V + update
 
             if test_function is not None:

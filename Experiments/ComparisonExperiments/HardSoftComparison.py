@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
 import hydra
 
-from Agents import Hard_PID_TD, PID_TD
 from Experiments.ExperimentHelpers import *
 from Experiments.AgentBuilder import build_agent_and_env
 

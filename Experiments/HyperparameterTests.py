@@ -72,6 +72,21 @@ def run_pid_search(env_name, kp, kd, ki, alpha, beta, seed, norm, gamma):
     """Run a grid search on the exhaustive learning rates for the choice of controller gains"""
     agent, env, policy = build_agent_and_env(("TD", kp, ki, kd, alpha, beta), env_name, seed=seed, gamma=gamma)
     V_pi = find_Vpi(env, policy)
+
+    # Don't search over the learning rates for the components that are 0
+    if kp == 0:
+        learning_rates = {1: {float("inf")}}
+    else:
+        learning_rates = exhaustive_learning_rates[0]
+    if kd == 0:
+        update_D_rates = {1: {float("inf")}}
+    else:
+        update_D_rates = exhaustive_learning_rates[1]
+    if ki == 0:
+        update_I_rates = {1: {float("inf")}}
+    else:
+        update_I_rates = exhaustive_learning_rates[2]
+
     _, rates = find_optimal_learning_rates(
         agent,
         lambda: agent.estimate_value_function(
@@ -79,14 +94,15 @@ def run_pid_search(env_name, kp, kd, ki, alpha, beta, seed, norm, gamma):
             test_function=build_test_function(norm, V_pi)
         ),
         True,
-        *exhaustive_learning_rates[0],
+        learning_rates,
+        update_D_rates,
+        update_I_rates,
         True
     )
     return rates
 
 def run_adaptive_search(agent_name, env_name, seed, norm, gamma, meta_lr):
-    """Run a grid search on the exhaustive learning rates for the choice of adaptive agent
-    """
+    """Run a grid search on the exhaustive learning rates for the choice of adaptive agent"""
     optimal_value, optimal_rates = float("inf"), None
     agent, env, policy = build_adaptive_agent_and_env(agent_name, env_name, meta_lr_value=meta_lr, seed=seed, gamma=gamma)
     V_pi = find_Vpi(env, policy)

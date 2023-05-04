@@ -33,7 +33,7 @@ def build_adaptive_agent_and_env(agent_name, env_name, get_optimal=False, meta_l
 
     Return None if the names are not in the list of possible names.
     """
-    env, policy = get_env_policy(env_name, seed, gamma)
+    env, policy = get_env_policy(env_name, seed)
     agent = build_adaptive_agent(agent_name, env_name, env, policy, get_optimal, meta_lr_value, gamma)
     return agent, env, policy
 
@@ -84,7 +84,7 @@ def build_planner(env, policy, meta_lr, learning_rates, gamma):
         gamma
     )
 
-def build_true_cost(env, policy, learning_rates, meta_lr, gamma):
+def build_true_cost(env, policy, meta_lr, learning_rates, gamma):
     reward = env.build_policy_reward_vector(policy)
     transition = env.build_policy_probability_transition_kernel(policy)
     gain_updater = ExactUpdater(transition, reward, True)
@@ -97,7 +97,7 @@ def build_true_cost(env, policy, learning_rates, meta_lr, gamma):
         gamma
     )
 
-def build_sampled_true_cost(env, policy, learning_rates, meta_lr, gamma):
+def build_sampled_true_cost(env, policy, meta_lr, learning_rates, gamma):
     reward = env.build_policy_reward_vector(policy)
     transition = env.build_policy_probability_transition_kernel(policy)
 
@@ -111,7 +111,7 @@ def build_sampled_true_cost(env, policy, learning_rates, meta_lr, gamma):
         gamma
     )
 
-def build_sampled_empirical_cost(env, policy, learning_rates, meta_lr, gamma):
+def build_sampled_empirical_cost(env, policy, meta_lr, learning_rates, gamma):
     gain_updater = SamplerUpdater(10, True)
     return AdaptiveSamplerAgent(
         gain_updater,
@@ -122,8 +122,8 @@ def build_sampled_empirical_cost(env, policy, learning_rates, meta_lr, gamma):
         gamma
     )
 
-def build_naive_soft_updates(env, policy, learning_rates, meta_lr, gamma):
-    gain_updater = SoftGainUpdater()
+def build_naive_soft_updates(env, policy, meta_lr, learning_rates, gamma):
+    gain_updater = SoftGainUpdater(env.num_states)
     return AdaptiveSamplerAgent(
         gain_updater,
         learning_rates,

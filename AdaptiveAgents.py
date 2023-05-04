@@ -21,6 +21,7 @@ class AbstractAdaptiveAgent(Agent):
         self.kp, self.ki, self.kd = 1, 0, 0
         self.alpha, self.beta = 0.05, 0.95
         self.lr = 0
+        self.previous_lr = 0
 
         self.replay_buffer = defaultdict(list)
 
@@ -164,20 +165,18 @@ class AbstractGainUpdater():
         # self.agent.beta = self.beta
 
 
-class SoftGainUpdater():
-    def __init__(self):
-        self.fp = np.zeros((self.num_states, 1))
-        self.fd = np.zeros((self.num_states, 1))
-        self.fi = np.zeros((self.num_states, 1))
+class SoftGainUpdater(AbstractGainUpdater):
+    def __init__(self, num_states):
+        self.fp, self.fd, self.fi = (np.zeros((num_states, 1)) for _ in range(3))
 
         super().__init__()
 
     def calculate_updated_values(self):
-        reward = self.agent.previous_reward, self.agent.reward
-        next_state, current_state = self.agent.next_state, self.agent.current_state, self.agent.previous_state
+        reward = self.agent.reward
+        next_state, current_state = self.agent.next_state, self.agent.current_state
         V, Vp, z = self.agent.V, self.agent.Vp, self.agent.z
         alpha, beta = self.alpha, self.beta
-        gamma, lr = self.gamma, self.agent.lr, self.agent.previous_lr
+        gamma, lr = self.gamma, self.agent.lr
 
         BR = reward + gamma * V[next_state] - V[current_state]
         self.kp -= self.meta_lr * BR * self.fp[current_state]
@@ -186,7 +185,7 @@ class SoftGainUpdater():
 
         self.fp[current_state] += lr * BR
         self.fd[current_state] += lr * (V[current_state] - Vp[current_state])
-        self.fi[current_state] += lr * (beta * z + alpha * BR)
+        self.fi[current_state] += lr * (beta * z[current_state] + alpha * BR)
 
 
 class EmpiricalCostUpdater(AbstractGainUpdater):
