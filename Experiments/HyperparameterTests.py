@@ -47,7 +47,7 @@ def get_optimal_pid_rates(agent_description, env_name, kp, kd, ki, alpha, beta, 
     optimal_rates = get_stored_optimal_rate((agent_description, kp, ki, kd, alpha, beta), env_name, gamma)
     if optimal_rates is None or recompute:
         optimal_rates = run_pid_search(env_name, kp, kd, ki, alpha, beta, -1, 1, gamma)
-        store_optimal_rate((agent_description, kp, ki, kd, alpha, beta), env_name, optimal_rates)
+        store_optimal_rate((agent_description, kp, ki, kd, alpha, beta), env_name, optimal_rates, gamma)
 
     logging.info(f"The optimal rates for {(env_name, kp, kd, ki)} are: {optimal_rates}")
 
