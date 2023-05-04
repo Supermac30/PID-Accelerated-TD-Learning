@@ -1,15 +1,14 @@
 import matplotlib.pyplot as plt
 import hydra
 
-from Experiments.AdaptiveAgentBuilder import build_adaptive_agent
+from Experiments.AdaptiveAgentBuilder import build_adaptive_agent_and_env
+from Experiments.AgentBuilder import build_agent_and_env
 from Experiments.ExperimentHelpers import *
 
 @hydra.main(version_base=None, config_path="../../config/AdaptationExperiments", config_name="AdaptiveAgentPAVIAExperiment")
 def adaptive_agent_experiment(cfg):
     """Visualize the behavior of adaptation without learning rates."""
-    env, policy = get_env_policy(cfg['env'], cfg['seed'])
-
-    agent = build_adaptive_agent("planner", cfg['env'], env, policy, meta_lr_value=cfg['meta_lr'], gamma=cfg['gamma'])
+    agent, env, policy = build_adaptive_agent_and_env("planner", cfg['env'], meta_lr_value=cfg['meta_lr'], seed=cfg['seed'], gamma=cfg['gamma'])
 
     V_pi = find_Vpi(env, policy, cfg['gamma'])
     test_function = build_test_function(cfg['norm'], V_pi)
@@ -24,8 +23,8 @@ def adaptive_agent_experiment(cfg):
     reward = env.build_policy_reward_vector(policy)
     transition = env.build_policy_probability_transition_kernel(policy)
 
-    VIagent = PolicyEvaluation(env.num_states, env.num_actions, reward, transition, cfg['gamma'])
-    VIhistory = run_VI_experiment(VIagent, 1, 0, 0, test_function, cfg['num_iterations'])
+    VIagent, env, policy = build_agent_and_env(("VI", 1, 0, 0, 0, 0), cfg['env'], reward, transition, gamma=cfg['gamma'])
+    VIhistory, _ = VIagent.estimate_value_function(cfg['num_iterations'], test_function)
     save_array(VIhistory, f"VI Agent", ax)
 
     ax.title.set_text(f"Adaptive Agent: {cfg['env']}")
@@ -53,8 +52,3 @@ def adaptive_agent_experiment(cfg):
 
 if __name__ == '__main__':
     adaptive_agent_experiment()
-
-"""
-Where is the circular import:
-- It is in the file:
-"""

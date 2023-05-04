@@ -1,15 +1,17 @@
 kp: [1]
 kd: [0.05]
 ki: [0]
+alpha: [0.05]
+beta: [0.95]
 delays: [1, 5, 10]
 
 num_iterations: 10000
 norm: 1
 env: chain walk
+gamma: 0.99
 
-learning_rates: {0.1: {1, 10, 100}, 0.05: {1, 10, 100}, 0.01: {1, 10, 100}}
-update_D_rates: {1: {inf}, 0.9: {10, 100, 1000}, 0.8: {10, 100, 1000}, 0.7: {10, 100, 1000}}
-update_I_rates: {1: {inf}}
+get_optimal: False
+
 seed: -1
 hydra:
   run:

@@ -43,7 +43,7 @@ class MDP:
         self.Vp = np.zeros((self.num_states, 1))
         self.z = np.zeros((self.num_states, 1))
 
-    def value_iteration(self, *controllers, num_iterations=500, test_function=None):
+    def value_iteration(self, controllers=[], num_iterations=500, test_function=None):
         """Compute the value function via VI using the added controllers.
         If test_function is not None, the history of test_function evaluated at V1, V0, BR is returned,
         otherwise, history is full of zeroes.

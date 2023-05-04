@@ -1,9 +1,7 @@
 """
 A collection of agents that learn in an RL setting
 """
-
 import numpy as np
-import matplotlib.pyplot as plt
 
 class Agent():
     """An abstract class that represents the agent interacting
@@ -133,7 +131,7 @@ class PID_TD(Agent):
         self.V, self.Vp, self.z = (np.zeros((self.num_states, 1)) for _ in range(3))
         self.environment.reset()
 
-    def estimate_value_function(self, *controllers, num_iterations=1000, test_function=None, stop_if_diverging=True):
+    def estimate_value_function(self, controllers=[], num_iterations=1000, test_function=None, stop_if_diverging=True):
         """Computes V^pi of the inputted policy using TD learning augmented with controllers.
         Takes in Controller objects that the agent will use to control the dynamics of learning.
 
@@ -197,21 +195,37 @@ class Hard_PID_TD(PID_TD):
 
     This is SoftControlledTDLearning with a constant update rate of 1.
     """
-    def __init__(self, environment, policy, gamma, learning_rate):
+    def __init__(self, environment, policy, gamma, kp, ki, kd, alpha, beta, learning_rate):
         super().__init__(
             environment,
             policy,
             gamma,
+            kp,
+            ki,
+            kd,
+            alpha,
+            beta,
             learning_rate
         )
 
 class FarSighted_PID_TD(PID_TD):
     """Soft updates, with V_k - V_{k - N} for some large N
     """
-    def __init__(self, environment, policy, gamma, learning_rate, delay):
+    def __init__(self, environment, policy, gamma, kp, ki, kd, alpha, beta, learning_rate, delay):
         self.delay = delay
-        super().__init__(environment, policy, gamma, learning_rate)
-    def estimate_value_function(self, *controllers, num_iterations=1000, test_function=None, stop_if_diverging=True):
+        super().__init__(
+            environment,
+            policy,
+            gamma,
+            kp,
+            ki,
+            kd,
+            alpha,
+            beta,
+            learning_rate
+        )
+
+    def estimate_value_function(self, controllers=[], num_iterations=1000, test_function=None, stop_if_diverging=True):
         """Computes V^pi of the inputted policy using TD learning augmented with controllers.
         Takes in Controller objects that the agent will use to control the dynamics of learning.
 
@@ -223,11 +237,6 @@ class FarSighted_PID_TD(PID_TD):
         we stop learning and return a history with the last element being very large
         """
         self.environment.reset()
-        # V is the current value function, Vp is the previous value function
-        # Vp stores the previous value of the x state when it was last changed
-        Vp = np.zeros((self.num_states, 1))
-        V = np.zeros((self.num_states, 1))
-
         # A vector storing the number of times we have seen a state.
         frequency = np.zeros((self.num_states, 1))
 
@@ -239,35 +248,35 @@ class FarSighted_PID_TD(PID_TD):
 
         for k in range(num_iterations):
             current_state = self.environment.current_state
-            action, next_state, reward = self.take_action()
+            _, next_state, reward = self.take_action()
 
             frequency[current_state] += 1
 
             # An estimate of the bellman update
             BR = np.zeros((self.num_states, 1))
-            BR[current_state] = reward + self.gamma * V[next_state] - V[current_state]
+            BR[current_state] = reward + self.gamma * self.V[next_state] - self.V[current_state]
 
             learning_rate = self.learning_rate(frequency[current_state])
             update_D_rate = self.update_D_rate(frequency[current_state])
             update_I_rate = self.update_I_rate(frequency[current_state])
-            update = sum(map(lambda n: n.evaluate_controller(BR, V, Vp, update_I_rate), controllers))
+            update = sum(map(lambda n: n.evaluate_controller(BR, self.V, self.Vp, update_I_rate), controllers))
 
             if frequency[current_state] > self.delay:
-                Vp[current_state] = Vp[current_state] * (1 - update_D_rate) + update_D_rate * history_of_Vs[current_state][-self.delay]
-            V = V + learning_rate * update
-            history_of_Vs[current_state].append(V[current_state])
+                self.Vp[current_state] = self.Vp[current_state] * (1 - update_D_rate) + update_D_rate * history_of_Vs[current_state][-self.delay]
+            self.V = self.V + learning_rate * update
+            history_of_Vs[current_state].append(self.V[current_state])
 
             if test_function is not None:
-                history[k] = test_function(V, Vp, BR)
+                history[k] = test_function(self.V, self.Vp, BR)
                 if stop_if_diverging and history[k] > 5 * history[0]:
                     # If we are too large, stop learning
                     history[k:] = float('inf')
                     break
 
         if test_function is None:
-            return V
+            return self.V
 
-        return history, V
+        return history, self.V
 
 class ControlledQLearning(Agent):
     # TODO: Implement

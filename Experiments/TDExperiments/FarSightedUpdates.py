@@ -1,37 +1,19 @@
 import matplotlib.pyplot as plt
-import numpy as np
 import hydra
 
-from Agents import FarSighted_PID_TD
 from Experiments.ExperimentHelpers import *
+from Experiments.AgentBuilder import build_agent_and_env
 
 @hydra.main(version_base=None, config_path="../../config/TDExperiments", config_name="FarSightedUpdate")
 def far_sighted_update_experiment(cfg):
     """Experiments with policy evaluation and TD"""
-    env, policy = get_env_policy(cfg['env'], cfg['seed'])
-
-    V_pi = find_Vpi(env, policy)
-
     for delay in cfg['delays']:
-        agent = FarSighted_PID_TD(
-            env,
-            policy,
-            0.99,
-            learning_rate_function(1, 0),
-            delay
-        )
-
-        test_function = build_test_function(cfg['norm'], V_pi)
-
-        for kp, kd, ki in zip(cfg['kp'], cfg['kd'], cfg['ki']):
-            history, params = find_optimal_pid_learning_rates(
-                agent, kp, kd, ki, test_function, cfg['num_iterations'], True,
-                learning_rates=cfg['learning_rates'],
-                update_D_rates=cfg['update_D_rates'],
-                update_I_rates=cfg['update_I_rates']
-            )
-            save_array(history, f"kp={kp} kd={kd} ki={ki} delay={delay} params={params}", plt)
-
+        for kp, kd, ki, alpha, beta in zip(cfg['kp'], cfg['kd'], cfg['ki'], cfg['alpha'], cfg['beta']):
+            agent, env, policy = build_agent_and_env(("far sighted TD", kp, ki, kd, alpha, beta, delay), cfg['env'], cfg['get_optimal'], cfg['seed'], cfg['gamma'])
+            V_pi = find_Vpi(env, policy)
+            test_function = build_test_function(cfg['norm'], V_pi)
+            history, _ = agent.estimate_value_function(num_iterations=cfg['num_iterations'], test_function=test_function)
+            save_array(history, f"kp={kp} kd={kd} ki={ki} alpha={alpha} beta={beta} delay={delay}", plt)
 
     plt.title(f"Far Sighted Updates: {cfg['env']}")
     plt.legend()

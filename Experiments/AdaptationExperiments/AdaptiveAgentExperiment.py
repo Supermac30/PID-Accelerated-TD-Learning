@@ -1,20 +1,16 @@
 """Test the formulation of the adaptive agent without learning rates"""
 
 import matplotlib.pyplot as plt
-import numpy as np
 import hydra
 
-from AdaptiveAgents import AdaptiveSamplerAgent, ExactUpdater, SamplerUpdater
-from Experiments.AdaptiveAgentBuilder import build_adaptive_agent
-from Agents import Hard_PID_TD
+from Experiments.AdaptiveAgentBuilder import build_adaptive_agent_and_env
+from Experiments.AgentBuilder import build_agent_and_env
 from Experiments.ExperimentHelpers import *
 
 @hydra.main(version_base=None, config_path="../../config/AdaptationExperiments", config_name="AdaptiveAgentExperiment")
 def adaptive_agent_experiment(cfg):
     """Visualize the behavior of adaptation without learning rates."""
-    env, policy = get_env_policy(cfg['env'], cfg['seed'])
-
-    agent = build_adaptive_agent(cfg['agent_name'], cfg['env'])
+    agent, env, policy = build_adaptive_agent_and_env(cfg['agent_name'], cfg['env'], cfg['get_optimal'], meta_lr=cfg['meta_lr'], seed=cfg['seed'], gamma=cfg['gamma'])
 
     V_pi = find_Vpi(env, policy)
     test_function = build_test_function(cfg['norm'], V_pi)
@@ -26,14 +22,14 @@ def adaptive_agent_experiment(cfg):
 
     save_array(history, f"Adaptive Agent: {cfg['agent_name']}", ax)
 
-    TDagent = Hard_PID_TD(env, policy, 0.999, learning_rate_function(10 * cfg['alpha_P'], cfg['N_P']))
-    TDhistory = run_PID_TD_experiment(TDagent, 1, 0, 0, test_function, cfg['num_iterations'])
+    TDagent = build_agent_and_env(("TD", 1, 0, 0, 0, 0), cfg['env'], cfg['seed'], cfg['gamma'])
+    TDhistory, _ = TDagent.estimate_value_function(num_iterations=cfg['num_iterations'], test_function=test_function)
     save_array(TDhistory, f"TD Agent", ax)
 
     ax.title.set_text(f"Adaptive Agent: {cfg['env']}")
     ax.legend()
     ax.set_xlabel('Iteration')
-    ax.set_ylabel(f'$||V_k - V^\pi||_{cfg["norm"]}$')
+    ax.set_ylabel(f'$||V_k - V^\pi||_{{{cfg["norm"]}}}$')
     fig.savefig("history_plot")
 
     fig = plt.figure()

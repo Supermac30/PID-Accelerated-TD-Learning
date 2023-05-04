@@ -1,11 +1,12 @@
 kp: [1]
 kd: [0]
 ki: [0]
+alpha: [0.05]
+beta: [0.95]
+gamma: 0.99
 
-N: 1000
-alpha: 0.03
-
-num_iterations: 30000
+num_iterations: 10000
+get_optimal: False
 
 norm: 1
 env: chain walk

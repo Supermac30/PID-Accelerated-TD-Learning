@@ -3,6 +3,8 @@ kd: [0.4, 0, 0.2]
 
 N: 100
 alpha: 0.03
+gamma: 0.99
+num_iterations: 1000
 
 norm: 1
 env: chain walk

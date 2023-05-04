@@ -4,7 +4,7 @@ import itertools
 import os
 import logging
 
-from Controllers import P_Controller, D_Controller, I_Controller
+from Controllers import P_Controller
 from MDP import PolicyEvaluation, Control
 from Environments import ChainWalk, Garnet, CliffWalk
 

@@ -7,6 +7,7 @@ beta2: 0.999
 epsilon: 0.000000001
 # ka: 0.001
 
+gamma: 0.99
 # Adagrad Paramaters
 ka: 3
 

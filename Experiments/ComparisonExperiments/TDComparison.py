@@ -1,43 +1,25 @@
 """Compare TD Learning with PID-Accelerated TD Learning"""
 
 import matplotlib.pyplot as plt
-import numpy as np
 import hydra
 
-from Agents import Hard_PID_TD
 from Experiments.ExperimentHelpers import *
+from Experiments.AgentBuilder import build_agent_and_env
 
 @hydra.main(version_base=None, config_path="../../config/ComparisonExperiments", config_name="TDComparison")
 def TD_comparison_experiment(cfg):
-    """Compare convergence rate of PID-TD and PID-VI"""
-    env, policy = get_env_policy(cfg['env'], cfg['seed'])
-
-    PID_TDagent = Hard_PID_TD(
-        env,
-        policy,
-        0.99,
-        learning_rate_function(1, 0)
-    )
-    TDagent = Hard_PID_TD(
-        env,
-        policy,
-        0.99,
-        learning_rate_function(1, 0)
-    )
-
+    """Compare convergence rate of PID-TD and Regular TD"""
+    TDagent, env, policy = build_agent_and_env(("TD", 1, 0, 0, 0, 0), cfg['env'], cfg['get_optimal'], cfg['seed'], cfg['gamma'])
     V_pi = find_Vpi(env, policy)
     test_function = build_test_function(cfg['norm'], V_pi)
 
-    TD_history, td_rates = \
-        find_optimal_pid_learning_rates(TDagent, 1, 0, 0, test_function, cfg['num_iterations'], False)
-    save_array(TD_history, f"Regular TD {td_rates}", plt)
-    for kp, kd, ki in zip(cfg['kp'], cfg['kd'], cfg['ki']):
-        PID_TD_history, pid_td_rates = find_optimal_pid_learning_rates(
-                PID_TDagent, kp, kd, ki, test_function,
-                cfg['num_iterations'], cfg['isSoft'], cfg['learning_rates'], cfg['update_rates']
-            )
+    TD_history, _ = TDagent.estimate_value_function(num_iterations=cfg['num_iterations'], test_function=test_function)
+    save_array(TD_history, f"Regular TD", plt)
+    for kp, kd, ki, alpha, beta in zip(cfg['kp'], cfg['kd'], cfg['ki'], cfg['alpha'], cfg['beta']):
+        PID_TDagent, env, policy = build_agent_and_env(("TD", kp, ki, kd, alpha, beta), cfg['env'], cfg['get_optimal'], cfg['seed'], cfg['gamma'])
+        PID_TD_history, _ = PID_TDagent.estimate_value_function(num_iterations=cfg['num_iterations'], test_function=test_function)
 
-        save_array(PID_TD_history, f"kp={kp} kd={kd} ki={ki} {pid_td_rates}", plt)
+        save_array(PID_TD_history, f"kp={kp} kd={kd} ki={ki} alpha={alpha} beta={beta}", plt)
 
     plt.title(f"TD Comparison: {cfg['env']}")
     plt.legend()

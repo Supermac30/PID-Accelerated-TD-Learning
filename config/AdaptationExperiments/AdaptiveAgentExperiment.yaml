@@ -1,18 +1,10 @@
-env: garnet
+env: chain walk
 norm: 1
 num_iterations: 6100
-meta_lr: 0.01
-sample_size: 10
 
-alpha_P: 0.01
-N_P: 1000
-alpha_D: 0.9
-N_D: 1000
-alpha_I: 0.1
-N_I: 10
-
-scale_by_lr: False
-planning: True # Use P if true
+agent_name: planner
+get_optimal: False
+meta_lr: 0.1
 
 seed: -1
 hydra:
