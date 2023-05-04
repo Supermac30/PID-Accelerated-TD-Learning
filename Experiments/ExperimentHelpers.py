@@ -141,6 +141,8 @@ def find_optimal_learning_rates(agent, value_function_estimator, isSoft, learnin
         if verbose:
             logging.info(f"trying {params}")
         history = value_function_estimator()
+        if verbose:
+            logging.info(f"final value: {history[-1]}")
         if history[-1] < minimum_history[-1]:
             return params, history
         return minimum_params, minimum_history
