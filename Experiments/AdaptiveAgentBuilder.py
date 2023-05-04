@@ -11,15 +11,12 @@ Possible agents include:
 from Experiments.ExperimentHelpers import learning_rate_function, get_env_policy
 from Experiments.OptimalRateDatabase import get_stored_optimal_rate
 from AdaptiveAgents import AdaptivePlannerAgent, AdaptiveSamplerAgent, ExactUpdater, SamplerUpdater, SoftGainUpdater
+import logging
 
 default_meta_lr = 1
-default_learning_rates = (
-    learning_rate_function(1, 1),
-    learning_rate_function(1, 1),
-    learning_rate_function(1, 1)
-)
+default_learning_rates = (1, 1, 1, 1, 1, 1)
 
-def build_adaptive_agent_and_env(agent_name, env_name, get_optimal=False, meta_lr_value=None, seed=-1, gamma=0.99):
+def build_adaptive_agent_and_env(agent_name, env_name, meta_lr, get_optimal=False, seed=-1, gamma=0.99):
     """Return the adaptive agent and the environment & policy given its name. The names include:
     - planner: The original PAVIA gain adaptation algorithm
     - true cost: Gain adaptation sampling the true gradients (here we don't scale by the learning rate)
@@ -34,10 +31,10 @@ def build_adaptive_agent_and_env(agent_name, env_name, get_optimal=False, meta_l
     Return None if the names are not in the list of possible names.
     """
     env, policy = get_env_policy(env_name, seed)
-    agent = build_adaptive_agent(agent_name, env_name, env, policy, get_optimal, meta_lr_value, gamma)
+    agent = build_adaptive_agent(agent_name, env_name, env, policy, meta_lr, get_optimal, gamma)
     return agent, env, policy
 
-def build_adaptive_agent(agent_name, env_name, env, policy, get_optimal=False, meta_lr_value=None, gamma=0.99):
+def build_adaptive_agent(agent_name, env_name, env, policy, meta_lr, get_optimal, gamma):
     """Return the adaptive agent given its name.
 
     get_optimal: Try to find the optimal learning rate and set it
@@ -47,23 +44,28 @@ def build_adaptive_agent(agent_name, env_name, env, policy, get_optimal=False, m
     Return None if the names are not in the list of possible names.
     """
     if get_optimal:
-        meta_lr, learning_rates = get_stored_optimal_rate(agent_name, env_name)
-    if not get_optimal or meta_lr is None:
-        meta_lr, learning_rates = default_meta_lr, default_learning_rates
+        optimal_rates = get_stored_optimal_rate(agent_name, env_name, gamma)
+    if not get_optimal or optimal_rates is None:
+        optimal_rates = default_learning_rates
 
-    if meta_lr_value is not None:
-        meta_lr = meta_lr_value
+    learning_rate = learning_rate_function(optimal_rates[0], optimal_rates[1])
+    update_D_rate = learning_rate_function(optimal_rates[2], optimal_rates[3])
+    update_I_rate = learning_rate_function(optimal_rates[4], optimal_rates[5])
+
+    rates = (learning_rate, update_D_rate, update_I_rate)
+
+    logging.info(f"Using rates {optimal_rates} for agent {agent_name} on env {env_name}")
 
     if agent_name == "planner":
-        return build_planner(env, policy, meta_lr, learning_rates, gamma)
+        return build_planner(env, policy, meta_lr, rates, gamma)
     elif agent_name == "true cost":
-        return build_true_cost(env, policy, meta_lr, learning_rates, gamma)
+        return build_true_cost(env, policy, meta_lr, rates, gamma)
     elif agent_name == "sampled true cost":
-        return build_sampled_true_cost(env, policy, meta_lr, learning_rates, gamma)
+        return build_sampled_true_cost(env, policy, meta_lr, rates, gamma)
     elif agent_name =="sampled empirical cost":
-        return build_sampled_empirical_cost(env, policy, meta_lr, learning_rates, gamma)
+        return build_sampled_empirical_cost(env, policy, meta_lr, rates, gamma)
     elif agent_name == "naive soft sampler":
-        return build_naive_soft_updates(env, policy, meta_lr, learning_rates, gamma)
+        return build_naive_soft_updates(env, policy, meta_lr, rates, gamma)
     return None
 
 

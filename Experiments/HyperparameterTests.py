@@ -8,7 +8,7 @@ Notes about the hyperparameter tuning procedure:
 - The learning rate functions used are min(c, N/(k + 1)), with a different function on each component
 """
 
-from Experiments.ExperimentHelpers import find_optimal_learning_rates, find_Vpi, build_test_function
+from Experiments.ExperimentHelpers import find_optimal_learning_rates, find_Vpi, build_test_function, learning_rate_function
 from Experiments.AdaptiveAgentBuilder import build_adaptive_agent_and_env
 from Experiments.AgentBuilder import build_agent_and_env
 import logging
@@ -60,6 +60,7 @@ def get_optimal_adaptive_rates(agent_name, env_name, meta_lr, gamma, recompute=F
     If recompute is True, recompute the learning rates even if it is in the file of stored rates.
     """
     optimal_rates = get_stored_optimal_rate((agent_name, meta_lr), env_name, gamma)
+
     if optimal_rates is None or recompute:
         optimal_rates = run_adaptive_search(agent_name, env_name, -1, 1, gamma, meta_lr=meta_lr)
         store_optimal_rate((agent_name, meta_lr), env_name, optimal_rates, gamma)
@@ -104,7 +105,7 @@ def run_pid_search(env_name, kp, kd, ki, alpha, beta, seed, norm, gamma):
 def run_adaptive_search(agent_name, env_name, seed, norm, gamma, meta_lr):
     """Run a grid search on the exhaustive learning rates for the choice of adaptive agent"""
     optimal_value, optimal_rates = float("inf"), None
-    agent, env, policy = build_adaptive_agent_and_env(agent_name, env_name, meta_lr_value=meta_lr, seed=seed, gamma=gamma)
+    agent, env, policy = build_adaptive_agent_and_env(agent_name, env_name, meta_lr, seed=seed, gamma=gamma)
     V_pi = find_Vpi(env, policy)
 
     history, rates = find_optimal_learning_rates(
@@ -112,7 +113,7 @@ def run_adaptive_search(agent_name, env_name, seed, norm, gamma, meta_lr):
         lambda: agent.estimate_value_function(
             num_iterations=10000,
             test_function=build_test_function(norm, V_pi)
-        ),
+        )[2],
         True,
         *exhaustive_learning_rates,
         True
@@ -127,15 +128,4 @@ if __name__ == '__main__':
     logging.basicConfig()
     logging.root.setLevel(logging.NOTSET)
 
-    pid_tests = [
-        (1, 0, 0, 0.05, 0.95),
-        (1, 0.1, 0, 0.05, 0.95),
-        (1, 0.2, 0, 0.05, 0.95),
-        (1, 0.3, 0, 0.05, 0.95),
-        (1, 0.4, -0.2, 0.05, 0.95)
-    ]
-
-    gamma=0.99
-
-    for (kp, kd, ki, alpha, beta) in pid_tests:
-        get_optimal_pid_rates("TD", "chain walk", kp, kd, ki, alpha, beta, gamma)
+    get_optimal_adaptive_rates("naive soft sampler", "chain walk", 0.05, 0.99)
