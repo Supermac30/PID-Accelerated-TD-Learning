@@ -93,7 +93,7 @@ def run_pid_search(env_name, kp, kd, ki, alpha, beta, seed, norm, gamma):
         lambda: agent.estimate_value_function(
             num_iterations=10000,
             test_function=build_test_function(norm, V_pi)
-        ),
+        )[0],
         True,
         learning_rates,
         update_D_rates,
@@ -128,4 +128,4 @@ if __name__ == '__main__':
     logging.basicConfig()
     logging.root.setLevel(logging.NOTSET)
 
-    get_optimal_adaptive_rates("naive soft sampler", "chain walk", 0.05, 0.99)
+    get_optimal_pid_rates("TD", "chain walk",1, 0, 0, 0, 0, 0.999, recompute=True)
