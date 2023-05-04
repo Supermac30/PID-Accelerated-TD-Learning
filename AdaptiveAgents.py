@@ -61,11 +61,14 @@ class AbstractAdaptiveAgent(Agent):
                 self.update_value()
 
             # Keep a record
-            gain_history[k][0] = self.kp
-            gain_history[k][1] = self.ki
-            gain_history[k][2] = self.kd
-            gain_history[k][3] = self.alpha
-            gain_history[k][4] = self.beta
+            try:
+                gain_history[k][0] = self.kp
+                gain_history[k][1] = self.ki
+                gain_history[k][2] = self.kd
+                gain_history[k][3] = self.alpha
+                gain_history[k][4] = self.beta
+            except:
+                pass
 
             if test_function is not None:
                 history[k] = test_function(self.V, self.Vp, self.BR)
@@ -73,6 +76,7 @@ class AbstractAdaptiveAgent(Agent):
                     history[k:] = float("inf")
                     break
 
+        logging.info(f"Final gains are: kp: {self.kp}, ki: {self.ki}, kd: {self.kd}, alpha: {self.alpha}, beta: {self.beta}")
         if test_function is not None:
             return self.V, gain_history, history
 
@@ -98,16 +102,46 @@ class AdaptiveSamplerAgent(AbstractAdaptiveAgent):
 
         self.previous_lr, self.lr = self.lr, lr
 
+        state = self.current_state
+
         BR = self.BR()
-        new_V = self.V + self.kp * BR + self.kd * (self.V - self.Vp) + self.ki * (self.beta * self.z + self.alpha * BR)
-        new_z = self.beta * self.z + self.alpha * BR
-        new_Vp = self.V
+        new_V = self.V[state] + self.kp * BR + self.kd * (self.V[state] - self.Vp[state]) + self.ki * (self.beta * self.z[state] + self.alpha * BR)
+        new_z = self.beta * self.z[state] + self.alpha * BR
+        new_Vp = self.V[state]
+
+        self.previous_previous_V[state], self.previous_V[state], self.V[state] = self.previous_V[state], self.V[state], (1 - lr) * self.V[state] + lr * new_V
+        self.previous_z[state], self.z[state] = self.z[state], (1 - update_I_rate) * self.z[state] + update_I_rate * new_z
+        self.previous_Vp[state], self.Vp[state] = self.Vp[state], (1 - update_D_rate) * self.Vp[state] + update_D_rate * new_Vp
+
+    def BR(self):
+        """Return the empirical bellman residual"""
+        return self.reward + self.gamma * self.V[self.next_state] - self.V[self.current_state]
+
+
+class DiagonalAdaptiveSamplerAgent(AbstractAdaptiveAgent):
+    def __init__(self, gain_updater, learning_rates, meta_lr, environment, policy, gamma, update_frequency=1):
+        super().__init__(gain_updater, learning_rates, meta_lr, environment, policy, gamma, update_frequency)
+        self.kp = np.zeros((self.num_states, 1), dtype=np.longdouble)
+        self.ki = np.zeros((self.num_states, 1), dtype=np.longdouble)
+        self.kd = np.zeros((self.num_states, 1), dtype=np.longdouble)
+
+    def update_value(self):
+        lr = self.learning_rate(self.frequencies[self.current_state])
+        update_D_rate = self.update_D_rate(self.frequencies[self.current_state])
+        update_I_rate = self.update_I_rate(self.frequencies[self.current_state])
+
+        self.previous_lr, self.lr = self.lr, lr
 
         state = self.current_state
 
-        self.previous_previous_V[state], self.previous_V[state], self.V[state] = self.previous_V[state], self.V[state], (1 - lr) * self.V[state] + lr * new_V[state]
-        self.previous_z[state], self.z[state] = self.z[state], (1 - update_I_rate) * self.z[state] + update_I_rate * new_z[state]
-        self.previous_Vp[state], self.Vp[state] = self.Vp[state], (1 - update_D_rate) * self.Vp[state] + update_D_rate * new_Vp[state]
+        BR = self.BR()
+        new_V = self.V[state] + self.kp[state] * BR + self.kd[state] * (self.V[state] - self.Vp[state]) + self.ki[state] * (self.beta * self.z[state] + self.alpha * BR)
+        new_z = self.beta * self.z[state] + self.alpha * BR
+        new_Vp = self.V[state]
+
+        self.previous_previous_V[state], self.previous_V[state], self.V[state] = self.previous_V[state], self.V[state], (1 - lr) * self.V[state] + lr * new_V
+        self.previous_z[state], self.z[state] = self.z[state], (1 - update_I_rate) * self.z[state] + update_I_rate * new_z
+        self.previous_Vp[state], self.Vp[state] = self.Vp[state], (1 - update_D_rate) * self.Vp[state] + update_D_rate * new_Vp
 
     def BR(self):
         """Return the empirical bellman residual"""
@@ -129,9 +163,6 @@ class AdaptivePlannerAgent(AbstractAdaptiveAgent):
     def BR(self):
         """Return the bellman residual"""
         return self.R + self.gamma * self.transition @ self.V - self.V
-
-
-
 
 
 
@@ -165,9 +196,45 @@ class AbstractGainUpdater():
         # self.agent.beta = self.beta
 
 
+class DiagonalSoftGainUpdater(AbstractGainUpdater):
+    def __init__(self, num_states):
+        self.fp, self.fd, self.fi = (np.zeros((num_states, 1)) for _ in range(3))
+        self.fp_next, self.fd_next, self.fi_next = (np.zeros((num_states, 1)) for _ in range(3))
+        self.BR = (np.zeros((num_states, 1)))
+
+        super().__init__()
+
+        self.kp = np.ones((num_states, 1))
+        self.ki = np.zeros((num_states, 1))
+        self.kd = np.zeros((num_states, 1))
+
+    def calculate_updated_values(self):
+        reward = self.agent.reward
+        next_state, current_state = self.agent.next_state, self.agent.current_state
+        V, Vp, z = self.agent.V, self.agent.Vp, self.agent.z
+        alpha, beta = self.alpha, self.beta
+        gamma, lr = self.gamma, self.agent.lr
+
+        self.BR[current_state] = reward + gamma * V[next_state] - V[current_state]
+        self.kp[current_state] -= self.meta_lr * self.BR[current_state] * (self.fp_next[current_state] - self.fp[current_state])
+        self.kd[current_state] -= self.meta_lr * self.BR[current_state] * (self.fd_next[current_state] - self.fd[current_state])
+        self.ki[current_state] -= self.meta_lr * self.BR[current_state] * (self.fi_next[current_state] - self.fi[current_state])
+
+        self.fp[current_state] = self.BR[current_state]
+        self.fd[current_state] = (V[current_state] - Vp[current_state])
+        self.fi[current_state] = (beta * z[current_state] + alpha * self.BR[current_state])
+
+        self.fp_next[current_state] = gamma * self.fp[next_state]
+        self.fd_next[current_state] = gamma * self.fd[next_state]
+        self.fi_next[current_state] = gamma * self.fi[next_state]
+
+
+
 class SoftGainUpdater(AbstractGainUpdater):
     def __init__(self, num_states):
         self.fp, self.fd, self.fi = (np.zeros((num_states, 1)) for _ in range(3))
+        self.fp_next, self.fd_next, self.fi_next = (np.zeros((num_states, 1)) for _ in range(3))
+        self.BR = (np.zeros((num_states, 1)))
 
         super().__init__()
 
@@ -178,14 +245,18 @@ class SoftGainUpdater(AbstractGainUpdater):
         alpha, beta = self.alpha, self.beta
         gamma, lr = self.gamma, self.agent.lr
 
-        BR = reward + gamma * V[next_state] - V[current_state]
-        self.kp -= self.meta_lr * BR * self.fp[current_state]
-        self.kd -= self.meta_lr * BR * self.fd[current_state]
-        self.ki -= self.meta_lr * BR * self.fi[current_state]
+        self.BR[current_state] = reward + gamma * V[next_state] - V[current_state]
+        self.kp -= self.meta_lr * self.BR.T @ (self.fp_next - self.fp)
+        self.kd -= self.meta_lr * self.BR.T @ (self.fd_next - self.fd)
+        self.ki -= self.meta_lr * self.BR.T @ (self.fi_next - self.fi)
 
-        self.fp[current_state] += lr * BR
-        self.fd[current_state] += lr * (V[current_state] - Vp[current_state])
-        self.fi[current_state] += lr * (beta * z[current_state] + alpha * BR)
+        self.fp[current_state] = self.BR[current_state]
+        self.fd[current_state] = (V[current_state] - Vp[current_state])
+        self.fi[current_state] = (beta * z[current_state] + alpha * self.BR[current_state])
+
+        self.fp_next[current_state] = gamma * self.fp[next_state]
+        self.fd_next[current_state] = gamma * self.fd[next_state]
+        self.fi_next[current_state] = gamma * self.fi[next_state]
 
 
 class EmpiricalCostUpdater(AbstractGainUpdater):
@@ -297,9 +368,6 @@ class ExactUpdater(AbstractOriginalCostUpdater):
         V, Vp, Vpp = self.agent.V, self.agent.previous_V, self.agent.previous_previous_V
         z, zp = self.agent.z, self.agent.previous_z
 
-        # The expression for the bellman residual is
-        # BR = r + gamma * P * V - V
-        # where r is the reward vector, gamma is the discount factor, P is the transition matrix, and V is the value vector
         BR = lambda n: self.gamma * self.transition @ n + self.reward - n
 
         BR_current = BR(V)

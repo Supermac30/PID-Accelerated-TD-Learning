@@ -2,6 +2,7 @@ from Experiments.OptimalRateDatabase import get_stored_optimal_rate
 from Experiments.ExperimentHelpers import get_env_policy, learning_rate_function
 from Agents import PID_TD, FarSighted_PID_TD, Hard_PID_TD
 from MDP import PolicyEvaluation, Control
+import logging
 
 """
 Types of agents:
@@ -9,11 +10,7 @@ Types of agents:
 - TD (kp, kd, ki): The agent that uses PID to learn the optimal policy with TD
 """
 
-default_learning_rates = (
-    learning_rate_function(1, 1),
-    learning_rate_function(1, 1),
-    learning_rate_function(1, 1)
-)
+default_optimal_rates = (0.2, 1000, 1, 1, 1, 1)
 
 def build_agent_and_env(agent_name, env_name, get_optimal=False, seed=-1, gamma=0.99):
     """Return both the agent and the environment & policy given their names.
@@ -48,28 +45,26 @@ def build_agent(agent_name, env_name, env, policy, get_optimal, gamma):
         return build_VI_PID(env, policy, kp, kd, ki, alpha, beta, gamma)
     elif agent_description == "VI control":
         return build_VI_Control_PID(env, kp, kd, ki, alpha, beta, gamma)
-    elif agent_description == "TD":
-        if get_optimal:
-            learning_rates = get_stored_optimal_rate(agent_name, env_name)
-        if not get_optimal or learning_rates is None:
-            learning_rates = default_learning_rates
 
+    if get_optimal:
+        optimal_rates = get_stored_optimal_rate(agent_name, env_name)
+    if not get_optimal or learning_rates is None:
+        optimal_rates = default_optimal_rates
+
+    learning_rate = learning_rate_function(optimal_rates[0], optimal_rates[1])
+    update_I_rate = learning_rate_function(optimal_rates[2], optimal_rates[3])
+    update_D_rate = learning_rate_function(optimal_rates[4], optimal_rates[5])
+
+    learning_rates = (learning_rate, update_I_rate, update_D_rate)
+
+    logging.info(f"Using rates {optimal_rates} for agent {agent_name} on env {env_name}")
+
+    if agent_description == "TD":
         return build_TD_PID(env, policy, kp, kd, ki, alpha, beta, learning_rates, gamma)
     elif agent_description == "far sighted TD":
-        if get_optimal:
-            learning_rates = get_stored_optimal_rate(agent_name, env_name)
-        if not get_optimal or learning_rates is None:
-            learning_rates = default_learning_rates
-
         delay = kwargs[0]
-
         return build_FarSighted_TD_PID(env, policy, kp, kd, ki, alpha, beta, learning_rates, gamma, delay)
     elif agent_description == "hard TD":
-        if get_optimal:
-            learning_rates = get_stored_optimal_rate(agent_name, env_name)
-        if not get_optimal or learning_rates is None:
-            learning_rates = default_learning_rates
-
         return build_hard_TD_PID(env, policy, kp, kd, ki, alpha, beta, learning_rates, gamma)
     return None
 

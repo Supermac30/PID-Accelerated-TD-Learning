@@ -1,12 +1,12 @@
 env: chain walk
 norm: 1
-num_iterations: 6100
+num_iterations: 30000
 
-agent_name: naive soft sampler
-get_optimal: True
-meta_lr: 0.05
+agent_name: diagonal sampler
+get_optimal: False
+meta_lr: 0.01
 
-gamma: 0.99
+gamma: 0.999
 
 seed: -1
 hydra:
