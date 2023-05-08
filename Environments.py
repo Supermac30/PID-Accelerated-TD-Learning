@@ -75,6 +75,40 @@ class Environment:
         """
         return np.einsum('ijk,ik->ij', self.build_probability_transition_kernel(), policy)
 
+    def get_uniformly_random_sample(self, policy):
+        """Return a (state, action, reward, next_state) tuple where state
+        is chosen uniformly at random, and action is chosen from the policy.
+        """
+        state = self.prg.choice(self.num_states)
+        action = self.pick_action(policy)
+
+        old_current = self.current_state  # To avoid spooky action at a distance
+
+        self.current_state = state
+        next_state, reward = self.take_action(action)
+
+        self.current_state = old_current  # To avoid spooky action at a distance
+
+        return state, action, reward, next_state
+
+    def pick_action(self, policy):
+        """Use the current policy to pick an action.
+        This is put in the environment because it is environment dependent and so it
+        can use the same random number generator as the environment.
+        """
+        # Current state
+        state = self.current_state
+
+        random_number = self.prg.uniform()
+        action = 0
+        total = policy[state][0]
+        while total < random_number:
+            action += 1
+            total += policy[state][action]
+
+        return action
+
+
 
 class Garnet(Environment):
     """An implementation of the Garnet found, as described in section H.2
@@ -92,7 +126,7 @@ class Garnet(Environment):
         self.transitions = np.zeros((num_states, num_states, num_actions), dtype=float)
         for i in range(num_states):
             for j in range(num_actions):
-                next_states = np.random.choice(num_states, bP, replace=False)
+                next_states = self.prg.choice(num_states, bP, replace=False)
                 self.transitions[i, next_states, j] = 1/self.bP
 
         rewarded_states = self.prg.choice(num_states, bR, replace=False)

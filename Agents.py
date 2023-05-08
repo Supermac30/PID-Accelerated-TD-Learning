@@ -11,7 +11,7 @@ class Agent():
     self.policy: A matrix of size self.environment.num_states x self.environment.num_actions,
     where the sum of each row is one. An off-policy agent can safely ignore this.
     """
-    def __init__(self, environment, policy, gamma):
+    def __init__(self, environment, policy, gamma, follow_trajectory=True):
         self.gamma = gamma
         self.environment = environment
         self.num_actions = environment.num_actions
@@ -22,30 +22,23 @@ class Agent():
         """Reset the agent to its initial state."""
         self.environment.reset()
 
-    def estimate_value_function(self):
+    def estimate_value_function(self, follow_trajectory=True, num_iterations=1000, test_function=None):
         """Estimate the value function. This could be V^pi or V*"""
         raise NotImplementedError
 
-    def pick_action(self):
-        """Use the current policy to pick an action"""
-        # Current state
-        state = self.environment.current_state
-
-        random_number = np.random.uniform()
-        action = 0
-        total = self.policy[state][0]
-        while total < random_number:
-            action += 1
-            total += self.policy[state][action]
-
-        return action
-
-    def take_action(self):
+    def take_action(self, follow_trajectory):
         """Use the current policy to play an action in the environment.
-        Return the action, next_state, and the reward.
+        Return a 4-tuple of (current_state, action, next_state, reward).
         """
-        action = self.pick_action()
-        return action, *self.environment.take_action(action)
+        if follow_trajectory:
+            state = self.environment.current_state
+            action = self.environment.pick_action(self.policy)
+            next_state, reward = self.environment.take_action(action)
+        else:
+            state, action, reward, next_state = self.environment.get_uniformly_random_sample(self.policy)
+
+        return state, action, next_state, reward
+
 
     def generate_episode(self, num_steps=1000):
         """Return a full episode following the policy matrix policy
@@ -130,7 +123,7 @@ class PID_TD(Agent):
         self.V, self.Vp, self.z = (np.zeros((self.num_states, 1)) for _ in range(3))
         self.environment.reset()
 
-    def estimate_value_function(self, controllers=[], num_iterations=1000, test_function=None, stop_if_diverging=True):
+    def estimate_value_function(self, controllers=[], num_iterations=1000, test_function=None, stop_if_diverging=True, follow_trajectory=True):
         """Computes V^pi of the inputted policy using TD learning augmented with controllers.
         Takes in Controller objects that the agent will use to control the dynamics of learning.
 
@@ -148,8 +141,7 @@ class PID_TD(Agent):
         history = np.zeros(num_iterations)
 
         for k in range(num_iterations):
-            current_state = self.environment.current_state
-            _, next_state, reward = self.take_action()
+            current_state, _, next_state, reward = self.take_action(follow_trajectory)
 
             frequency[current_state] += 1
 
@@ -246,8 +238,7 @@ class FarSighted_PID_TD(PID_TD):
         history_of_Vs = [[] for _ in range(self.num_states)]
 
         for k in range(num_iterations):
-            current_state = self.environment.current_state
-            _, next_state, reward = self.take_action()
+            current_state, _, next_state, reward = self.take_action()
 
             frequency[current_state] += 1
 

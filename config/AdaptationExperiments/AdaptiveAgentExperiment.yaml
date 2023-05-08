@@ -1,14 +1,24 @@
 env: chain walk
 norm: 1
-num_iterations: 30000
+num_iterations: 100000
 
-agent_name: diagonal sampler
 get_optimal: False
-meta_lr: 0.01
 
-gamma: 0.999
+agent_name: [true cost, semi gradient updater]
+meta_lr: [0.0001, 0.001]
+delay: [1, 1]
 
-seed: -1
+follow_trajectory: True
+
+kp: 1
+ki: 0
+kd: 0
+alpha: 0.05
+beta: 0.95
+
+gamma: 0.99
+
+seed: 434343
 hydra:
   run:
     dir: ${oc.env:OUTPUT_DIR,./outputs}/${hydra.job.config_name}/${now:%Y-%m-%d}/${now:%H-%M-%S}
