@@ -10,7 +10,7 @@ Types of agents:
 - TD (kp, kd, ki): The agent that uses PID to learn the optimal policy with TD
 """
 
-default_optimal_rates = (0.5, 1000, 1, 1, 1, 1)
+default_optimal_rates = (0.1, 100, 1, 1, 1, 1)
 
 def build_agent_and_env(agent_name, env_name, get_optimal=False, seed=-1, gamma=0.99):
     """Return both the agent and the environment & policy given their names.
@@ -125,7 +125,7 @@ def build_VI_PID(env, policy, kp, kd, ki, alpha, beta, gamma):
     """Build the VI agent with PID
     """
     # Build the reward and transition matrices
-    reward = env.build_policy_reward_matrix(policy)
+    reward = env.build_policy_reward_vector(policy)
     transition = env.build_policy_probability_transition_kernel(policy)
 
     # Build the agent

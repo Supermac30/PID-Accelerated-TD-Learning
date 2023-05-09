@@ -80,11 +80,11 @@ class Environment:
         is chosen uniformly at random, and action is chosen from the policy.
         """
         state = self.prg.choice(self.num_states)
-        action = self.pick_action(policy)
 
         old_current = self.current_state  # To avoid spooky action at a distance
-
         self.current_state = state
+
+        action = self.pick_action(policy)
         next_state, reward = self.take_action(action)
 
         self.current_state = old_current  # To avoid spooky action at a distance

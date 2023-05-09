@@ -4,11 +4,11 @@ num_iterations: 100000
 
 get_optimal: False
 
-agent_name: [true cost, semi gradient updater]
-meta_lr: [0.0001, 0.001]
-delay: [1, 1]
+agent_name: [true log space updater]  # [diagonal sampler, diagonal sampler, diagonal sampler]
+meta_lr: [1e-5, 1e-5, 1e-5]
+delay: [1, 5, 10]
 
-follow_trajectory: True
+follow_trajectory: False
 
 kp: 1
 ki: 0
@@ -18,7 +18,7 @@ beta: 0.95
 
 gamma: 0.99
 
-seed: 434343
+seed: 73293
 hydra:
   run:
     dir: ${oc.env:OUTPUT_DIR,./outputs}/${hydra.job.config_name}/${now:%Y-%m-%d}/${now:%H-%M-%S}

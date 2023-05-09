@@ -4,6 +4,8 @@ num_iterations: 10000
 meta_lr: 0.05
 gamma: 0.999
 
+agent_name: log space planner
+
 seed: -1
 hydra:
   run:

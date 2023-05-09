@@ -4,9 +4,6 @@ Builds the adaptive agent given a string description of it, and a string descrip
 Possible agents include:
 - Samplers: TD Agents
 - Planners: VI Agents (For reproducing PAVIA results)
-
-- Sample True Cost Gradients: Finds the true gradients then samples
-- Sample Empirical Cost Gradient: Finds the cost after sampling
 """
 from Experiments.ExperimentHelpers import learning_rate_function, get_env_policy
 from Experiments.OptimalRateDatabase import get_stored_optimal_rate
@@ -14,11 +11,12 @@ from AdaptiveAgents import *
 import logging
 
 default_meta_lr = 1
-default_learning_rates = (0.5, 1000, 1, 1, 1, 1)
+default_learning_rates = (0.1, 100, 1, 1, 1, 1)
 
 def build_adaptive_agent_and_env(agent_name, env_name, meta_lr, get_optimal=False, seed=-1, gamma=0.99, delay=1, kp=1, kd=0, ki=0, alpha=0.05, beta=0.95):
     """Return the adaptive agent and the environment & policy given its name. The names include:
     - planner: The original PAVIA gain adaptation algorithm
+    - log space planner: The original PAVIA gain adaptation algorithm, but in the log space
     - true cost: Gain adaptation sampling the true gradients (here we don't scale by the learning rate)
     - scaled true cost: Gain adaptation using the true cost, but re-deriving the samples (here we scale by the learning rate)
     - sampled true cost: Gain adaptation by sampling the cost (here we scale by the learning rate)
@@ -28,6 +26,9 @@ def build_adaptive_agent_and_env(agent_name, env_name, meta_lr, get_optimal=Fals
     - partials exact sampler: Uses the exact gradients for the partials, but not for the bellman
     - bellman exact sampler: Uses the exact gradients for the bellman, but not for the partials
     - semi gradient updater: Uses the semi-gradient updater
+    - true soft sampler: The true soft sampling gain adaptation algorithm
+    - log space updater: Updates the gains in the log space
+    - true log space updater: Updates the gains in the log space using the true gradients
 
     get_optimal: Try to find the optimal learning rate and set it
     meta_lr_value: It is useful to be able to set meta_lr manually. If this is not None, then regardless of any grid search, meta_lr
@@ -63,6 +64,8 @@ def build_adaptive_agent(agent_name, env_name, env, policy, meta_lr, get_optimal
 
     if agent_name == "planner":
         return build_planner(env, policy, meta_lr, rates, gamma, delay, kp, kd, ki, alpha, beta)
+    elif agent_name == "log space planner":
+        return build_log_space_planner(env, policy, meta_lr, rates, gamma, delay, kp, kd, ki, alpha, beta)
     elif agent_name == "true cost":
         return build_true_cost(env, policy, meta_lr, rates, gamma, delay, kp, kd, ki, alpha, beta)
     elif agent_name == "scaled true cost":
@@ -81,7 +84,57 @@ def build_adaptive_agent(agent_name, env_name, env, policy, meta_lr, get_optimal
         return build_bellman_exact_sampler(env, policy, meta_lr, rates, gamma, delay, kp, kd, ki, alpha, beta)
     elif agent_name == "semi gradient updater":
         return build_semi_gradient_updater(env, policy, meta_lr, rates, gamma, delay, kp, kd, ki, alpha, beta)
+    elif agent_name == "true soft sampler":
+        return build_true_soft_updates(env, policy, meta_lr, rates, gamma, delay, kp, kd, ki, alpha, beta)
+    elif agent_name == "log space updater":
+        return build_log_space_updater(env, policy, meta_lr, rates, gamma, delay, kp, kd, ki, alpha, beta)
+    elif agent_name == "true log space updater":
+        return build_true_log_space_updater(env, policy, meta_lr, rates, gamma, delay, kp, kd, ki, alpha, beta)
     return None
+
+
+def build_true_log_space_updater(env, policy, meta_lr, learning_rates, gamma, delay, kp, kd, ki, alpha, beta):
+    reward = env.build_policy_reward_vector(policy)
+    transition = env.build_policy_probability_transition_kernel(policy)
+    gain_updater = LogisticExactUpdater(transition, reward, env.num_states)
+    return AdaptiveSamplerAgent(
+        gain_updater,
+        learning_rates,
+        meta_lr,
+        env,
+        policy,
+        gamma,
+        delay,
+        kp, kd, ki, alpha, beta
+    )
+
+
+def build_log_space_updater(env, policy, meta_lr, learning_rates, gamma, delay, kp, kd, ki, alpha, beta):
+    gain_updater = LogSpaceUpdater(env.num_states)
+    return AdaptiveSamplerAgent(
+        gain_updater,
+        learning_rates,
+        meta_lr,
+        env,
+        policy,
+        gamma,
+        delay,
+        kp, kd, ki, alpha, beta
+    )
+
+
+def build_true_soft_updates(env, policy, meta_lr, learning_rates, gamma, delay, kp, kd, ki, alpha, beta):
+    gain_updater = TrueSoftGainUpdater(env.num_states)
+    return AdaptiveSamplerAgent(
+        gain_updater,
+        learning_rates,
+        meta_lr,
+        env,
+        policy,
+        gamma,
+        delay,
+        kp, kd, ki, alpha, beta
+    )
 
 
 def build_semi_gradient_updater(env, policy, meta_lr, learning_rates, gamma, delay, kp, kd, ki, alpha, beta):
@@ -165,6 +218,25 @@ def build_planner(env, policy, meta_lr, learning_rates, gamma, delay, kp, kd, ki
         kp, kd, ki, alpha, beta
     )
 
+def build_log_space_planner(env, policy, meta_lr, learning_rates, gamma, delay, kp, kd, ki, alpha, beta):
+    reward = env.build_policy_reward_vector(policy)
+    transition = env.build_policy_probability_transition_kernel(policy)
+
+    gain_updater = LogisticExactUpdater(transition, reward, env.num_states)
+
+    return AdaptivePlannerAgent(
+        reward,
+        transition,
+        gain_updater,
+        learning_rates,
+        meta_lr,
+        env,
+        policy,
+        gamma,
+        delay,
+        kp, kd, ki, alpha, beta
+    )
+
 def build_true_cost(env, policy, meta_lr, learning_rates, gamma, delay, kp, kd, ki, alpha, beta):
     reward = env.build_policy_reward_vector(policy)
     transition = env.build_policy_probability_transition_kernel(policy)
@@ -210,7 +282,7 @@ def build_sampled_true_cost(env, policy, meta_lr, learning_rates, gamma, delay, 
     )
 
 def build_naive_soft_updates(env, policy, meta_lr, learning_rates, gamma, delay, kp, kd, ki, alpha, beta):
-    gain_updater = SoftGainUpdater(env.num_states)
+    gain_updater = NaiveSoftGainUpdater(env.num_states)
     return AdaptiveSamplerAgent(
         gain_updater,
         learning_rates,
