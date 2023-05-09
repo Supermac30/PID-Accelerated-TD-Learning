@@ -1,12 +1,12 @@
-env: chain walk
+env: garnet
 norm: 1
-num_iterations: 10000
+num_iterations: 300000
 
 get_optimal: False
 
-agent_name: [true cost, diagonal log space updater]  # [diagonal sampler, diagonal sampler, diagonal sampler]
-meta_lr: [1e-3, 0.2, 1e-5]
-delay: [1, 1, 1]
+agent_name: [true soft sampler, true soft sampler, true soft sampler]  # [diagonal sampler, diagonal sampler, diagonal sampler]
+meta_lr: [1e-7]
+delay: [10]
 
 follow_trajectory: False
 
@@ -16,9 +16,9 @@ kd: 0
 alpha: 0.05
 beta: 0.95
 
-gamma: 0.9999
+gamma: 0.99
 
-seed: 1234343
+seed: 123443
 hydra:
   run:
     dir: ${oc.env:OUTPUT_DIR,./outputs}/${hydra.job.config_name}/${now:%Y-%m-%d}/${now:%H-%M-%S}
