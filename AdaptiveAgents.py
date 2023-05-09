@@ -205,7 +205,7 @@ class AbstractGainUpdater():
 
 
 class LogSpaceUpdater(AbstractGainUpdater):
-    def __init__(self, num_states, N_p=2, N_I=1, N_d=1):
+    def __init__(self, num_states, N_p=5, N_I=1, N_d=0.5):
         self.fp, self.fd, self.fi = (np.zeros((num_states, 1)) for _ in range(3))
         self.fp_next, self.fd_next, self.fi_next = (np.zeros((num_states, 1)) for _ in range(3))
         self.BR = (np.zeros((num_states, 1)))
@@ -238,9 +238,9 @@ class LogSpaceUpdater(AbstractGainUpdater):
         self.lambda_I -= self.meta_lr * BR * (gamma * self.fi[next_state] - self.fi[current_state]) * \
             ((2 * self.N_I) / (1 + np.exp(-self.lambda_I))) * ((2 * self.N_I) - ((2 * self.N_I) / (1 + np.exp(-self.lambda_I))))
 
-        self.fp[current_state] = lr * BR
-        self.fd[current_state] = lr * (V[current_state] - Vp[current_state])
-        self.fi[current_state] = lr * (beta * z[current_state] + alpha * BR)
+        self.fp[current_state] = BR
+        self.fd[current_state] = (V[current_state] - Vp[current_state])
+        self.fi[current_state] = (beta * z[current_state] + alpha * BR)
 
 
 
@@ -271,6 +271,51 @@ class DiagonalSoftGainUpdater(AbstractGainUpdater):
         self.fp[current_state] = lr * BR
         self.fd[current_state] = lr * (V[current_state] - Vp[current_state])
         self.fi[current_state] = lr * (beta * z[current_state] + alpha * BR)
+
+
+class DiagonalLogSpaceUpdater(AbstractGainUpdater):
+    def __init__(self, num_states, N_p=5, N_I=1, N_d=0.5):
+        self.fp, self.fd, self.fi = (np.zeros((num_states, 1)) for _ in range(3))
+        self.fp_next, self.fd_next, self.fi_next = (np.zeros((num_states, 1)) for _ in range(3))
+        self.BR = (np.zeros((num_states, 1)))
+
+        super().__init__()
+
+        self.kp = np.ones((num_states, 1))
+        self.ki = np.zeros((num_states, 1))
+        self.kd = np.zeros((num_states, 1))
+
+        self.N_p = N_p
+        self.N_I = N_I
+        self.N_d = N_d
+
+        self.lambda_p = np.full((num_states, 1), -np.log(N_p - 1))
+        self.lambda_I = np.zeros((num_states, 1))
+        self.lambda_d = np.zeros((num_states, 1))
+
+    def calculate_updated_values(self, intermediate=False):
+        reward = self.agent.reward
+        next_state, current_state = self.agent.next_state, self.agent.current_state
+        V, Vp, z = self.agent.V, self.agent.Vp, self.agent.z
+        alpha, beta = self.alpha, self.beta
+        gamma, lr = self.gamma, self.agent.lr
+        BR = reward + gamma * V[next_state] - V[current_state]
+        if not intermediate:
+            self.kp[current_state] = self.N_p / (1 + np.exp(-self.lambda_p[current_state]))
+            self.ki[current_state] = (2 * self.N_I) / (1 + np.exp(-self.lambda_I[current_state])) - self.N_I
+            self.kd[current_state] = (2 * self.N_d) / (1 + np.exp(-self.lambda_d[current_state])) - self.N_d
+
+        self.lambda_p[current_state] -= self.meta_lr * BR * (gamma * self.fp[next_state] - self.fp[current_state]) * \
+            (self.N_p / (1 + np.exp(-self.lambda_p[current_state]))) * (self.N_p - (self.N_p / (1 + np.exp(-self.lambda_p[current_state]))))
+        self.lambda_d[current_state] -= self.meta_lr * BR * (gamma * self.fd[next_state] - self.fd[current_state]) * \
+            ((2 * self.N_d) / (1 + np.exp(-self.lambda_d[current_state]))) * ((2 * self.N_d) - ((2 * self.N_d) / (1 + np.exp(-self.lambda_d[current_state]))))
+        self.lambda_I[current_state] -= self.meta_lr * BR * (gamma * self.fi[next_state] - self.fi[current_state]) * \
+            ((2 * self.N_I) / (1 + np.exp(-self.lambda_I[current_state]))) * ((2 * self.N_I) - ((2 * self.N_I) / (1 + np.exp(-self.lambda_I[current_state]))))
+
+        self.fp[current_state] = BR
+        self.fd[current_state] = (V[current_state] - Vp[current_state])
+        self.fi[current_state] = (beta * z[current_state] + alpha * BR)
+
 
 
 class NaiveSoftGainUpdater(AbstractGainUpdater):
@@ -355,7 +400,7 @@ class TrueSoftGainUpdater(AbstractGainUpdater):
 
 
 class LogisticExactUpdater(AbstractGainUpdater):
-    def __init__(self, transition, reward, num_states, N_p=10, N_d=1, N_I=1):
+    def __init__(self, transition, reward, num_states, N_p=5, N_d=0.5, N_I=1):
         super().__init__()
         self.transition = transition
         self.reward = reward.reshape(-1, 1)

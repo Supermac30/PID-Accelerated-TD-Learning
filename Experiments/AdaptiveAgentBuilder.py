@@ -23,6 +23,7 @@ def build_adaptive_agent_and_env(agent_name, env_name, meta_lr, get_optimal=Fals
     - empirical cost: Gain adaptation by changing the cost function to be the empirical cost (here we scale by the learning rate)
     - naive soft sampler: The naive gain adaptation algorithm
     - diagonal sampler: The diagonal gain adaptation algorithm
+    - diagonal log space updater: The diagonal log space updater
     - partials exact sampler: Uses the exact gradients for the partials, but not for the bellman
     - bellman exact sampler: Uses the exact gradients for the bellman, but not for the partials
     - semi gradient updater: Uses the semi-gradient updater
@@ -78,6 +79,8 @@ def build_adaptive_agent(agent_name, env_name, env, policy, meta_lr, get_optimal
         return build_naive_soft_updates(env, policy, meta_lr, rates, gamma, delay, kp, kd, ki, alpha, beta)
     elif agent_name == "diagonal sampler":
         return build_diagonal_sampler(env, policy, meta_lr, rates, gamma, delay, kp, kd, ki, alpha, beta)
+    elif agent_name == "diagonal log space updater":
+        return build_diagonal_log_space_updater(env, policy, meta_lr, rates, gamma, delay, kp, kd, ki, alpha, beta)
     elif agent_name == "partials exact sampler":
         return build_partials_exact_sampler(env, policy, meta_lr, rates, gamma, delay, kp, kd, ki, alpha, beta)
     elif agent_name == "bellman exact sampler":
@@ -91,6 +94,21 @@ def build_adaptive_agent(agent_name, env_name, env, policy, meta_lr, get_optimal
     elif agent_name == "true log space updater":
         return build_true_log_space_updater(env, policy, meta_lr, rates, gamma, delay, kp, kd, ki, alpha, beta)
     return None
+
+
+def build_diagonal_log_space_updater(env, policy, meta_lr, learning_rates, gamma, delay, kp, kd, ki, alpha, beta):
+    gain_updater = DiagonalLogSpaceUpdater(env.num_states)
+    return DiagonalAdaptiveSamplerAgent(
+        gain_updater,
+        learning_rates,
+        meta_lr,
+        env,
+        policy,
+        gamma,
+        delay,
+        kp, kd, ki, alpha, beta
+    )
+
 
 
 def build_true_log_space_updater(env, policy, meta_lr, learning_rates, gamma, delay, kp, kd, ki, alpha, beta):
