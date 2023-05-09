@@ -1,14 +1,14 @@
-env: garnet
+env: cliff walk
 norm: 1
-num_iterations: 300000
+num_iterations: 30000
 
-get_optimal: False
+get_optimal: True
 
-agent_name: [true soft sampler, true soft sampler, true soft sampler]  # [diagonal sampler, diagonal sampler, diagonal sampler]
-meta_lr: [1e-7]
-delay: [10]
+agent_name: [true soft sampler, naive soft sampler]
+meta_lr: [1e-3, 1e-3]
+delay: [10, 10]
 
-follow_trajectory: False
+follow_trajectory: True
 
 kp: 1
 ki: 0

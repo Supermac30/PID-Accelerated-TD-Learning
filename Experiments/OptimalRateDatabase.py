@@ -1,6 +1,6 @@
 import pickle
-# This is a hack, fix later with absolute paths:
-FILE_NAME = "./Experiments/optimal_learning_rates.pickle"
+
+FILE_NAME = "C:/Users/Mark/Desktop/PID-Accelerated-TD-Learning/Experiments/optimal_learning_rates.pickle"
 
 def get_stored_optimal_rate(model, env_name, gamma):
     """If the optimal rate is in FILE_NAME then return it,

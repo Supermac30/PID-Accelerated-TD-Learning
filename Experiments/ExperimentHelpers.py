@@ -159,7 +159,7 @@ def find_optimal_learning_rates(agent, value_function_estimator, isSoft, learnin
                 for M, L in itertools.product(update_D_rates[beta], update_I_rates[gamma]):
                     agent.update_D_rate = learning_rate_function(beta, M)
                     agent.update_I_rate = learning_rate_function(gamma, L)
-                    minimum_params, minimum_history = try_params((N, alpha, M, beta, L, gamma))
+                    minimum_params, minimum_history = try_params((alpha, N, beta, M, gamma, L))
 
     # Restore original learning rate
     agent.learning_rate = original_learning_rate

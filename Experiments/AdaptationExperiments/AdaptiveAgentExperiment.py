@@ -13,7 +13,13 @@ def adaptive_agent_experiment(cfg):
     fig0 = plt.figure()
     ax0 = fig0.add_subplot()
 
-    TDagent, env, policy = build_agent_and_env(("TD", 1, 0, 0, 0, 0), cfg['env'], seed=cfg['seed'], gamma=cfg['gamma'])
+    TDagent, env, policy = build_agent_and_env(
+        ("TD", 1, 0, 0, 0, 0),
+        cfg['env'],
+        get_optimal=cfg['get_optimal'],
+        seed=cfg['seed'],
+        gamma=cfg['gamma']
+    )
     V_pi = find_Vpi(env, policy, cfg['gamma'])
     test_function = build_test_function(cfg['norm'], V_pi)
     TDhistory, _ = TDagent.estimate_value_function(num_iterations=cfg['num_iterations'], test_function=test_function, follow_trajectory=cfg['follow_trajectory'])
@@ -24,7 +30,7 @@ def adaptive_agent_experiment(cfg):
             agent_name,
             cfg['env'],
             meta_lr,
-            cfg['get_optimal'],
+            get_optimal=cfg['get_optimal'],
             seed=cfg['seed'],
             gamma=cfg['gamma'],
             delay=delay,

@@ -47,8 +47,8 @@ def build_agent(agent_name, env_name, env, policy, get_optimal, gamma):
         return build_VI_Control_PID(env, kp, kd, ki, alpha, beta, gamma)
 
     if get_optimal:
-        optimal_rates = get_stored_optimal_rate(agent_name, env_name)
-    if not get_optimal or learning_rates is None:
+        optimal_rates = get_stored_optimal_rate(agent_name, env_name, gamma)
+    if not get_optimal:
         optimal_rates = default_optimal_rates
 
     learning_rate = learning_rate_function(optimal_rates[0], optimal_rates[1])
