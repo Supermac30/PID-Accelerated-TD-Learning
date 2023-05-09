@@ -6,6 +6,7 @@ Notes about the hyperparameter tuning procedure:
                argmin_theta ||V_theta - V^pi||_1
 - We tune after 10000 steps of training.
 - The learning rate functions used are min(c, N/(k + 1)), with a different function on each component
+- We do not follow a trajectory, choosing instead to receive arbitrary samples from the environment.
 """
 
 from Experiments.ExperimentHelpers import find_optimal_learning_rates, find_Vpi, build_test_function, learning_rate_function
@@ -92,7 +93,8 @@ def run_pid_search(env_name, kp, kd, ki, alpha, beta, seed, norm, gamma):
         agent,
         lambda: agent.estimate_value_function(
             num_iterations=10000,
-            test_function=build_test_function(norm, V_pi)
+            test_function=build_test_function(norm, V_pi),
+            follow_trajectory=False
         )[0],
         True,
         learning_rates,
@@ -112,7 +114,8 @@ def run_adaptive_search(agent_name, env_name, seed, norm, gamma, meta_lr):
         agent,
         lambda: agent.estimate_value_function(
             num_iterations=10000,
-            test_function=build_test_function(norm, V_pi)
+            test_function=build_test_function(norm, V_pi),
+            follow_trajectory=False
         )[2],
         True,
         *exhaustive_learning_rates,
@@ -128,4 +131,6 @@ if __name__ == '__main__':
     logging.basicConfig()
     logging.root.setLevel(logging.NOTSET)
 
-    get_optimal_pid_rates("TD", "chain walk",1, 0, 0, 0, 0, 0.999, recompute=True)
+    for name in {"chain walk", "cliff walk"}:
+        for gamma in {0.99, 0.999, 0.9999}:
+            get_optimal_pid_rates("TD", name, 1, 0, 0, 0, 0, gamma, recompute=True)
