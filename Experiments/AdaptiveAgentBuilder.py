@@ -114,7 +114,15 @@ def build_diagonal_log_space_updater(env, policy, meta_lr, learning_rates, gamma
 def build_true_log_space_updater(env, policy, meta_lr, learning_rates, gamma, delay, kp, kd, ki, alpha, beta):
     reward = env.build_policy_reward_vector(policy)
     transition = env.build_policy_probability_transition_kernel(policy)
-    gain_updater = LogisticExactUpdater(transition, reward, env.num_states)
+
+    gain_updater = LogisticExactUpdater(
+        transition,
+        reward,
+        env.num_states,
+        N_p = 2.25,
+        N_d = 0.1,
+        N_I = 0.1
+    )
     return AdaptiveSamplerAgent(
         gain_updater,
         learning_rates,

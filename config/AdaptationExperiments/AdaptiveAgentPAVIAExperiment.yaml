@@ -1,10 +1,10 @@
-env: chain walk
+env: cliff walk
 norm: inf
 num_iterations: 10000
-meta_lr: 0.05
+meta_lr: 0.1
 gamma: 0.999
 
-agent_name: log space planner
+agent_name: planner
 
 seed: -1
 hydra:

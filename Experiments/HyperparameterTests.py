@@ -24,7 +24,6 @@ exhaustive_learning_rates = [
             0.05: {1, 10, 100, 1000},
             0.01: {1, 10, 100, 1000}
         },
-
         {
             1: {float("inf"), 1, 10, 100, 1000},
             0.5: {1, 10, 100, 1000},
@@ -92,7 +91,7 @@ def run_pid_search(env_name, kp, kd, ki, alpha, beta, seed, norm, gamma):
     _, rates = find_optimal_learning_rates(
         agent,
         lambda: agent.estimate_value_function(
-            num_iterations=10000,
+            num_iterations=60000,
             test_function=build_test_function(norm, V_pi),
             follow_trajectory=False
         )[0],

@@ -346,6 +346,7 @@ class CliffWalk(Environment):
 
 class IdentityEnv(Environment):
     def __init__(self, num_states, seed):
+        self.reward = 1e10
         super().__init__(num_states, 1, 0, seed)
 
     def build_probability_transition_kernel(self):
@@ -355,7 +356,7 @@ class IdentityEnv(Environment):
         return P
 
     def build_reward_matrix(self):
-        return np.ones((self.num_states, 1))
+        return np.full((self.num_states, 1), self.reward)
 
     def take_action(self, action):
-        return self.current_state, 1
+        return self.current_state, self.reward

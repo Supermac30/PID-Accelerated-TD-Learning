@@ -14,6 +14,7 @@ def adaptive_agent_experiment(cfg):
     test_function = build_test_function(cfg['norm'], V_pi)
 
     _, gain_history, history = agent.estimate_value_function(cfg['num_iterations'], test_function)
+    agent.gain_updater.plot()
 
     fig = plt.figure()
     ax = fig.add_subplot()

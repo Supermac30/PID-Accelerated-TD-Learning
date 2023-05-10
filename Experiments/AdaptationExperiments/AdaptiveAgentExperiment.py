@@ -66,6 +66,7 @@ def adaptive_agent_experiment(cfg):
         gs.tight_layout(fig, rect=[0.05, 0.08, 0.95, 0.95])
 
         plt.savefig(f"gains_plot_{agent_name}_{str(meta_lr).replace('.', '-')}_{delay}.png")
+        plt.close()
 
 
     ax0.title.set_text(f"Adaptive Agent: {cfg['env']}")
@@ -73,6 +74,9 @@ def adaptive_agent_experiment(cfg):
     ax0.set_xlabel('Iteration')
     ax0.set_ylabel(f'$||V_k - V^\pi||_{{{cfg["norm"]}}}$')
     fig0.savefig("history_plot")
+
+    plt.show()
+
 
 
 if __name__ == '__main__':
