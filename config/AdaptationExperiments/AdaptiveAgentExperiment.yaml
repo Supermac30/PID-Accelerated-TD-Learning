@@ -2,10 +2,10 @@ env: cliff walk
 norm: 1
 num_iterations: 60000
 
-get_optimal: True
+get_optimal: False
 
-agent_name: [true soft sampler, naive soft sampler, log space updater]
-meta_lr: [5e-12, 5e-5, 5e-5]
+agent_name: [true cost]
+meta_lr: [5e-12, 5e-11, 5e-3]
 delay: [1, 1, 1]
 
 follow_trajectory: False

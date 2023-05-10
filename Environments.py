@@ -277,8 +277,6 @@ class CliffWalk(Environment):
                             else:
                                 P[state, target, a] += unif_prob
 
-        self.reset()
-
         return P
 
     def build_reward_matrix(self):
@@ -311,14 +309,16 @@ class CliffWalk(Environment):
     def take_action(self, action):
         if self.prg.random() > self.success_prob:
             action = self.prg.choice([a for a in range(4) if a != action])
-        target = self.get_target(self.current_state, action)
         reward = self.reward_matrix[self.current_state, action]
+        if self.current_state in self.terminal_states:
+            return self.current_state, reward
+
+        target = self.get_target(self.current_state, action)
         self.current_state = target
 
         return target, reward
 
     def get_target(self, state, action):
-        state = self.current_state
         column = state % self.n_columns
         row = int((state - column) / self.n_columns)
 
