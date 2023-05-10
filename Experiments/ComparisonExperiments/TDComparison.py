@@ -10,7 +10,7 @@ from Experiments.AgentBuilder import build_agent_and_env
 def TD_comparison_experiment(cfg):
     """Compare convergence rate of PID-TD and Regular TD"""
     TDagent, env, policy = build_agent_and_env(("TD", 1, 0, 0, 0, 0), cfg['env'], cfg['get_optimal'], cfg['seed'], cfg['gamma'])
-    V_pi = find_Vpi(env, policy)
+    V_pi = find_Vpi(env, policy, cfg['gamma'])
     test_function = build_test_function(cfg['norm'], V_pi)
 
     TD_history, _ = TDagent.estimate_value_function(num_iterations=cfg['num_iterations'], test_function=test_function)

@@ -13,7 +13,7 @@ def adam_controller_experiment(cfg):
     agent, env, policy = build_agent_and_env(("hard TD", 1, 0, 0, 0, 0), cfg['env'], cfg['get_optimal'], cfg['seed'], cfg['gamma'])
     num_states = env.num_states
 
-    V_pi = find_Vpi(env, policy)
+    V_pi = find_Vpi(env, policy, cfg['gamma'])
     test_function = build_test_function(cfg['norm'], V_pi)
 
     if cfg['type'] == 'Adam':

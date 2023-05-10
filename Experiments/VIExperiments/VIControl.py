@@ -10,7 +10,7 @@ def control_experiment(cfg):
 
     for kp, kd, ki, alpha, beta in zip(cfg['kp'], cfg['kd'], cfg['ki'], cfg['alpha'], cfg['beta']):
         agent, env, _ = build_agent_and_env(("VI control", kp, ki, kd, alpha, beta), cfg['env'], False, cfg['seed'], cfg['gamma'])
-        V_star = find_Vstar(env)
+        V_star = find_Vstar(env, cfg['gamma'])
         history, _ = agent.value_iteration(num_iterations=cfg['num_iterations'], test_function=build_test_function(cfg['norm'], V_star))
         save_array(history, f"kp={kp} kd={kd} ki={ki} alpha={alpha} beta={beta}", plt)
 

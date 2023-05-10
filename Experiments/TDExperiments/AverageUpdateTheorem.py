@@ -22,7 +22,7 @@ def find_average_update_experiment(cfg):
         def bellman(V):
             return R.reshape((-1, 1)) + cfg['gamma'] * P @ V
 
-        V_pi = find_Vpi(env, policy)
+        V_pi = find_Vpi(env, policy, cfg['gamma'])
         test_function=lambda V, Vp, BR: np.max(np.abs(V_pi - bellman(V) * (kp / (kp - kd)) + Vp * (kd / (kp - kd))))
         history, _ = agent.estimate_value_function(num_iterations=cfg['num_iterations'], test_function=test_function)
 

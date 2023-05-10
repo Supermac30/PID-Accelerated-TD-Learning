@@ -74,7 +74,7 @@ class AbstractAdaptiveAgent(Agent):
 
             if test_function is not None:
                 history[k] = test_function(self.V, self.Vp, self.BR)
-                if stop_if_diverging and history[k] > 10 * history[0]:
+                if stop_if_diverging and history[k] > 1.5 * history[0]:
                     history[k:] = float("inf")
                     break
 
@@ -205,7 +205,7 @@ class AbstractGainUpdater():
 
 
 class LogSpaceUpdater(AbstractGainUpdater):
-    def __init__(self, num_states, N_p=5, N_I=1, N_d=0.5):
+    def __init__(self, num_states, N_p=0.75, N_I=1, N_d=0.1):
         self.fp, self.fd, self.fi = (np.zeros((num_states, 1)) for _ in range(3))
         self.fp_next, self.fd_next, self.fi_next = (np.zeros((num_states, 1)) for _ in range(3))
         self.BR = (np.zeros((num_states, 1)))
@@ -216,7 +216,7 @@ class LogSpaceUpdater(AbstractGainUpdater):
         self.N_I = N_I
         self.N_d = N_d
 
-        self.lambda_p = -np.log(N_p - 1)
+        self.lambda_p = np.log(1 - N_p)
         self.lambda_I = self.lambda_d = 0
 
     def calculate_updated_values(self, intermediate=False):
@@ -227,16 +227,16 @@ class LogSpaceUpdater(AbstractGainUpdater):
         gamma, lr = self.gamma, self.agent.lr
         BR = reward + gamma * V[next_state] - V[current_state]
         if not intermediate:
-            self.kp = self.N_p / (1 + np.exp(-self.lambda_p))
+            self.kp = np.exp(self.lambda_p) + self.N_p
             self.ki = (2 * self.N_I) / (1 + np.exp(-self.lambda_I)) - self.N_I
             self.kd = (2 * self.N_d) / (1 + np.exp(-self.lambda_d)) - self.N_d
 
-        self.lambda_p -= self.meta_lr * BR * (gamma * self.fp[next_state] - self.fp[current_state]) * \
-            (self.N_p / (1 + np.exp(-self.lambda_p))) * (self.N_p - (self.N_p / (1 + np.exp(-self.lambda_p))))
-        self.lambda_d -= self.meta_lr * BR * (gamma * self.fd[next_state] - self.fd[current_state]) * \
-            ((2 * self.N_d) / (1 + np.exp(-self.lambda_d))) * ((2 * self.N_d) - ((2 * self.N_d) / (1 + np.exp(-self.lambda_d))))
-        self.lambda_I -= self.meta_lr * BR * (gamma * self.fi[next_state] - self.fi[current_state]) * \
-            ((2 * self.N_I) / (1 + np.exp(-self.lambda_I))) * ((2 * self.N_I) - ((2 * self.N_I) / (1 + np.exp(-self.lambda_I))))
+        self.lambda_p -= lr * self.meta_lr * BR * (gamma * self.fp[next_state] - self.fp[current_state]) \
+            * (self.kp - self.N_p)
+        self.lambda_d -= lr * self.meta_lr * BR * (gamma * self.fd[next_state] - self.fd[current_state]) \
+            * (self.kd + self.N_d) * (self.N_d - self.kd)
+        self.lambda_I -= lr * self.meta_lr * BR * (gamma * self.fi[next_state] - self.fi[current_state]) \
+            * (self.ki + self.N_I) * (self.N_I - self.ki)
 
         self.fp[current_state] = BR
         self.fd[current_state] = (V[current_state] - Vp[current_state])
@@ -274,7 +274,7 @@ class DiagonalSoftGainUpdater(AbstractGainUpdater):
 
 
 class DiagonalLogSpaceUpdater(AbstractGainUpdater):
-    def __init__(self, num_states, N_p=5, N_I=1, N_d=0.5):
+    def __init__(self, num_states, N_p=0.75, N_I=1, N_d=0.1):
         self.fp, self.fd, self.fi = (np.zeros((num_states, 1)) for _ in range(3))
         self.fp_next, self.fd_next, self.fi_next = (np.zeros((num_states, 1)) for _ in range(3))
         self.BR = (np.zeros((num_states, 1)))
@@ -289,7 +289,7 @@ class DiagonalLogSpaceUpdater(AbstractGainUpdater):
         self.N_I = N_I
         self.N_d = N_d
 
-        self.lambda_p = np.full((num_states, 1), -np.log(N_p - 1))
+        self.lambda_p = np.full((num_states, 1), np.log(1 - N_p))
         self.lambda_I = np.zeros((num_states, 1))
         self.lambda_d = np.zeros((num_states, 1))
 
@@ -301,16 +301,16 @@ class DiagonalLogSpaceUpdater(AbstractGainUpdater):
         gamma, lr = self.gamma, self.agent.lr
         BR = reward + gamma * V[next_state] - V[current_state]
         if not intermediate:
-            self.kp[current_state] = self.N_p / (1 + np.exp(-self.lambda_p[current_state]))
+            self.kp[current_state] = np.exp(self.lambda_p[current_state]) + self.N_p
             self.ki[current_state] = (2 * self.N_I) / (1 + np.exp(-self.lambda_I[current_state])) - self.N_I
             self.kd[current_state] = (2 * self.N_d) / (1 + np.exp(-self.lambda_d[current_state])) - self.N_d
 
-        self.lambda_p[current_state] -= self.meta_lr * BR * (gamma * self.fp[next_state] - self.fp[current_state]) * \
-            (self.N_p / (1 + np.exp(-self.lambda_p[current_state]))) * (self.N_p - (self.N_p / (1 + np.exp(-self.lambda_p[current_state]))))
-        self.lambda_d[current_state] -= self.meta_lr * BR * (gamma * self.fd[next_state] - self.fd[current_state]) * \
-            ((2 * self.N_d) / (1 + np.exp(-self.lambda_d[current_state]))) * ((2 * self.N_d) - ((2 * self.N_d) / (1 + np.exp(-self.lambda_d[current_state]))))
-        self.lambda_I[current_state] -= self.meta_lr * BR * (gamma * self.fi[next_state] - self.fi[current_state]) * \
-            ((2 * self.N_I) / (1 + np.exp(-self.lambda_I[current_state]))) * ((2 * self.N_I) - ((2 * self.N_I) / (1 + np.exp(-self.lambda_I[current_state]))))
+        self.lambda_p[current_state] -= self.meta_lr * BR * (gamma * self.fp[next_state] - self.fp[current_state]) \
+            * self.kp[current_state] - self.N_p
+        self.lambda_d[current_state] -= self.meta_lr * BR * (gamma * self.fd[next_state] - self.fd[current_state]) \
+            * (self.kd[current_state] + self.N_d) * (self.N_d - self.kd[current_state])
+        self.lambda_I[current_state] -= self.meta_lr * BR * (gamma * self.fi[next_state] - self.fi[current_state]) \
+            * (self.ki[current_state] + self.N_I) * (self.N_I - self.ki[current_state])
 
         self.fp[current_state] = BR
         self.fd[current_state] = (V[current_state] - Vp[current_state])
@@ -400,7 +400,7 @@ class TrueSoftGainUpdater(AbstractGainUpdater):
 
 
 class LogisticExactUpdater(AbstractGainUpdater):
-    def __init__(self, transition, reward, num_states, N_p=5, N_d=0.5, N_I=1):
+    def __init__(self, transition, reward, num_states, N_p=0.75, N_d=0.5, N_I=1):
         super().__init__()
         self.transition = transition
         self.reward = reward.reshape(-1, 1)
@@ -408,7 +408,7 @@ class LogisticExactUpdater(AbstractGainUpdater):
         self.N_d = N_d
         self.N_I = N_I
 
-        self.lambda_p = -np.log(N_p - 1)
+        self.lambda_p = np.log(1 - N_p)
         self.lambda_d = self.lambda_I = 0
 
     def calculate_updated_values(self, intermediate=False):
@@ -421,16 +421,16 @@ class LogisticExactUpdater(AbstractGainUpdater):
         normalization = 1
         BR = self.reward + gamma * self.transition @ V - V
         if not intermediate:
-            self.kp = self.N_p / (1 + np.exp(-self.lambda_p))
+            self.kp = np.exp(self.lambda_p) + self.N_p
             self.ki = (2 * self.N_I) / (1 + np.exp(-self.lambda_I)) - self.N_I
             self.kd = (2 * self.N_d) / (1 + np.exp(-self.lambda_d)) - self.N_d
 
-        self.lambda_p -= self.meta_lr * BR.T @ (gamma * self.transition @ BR - BR) * \
-            (self.N_p / (1 + np.exp(-self.lambda_p))) * (self.N_p - (self.N_p / (1 + np.exp(-self.lambda_p)))) / normalization
-        self.lambda_d -= self.meta_lr * BR.T @ (gamma * self.transition @ (V - Vp) - (V - Vp)) * \
-            ((2 * self.N_d) / (1 + np.exp(-self.lambda_d))) * ((2 * self.N_d) - ((2 * self.N_d) / (1 + np.exp(-self.lambda_d)))) / normalization
-        self.lambda_I -= self.meta_lr * BR.T @ (gamma * self.transition @ (beta * z + alpha * BR) - (beta * z + alpha * BR)) * \
-            ((2 * self.N_I) / (1 + np.exp(-self.lambda_I))) * ((2 * self.N_I) - ((2 * self.N_I) / (1 + np.exp(-self.lambda_I)))) / normalization
+        self.lambda_p -= self.meta_lr * BR.T @ (gamma * self.transition @ BR - BR) \
+            * (self.kp - self.N_p) / normalization
+        self.lambda_d -= self.meta_lr * BR.T @ (gamma * self.transition @ (V - Vp) - (V - Vp)) \
+            * (self.kd + self.N_d) * (self.N_d - self.kd) / normalization
+        self.lambda_I -= self.meta_lr * BR.T @ (gamma * self.transition @ (beta * z + alpha * BR) - (beta * z + alpha * BR)) \
+            * (self.ki + self.N_I) * (self.N_I - self.ki) / normalization
 
 
 class SemiGradientUpdater(AbstractGainUpdater):

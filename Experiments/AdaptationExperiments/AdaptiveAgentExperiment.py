@@ -1,6 +1,7 @@
 """Test the formulation of the adaptive agent without learning rates"""
 
 import matplotlib.pyplot as plt
+
 import hydra
 
 from Experiments.AdaptiveAgentBuilder import build_adaptive_agent_and_env
@@ -40,24 +41,32 @@ def adaptive_agent_experiment(cfg):
             alpha=cfg['alpha'],
             beta=cfg['beta']
         )
-        fig1 = plt.figure()
-        ax1 = fig1.add_subplot()
-
         _, gain_history, history = agent.estimate_value_function(cfg['num_iterations'], test_function, follow_trajectory=cfg['follow_trajectory'])
 
         save_array(history, f"Adaptive Agent: {agent_name} {meta_lr} {delay}", ax0)
 
-        save_array(gain_history[:, 0], f"kp", ax1)
-        save_array(gain_history[:, 1], f"ki", ax1)
-        save_array(gain_history[:, 2], f"kd", ax1)
-        save_array(gain_history[:, 3], f"alpha", ax1)
-        save_array(gain_history[:, 4], f"beta", ax1)
+        fig = plt.figure(figsize=(10, 4))
+        gs = fig.add_gridspec(nrows=1, ncols=3, width_ratios=[1,1,1], wspace=0.3, hspace=0.5)
+        titles = ["kp", "ki", "kd"]
 
-        ax1.title.set_text(f"Adaptive Agent: {agent_name}, {cfg['env']}, delay={delay}, meta_lr={meta_lr}")
-        ax1.legend()
-        ax1.set_xlabel('Iteration')
-        ax1.set_ylabel(f'Gain Value')
-        fig1.savefig(f"gains_plot {agent_name} {str(meta_lr).replace('.', '-')} {delay}")
+        for i in range(3):
+            ax = fig.add_subplot(gs[0, i])
+            save_array(gain_history[:, i], titles[i], ax)
+            ax.set_xlabel('Iteration')
+            ax.set_ylabel(titles[i])
+            ax.legend()
+
+        plt.suptitle(f"Adaptive Agent: {agent_name}, {cfg['env']}, delay={delay}, meta_lr={meta_lr}")
+
+        # Set square aspect ratio for each subplot
+        for ax in fig.axes:
+            ax.set_box_aspect(1)
+
+        # Center the subplots in a single row and move up to remove whitespace
+        gs.tight_layout(fig, rect=[0.05, 0.08, 0.95, 0.95])
+
+        plt.savefig(f"gains_plot_{agent_name}_{str(meta_lr).replace('.', '-')}_{delay}.png")
+
 
     ax0.title.set_text(f"Adaptive Agent: {cfg['env']}")
     ax0.legend()

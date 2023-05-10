@@ -10,7 +10,7 @@ def far_sighted_update_experiment(cfg):
     for delay in cfg['delays']:
         for kp, kd, ki, alpha, beta in zip(cfg['kp'], cfg['kd'], cfg['ki'], cfg['alpha'], cfg['beta']):
             agent, env, policy = build_agent_and_env(("far sighted TD", kp, ki, kd, alpha, beta, delay), cfg['env'], cfg['get_optimal'], cfg['seed'], cfg['gamma'])
-            V_pi = find_Vpi(env, policy)
+            V_pi = find_Vpi(env, policy, cfg['gamma'])
             test_function = build_test_function(cfg['norm'], V_pi)
             history, _ = agent.estimate_value_function(num_iterations=cfg['num_iterations'], test_function=test_function)
             save_array(history, f"kp={kp} kd={kd} ki={ki} alpha={alpha} beta={beta} delay={delay}", plt)

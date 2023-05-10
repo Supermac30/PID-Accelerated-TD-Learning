@@ -310,7 +310,7 @@ class CliffWalk(Environment):
 
     def take_action(self, action):
         if self.prg.random() > self.success_prob:
-            action = self.prg.choice([0, 1, 2, 3])
+            action = self.prg.choice([a for a in range(4) if a != action])
         target = self.get_target(self.current_state, action)
         reward = self.reward_matrix[self.current_state, action]
         self.current_state = target
@@ -342,3 +342,20 @@ class CliffWalk(Environment):
             raise InvalidAction(action)
 
         return target
+
+
+class IdentityEnv(Environment):
+    def __init__(self, num_states, seed):
+        super().__init__(num_states, 1, 0, seed)
+
+    def build_probability_transition_kernel(self):
+        P = np.zeros((self.num_states, self.num_states, 1))
+        for i in range(self.num_states):
+            P[i, i, 0] = 1
+        return P
+
+    def build_reward_matrix(self):
+        return np.ones((self.num_states, 1))
+
+    def take_action(self, action):
+        return self.current_state, 1

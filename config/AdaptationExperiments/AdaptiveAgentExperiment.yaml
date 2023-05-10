@@ -1,14 +1,14 @@
 env: cliff walk
 norm: 1
-num_iterations: 30000
+num_iterations: 60000
 
 get_optimal: True
 
-agent_name: [true soft sampler, naive soft sampler]
-meta_lr: [1e-3, 1e-3]
-delay: [10, 10]
+agent_name: [true soft sampler, naive soft sampler, log space updater]
+meta_lr: [5e-12, 5e-5, 5e-5]
+delay: [1, 1, 1]
 
-follow_trajectory: True
+follow_trajectory: False
 
 kp: 1
 ki: 0
@@ -18,9 +18,11 @@ beta: 0.95
 
 gamma: 0.99
 
-seed: 123443
+name: log space comparison
+
+seed: 43243234
 hydra:
   run:
-    dir: ${oc.env:OUTPUT_DIR,./outputs}/${hydra.job.config_name}/${now:%Y-%m-%d}/${now:%H-%M-%S}
+    dir: ${oc.env:OUTPUT_DIR,./outputs}/${hydra.job.config_name}/${name}/${env}/${now:%Y-%m-%d}/${now:%H-%M-%S}
   job:
     chdir: True

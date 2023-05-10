@@ -5,7 +5,7 @@ import os
 import logging
 
 from MDP import PolicyEvaluation, Control
-from Environments import ChainWalk, Garnet, CliffWalk
+from Environments import ChainWalk, Garnet, CliffWalk, IdentityEnv
 
 def build_test_function(norm, V_pi):
     """Return the function that tests how far away our current estimate is from V_pi
@@ -33,6 +33,8 @@ def get_env_policy(name, seed):
         return chain_walk_random(50, 2, seed)
     elif name == "cliff walk":
         return cliff_walk(seed)
+    elif name == "identity":
+        return identity(seed)
     else:
         raise Exception("Environment not indexed")
 
@@ -79,6 +81,14 @@ def chain_walk_left(num_states, num_actions, seed):
     for i in range(num_states):
         policy[i,0] = 1
         policy[i,1] = 0
+    return env, policy
+
+def identity(seed):
+    """Return the identity environment the policy that picks the only available action."""
+    env = IdentityEnv(1, seed)
+    policy = np.zeros((1, 1))
+    for i in range(env.num_states):
+        policy[i, 0] = 1
     return env, policy
 
 
