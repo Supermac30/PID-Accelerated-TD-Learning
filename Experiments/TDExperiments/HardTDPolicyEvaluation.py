@@ -11,7 +11,7 @@ def policy_evaluation_experiment(cfg):
         agent, env, policy = build_agent_and_env(("hard TD", kp, ki, kd, alpha, beta), cfg['env'], cfg['get_optimal'], cfg['seed'], cfg['gamma'])
         V_pi = find_Vpi(env, policy, cfg['gamma'])
         test_function = build_test_function(cfg['norm'], V_pi)
-        history, _ = agent.estimate_value_function(num_iterations=cfg['num_iterations'], test_function=test_function)
+        history, _ = agent.estimate_value_function(num_iterations=cfg['num_iterations'], test_function=test_function, follow_trajectory=cfg['follow_trajectory'])
         save_array(history, f"kp={kp} kd={kd} ki={ki} alpha={alpha} beta={beta}", plt)
 
 

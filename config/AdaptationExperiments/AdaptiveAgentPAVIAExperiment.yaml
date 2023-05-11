@@ -4,6 +4,8 @@ num_iterations: 10000
 meta_lr: 0.1
 gamma: 0.999
 
+follow_trajectory: False
+
 agent_name: planner
 
 seed: -1

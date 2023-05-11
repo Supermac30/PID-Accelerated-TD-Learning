@@ -11,13 +11,13 @@ def convergence_rate_VI_experiment(cfg):
 
     for kp, kd, ki, alpha, beta in zip(cfg['kp'], cfg['kd'], cfg['ki'], cfg['alpha'], cfg['beta']):
         TDagent, env, policy = build_agent_and_env((cfg['agent_description'], kp, ki, kd, alpha, beta), cfg['env'], cfg['get_optimal'], cfg['seed'], cfg['gamma'])
-        TD_history, _ = TDagent.estimate_value_function(num_iterations=cfg['num_iterations'], test_function=test_function)
+        TD_history, _ = TDagent.estimate_value_function(num_iterations=cfg['num_iterations'], test_function=test_function, follow_trajectory=cfg['follow_trajectory'])
 
         V_pi = find_Vpi(env, policy, cfg['gamma'])
         test_function = build_test_function(cfg['norm'], V_pi)
 
         VIagent, env, policy = build_agent_and_env(("VI", kp, ki, kd, alpha, beta), cfg['env'], cfg['get_optimal'], cfg['seed'], cfg['gamma'])
-        VI_history = VIagent.estimate_value_function(num_iterations=cfg['num_iterations'], test_function=test_function)
+        VI_history = VIagent.estimate_value_function(num_iterations=cfg['num_iterations'], test_function=test_function, follow_trajectory=cfg['follow_trajectory'])
 
         save_array(TD_history, f"kp={kp} kd={kd} ki={ki} alpha={alpha} beta={beta}", ax2)
         save_array(VI_history, f"kp={kp} kd={kd} ki={ki} alpha={alpha} beta={beta}", ax1)

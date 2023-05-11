@@ -10,6 +10,8 @@ isSoft: True
 num_iterations: 20000
 norm: 1
 
+follow_trajectory: False
+
 env: garnet
 
 seed: -1

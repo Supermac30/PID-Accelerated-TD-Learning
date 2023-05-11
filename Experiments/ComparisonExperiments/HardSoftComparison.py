@@ -16,8 +16,8 @@ def hard_soft_convergence_experiment(cfg):
 
         hard, env, policy = build_agent_and_env(("hard TD", kp, ki, kd, alpha, beta), cfg['env'], cfg['get_optimal'], cfg['seed'], cfg['gamma'])
 
-        soft_history, _ = soft.estimate_value_function(num_iterations=cfg['num_iterations'], test_function=test_function)
-        hard_history, _ = hard.estimate_value_function(num_iterations=cfg['num_iterations'], test_function=test_function)
+        soft_history, _ = soft.estimate_value_function(num_iterations=cfg['num_iterations'], test_function=test_function, follow_trajectory=cfg['follow_trajectory'])
+        hard_history, _ = hard.estimate_value_function(num_iterations=cfg['num_iterations'], test_function=test_function, follow_trajectory=cfg['follow_trajectory'])
 
         save_array(soft_history, f"soft kp={kp} kd={kd} ki={ki} alpha={alpha} beta={beta}", ax1)
         save_array(hard_history, f"hard kp={kp} kd={kd} ki={ki} alpha={alpha} beta={beta}", ax2)

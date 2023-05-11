@@ -10,6 +10,8 @@ num_iterations: 10000
 norm: 1  # Type inf for infinity norm, and a number p for the ||.||_p norm
 env: chain walk
 
+follow_trajectory: False
+
 seed: -1
 hydra:
   run:

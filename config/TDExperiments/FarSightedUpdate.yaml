@@ -10,6 +10,7 @@ norm: 1
 env: chain walk
 gamma: 0.99
 
+follow_trajectory: False
 get_optimal: False
 
 seed: -1

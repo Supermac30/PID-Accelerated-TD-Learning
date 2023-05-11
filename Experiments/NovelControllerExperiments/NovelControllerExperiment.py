@@ -27,7 +27,8 @@ def adam_controller_experiment(cfg):
             history, _ = agent.estimate_value_function(
                 novel_controller,
                 num_iterations=cfg['num_iterations'],
-                test_function=test_function
+                test_function=test_function,
+                follow_trajectory=cfg['follow_trajectory']
             )
             total_history += history
         return total_history / 10
@@ -45,7 +46,7 @@ def adam_controller_experiment(cfg):
 
 
     agent, env, policy = build_agent_and_env(("TD", 1, 0, 0, 0, 0), cfg['env'], cfg['get_optimal'], cfg['seed'], cfg['gamma'])
-    history, _ = agent.estimate_value_function(num_iterations=cfg['num_iterations'], test_function=test_function)
+    history, _ = agent.estimate_value_function(num_iterations=cfg['num_iterations'], test_function=test_function, follow_trajectory=cfg['follow_trajectory'])
     save_array(history, f"Regular TD", plt)
 
     plt.title(f"{cfg['type']}: {cfg['env']}")

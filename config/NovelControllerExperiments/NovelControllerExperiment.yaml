@@ -11,6 +11,8 @@ gamma: 0.99
 # Adagrad Paramaters
 ka: 3
 
+follow_trajectory: False
+
 learning_rates: {}
 update_D_rates: {}
 update_I_rates: {}

@@ -13,7 +13,7 @@ def adaptive_agent_experiment(cfg):
     V_pi = find_Vpi(env, policy, cfg['gamma'])
     test_function = build_test_function(cfg['norm'], V_pi)
 
-    _, gain_history, history = agent.estimate_value_function(cfg['num_iterations'], test_function)
+    _, gain_history, history = agent.estimate_value_function(cfg['num_iterations'], test_function, follow_trajectory=cfg['follow_trajectory'])
     agent.gain_updater.plot()
 
     fig = plt.figure()
