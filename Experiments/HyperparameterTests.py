@@ -107,7 +107,7 @@ def run_adaptive_search(agent_name, env_name, seed, norm, gamma, meta_lr):
     """Run a grid search on the exhaustive learning rates for the choice of adaptive agent"""
     optimal_value, optimal_rates = float("inf"), None
     agent, env, policy = build_adaptive_agent_and_env(agent_name, env_name, meta_lr, seed=seed, gamma=gamma)
-    V_pi = find_Vpi(env, policy)
+    V_pi = find_Vpi(env, policy, gamma)
 
     history, rates = find_optimal_learning_rates(
         agent,
