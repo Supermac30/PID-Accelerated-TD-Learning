@@ -72,7 +72,7 @@ def get_optimal_adaptive_rates(agent_name, env_name, meta_lr, gamma, recompute=F
 def run_pid_search(env_name, kp, kd, ki, alpha, beta, seed, norm, gamma):
     """Run a grid search on the exhaustive learning rates for the choice of controller gains"""
     agent, env, policy = build_agent_and_env(("TD", kp, ki, kd, alpha, beta), env_name, seed=seed, gamma=gamma)
-    V_pi = find_Vpi(env, policy)
+    V_pi = find_Vpi(env, policy, gamma)
 
     # Don't search over the learning rates for the components that are 0
     if kp == 0:

@@ -56,8 +56,8 @@ class AbstractAdaptiveAgent(Agent):
             self.frequencies[self.current_state] += 1
             if (k + 1) % self.update_frequency == 0:
                 self.gain_updater.calculate_updated_values()
-                self.update_value()
                 self.gain_updater.update_gains()
+                self.update_value()
             else:
                 self.update_value()
                 self.gain_updater.intermediate_update()
@@ -123,9 +123,9 @@ class AdaptiveSamplerAgent(AbstractAdaptiveAgent):
 class DiagonalAdaptiveSamplerAgent(AbstractAdaptiveAgent):
     def __init__(self, gain_updater, learning_rates, meta_lr, environment, policy, gamma, update_frequency=1, kp=1, kd=0, ki=0, alpha=0.05, beta=0.95):
         super().__init__(gain_updater, learning_rates, meta_lr, environment, policy, gamma, update_frequency, kp, kd, ki, alpha, beta)
-        self.kp = np.ones((self.num_states, 1), dtype=np.longdouble)
-        self.ki = np.zeros((self.num_states, 1), dtype=np.longdouble)
-        self.kd = np.zeros((self.num_states, 1), dtype=np.longdouble)
+        self.kp = np.ones((self.num_states), dtype=np.longdouble)
+        self.ki = np.zeros((self.num_states), dtype=np.longdouble)
+        self.kd = np.zeros((self.num_states), dtype=np.longdouble)
         gain_updater.set_agent(self)
 
     def update_value(self):
@@ -138,7 +138,7 @@ class DiagonalAdaptiveSamplerAgent(AbstractAdaptiveAgent):
         state = self.current_state
 
         BR = self.BR()
-        new_V = self.V[state][0] + self.kp[state][0] * BR + self.kd[state][0] * (self.V[state][0] - self.Vp[state][0]) + self.ki[state][0] * (self.beta * self.z[state][0] + self.alpha * BR)
+        new_V = self.V[state][0] + self.kp[state] * BR + self.kd[state] * (self.V[state][0] - self.Vp[state][0]) + self.ki[state] * (self.beta * self.z[state][0] + self.alpha * BR)
         new_z = self.beta * self.z[state][0] + self.alpha * BR
         new_Vp = self.V[state][0]
 
@@ -246,15 +246,15 @@ class LogSpaceUpdater(AbstractGainUpdater):
 
 class DiagonalSoftGainUpdater(AbstractGainUpdater):
     def __init__(self, num_states):
-        self.fp, self.fd, self.fi = (np.zeros((num_states, 1)) for _ in range(3))
+        self.fp, self.fd, self.fi = (np.zeros((num_states)) for _ in range(3))
         self.fp_next, self.fd_next, self.fi_next = (np.zeros((num_states, 1)) for _ in range(3))
         self.BR = (np.zeros((num_states, 1)))
 
         super().__init__()
 
-        self.kp = np.ones((num_states, 1))
-        self.ki = np.zeros((num_states, 1))
-        self.kd = np.zeros((num_states, 1))
+        self.kp = np.ones((num_states))
+        self.ki = np.zeros((num_states))
+        self.kd = np.zeros((num_states))
 
     def calculate_updated_values(self, intermediate=False):
         reward = self.agent.reward
@@ -320,7 +320,7 @@ class DiagonalLogSpaceUpdater(AbstractGainUpdater):
 
 class NaiveSoftGainUpdater(AbstractGainUpdater):
     def __init__(self, num_states):
-        self.fp, self.fd, self.fi = (np.zeros((num_states, 1)) for _ in range(3))
+        self.fp, self.fd, self.fi = (np.zeros((num_states)) for _ in range(3))
         self.fp_next, self.fd_next, self.fi_next = (np.zeros((num_states, 1)) for _ in range(3))
         self.BR = (np.zeros((num_states, 1)))
 
@@ -329,21 +329,19 @@ class NaiveSoftGainUpdater(AbstractGainUpdater):
     def calculate_updated_values(self, intermediate=False):
         reward = self.agent.reward
         next_state, current_state = self.agent.next_state, self.agent.current_state
-        V, Vp, z = self.agent.V, self.agent.Vp, self.agent.z
+        V, Vp, z = self.agent.previous_V, self.agent.previous_Vp, self.agent.previous_z
         alpha, beta = self.alpha, self.beta
         gamma, lr = self.gamma, self.agent.lr
 
-        BR = reward + gamma * V[next_state] - V[current_state]
+        BR = reward + gamma * V[next_state][0] - V[current_state][0]
         if not intermediate:
-            self.kp -= self.meta_lr * BR @ (gamma * self.fp[next_state] - self.fp[current_state])
-            self.kd -= self.meta_lr * BR @ (gamma * self.fd[next_state] - self.fd[current_state])
-            self.ki -= self.meta_lr * BR @ (gamma * self.fi[next_state] - self.fi[current_state])
-
-        # A quick tour of the landscape
+            self.kp -= self.meta_lr * BR * (gamma * self.fp[next_state] - self.fp[current_state])
+            self.kd -= self.meta_lr * BR * (gamma * self.fd[next_state] - self.fd[current_state])
+            self.ki -= self.meta_lr * BR * (gamma * self.fi[next_state] - self.fi[current_state])
 
         self.fp[current_state] = lr * BR
-        self.fd[current_state] = lr * (V[current_state] - Vp[current_state])
-        self.fi[current_state] = lr * (beta * z[current_state] + alpha * self.BR[current_state])
+        self.fd[current_state] = lr * (V[current_state][0] - Vp[current_state][0])
+        self.fi[current_state] = lr * (beta * z[current_state][0] + alpha * BR)
 
 
 class TrueSoftGainUpdater(AbstractGainUpdater):
@@ -352,22 +350,21 @@ class TrueSoftGainUpdater(AbstractGainUpdater):
         self.num_states = num_states
         self.reset_partials()
 
-        self.fp_next, self.fd_next, self.fi_next = (np.zeros((num_states, 1)) for _ in range(3))
-        self.BR = (np.zeros((num_states, 1)))
+        self.BR = (np.zeros((num_states)))
 
         super().__init__()
 
     def reset_partials(self):
-        self.fs = [np.zeros((self.num_states, 1)) for _ in range(3)]
-        self.gs = [np.zeros((self.num_states, 1)) for _ in range(3)]
-        self.hs = [np.zeros((self.num_states, 1)) for _ in range(3)]
+        self.fs = [np.zeros((self.num_states)) for _ in range(3)]
+        self.gs = [np.zeros((self.num_states)) for _ in range(3)]
+        self.hs = [np.zeros((self.num_states)) for _ in range(3)]
 
         self.total_kp, self.total_ki, self.total_kd = 0, 0, 0
 
     def calculate_updated_values(self, intermediate=False):
         reward = self.agent.reward
         next_state, current_state = self.agent.next_state, self.agent.current_state
-        V, Vp, z = self.agent.V, self.agent.Vp, self.agent.z
+        V, Vp, z = self.agent.previous_V, self.agent.previous_Vp, self.agent.previous_z
         alpha, beta = self.alpha, self.beta
         gamma, lr = self.gamma, self.agent.lr
         update_D_rate, update_I_rate = self.agent.update_D_rate_value, self.agent.update_I_rate_value
@@ -395,7 +392,7 @@ class TrueSoftGainUpdater(AbstractGainUpdater):
                 + update_I_rate * (beta * self.hs[i][current_state] + alpha * (gamma * self.fs[i][next_state] - self.fs[i][current_state]))
 
         self.fs[0][current_state] += lr * (BR + common_updates[0])
-        self.fs[1][current_state] += lr * ((beta * z[current_state] + alpha * self.BR[current_state]) + common_updates[1])
+        self.fs[1][current_state] += lr * ((beta * z[current_state] + alpha * BR) + common_updates[1])
         self.fs[2][current_state] += lr * ((V[current_state] - Vp[current_state]) +  common_updates[2])
 
 
@@ -537,9 +534,9 @@ class AbstractOriginalCostUpdater(AbstractGainUpdater):
         partial_br_kp, partial_br_ki, partial_br_kd, partial_br_beta, BR_current, BR_previous = self.get_gradient_terms()
 
         if self.scale_by_lr:
-            normalizer = self.epsilon + BR_previous.T @ BR_previous
-        else:
             normalizer = 1
+        else:
+            normalizer = self.epsilon + BR_previous.T @ BR_previous
 
         kp_grad = (BR_current.T @ partial_br_kp) / normalizer
         ki_grad = (BR_current.T @ partial_br_ki) / normalizer
@@ -593,13 +590,16 @@ class ExactUpdater(AbstractOriginalCostUpdater):
         self.reward = reward.reshape(-1, 1).astype(np.float64)
 
     def get_gradient_terms(self):
-        V, Vp, Vpp = self.agent.V, self.agent.previous_V, self.agent.previous_previous_V
+        V, Vp, Vpp = self.agent.V, self.agent.previous_V, self.agent.previous_Vp
         z, zp = self.agent.z, self.agent.previous_z
 
         BR = lambda n: self.gamma * self.transition @ n + self.reward - n
 
         BR_current = BR(V)
         BR_previous = BR(Vp)
+
+        if np.random.random() < 0.0000001:
+            breakpoint()
 
         mult = lambda n: (self.gamma * self.transition @ n) - n
 

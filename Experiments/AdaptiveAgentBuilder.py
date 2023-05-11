@@ -11,7 +11,7 @@ from AdaptiveAgents import *
 import logging
 
 default_meta_lr = 1
-default_learning_rates = (0.25, 100, 1, 1, 1, 1)
+default_learning_rates = (1, 100, 1, float("inf"), 1, float("inf"))
 
 def build_adaptive_agent_and_env(agent_name, env_name, meta_lr, get_optimal=False, seed=-1, gamma=0.99, delay=1, kp=1, kd=0, ki=0, alpha=0.05, beta=0.95):
     """Return the adaptive agent and the environment & policy given its name. The names include:
@@ -271,7 +271,7 @@ def build_log_space_planner(env, policy, meta_lr, learning_rates, gamma, delay, 
 def build_true_cost(env, policy, meta_lr, learning_rates, gamma, delay, kp, kd, ki, alpha, beta):
     reward = env.build_policy_reward_vector(policy)
     transition = env.build_policy_probability_transition_kernel(policy)
-    gain_updater = ExactUpdater(transition, reward, False)
+    gain_updater = ExactUpdater(transition, reward, True)
     return AdaptiveSamplerAgent(
         gain_updater,
         learning_rates,
