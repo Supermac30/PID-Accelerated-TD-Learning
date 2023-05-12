@@ -123,7 +123,7 @@ class PID_TD(Agent):
         self.V, self.Vp, self.z = (np.zeros((self.num_states, 1)) for _ in range(3))
         self.environment.reset()
 
-    def estimate_value_function(self, controllers=[], num_iterations=1000, test_function=None, stop_if_diverging=True, follow_trajectory=True):
+    def estimate_value_function(self, num_iterations=1000, test_function=None, stop_if_diverging=True, follow_trajectory=True, reset=True):
         """Computes V^pi of the inputted policy using TD learning augmented with controllers.
         Takes in Controller objects that the agent will use to control the dynamics of learning.
 
@@ -134,6 +134,8 @@ class PID_TD(Agent):
         If stop_if_diverging is True, then when the test_function is 10 times as large as its initial value,
         we stop learning and return a history with the last element being very large
         """
+        if reset:
+            self.reset()
         # A vector storing the number of times we have seen a state.
         frequency = np.zeros((self.num_states, 1))
 
@@ -145,24 +147,17 @@ class PID_TD(Agent):
 
             frequency[current_state] += 1
 
-            # An estimate of the bellman update
-            BR = np.zeros((self.num_states, 1))
-            BR[current_state] = reward + self.gamma * self.V[next_state] - self.V[current_state]
+            BR = reward + self.gamma * self.V[next_state] - self.V[current_state]
 
             learning_rate = self.learning_rate(frequency[current_state])
             update_D_rate = self.update_D_rate(frequency[current_state])
             update_I_rate = self.update_I_rate(frequency[current_state])
 
-            # Deprecated, but I'm keeping it here for now to allow the novel controller experiments to work
-            # TODO: Remove this later.
-            if len(controllers) == 0:
-                update = sum(map(lambda n: n.evaluate_controller(BR, self.V, self.Vp, update_I_rate), controllers))
-
             # Update the value function using the floats kp, ki, kd
-            self.z = (1 - update_I_rate) * self.z + update_I_rate * (self.beta * self.z + self.alpha * BR)
-            update = self.kp * BR + self.ki * self.z + self.kd * (self.V - self.Vp)
-            self.Vp[current_state] = (1 - update_D_rate) * self.Vp[current_state] + update_D_rate * self.V[current_state]
-            self.V = self.V + learning_rate * update
+            self.z[current_state] = (1 - update_I_rate) * self.z[current_state][0] + update_I_rate * (self.beta * self.z[current_state][0] + self.alpha * BR)
+            update = self.kp * BR + self.ki * self.z[current_state][0] + self.kd * (self.V[current_state][0] - self.Vp[current_state][0])
+            self.Vp[current_state] = (1 - update_D_rate) * self.Vp[current_state][0] + update_D_rate * self.V[current_state][0]
+            self.V[current_state] = self.V[current_state][0] + learning_rate * update
 
             if test_function is not None:
                 history[k] = test_function(self.V, self.Vp, BR)
@@ -198,6 +193,58 @@ class Hard_PID_TD(PID_TD):
             beta,
             learning_rate
         )
+
+class PID_TD_with_momentum(PID_TD):
+    """The old flawed updates that seemed to work better
+    """
+    def estimate_value_function(self, num_iterations=1000, test_function=None, stop_if_diverging=True, follow_trajectory=True):
+        """Computes V^pi of the inputted policy using TD learning augmented with controllers.
+        Takes in Controller objects that the agent will use to control the dynamics of learning.
+
+        If test_function is not None, we record the value of test_function on V, Vp.
+
+        If threshold and test_function are not None, we stop after test_function outputs a value smaller than threshold.
+
+        If stop_if_diverging is True, then when the test_function is 10 times as large as its initial value,
+        we stop learning and return a history with the last element being very large
+        """
+        self.reset()
+        # A vector storing the number of times we have seen a state.
+        frequency = np.zeros((self.num_states, 1))
+
+        # The history of test_function
+        history = np.zeros(num_iterations)
+
+        for k in range(num_iterations):
+            current_state, _, next_state, reward = self.take_action(follow_trajectory)
+
+            frequency[current_state] += 1
+
+            BR = reward + self.gamma * self.V[next_state] - self.V[current_state]
+
+            learning_rate = self.learning_rate(frequency[current_state])
+            update_D_rate = self.update_D_rate(frequency[current_state])
+            update_I_rate = self.update_I_rate(frequency[current_state])
+
+            # Update the value function using the floats kp, ki, kd
+            self.z[current_state] = (1 - update_I_rate) * self.z[current_state][0] + update_I_rate * (self.beta * self.z[current_state][0] + self.alpha * BR)
+            update = self.ki * self.z + self.kd * (self.V - self.Vp)
+            self.Vp[current_state] = (1 - update_D_rate) * self.Vp[current_state][0] + update_D_rate * self.V[current_state][0]
+            self.V[current_state] += learning_rate * self.kp * BR
+            self.V += learning_rate * update
+
+            if test_function is not None:
+                history[k] = test_function(self.V, self.Vp, BR)
+                if stop_if_diverging and history[k] > 2 * history[0]:
+                    # If we are too large, stop learning
+                    history[k:] = float('inf')
+                    break
+
+        if test_function is None:
+            return self.V
+
+        return history, self.V
+
 
 class FarSighted_PID_TD(PID_TD):
     """Soft updates, with V_k - V_{k - N} for some large N

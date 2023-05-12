@@ -101,7 +101,7 @@ def learning_rate_function(alpha, N):
     return lambda k: min(alpha, N/(k + 1))
 
 
-def find_optimal_learning_rates(agent, value_function_estimator, isSoft, learning_rates={}, update_D_rates={}, update_I_rates={}, verbose=False):
+def find_optimal_learning_rates(agent, value_function_estimator, learning_rates={}, update_I_rates={}, update_D_rates={}, verbose=False):
     """Run a grid search for values of N and alpha that makes the
     value_function_estimator have the lowest possible error.
 
@@ -109,34 +109,8 @@ def find_optimal_learning_rates(agent, value_function_estimator, isSoft, learnin
     value_function_estimator should be a function that runs agent.estimate_value_function with
         the correct parameters, and does not plot
 
-    isSoft is True when we update the update_rate as well.
-
     Return the optimal parameters and the associated history
     """
-    # A dictionary from alpha to possible Ns
-    if learning_rates == {}:
-        learning_rates = {
-            # 0.5: {1000, 10000},
-            0.25: {1000, 10000},
-            0.1: {10, 100, 1000, 10000},
-            0.05: {1, 10, 100, 1000},
-            0.01: {1, 10, 100, 1000}
-        }
-
-    if update_D_rates == {}:
-        update_D_rates = {
-            1: {float("inf")},  # Mimics hard update
-        }
-
-    if update_I_rates == {}:
-        update_I_rates = {
-            1: {float("inf")},  # Mimics hard update
-            # 0.9: {1, 10, 100, 1000},
-            # 0.8: {1, 10, 100, 1000},
-            # 0.7: {1, 10, 100, 1000},
-            # 0.6: {1, 10, 100}
-        }
-
     # Store for later restoration to avoid spooky action at a distance
     original_learning_rate = agent.learning_rate
 
@@ -157,19 +131,12 @@ def find_optimal_learning_rates(agent, value_function_estimator, isSoft, learnin
             return params, history
         return minimum_params, minimum_history
 
-    for alpha in learning_rates:
-        for N in learning_rates[alpha]:
+    for alpha, beta, gamma in itertools.product(learning_rates, update_I_rates, update_D_rates):
+        for N, M, L in itertools.product(learning_rates[alpha], update_I_rates[beta], update_D_rates[gamma]):
             agent.learning_rate = learning_rate_function(alpha, N)
-            if not isSoft:
-                minimum_params, minimum_history = try_params((N, alpha))
-                continue
-
-            # If isSoft, perform a grid search on the learning rate of V' (i.e. the update rate)
-            for beta, gamma in itertools.product(update_D_rates, update_I_rates):
-                for M, L in itertools.product(update_D_rates[beta], update_I_rates[gamma]):
-                    agent.update_D_rate = learning_rate_function(beta, M)
-                    agent.update_I_rate = learning_rate_function(gamma, L)
-                    minimum_params, minimum_history = try_params((alpha, N, beta, M, gamma, L))
+            agent.update_I_rate = learning_rate_function(beta, M)
+            agent.update_D_rate = learning_rate_function(gamma, L)
+            minimum_params, minimum_history = try_params((alpha, N, beta, M, gamma, L))
 
     # Restore original learning rate
     agent.learning_rate = original_learning_rate

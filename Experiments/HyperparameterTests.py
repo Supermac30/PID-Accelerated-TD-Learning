@@ -38,7 +38,7 @@ exhaustive_learning_rates = [
         }
 ]
 
-def get_optimal_pid_rates(agent_description, env_name, kp, kd, ki, alpha, beta, gamma, recompute=False):
+def get_optimal_pid_rates(agent_description, env_name, kp, ki, kd, alpha, beta, gamma, recompute=False):
     """Find the optimal rates for the choice of controller gains and environment.
     If this has been done before, get the optimal rates from the file of stored rates.
 
@@ -46,10 +46,10 @@ def get_optimal_pid_rates(agent_description, env_name, kp, kd, ki, alpha, beta, 
     """
     optimal_rates = get_stored_optimal_rate((agent_description, kp, ki, kd, alpha, beta), env_name, gamma)
     if optimal_rates is None or recompute:
-        optimal_rates = run_pid_search(env_name, kp, kd, ki, alpha, beta, -1, 1, gamma)
+        optimal_rates = run_pid_search(agent_description, env_name, kp, ki, kd, alpha, beta, -1, 1, gamma)
         store_optimal_rate((agent_description, kp, ki, kd, alpha, beta), env_name, optimal_rates, gamma)
 
-    logging.info(f"The optimal rates for {(env_name, kp, kd, ki)} are: {optimal_rates}")
+    logging.info(f"The optimal rates for {(env_name, kp, ki, kd)} are: {optimal_rates}")
 
     return optimal_rates
 
@@ -69,9 +69,9 @@ def get_optimal_adaptive_rates(agent_name, env_name, meta_lr, gamma, recompute=F
 
     return optimal_rates
 
-def run_pid_search(env_name, kp, kd, ki, alpha, beta, seed, norm, gamma):
+def run_pid_search(agent_description, env_name, kp, ki, kd, alpha, beta, seed, norm, gamma):
     """Run a grid search on the exhaustive learning rates for the choice of controller gains"""
-    agent, env, policy = build_agent_and_env(("TD", kp, ki, kd, alpha, beta), env_name, seed=seed, gamma=gamma)
+    agent, env, policy = build_agent_and_env((agent_description, kp, ki, kd, alpha, beta), env_name, seed=seed, gamma=gamma)
     V_pi = find_Vpi(env, policy, gamma)
 
     # Don't search over the learning rates for the components that are 0
@@ -79,26 +79,25 @@ def run_pid_search(env_name, kp, kd, ki, alpha, beta, seed, norm, gamma):
         learning_rates = {1: {float("inf")}}
     else:
         learning_rates = exhaustive_learning_rates[0]
-    if kd == 0:
-        update_D_rates = {1: {float("inf")}}
-    else:
-        update_D_rates = exhaustive_learning_rates[1]
     if ki == 0:
         update_I_rates = {1: {float("inf")}}
     else:
-        update_I_rates = exhaustive_learning_rates[2]
+        update_I_rates = exhaustive_learning_rates[1]
+    if kd == 0:
+        update_D_rates = {1: {float("inf")}}
+    else:
+        update_D_rates = exhaustive_learning_rates[2]
 
     _, rates = find_optimal_learning_rates(
         agent,
         lambda: agent.estimate_value_function(
-            num_iterations=60000,
+            num_iterations=10000,
             test_function=build_test_function(norm, V_pi),
-            follow_trajectory=False
+            follow_trajectory=True
         )[0],
-        True,
         learning_rates,
-        update_D_rates,
         update_I_rates,
+        update_D_rates,
         True
     )
     return rates

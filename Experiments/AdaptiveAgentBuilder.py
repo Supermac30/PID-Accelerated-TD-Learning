@@ -119,9 +119,9 @@ def build_true_log_space_updater(env, policy, meta_lr, learning_rates, gamma, de
         transition,
         reward,
         env.num_states,
-        N_p = 2.25,
-        N_d = 0.1,
-        N_I = 0.1
+        N_p = 0.28,
+        N_d = 60 * (1 - gamma)/4,
+        N_I =(10/19) * (1 - gamma)/(1 + gamma)
     )
     return AdaptiveSamplerAgent(
         gain_updater,

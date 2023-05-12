@@ -34,3 +34,8 @@ def store_optimal_rate(model, env_name, optimal_rate, gamma):
     # save the updated dictionary to the same pickle file
     with open(FILE_NAME, 'wb') as f:
         pickle.dump(optimal_rates, f, protocol=pickle.HIGHEST_PROTOCOL)
+
+if __name__ == "__main__":
+    pass
+    #with open(FILE_NAME, 'wb') as f:
+    #    pickle.dump({}, f, protocol=pickle.HIGHEST_PROTOCOL)

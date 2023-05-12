@@ -1,14 +1,14 @@
-env: cliff walk
+env: chain walk
 norm: 1
-num_iterations: 100000
+num_iterations: 10000
 
 get_optimal: False
 
 agent_name: [naive soft sampler]
-meta_lr: [2e-9, 1e-12, 1e-13, 1e-10]
+meta_lr: [3e-8, 1, 0.1]
 delay: [1, 1, 1, 1]
 
-follow_trajectory: False
+follow_trajectory: True
 
 kp: 1
 ki: 0
@@ -16,11 +16,11 @@ kd: 0
 alpha: 0.05
 beta: 0.95
 
-gamma: 0.999
+gamma: 0.99
 
-name: cliff walk solver
+name: presentation compiler
 
-seed: 84848481
+seed: 84881
 hydra:
   run:
     dir: ${oc.env:OUTPUT_DIR,./outputs}/${hydra.job.config_name}/${name}/${env}/${now:%Y-%m-%d}/${now:%H-%M-%S}

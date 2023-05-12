@@ -57,10 +57,10 @@ class AbstractAdaptiveAgent(Agent):
             if (k + 1) % self.update_frequency == 0:
                 self.gain_updater.calculate_updated_values()
                 self.gain_updater.update_gains()
-                self.update_value()
             else:
-                self.update_value()
                 self.gain_updater.intermediate_update()
+
+            self.update_value()
 
             # Keep a record
             try:
@@ -104,16 +104,17 @@ class AdaptiveSamplerAgent(AbstractAdaptiveAgent):
         self.previous_update_D_rate_value, self.update_D_rate_value = self.update_D_rate_value, update_D_rate
         self.previous_update_I_rate_value, self.update_I_rate_value = self.update_I_rate_value, update_I_rate
 
-        state = self.current_state
+        current_state, next_state = self.current_state, self.next_state
+        BR = self.reward + self.gamma * self.V[next_state][0] - self.V[current_state][0]
 
-        BR = self.BR()
-        new_V = self.V[state][0] + self.kp * BR + self.kd * (self.V[state][0] - self.Vp[state][0]) + self.ki * (self.beta * self.z[state][0] + self.alpha * BR)
-        new_z = self.beta * self.z[state][0] + self.alpha * BR
-        new_Vp = self.V[state][0]
+        self.previous_previous_V, self.previous_V = self.previous_V.copy(), self.V.copy()
+        self.previous_Vp, self.previous_z = self.previous_Vp.copy(), self.z.copy()
 
-        self.previous_previous_V[state], self.previous_V[state], self.V[state] = self.previous_V[state][0], self.V[state][0], (1 - lr) * self.V[state][0] + lr * new_V
-        self.previous_z[state], self.z[state] = self.z[state][0], (1 - update_I_rate) * self.z[state][0] + update_I_rate * new_z
-        self.previous_Vp[state], self.Vp[state] = self.Vp[state][0], (1 - update_D_rate) * self.Vp[state][0] + update_D_rate * new_Vp
+        # Update the value function using the floats kp, ki, kd
+        self.z[current_state] = (1 - update_I_rate) * self.z[current_state][0] + update_I_rate * (self.beta * self.z[current_state][0] + self.alpha * BR)
+        update = self.kp * BR + self.ki * self.z[current_state][0] + self.kd * (self.V[current_state][0] - self.Vp[current_state][0])
+        self.Vp[current_state] = (1 - update_D_rate) * self.Vp[current_state][0] + update_D_rate * self.V[current_state][0]
+        self.V[current_state] = self.V[current_state][0] + lr * update
 
     def BR(self):
         """Return the empirical bellman residual"""
@@ -322,7 +323,8 @@ class NaiveSoftGainUpdater(AbstractGainUpdater):
     def __init__(self, num_states):
         self.fp, self.fd, self.fi = (np.zeros((num_states)) for _ in range(3))
         self.fp_next, self.fd_next, self.fi_next = (np.zeros((num_states, 1)) for _ in range(3))
-        self.BR = (np.zeros((num_states, 1)))
+
+        self.running_BR = 0
 
         super().__init__()
 
@@ -335,14 +337,15 @@ class NaiveSoftGainUpdater(AbstractGainUpdater):
 
         BR = reward + gamma * V[next_state][0] - V[current_state][0]
         if not intermediate:
-            self.kp -= self.meta_lr * BR * (gamma * self.fp[next_state] - self.fp[current_state])
-            self.kd -= self.meta_lr * BR * (gamma * self.fd[next_state] - self.fd[current_state])
-            self.ki -= self.meta_lr * BR * (gamma * self.fi[next_state] - self.fi[current_state])
+            self.kp -= self.meta_lr * BR * (gamma * self.fp[next_state] - self.fp[current_state]) / max(1, self.running_BR)
+            self.kd -= self.meta_lr * BR * (gamma * self.fd[next_state] - self.fd[current_state]) / max(1, self.running_BR)
+            self.ki -= self.meta_lr * BR * (gamma * self.fi[next_state] - self.fi[current_state]) / max(1, self.running_BR)
 
         self.fp[current_state] = lr * BR
         self.fd[current_state] = lr * (V[current_state][0] - Vp[current_state][0])
         self.fi[current_state] = lr * (beta * z[current_state][0] + alpha * BR)
 
+        self.running_BR = BR * BR # Serves as a mechanism to stop exploding gains
 
 class TrueSoftGainUpdater(AbstractGainUpdater):
     def __init__(self, num_states):
@@ -370,7 +373,7 @@ class TrueSoftGainUpdater(AbstractGainUpdater):
         update_D_rate, update_I_rate = self.agent.update_D_rate_value, self.agent.update_I_rate_value
 
         BR = reward + gamma * V[next_state] - V[current_state]
-        # Does this make sense?
+
         self.total_kp += BR * (gamma * self.fs[0][next_state] - self.fs[0][current_state])
         self.total_ki += BR * (gamma * self.fs[1][next_state] - self.fs[1][current_state])
         self.total_kd += BR * (gamma * self.fs[2][next_state] - self.fs[2][current_state])
@@ -406,7 +409,8 @@ class LogisticExactUpdater(AbstractGainUpdater):
         self.N_I = N_I
 
         self.lambda_p = -np.log(4 * N_p - 1)
-        self.lambda_d = self.lambda_I = 0
+        self.lambda_d = -10
+        self.lambda_I = 0
 
     def calculate_updated_values(self, intermediate=False):
         V, Vp, z = self.agent.V, self.agent.Vp, self.agent.z
@@ -420,12 +424,12 @@ class LogisticExactUpdater(AbstractGainUpdater):
             self.ki = (2 * self.N_I) / (1 + np.exp(-self.lambda_I)) - self.N_I
             self.kd = (2 * self.N_d) / (1 + np.exp(-self.lambda_d)) - self.N_d
 
-        self.lambda_p -= self.meta_lr * BR.T @ (gamma * self.transition @ BR - BR) \
-            * (self.kp - 0.75) * (1 - (self.kp - 0.75) / self.N_p)
+        #self.lambda_p -= self.meta_lr * BR.T @ (gamma * self.transition @ BR - BR) \
+        #    * (self.kp - 0.75) * (1 - (self.kp - 0.75) / self.N_p)
         self.lambda_d -= self.meta_lr * BR.T @ (gamma * self.transition @ (V - Vp) - (V - Vp)) \
             * (self.kd + self.N_d) * (1/2 - (self.kd / (2 * self.N_d)))
-        self.lambda_I -= self.meta_lr * BR.T @ (gamma * self.transition @ (beta * z + alpha * BR) - (beta * z + alpha * BR)) \
-            * (self.ki + self.N_I) * (1/2 - (self.ki / (2 * self.N_I)))
+        #self.lambda_I -= self.meta_lr * BR.T @ (gamma * self.transition @ (beta * z + alpha * BR) - (beta * z + alpha * BR)) \
+        #    * (self.ki + self.N_I) * (1/2 - (self.ki / (2 * self.N_I)))
 
 class SemiGradientUpdater(AbstractGainUpdater):
     def __init__(self, num_states):
