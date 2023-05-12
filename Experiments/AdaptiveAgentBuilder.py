@@ -11,7 +11,7 @@ from AdaptiveAgents import *
 import logging
 
 default_meta_lr = 1
-default_learning_rates = (1, 100, 1, float("inf"), 1, float("inf"))
+default_learning_rates = (0.2, 100, 1, float("inf"), 1, float("inf"))
 
 def build_adaptive_agent_and_env(agent_name, env_name, meta_lr, get_optimal=False, seed=-1, gamma=0.99, delay=1, kp=1, kd=0, ki=0, alpha=0.05, beta=0.95):
     """Return the adaptive agent and the environment & policy given its name. The names include:
@@ -41,7 +41,7 @@ def build_adaptive_agent_and_env(agent_name, env_name, meta_lr, get_optimal=Fals
     agent = build_adaptive_agent(agent_name, env_name, env, policy, meta_lr, get_optimal, gamma, delay, kp, kd, ki, alpha, beta)
     return agent, env, policy
 
-def build_adaptive_agent(agent_name, env_name, env, policy, meta_lr, get_optimal, gamma, delay=1, kp=1, kd=0, ki=0, alpha=0.05, beta=0.95):
+def build_adaptive_agent(agent_name, env_name, env, policy, meta_lr, get_optimal, gamma, delay, kp, kd, ki, alpha, beta):
     """Return the adaptive agent given its name.
 
     get_optimal: Try to find the optimal learning rate and set it
@@ -51,7 +51,7 @@ def build_adaptive_agent(agent_name, env_name, env, policy, meta_lr, get_optimal
     Return None if the names are not in the list of possible names.
     """
     if get_optimal:
-        optimal_rates = get_stored_optimal_rate(agent_name, env_name, gamma)
+        optimal_rates = get_stored_optimal_rate((agent_name, meta_lr), env_name, gamma)
     if not get_optimal or optimal_rates is None:
         optimal_rates = default_learning_rates
 

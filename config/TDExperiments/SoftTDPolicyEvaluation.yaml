@@ -1,21 +1,21 @@
-kp: [1, 1, 1, 1, 1]
-kd: [0, 0.5, 0.75, 1, 1.25]
-ki: [0, 0, 0, 0, 0]
-alpha: [0.05, 0.05, 0.05, 0.05, 0.05]
-beta: [0.95, 0.95, 0.95, 0.95, 0.95]
-gamma: 0.99
+kp: [1, 4]
+kd: [0, -0.1, 0, 0.2, 0.3, 0.4]
+ki: [0, -0.1, -0.4, 0, 0, 0]
+alpha: [0, 0.05, 0.05, 0.05, 0.05]
+beta: [0, 0.95, 0.95, 0.95, 0.95]
+gamma: 0.9999
 
-agent_name: [TD, TD, TD, TD, TD]
+agent_name: [TD, TD]
 
-env: garnet
+env: cliff walk
 num_iterations: 10000
 norm: 1
-get_optimal: True  # Get the optimal parameters from the database
-compute_optimal: True  # Run a grid search. When recompute_optimal is false, we don't run a grid search if the optimal parameters are in the database already
+get_optimal: False  # Get the optimal parameters from the database
+compute_optimal: False  # Run a grid search. When recompute_optimal is false, we don't run a grid search if the optimal parameters are in the database already
 recompute_optimal: False  # If compute_optimal is True, run a grid search even if the optimal parameters are in the database
 num_repeats: 20
 
-follow_trajectory: True
+follow_trajectory: False
 
 seed: 84881
 hydra:

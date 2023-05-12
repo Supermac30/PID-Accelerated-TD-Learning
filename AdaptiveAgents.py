@@ -18,11 +18,19 @@ class AbstractAdaptiveAgent(Agent):
 
         self.gain_updater = gain_updater
 
-        self.kp, self.ki, self.kd = kp, ki, kd
-        self.alpha, self.beta = alpha, beta
+        self.original_kp, self.original_ki, self.original_kd = kp, ki, kd
+        self.original_alpha, self.original_beta = alpha, beta
+
+        self.reset()
+
+    def reset(self):
+        self.environment.reset()
+        self.kp, self.ki, self.kd = self.original_kp, self.original_ki, self.original_kd
+        self.alpha, self.beta = self.original_alpha, self.original_beta
         self.lr, self.previous_lr, self.update_D_rate_value, self.previous_update_D_rate_value, self.update_I_rate_value, self.previous_update_I_rate_value = 0, 0, 0, 0, 0, 0
 
         self.replay_buffer = defaultdict(list)
+        self.frequencies = np.zeros((self.num_states))
 
         self.V, self.Vp, self.z, self.previous_V, self.previous_Vp, self.previous_z, self.previous_previous_V \
             = (np.zeros((self.num_states, 1), dtype=np.longdouble) for _ in range(7))
@@ -33,14 +41,12 @@ class AbstractAdaptiveAgent(Agent):
         self.gain_updater.set_agent(self)
 
     def estimate_value_function(self, num_iterations=1000, test_function=None, initial_V=None, stop_if_diverging=True, follow_trajectory=True):
-        self.environment.reset()
+        self.reset()
         # V is the current value function, Vp is the previous value function
         # Vp stores the previous value of the x state when it was last changed
         if initial_V is not None:
             self.V = initial_V.copy()
             self.Vp = initial_V.copy()
-
-        self.frequencies = np.zeros((self.num_states))
 
         history = np.zeros((num_iterations))
         gain_history = np.zeros((num_iterations, 5))
@@ -115,6 +121,11 @@ class AdaptiveSamplerAgent(AbstractAdaptiveAgent):
         update = self.kp * BR + self.ki * self.z[current_state][0] + self.kd * (self.V[current_state][0] - self.Vp[current_state][0])
         self.Vp[current_state] = (1 - update_D_rate) * self.Vp[current_state][0] + update_D_rate * self.V[current_state][0]
         self.V[current_state] = self.V[current_state][0] + lr * update
+
+        #self.z[current_state] = (1 - update_I_rate) * self.z[current_state][0] + update_I_rate * (self.beta * self.z[current_state][0] + self.alpha * BR)
+        #update = self.kp * BR + self.ki * self.z[current_state] + self.kd * (self.V[current_state] - self.Vp[current_state])
+        #self.Vp[current_state] = (1 - update_D_rate) * self.Vp[current_state][0] + update_D_rate * self.V[current_state][0]
+        #self.V[current_state] = self.V[current_state][0] + lr * update
 
     def BR(self):
         """Return the empirical bellman residual"""
@@ -337,15 +348,14 @@ class NaiveSoftGainUpdater(AbstractGainUpdater):
 
         BR = reward + gamma * V[next_state][0] - V[current_state][0]
         if not intermediate:
-            self.kp -= self.meta_lr * BR * (gamma * self.fp[next_state] - self.fp[current_state]) / max(1, self.running_BR)
-            self.kd -= self.meta_lr * BR * (gamma * self.fd[next_state] - self.fd[current_state]) / max(1, self.running_BR)
-            self.ki -= self.meta_lr * BR * (gamma * self.fi[next_state] - self.fi[current_state]) / max(1, self.running_BR)
+            self.kp -= self.meta_lr * BR * (gamma * self.fp[next_state] - self.fp[current_state])
+            self.kd -= self.meta_lr * BR * (gamma * self.fd[next_state] - self.fd[current_state])
+            self.ki -= self.meta_lr * BR * (gamma * self.fi[next_state] - self.fi[current_state])
 
         self.fp[current_state] = lr * BR
-        self.fd[current_state] = lr * (V[current_state][0] - Vp[current_state][0])
+        self.fd[current_state] = lr * (V[current_state] - Vp[current_state])
         self.fi[current_state] = lr * (beta * z[current_state][0] + alpha * BR)
 
-        self.running_BR = BR * BR # Serves as a mechanism to stop exploding gains
 
 class TrueSoftGainUpdater(AbstractGainUpdater):
     def __init__(self, num_states):
@@ -424,12 +434,12 @@ class LogisticExactUpdater(AbstractGainUpdater):
             self.ki = (2 * self.N_I) / (1 + np.exp(-self.lambda_I)) - self.N_I
             self.kd = (2 * self.N_d) / (1 + np.exp(-self.lambda_d)) - self.N_d
 
-        #self.lambda_p -= self.meta_lr * BR.T @ (gamma * self.transition @ BR - BR) \
-        #    * (self.kp - 0.75) * (1 - (self.kp - 0.75) / self.N_p)
+        self.lambda_p -= self.meta_lr * BR.T @ (gamma * self.transition @ BR - BR) \
+            * (self.kp - 0.75) * (1 - (self.kp - 0.75) / self.N_p)
         self.lambda_d -= self.meta_lr * BR.T @ (gamma * self.transition @ (V - Vp) - (V - Vp)) \
             * (self.kd + self.N_d) * (1/2 - (self.kd / (2 * self.N_d)))
-        #self.lambda_I -= self.meta_lr * BR.T @ (gamma * self.transition @ (beta * z + alpha * BR) - (beta * z + alpha * BR)) \
-        #    * (self.ki + self.N_I) * (1/2 - (self.ki / (2 * self.N_I)))
+        self.lambda_I -= self.meta_lr * BR.T @ (gamma * self.transition @ (beta * z + alpha * BR) - (beta * z + alpha * BR)) \
+            * (self.ki + self.N_I) * (1/2 - (self.ki / (2 * self.N_I)))
 
 class SemiGradientUpdater(AbstractGainUpdater):
     def __init__(self, num_states):

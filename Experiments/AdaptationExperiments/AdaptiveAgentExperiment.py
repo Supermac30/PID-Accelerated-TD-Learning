@@ -7,12 +7,16 @@ import hydra
 from Experiments.AdaptiveAgentBuilder import build_adaptive_agent_and_env
 from Experiments.AgentBuilder import build_agent_and_env
 from Experiments.ExperimentHelpers import *
+from Experiments.HyperparameterTests import get_optimal_pid_rates, get_optimal_adaptive_rates
 
 @hydra.main(version_base=None, config_path="../../config/AdaptationExperiments", config_name="AdaptiveAgentExperiment")
 def adaptive_agent_experiment(cfg):
     """Visualize the behavior of adaptation without learning rates."""
     fig0 = plt.figure()
     ax0 = fig0.add_subplot()
+
+    if cfg['compute_optimal']:
+        get_optimal_pid_rates("TD", cfg['env'], 1, 0, 0, 0, 0, cfg['gamma'], cfg['recompute_optimal'])
 
     TDagent, env, policy = build_agent_and_env(
         ("TD", 1, 0, 0, 0, 0),
@@ -27,6 +31,8 @@ def adaptive_agent_experiment(cfg):
     save_array(TDhistory, f"TD Agent", ax0)
 
     for agent_name, meta_lr, delay in zip(cfg['agent_name'], cfg['meta_lr'], cfg['delay']):
+        if cfg['compute_optimal']:
+            get_optimal_adaptive_rates(agent_name, cfg['env'], meta_lr, cfg['gamma'], cfg['recompute_optimal'])
         agent, _, _ = build_adaptive_agent_and_env(
             agent_name,
             cfg['env'],

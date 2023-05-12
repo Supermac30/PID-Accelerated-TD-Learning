@@ -44,6 +44,8 @@ def get_optimal_pid_rates(agent_description, env_name, kp, ki, kd, alpha, beta, 
 
     If recompute is True, recompute the learning rates even if it is in the file of stored rates.
     """
+    # To remove duplicates, if ki is zero the values of alpha and beta don't matter
+    if ki == 0: alpha = beta = 0
     optimal_rates = get_stored_optimal_rate((agent_description, kp, ki, kd, alpha, beta), env_name, gamma)
     if optimal_rates is None or recompute:
         optimal_rates = run_pid_search(agent_description, env_name, kp, ki, kd, alpha, beta, -1, 1, gamma)
@@ -62,7 +64,7 @@ def get_optimal_adaptive_rates(agent_name, env_name, meta_lr, gamma, recompute=F
     optimal_rates = get_stored_optimal_rate((agent_name, meta_lr), env_name, gamma)
 
     if optimal_rates is None or recompute:
-        optimal_rates = run_adaptive_search(agent_name, env_name, -1, 1, gamma, meta_lr=meta_lr)
+        optimal_rates = run_adaptive_search(agent_name, env_name, -1, 1, gamma, meta_lr)
         store_optimal_rate((agent_name, meta_lr), env_name, optimal_rates, gamma)
 
     logging.info(f"The optimal rates for {(env_name, agent_name)} are: {optimal_rates}")
@@ -104,26 +106,28 @@ def run_pid_search(agent_description, env_name, kp, ki, kd, alpha, beta, seed, n
 
 def run_adaptive_search(agent_name, env_name, seed, norm, gamma, meta_lr):
     """Run a grid search on the exhaustive learning rates for the choice of adaptive agent"""
-    optimal_value, optimal_rates = float("inf"), None
     agent, env, policy = build_adaptive_agent_and_env(agent_name, env_name, meta_lr, seed=seed, gamma=gamma)
     V_pi = find_Vpi(env, policy, gamma)
 
-    history, rates = find_optimal_learning_rates(
+    # For now, only optimize the learning rate of the controller
+    learning_rates = exhaustive_learning_rates[0]
+    update_I_rates = {1: {float("inf")}}
+    update_D_rates = {1: {float("inf")}}
+
+    _, rates = find_optimal_learning_rates(
         agent,
         lambda: agent.estimate_value_function(
-            num_iterations=10000,
+            num_iterations=60000,
             test_function=build_test_function(norm, V_pi),
             follow_trajectory=False
         )[2],
-        True,
-        *exhaustive_learning_rates,
+        learning_rates,
+        update_I_rates,
+        update_D_rates,
         True
     )
 
-    if history[-1] < optimal_value:
-        optimal_value, optimal_rates = history[-1], rates
-
-    return optimal_rates
+    return rates
 
 if __name__ == '__main__':
     logging.basicConfig()
