@@ -316,9 +316,87 @@ class FarSighted_PID_TD(PID_TD):
         return history, self.V
 
 class ControlledQLearning(Agent):
-    # TODO: Implement
-    pass
+    def __init__(self, environment, policy, gamma, kp, ki, kd, alpha, beta, learning_rate):
+        super().__init__(
+            environment,
+            policy,
+            gamma,
+            kp,
+            ki,
+            kd,
+            alpha,
+            beta,
+            learning_rate
+        )
+
+        self.Q = np.zeros((self.num_states, self.num_actions))
+        self.Qp = np.zeros((self.num_states, self.num_actions))
+        self.z = np.zeros((self.num_states, self.num_actions))
+
+    def estimate_value_function(self, num_iterations=1000, test_function=None, stop_if_diverging=True):
+        """Use the Q-learning algorithm to estimate the value function.
+        That is, create a matrix of size num_states by num_actions, Q, and update it according to the Q-learning update rule.
+        """
+        self.reset()
+        # A vector storing the number of times we have seen a state.
+        frequency = np.zeros((self.num_states, 1))
+
+        # The history of test_function
+        history = np.zeros(num_iterations)
+
+        for k in range(num_iterations):
+            current_state, action, next_state, reward = self.take_action()
+
+            frequency[current_state] += 1
+
+            learning_rate = self.learning_rate(frequency[current_state])
+            update_D_rate = self.update_D_rate(frequency[current_state])
+            update_I_rate = self.update_I_rate(frequency[current_state])
+
+            # Update the value function using the floats kp, ki, kd
+            BR = reward + self.gamma * np.max(self.Q[next_state]) - self.Q[current_state][action]
+            self.z[current_state][action] = (1 - update_I_rate) * self.z[current_state][action] + update_I_rate * (self.beta * self.z[current_state][action] + self.alpha * BR)
+            update = self.ki * self.z[current_state][action] + self.kd * (self.Q[current_state][action] - self.Qp[current_state][action])
+            self.Qp[current_state][action] = (1 - update_D_rate) * self.Qp[current_state][action] + update_D_rate * self.Q[current_state][action]
+            self.Q[current_state][action] += learning_rate * self.kp * BR
+            self.Q += learning_rate * update
+
+            if test_function is not None:
+                history[k] = test_function(self.Q, self.Qp, BR)
+                if stop_if_diverging and history[k] > 2 * history[0]:
+                    # If we are too large, stop learning
+                    history[k:] = float('inf')
+                    break
+
+        if test_function is None:
+            return self.Q
+
+        return history, self.Q
+
 
 class ControlledSARSA(Agent):
-    # TODO: Implement
-    pass
+    def __init__(self, environment, policy, gamma, kp, ki, kd, alpha, beta, learning_rate):
+        super().__init__(
+            environment,
+            policy,
+            gamma,
+            kp,
+            ki,
+            kd,
+            alpha,
+            beta,
+            learning_rate
+        )
+
+        self.V = np.zeros((self.num_states, 1))
+        self.Vp = np.zeros((self.num_states, 1))
+        self.z = np.zeros((self.num_states, 1))
+
+    def estimate_value_function(self, num_iterations=1000, test_function=None, stop_if_diverging=True, N=1000):
+        """Use the SARSA algorithm to estimate the value function.
+        That is, create a vector V of size num_states, then repeatedly do the following num_iterations times:
+        - perform policy evaluation using the PID-TD algorithm above for N steps
+        - update the policy to greedily follow V, then repeat the above
+        """
+        pass
+        # TODO: Implement

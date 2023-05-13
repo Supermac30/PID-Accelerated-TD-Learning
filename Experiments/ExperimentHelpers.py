@@ -25,7 +25,8 @@ def get_env_policy(name, seed):
         - "chain walk random": The chain walk problem with 50 states, and a policy that takes random choices
         - "cliff walk": The Cliff walk problem as implemented in OS-Dyna
     """
-    if name == "garnet":
+    if name[:6] == "garnet":
+        seed = int(name[7:])
         return PAVIA_garnet_settings(seed)
     elif name == "chain walk":
         return chain_walk_left(50, 2, seed)

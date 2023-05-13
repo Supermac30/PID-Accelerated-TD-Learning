@@ -63,10 +63,11 @@ class AbstractAdaptiveAgent(Agent):
             if (k + 1) % self.update_frequency == 0:
                 self.gain_updater.calculate_updated_values()
                 self.gain_updater.update_gains()
+                self.update_value()
             else:
                 self.gain_updater.intermediate_update()
+                self.update_value()
 
-            self.update_value()
 
             # Keep a record
             try:
@@ -110,17 +111,21 @@ class AdaptiveSamplerAgent(AbstractAdaptiveAgent):
         self.previous_update_D_rate_value, self.update_D_rate_value = self.update_D_rate_value, update_D_rate
         self.previous_update_I_rate_value, self.update_I_rate_value = self.update_I_rate_value, update_I_rate
 
-        current_state, next_state = self.current_state, self.next_state
-        BR = self.reward + self.gamma * self.V[next_state][0] - self.V[current_state][0]
+        state = self.current_state
 
         self.previous_previous_V, self.previous_V = self.previous_V.copy(), self.V.copy()
-        self.previous_Vp, self.previous_z = self.previous_Vp.copy(), self.z.copy()
+        self.previous_Vp, self.previous_z = self.Vp.copy(), self.z.copy()
 
-        # Update the value function using the floats kp, ki, kd
-        self.z[current_state] = (1 - update_I_rate) * self.z[current_state][0] + update_I_rate * (self.beta * self.z[current_state][0] + self.alpha * BR)
-        update = self.kp * BR + self.ki * self.z[current_state][0] + self.kd * (self.V[current_state][0] - self.Vp[current_state][0])
-        self.Vp[current_state] = (1 - update_D_rate) * self.Vp[current_state][0] + update_D_rate * self.V[current_state][0]
-        self.V[current_state] = self.V[current_state][0] + lr * update
+        #Update the value function using the floats kp, ki, kd
+        BR = self.BR()
+        new_V = self.V[state][0] + self.kp * BR + self.kd * (self.V[state][0] - self.Vp[state][0]) + self.ki * (self.beta * self.z[state][0] + self.alpha * BR)
+        new_z = self.beta * self.z[state][0] + self.alpha * BR
+        new_Vp = self.V[state][0]
+
+        self.previous_previous_V[state], self.previous_V[state], self.V[state] = self.previous_V[state][0], self.V[state][0], (1 - lr) * self.V[state][0] + lr * new_V
+        self.previous_z[state], self.z[state] = self.z[state][0], (1 - update_I_rate) * self.z[state][0] + update_I_rate * new_z
+        self.previous_Vp[state], self.Vp[state] = self.Vp[state][0], (1 - update_D_rate) * self.Vp[state][0] + update_D_rate * new_Vp
+
 
         #self.z[current_state] = (1 - update_I_rate) * self.z[current_state][0] + update_I_rate * (self.beta * self.z[current_state][0] + self.alpha * BR)
         #update = self.kp * BR + self.ki * self.z[current_state] + self.kd * (self.V[current_state] - self.Vp[current_state])
@@ -335,8 +340,6 @@ class NaiveSoftGainUpdater(AbstractGainUpdater):
         self.fp, self.fd, self.fi = (np.zeros((num_states)) for _ in range(3))
         self.fp_next, self.fd_next, self.fi_next = (np.zeros((num_states, 1)) for _ in range(3))
 
-        self.running_BR = 0
-
         super().__init__()
 
     def calculate_updated_values(self, intermediate=False):
@@ -462,7 +465,7 @@ class SemiGradientUpdater(AbstractGainUpdater):
             self.kd -= self.meta_lr * BR * self.fd[current_state]
             self.ki -= self.meta_lr * BR * self.fi[current_state]
 
-        self.fp[current_state] += lr * BR + lr * self.kp * (gamma * self.fp[next_state] - self.fp[current_state])
+        self.fp[current_state] = lr * BR
         self.fd[current_state] = lr * (V[current_state] - Vp[current_state])
         self.fi[current_state] = lr * (beta * z[current_state] + alpha * BR)
 
@@ -576,7 +579,7 @@ class AbstractOriginalCostUpdater(AbstractGainUpdater):
         self.kd -= lr * kd_grad
         self.alpha -= lr * alpha_grad
         self.beta -= lr * beta_grad
-    
+
     def plot(self):
         """Plot the partial derivatives of the BR function with respect to each gain"""
         fig, axs = plt.subplots(2, 3)
@@ -611,9 +614,6 @@ class ExactUpdater(AbstractOriginalCostUpdater):
 
         BR_current = BR(V)
         BR_previous = BR(Vp)
-
-        if np.random.random() < 0.0000001:
-            breakpoint()
 
         mult = lambda n: (self.gamma * self.transition @ n) - n
 

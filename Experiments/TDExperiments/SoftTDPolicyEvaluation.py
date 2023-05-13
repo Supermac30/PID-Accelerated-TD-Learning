@@ -19,7 +19,7 @@ def soft_policy_evaluation_experiment(cfg):
             history, _ = agent.estimate_value_function(num_iterations=cfg['num_iterations'], test_function=test_function, follow_trajectory=cfg['follow_trajectory'])
             total_history += history
         total_history /= cfg['num_repeats']
-        save_array(total_history, f"kp={kp} ki={ki} kd={kd} alpha={alpha} beta={beta}", plt)
+        save_array(total_history, f"{agent_name} kp={kp} ki={ki} kd={kd} alpha={alpha} beta={beta}", plt)
 
     plt.title(f"Soft Updates: {cfg['env']}")
     plt.legend()

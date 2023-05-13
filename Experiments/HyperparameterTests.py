@@ -38,7 +38,7 @@ exhaustive_learning_rates = [
         }
 ]
 
-def get_optimal_pid_rates(agent_description, env_name, kp, ki, kd, alpha, beta, gamma, recompute=False):
+def get_optimal_pid_rates(agent_description, env_name, kp, ki, kd, alpha, beta, gamma, recompute=False, seed=-1, norm=1):
     """Find the optimal rates for the choice of controller gains and environment.
     If this has been done before, get the optimal rates from the file of stored rates.
 
@@ -48,14 +48,14 @@ def get_optimal_pid_rates(agent_description, env_name, kp, ki, kd, alpha, beta, 
     if ki == 0: alpha = beta = 0
     optimal_rates = get_stored_optimal_rate((agent_description, kp, ki, kd, alpha, beta), env_name, gamma)
     if optimal_rates is None or recompute:
-        optimal_rates = run_pid_search(agent_description, env_name, kp, ki, kd, alpha, beta, -1, 1, gamma)
+        optimal_rates = run_pid_search(agent_description, env_name, kp, ki, kd, alpha, beta, seed, norm, gamma)
         store_optimal_rate((agent_description, kp, ki, kd, alpha, beta), env_name, optimal_rates, gamma)
 
     logging.info(f"The optimal rates for {(env_name, kp, ki, kd)} are: {optimal_rates}")
 
     return optimal_rates
 
-def get_optimal_adaptive_rates(agent_name, env_name, meta_lr, gamma, recompute=False):
+def get_optimal_adaptive_rates(agent_name, env_name, meta_lr, gamma, recompute=False, seed=-1, norm=1):
     """Find the optimal rates for the choice of adaptive agent and environment.
     If this has been done before, get the optimal rates from the file of stored rates.
 
@@ -64,7 +64,7 @@ def get_optimal_adaptive_rates(agent_name, env_name, meta_lr, gamma, recompute=F
     optimal_rates = get_stored_optimal_rate((agent_name, meta_lr), env_name, gamma)
 
     if optimal_rates is None or recompute:
-        optimal_rates = run_adaptive_search(agent_name, env_name, -1, 1, gamma, meta_lr)
+        optimal_rates = run_adaptive_search(agent_name, env_name, seed, norm, gamma, meta_lr)
         store_optimal_rate((agent_name, meta_lr), env_name, optimal_rates, gamma)
 
     logging.info(f"The optimal rates for {(env_name, agent_name)} are: {optimal_rates}")
@@ -117,7 +117,7 @@ def run_adaptive_search(agent_name, env_name, seed, norm, gamma, meta_lr):
     _, rates = find_optimal_learning_rates(
         agent,
         lambda: agent.estimate_value_function(
-            num_iterations=60000,
+            num_iterations=100000,
             test_function=build_test_function(norm, V_pi),
             follow_trajectory=False
         )[2],
