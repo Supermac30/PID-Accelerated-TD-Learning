@@ -4,7 +4,7 @@ import itertools
 import os
 import logging
 
-from MDP import PolicyEvaluation, Control
+from MDP import PolicyEvaluation, Control, Control_Q
 from Environments import ChainWalk, Garnet, CliffWalk, IdentityEnv
 
 def build_test_function(norm, V_pi):
@@ -177,7 +177,7 @@ def find_Vpi(env, policy, gamma=0.99):
 def find_Vstar(env, gamma=0.99):
     """Find a good approximation of the value function of the optimal policy in an environment.
     """
-    oracle = Control(
+    oracle = Control_Q(
         env.num_states,
         env.num_actions,
         env.build_reward_matrix(),
@@ -186,6 +186,20 @@ def find_Vstar(env, gamma=0.99):
         gamma
     )
     return oracle.value_iteration(num_iterations=10000)
+
+
+def find_Qstar(env, gamma=0.99):
+    """Find a good approximation of the value function of the optimal policy in an environment.
+    """
+    oracle = Control(
+        env.num_states,
+        env.num_actions,
+        env.build_reward_matrix(),
+        env.build_probability_transition_kernel(),
+        1,0,0,0,0,
+        gamma
+    )
+    return oracle.q_value_iteration(num_iterations=10000)
 
 
 def save_array(nparr, name, graph=None):

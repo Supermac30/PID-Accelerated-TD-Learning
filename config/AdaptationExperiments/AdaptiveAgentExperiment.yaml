@@ -1,13 +1,13 @@
-env: garnet 768762
+env: garnet 1234
 norm: 1
-num_iterations: 100000
+num_iterations: 10000
 
 get_optimal: True # Get the optimal parameters from the database
 compute_optimal: True  # Run a grid search. When recompute_optimal is false, we don't run a grid search if the optimal parameters are in the database already
-recompute_optimal: False  # If compute_optimal is True, run a grid search even if the optimal parameters are in the database
+recompute_optimal: False # If compute_optimal is True, run a grid search even if the optimal parameters are in the database
 
 
-agent_name: [naive soft sampler, naive soft sampler, naive soft sampler, naive soft sampler]
+agent_name: [diagonal semi gradient updater, diagonal semi gradient updater, diagonal semi gradient updater, diagonal semi gradient updater]
 meta_lr: [1e-1, 1e-2, 1e-3, 1e-4]
 delay: [1, 1, 1, 1]
 
@@ -19,11 +19,11 @@ kd: 0
 alpha: 0.05
 beta: 0.95
 
-gamma: 0.9999
+gamma: 0.99
 
 name: presentation compiler
 
-seed: 733516
+seed: 7335123123
 hydra:
   run:
     dir: ${oc.env:OUTPUT_DIR,./outputs}/${hydra.job.config_name}/${name}/${env}/${now:%Y-%m-%d}/${now:%H-%M-%S}

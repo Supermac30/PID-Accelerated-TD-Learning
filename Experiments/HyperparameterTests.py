@@ -106,6 +106,7 @@ def run_pid_search(agent_description, env_name, kp, ki, kd, alpha, beta, seed, n
 
 def run_adaptive_search(agent_name, env_name, seed, norm, gamma, meta_lr):
     """Run a grid search on the exhaustive learning rates for the choice of adaptive agent"""
+    breakpoint()
     agent, env, policy = build_adaptive_agent_and_env(agent_name, env_name, meta_lr, seed=seed, gamma=gamma)
     V_pi = find_Vpi(env, policy, gamma)
 
@@ -117,7 +118,7 @@ def run_adaptive_search(agent_name, env_name, seed, norm, gamma, meta_lr):
     _, rates = find_optimal_learning_rates(
         agent,
         lambda: agent.estimate_value_function(
-            num_iterations=100000,
+            num_iterations=30000,
             test_function=build_test_function(norm, V_pi),
             follow_trajectory=False
         )[2],

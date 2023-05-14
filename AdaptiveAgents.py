@@ -140,9 +140,10 @@ class AdaptiveSamplerAgent(AbstractAdaptiveAgent):
 class DiagonalAdaptiveSamplerAgent(AbstractAdaptiveAgent):
     def __init__(self, gain_updater, learning_rates, meta_lr, environment, policy, gamma, update_frequency=1, kp=1, kd=0, ki=0, alpha=0.05, beta=0.95):
         super().__init__(gain_updater, learning_rates, meta_lr, environment, policy, gamma, update_frequency, kp, kd, ki, alpha, beta)
-        self.kp = np.ones((self.num_states), dtype=np.longdouble)
-        self.ki = np.zeros((self.num_states), dtype=np.longdouble)
-        self.kd = np.zeros((self.num_states), dtype=np.longdouble)
+        self.kp = np.full((self.num_states), kp, dtype=np.longdouble)
+        self.ki = np.full((self.num_states), ki, dtype=np.longdouble)
+        self.kd = np.full((self.num_states), kd, dtype=np.longdouble)
+
         gain_updater.set_agent(self)
 
     def update_value(self):
@@ -192,6 +193,7 @@ class AbstractGainUpdater():
         self.epsilon = 1e-20
 
     def set_agent(self, agent):
+        breakpoint()
         self.agent = agent
         self.num_states = self.agent.num_states
         self.gamma = self.agent.gamma
@@ -446,10 +448,6 @@ class LogisticExactUpdater(AbstractGainUpdater):
 
 class SemiGradientUpdater(AbstractGainUpdater):
     def __init__(self, num_states):
-        self.fp, self.fd, self.fi = (np.zeros((num_states, 1)) for _ in range(3))
-        self.fp_next, self.fd_next, self.fi_next = (np.zeros((num_states, 1)) for _ in range(3))
-        self.BR = (np.zeros((num_states, 1)))
-
         super().__init__()
 
     def calculate_updated_values(self, intermediate=False):
@@ -461,14 +459,27 @@ class SemiGradientUpdater(AbstractGainUpdater):
 
         BR = reward + gamma * V[next_state] - V[current_state]
         if not intermediate:
-            self.kp -= self.meta_lr * BR * self.fp[current_state]
-            self.kd -= self.meta_lr * BR * self.fd[current_state]
-            self.ki -= self.meta_lr * BR * self.fi[current_state]
+            self.kp = max(1, self.kp + lr * self.meta_lr * BR * BR)
+            self.kd = max(0, self.kd + lr * self.meta_lr * BR * (V[current_state] - Vp[current_state]))
+            self.ki += lr * self.meta_lr * BR * (beta * z[current_state] + alpha * BR)
 
-        self.fp[current_state] = lr * BR
-        self.fd[current_state] = lr * (V[current_state] - Vp[current_state])
-        self.fi[current_state] = lr * (beta * z[current_state] + alpha * BR)
 
+class DiagonalSemiGradient(AbstractGainUpdater):
+    def __init__(self, num_states):
+        super().__init__()
+
+    def calculate_updated_values(self, intermediate=False):
+        reward = self.agent.reward
+        next_state, current_state = self.agent.next_state, self.agent.current_state
+        V, Vp, z = self.agent.V, self.agent.Vp, self.agent.z
+        alpha, beta = self.alpha, self.beta
+        gamma, lr = self.gamma, self.agent.lr
+
+        BR = reward + gamma * V[next_state] - V[current_state]
+        if not intermediate:
+            self.kp[current_state] = max(1, self.kp[current_state] + lr * self.meta_lr * BR * BR)
+            self.kd[current_state] = max(0, self.kd[current_state] + lr * self.meta_lr * BR * (V[current_state] - Vp[current_state]))
+            self.ki[current_state] += lr * self.meta_lr * BR * (beta * z[current_state] + alpha * BR)
 
 class EmpiricalCostUpdater(AbstractGainUpdater):
     """We need agent.update_frequency = 2 for this to mathematically make sense"""
@@ -514,19 +525,20 @@ class EmpiricalCostUpdater(AbstractGainUpdater):
 
         logging.debug(
             f"""
-            {self.agent.kp=}
-            {self.agent.kd=}
-            {self.agent.ki=}
-            {self.agent.alpha=}
-            {self.agent.beta=}
+            kp={self.agent.kp}
+            kd={self.agent.kd}
+            ki={self.agent.ki}
+            alpha={self.agent.alpha}
+            beta={self.agent.beta}
 
-            {BR_kp_grad=}
-            {BR_ki_grad=}
-            {BR_kd_grad=}
-            {BR_alpha_grad=}
-            {BR_beta_grad=}
+            BR_kp_grad={BR_kp_grad}
+            BR_ki_grad={BR_ki_grad}
+            BR_kd_grad={BR_kd_grad}
+            BR_alpha_grad={BR_alpha_grad}
+            BR_beta_grad={BR_beta_grad}
             """
         )
+
 
         meta_lr = self.meta_lr
         self.kp -= meta_lr * update(BR_kp_grad)

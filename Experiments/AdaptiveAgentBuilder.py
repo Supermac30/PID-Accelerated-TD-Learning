@@ -11,7 +11,7 @@ from AdaptiveAgents import *
 import logging
 
 default_meta_lr = 1
-default_learning_rates = (1, 10, 1, float("inf"), 1, float("inf"))
+default_learning_rates = (1, 1000, 1, float("inf"), 1, float("inf"))
 
 def build_adaptive_agent_and_env(agent_name, env_name, meta_lr, get_optimal=False, seed=-1, gamma=0.99, delay=1, kp=1, kd=0, ki=0, alpha=0.05, beta=0.95):
     """Return the adaptive agent and the environment & policy given its name. The names include:
@@ -24,6 +24,7 @@ def build_adaptive_agent_and_env(agent_name, env_name, meta_lr, get_optimal=Fals
     - naive soft sampler: The naive gain adaptation algorithm
     - diagonal sampler: The diagonal gain adaptation algorithm
     - diagonal log space updater: The diagonal log space updater
+    - diagonal semi gradient updater: The diagonal semi gradient updater
     - partials exact sampler: Uses the exact gradients for the partials, but not for the bellman
     - bellman exact sampler: Uses the exact gradients for the bellman, but not for the partials
     - semi gradient updater: Uses the semi-gradient updater
@@ -93,7 +94,23 @@ def build_adaptive_agent(agent_name, env_name, env, policy, meta_lr, get_optimal
         return build_log_space_updater(env, policy, meta_lr, rates, gamma, delay, kp, kd, ki, alpha, beta)
     elif agent_name == "true log space updater":
         return build_true_log_space_updater(env, policy, meta_lr, rates, gamma, delay, kp, kd, ki, alpha, beta)
+    elif agent_name == "diagonal semi gradient updater":
+        return build_diagonal_semi_gradient_updater(env, policy, meta_lr, rates, gamma, delay, kp, kd, ki, alpha, beta)
     return None
+
+
+def build_diagonal_semi_gradient_updater(env, policy, meta_lr, learning_rates, gamma, delay, kp, kd, ki, alpha, beta):
+    gain_updater = DiagonalSemiGradient(env.num_states)
+    return DiagonalAdaptiveSamplerAgent(
+        gain_updater,
+        learning_rates,
+        meta_lr,
+        env,
+        policy,
+        gamma,
+        delay,
+        kp, kd, ki, alpha, beta
+    )
 
 
 def build_diagonal_log_space_updater(env, policy, meta_lr, learning_rates, gamma, delay, kp, kd, ki, alpha, beta):

@@ -145,7 +145,7 @@ class Garnet(Environment):
 
         # Find next state and reward
         transition_probs = self.transitions[self.current_state, :, action]
-        self.current_state = np.random.choice(len(transition_probs), p=transition_probs)
+        self.current_state = self.prg.choice(len(transition_probs), p=transition_probs)
         reward = self.rewards[self.current_state]
 
         return self.current_state, reward

@@ -1,7 +1,7 @@
 from Experiments.OptimalRateDatabase import get_stored_optimal_rate
 from Experiments.ExperimentHelpers import get_env_policy, learning_rate_function
-from Agents import PID_TD, FarSighted_PID_TD, Hard_PID_TD, PID_TD_with_momentum
-from MDP import PolicyEvaluation, Control
+from Agents import PID_TD, FarSighted_PID_TD, Hard_PID_TD, PID_TD_with_momentum, ControlledQLearning
+from MDP import PolicyEvaluation, Control, Control_Q
 import logging
 
 """
@@ -35,6 +35,7 @@ def build_agent(agent_name, env_name, env, policy, get_optimal, gamma):
     - "far sighted TD": The agent that uses Far Sighted PID to learn the optimal policy with TD. kwargs is the delay.
     - "hard TD": The agent that uses hard updates with PID TD
     - "momentum TD": The agent that uses momentum with PID TD
+    - "Q learning": The agent that uses PID to learn the optimal policy with Q learning
 
     get_optimal: Try to find the optimal learning rate and set it
 
@@ -46,6 +47,8 @@ def build_agent(agent_name, env_name, env, policy, get_optimal, gamma):
         return build_VI_PID(env, policy, kp, ki, kd, alpha, beta, gamma)
     elif agent_description == "VI control":
         return build_VI_Control_PID(env, kp, ki, kd, alpha, beta, gamma)
+    elif agent_description == "VI Q control":
+        return build_VI_Q_Control_PID(env, kp, ki, kd, alpha, beta, gamma)
 
     if get_optimal:
         optimal_rates = get_stored_optimal_rate(agent_name, env_name, gamma)
@@ -69,7 +72,38 @@ def build_agent(agent_name, env_name, env, policy, get_optimal, gamma):
         return build_hard_TD_PID(env, policy, kp, ki, kd, alpha, beta, learning_rates, gamma)
     elif agent_description == "momentum TD":
         return build_momentum_TD_PID(env, policy, kp, ki, kd, alpha, beta, learning_rates, gamma)
+    elif agent_description == "Q learning":
+        return build_Q_PID(env, kp, ki, kd, alpha, beta, learning_rates, gamma)
     return None
+
+
+def build_Q_PID(env, kp, ki, kd, alpha, beta, learning_rates, gamma):
+    """Build the Q agent with PID
+    """
+    return ControlledQLearning(
+        env,
+        None,
+        gamma,
+        kp, ki, kd, alpha, beta,
+        learning_rates
+    )
+
+def build_VI_Q_Control_PID(env, kp, ki, kd, alpha, beta, gamma):
+    """Build the VI Q Control agent with PID
+    """
+    # Build the reward and transition matrices
+    reward = env.build_reward_matrix()
+    transition = env.build_probability_transition_kernel()
+
+    return Control_Q(
+        env.num_states,
+        env.num_actions,
+        reward,
+        transition,
+        gamma,
+        kp, ki, kd, alpha, beta
+    )
+
 
 
 def build_momentum_TD_PID(env, policy, kp, ki, kd, alpha, beta, learning_rates, gamma):
@@ -79,11 +113,7 @@ def build_momentum_TD_PID(env, policy, kp, ki, kd, alpha, beta, learning_rates, 
         env,
         policy,
         gamma,
-        kp,
-        ki,
-        kd,
-        alpha,
-        beta,
+        kp, ki, kd, alpha, beta,
         learning_rates
     )
 
@@ -95,11 +125,7 @@ def build_hard_TD_PID(env, policy, kp, ki, kd, alpha, beta, learning_rates, gamm
         env,
         policy,
         gamma,
-        kp,
-        ki,
-        kd,
-        alpha,
-        beta,
+        kp, ki, kd, alpha, beta,
         learning_rates
     )
 
@@ -110,11 +136,7 @@ def build_FarSighted_TD_PID(env, policy, kp, ki, kd, alpha, beta, learning_rates
         env,
         policy,
         gamma,
-        kp,
-        ki,
-        kd,
-        alpha,
-        beta,
+        kp, ki, kd, alpha, beta,
         learning_rates,
         delay
     )
@@ -132,11 +154,7 @@ def build_VI_Control_PID(env, kp, ki, kd, alpha, beta, gamma):
         env.num_actions,
         reward,
         transition,
-        kp,
-        ki,
-        kd,
-        alpha,
-        beta,
+        kp, ki, kd, alpha, beta,
         gamma
     )
 
@@ -153,11 +171,7 @@ def build_VI_PID(env, policy, kp, ki, kd, alpha, beta, gamma):
         env.num_actions,
         reward,
         transition,
-        kp,
-        ki,
-        kd,
-        alpha,
-        beta,
+        kp, ki, kd, alpha, beta,
         gamma
     )
 
@@ -168,10 +182,6 @@ def build_TD_PID(env, policy, kp, ki, kd, alpha, beta, learning_rates, gamma):
         env,
         policy,
         gamma,
-        kp,
-        ki,
-        kd,
-        alpha,
-        beta,
+        kp, ki, kd, alpha, beta,
         learning_rates
     )

@@ -136,6 +136,7 @@ class PID_TD(Agent):
         """
         if reset:
             self.reset()
+
         # A vector storing the number of times we have seen a state.
         frequency = np.zeros((self.num_states, 1))
 
@@ -144,7 +145,6 @@ class PID_TD(Agent):
 
         for k in range(num_iterations):
             current_state, _, next_state, reward = self.take_action(follow_trajectory)
-
             frequency[current_state] += 1
 
             BR = reward + self.gamma * self.V[next_state] - self.V[current_state]

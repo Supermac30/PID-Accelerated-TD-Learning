@@ -1,0 +1,22 @@
+kp: [1]
+kd: [0]
+ki: [0]
+alpha: [0.05]
+beta: [0.95]
+gamma: 0.99
+
+num_iterations: 10000
+get_optimal: False
+
+norm: fro   # fro or nuc
+env: chain walk
+follow_trajectory: False
+
+agent_name: [Q learning]
+
+seed: 424242
+hydra:
+  run:
+    dir: ${oc.env:OUTPUT_DIR,./outputs}/${hydra.job.config_name}/${now:%Y-%m-%d}/${now:%H-%M-%S}
+  job:
+    chdir: True
