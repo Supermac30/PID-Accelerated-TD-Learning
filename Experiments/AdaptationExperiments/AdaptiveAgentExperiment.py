@@ -30,9 +30,9 @@ def adaptive_agent_experiment(cfg):
     TDhistory, _ = TDagent.estimate_value_function(num_iterations=cfg['num_iterations'], test_function=test_function, follow_trajectory=cfg['follow_trajectory'])
     save_array(TDhistory, f"TD Agent", ax0)
 
-    for agent_name, meta_lr, delay in zip(cfg['agent_name'], cfg['meta_lr'], cfg['delay']):
+    for agent_name, meta_lr, delay, lambd in zip(cfg['agent_name'], cfg['meta_lr'], cfg['delay'], cfg['lambda']):
         if cfg['compute_optimal']:
-            get_optimal_adaptive_rates(agent_name, cfg['env'], meta_lr, cfg['gamma'], cfg['recompute_optimal'])
+            get_optimal_adaptive_rates(agent_name, cfg['env'], meta_lr, cfg['gamma'], lambd, delay, cfg['recompute_optimal'])
         agent, _, _ = build_adaptive_agent_and_env(
             agent_name,
             cfg['env'],

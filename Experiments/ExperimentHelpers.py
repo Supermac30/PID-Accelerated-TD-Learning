@@ -26,8 +26,9 @@ def get_env_policy(name, seed):
         - "cliff walk": The Cliff walk problem as implemented in OS-Dyna
     """
     if name[:6] == "garnet":
-        seed = int(name[7:])
-        return PAVIA_garnet_settings(seed)
+        # The name is of the form garnet <seed> <num_states>
+        seed, num_states = map(int, name[7:].split(" "))
+        return garnet_problem(num_states, 3, 5, 10, seed)
     elif name == "chain walk":
         return chain_walk_left(50, 2, seed)
     elif name == "chain walk random":
@@ -199,7 +200,7 @@ def find_Qstar(env, gamma=0.99):
         1,0,0,0,0,
         gamma
     )
-    return oracle.q_value_iteration(num_iterations=10000)
+    return oracle.value_iteration(num_iterations=10000)
 
 
 def save_array(nparr, name, graph=None):

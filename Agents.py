@@ -263,7 +263,7 @@ class FarSighted_PID_TD(PID_TD):
             learning_rate
         )
 
-    def estimate_value_function(self, controllers=[], num_iterations=1000, test_function=None, stop_if_diverging=True):
+    def estimate_value_function(self, controllers=[], num_iterations=1000, test_function=None, stop_if_diverging=True, follow_trajectory=False):
         """Computes V^pi of the inputted policy using TD learning augmented with controllers.
         Takes in Controller objects that the agent will use to control the dynamics of learning.
 
@@ -285,7 +285,7 @@ class FarSighted_PID_TD(PID_TD):
         history_of_Vs = [[] for _ in range(self.num_states)]
 
         for k in range(num_iterations):
-            current_state, _, next_state, reward = self.take_action()
+            current_state, _, next_state, reward = self.take_action(follow_trajectory)
 
             frequency[current_state] += 1
 
@@ -317,23 +317,30 @@ class FarSighted_PID_TD(PID_TD):
 
 class ControlledQLearning(Agent):
     def __init__(self, environment, policy, gamma, kp, ki, kd, alpha, beta, learning_rate):
-        super().__init__(
-            environment,
-            policy,
-            gamma,
-            kp,
-            ki,
-            kd,
-            alpha,
-            beta,
-            learning_rate
-        )
+        super().__init__(environment, policy, gamma)
+        if type(learning_rate) == type(()):
+            self.learning_rate = learning_rate[0]
+            self.update_I_rate = learning_rate[1]
+            self.update_D_rate = learning_rate[2]
+        else:
+            self.learning_rate = learning_rate
+            self.update_D_rate = self.update_I_rate = lambda _: 1  # Hard updates
+        self.kp = kp
+        self.ki = ki
+        self.kd = kd
+        self.alpha = alpha
+        self.beta = beta
+        self.reset()
+
+    def reset(self):
+        """Reset parameters to be able to run a new test."""
+        self.environment.reset()
 
         self.Q = np.zeros((self.num_states, self.num_actions))
         self.Qp = np.zeros((self.num_states, self.num_actions))
         self.z = np.zeros((self.num_states, self.num_actions))
 
-    def estimate_value_function(self, num_iterations=1000, test_function=None, stop_if_diverging=True):
+    def estimate_value_function(self, num_iterations=1000, test_function=None, stop_if_diverging=True, follow_trajectory=False):
         """Use the Q-learning algorithm to estimate the value function.
         That is, create a matrix of size num_states by num_actions, Q, and update it according to the Q-learning update rule.
         """
@@ -345,7 +352,7 @@ class ControlledQLearning(Agent):
         history = np.zeros(num_iterations)
 
         for k in range(num_iterations):
-            current_state, action, next_state, reward = self.take_action()
+            current_state, action, next_state, reward = self.take_action(follow_trajectory)
 
             frequency[current_state] += 1
 
