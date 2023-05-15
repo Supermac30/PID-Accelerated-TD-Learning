@@ -16,10 +16,10 @@ def adaptive_agent_experiment(cfg):
     ax0 = fig0.add_subplot()
 
     if cfg['compute_optimal']:
-        get_optimal_pid_rates("TD", cfg['env'], 1, 0, 0, 0, 0, cfg['gamma'], cfg['recompute_optimal'])
+        get_optimal_pid_rates("TD", cfg['env'], 1, 0, 0, 0.05, 0.95, cfg['gamma'], cfg['recompute_optimal'])
 
     TDagent, env, policy = build_agent_and_env(
-        ("TD", 1, 0, 0, 0, 0),
+        ("TD", 1, 0, 0, 0.05, 0.95),
         cfg['env'],
         get_optimal=cfg['get_optimal'],
         seed=cfg['seed'],
@@ -37,10 +37,11 @@ def adaptive_agent_experiment(cfg):
             agent_name,
             cfg['env'],
             meta_lr,
+            lambd,
+            delay,
             get_optimal=cfg['get_optimal'],
             seed=cfg['seed'],
             gamma=cfg['gamma'],
-            delay=delay,
             kp=cfg['kp'],
             ki=cfg['ki'],
             kd=cfg['kd'],
@@ -49,7 +50,7 @@ def adaptive_agent_experiment(cfg):
         )
         _, gain_history, history = agent.estimate_value_function(cfg['num_iterations'], test_function, follow_trajectory=cfg['follow_trajectory'])
 
-        save_array(history, f"Adaptive Agent: {agent_name} {meta_lr} {delay}", ax0)
+        save_array(history, f"Adaptive Agent: {agent_name} {meta_lr} {delay} {lambd}", ax0)
 
         fig = plt.figure(figsize=(10, 4))
         gs = fig.add_gridspec(nrows=1, ncols=3, width_ratios=[1,1,1], wspace=0.3, hspace=0.5)
@@ -62,7 +63,7 @@ def adaptive_agent_experiment(cfg):
             ax.set_ylabel(titles[i])
             ax.legend()
 
-        plt.suptitle(f"Adaptive Agent: {agent_name}, {cfg['env']}, delay={delay}, meta_lr={meta_lr}")
+        plt.suptitle(f"Adaptive Agent: {agent_name}, {cfg['env']}, delay={delay}, meta_lr={meta_lr}, lambda={lambd}")
 
         # Set square aspect ratio for each subplot
         for ax in fig.axes:
@@ -71,7 +72,7 @@ def adaptive_agent_experiment(cfg):
         # Center the subplots in a single row and move up to remove whitespace
         gs.tight_layout(fig, rect=[0.05, 0.08, 0.95, 0.95])
 
-        plt.savefig(f"gains_plot_{agent_name}_{str(meta_lr).replace('.', '-')}_{delay}.png")
+        plt.savefig(f"gains_plot_{agent_name}_{str(meta_lr).replace('.', '-')}_{delay}_{str(lambd).replace('.','-')}.png")
         plt.close()
 
 
@@ -79,6 +80,7 @@ def adaptive_agent_experiment(cfg):
     ax0.legend()
     ax0.set_xlabel('Iteration')
     ax0.set_ylabel(f'$||V_k - V^\pi||_{{{cfg["norm"]}}}$')
+    ax0.set_yscale('log')
     fig0.savefig("history_plot")
 
     plt.show()
