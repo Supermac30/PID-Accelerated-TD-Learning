@@ -318,14 +318,14 @@ class FarSighted_PID_TD(PID_TD):
         return history, self.V
 
 class ControlledQLearning(Agent):
-    def __init__(self, environment, policy, gamma, kp, ki, kd, alpha, beta, learning_rate, decay):
+    def __init__(self, environment, gamma, kp, ki, kd, alpha, beta, learning_rate, decay):
         """
         kp, ki, kd are floats that are the coefficients of the PID controller
         alpha, beta are floats that are the coefficients of the PID controller
         learning_rate is a float or a tuple of floats (learning_rate, update_I_rate, update_D_rate)
         decay is the float that we multiply the exploration rate by at each iteration.
         """
-        super().__init__(environment, policy, gamma)
+        super().__init__(environment, None, gamma)
         if type(learning_rate) == type(()):
             self.learning_rate = learning_rate[0]
             self.update_I_rate = learning_rate[1]
@@ -378,8 +378,7 @@ class ControlledQLearning(Agent):
             self.z[current_state][action] = (1 - update_I_rate) * self.z[current_state][action] + update_I_rate * (self.beta * self.z[current_state][action] + self.alpha * BR)
             update = self.ki * self.z[current_state][action] + self.kd * (self.Q[current_state][action] - self.Qp[current_state][action])
             self.Qp[current_state][action] = (1 - update_D_rate) * self.Qp[current_state][action] + update_D_rate * self.Q[current_state][action]
-            self.Q[current_state][action] += learning_rate * self.kp * BR
-            self.Q += learning_rate * update
+            self.Q[current_state][action] += learning_rate * (self.kp * BR + update)
 
             if test_function is not None:
                 history[k] = test_function(self.Q, self.Qp, BR)

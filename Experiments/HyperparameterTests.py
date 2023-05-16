@@ -9,7 +9,7 @@ Notes about the hyperparameter tuning procedure:
 - We do not follow a trajectory, choosing instead to receive arbitrary samples from the environment.
 """
 
-from Experiments.ExperimentHelpers import find_optimal_learning_rates, find_Vpi, build_test_function, learning_rate_function
+from Experiments.ExperimentHelpers import find_optimal_learning_rates, find_Vpi, build_test_function, find_Qstar
 from Experiments.AdaptiveAgentBuilder import build_adaptive_agent_and_env
 from Experiments.AgentBuilder import build_agent_and_env
 import logging
@@ -127,8 +127,8 @@ def run_pid_search(agent_description, env_name, kp, ki, kd, alpha, beta, seed, n
 
 def run_pid_q_search(agent_description, env_name, kp, ki, kd, alpha, beta, seed, norm, gamma, decay):
     """Run a grid search on the exhaustive learning rates for the choice of controller gains"""
-    agent, env, policy = build_agent_and_env((agent_description, kp, ki, kd, alpha, beta, decay), env_name, seed=seed, gamma=gamma)
-    V_pi = find_Vpi(env, policy, gamma)
+    agent, env, _ = build_agent_and_env((agent_description, kp, ki, kd, alpha, beta, decay), env_name, seed=seed, gamma=gamma)
+    Q_star= find_Qstar(env, gamma)
 
     # Don't search over the learning rates for the components that are 0
     if kp == 0:
@@ -148,7 +148,7 @@ def run_pid_q_search(agent_description, env_name, kp, ki, kd, alpha, beta, seed,
         agent,
         lambda: agent.estimate_value_function(
             num_iterations=30000,
-            test_function=build_test_function(norm, V_pi),
+            test_function=build_test_function(norm, Q_star),
             follow_trajectory=False
         )[0],
         learning_rates,

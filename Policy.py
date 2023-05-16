@@ -27,12 +27,11 @@ class Policy():
     def set_policy_from_Q(self, Q, epsilon):
         """Set the policy from a Q function, setting a probability of epsilon picking an action that isn't optimal"""
         self.policy = np.zeros((self.num_states, self.num_actions))
-        for state in range(self.num_states):
-            best_action = np.argmax(Q[state])
-            self.policy[state][best_action] = 1 - epsilon
-            for action in range(self.num_actions):
-                if action != best_action:
-                    self.policy[state][action] = epsilon / (self.num_actions - 1)
+        self.policy = np.where(
+            np.arange(self.num_actions) == np.argmax(Q, axis=1)[:, None],
+            1 - epsilon,
+            epsilon / (self.num_actions - 1)
+        )
 
     def get_action(self, state, epsilon=0):
         """Get an action from the policy, with a probability of epsilon of choosing a random action"""
