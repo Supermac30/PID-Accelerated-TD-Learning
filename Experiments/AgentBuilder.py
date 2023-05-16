@@ -73,11 +73,12 @@ def build_agent(agent_name, env_name, env, policy, get_optimal, gamma):
     elif agent_description == "momentum TD":
         return build_momentum_TD_PID(env, policy, kp, ki, kd, alpha, beta, learning_rates, gamma)
     elif agent_description == "Q learning":
-        return build_Q_PID(env, kp, ki, kd, alpha, beta, learning_rates, gamma)
+        decay = kwargs[0]
+        return build_Q_PID(env, kp, ki, kd, alpha, beta, learning_rates, gamma, decay)
     return None
 
 
-def build_Q_PID(env, kp, ki, kd, alpha, beta, learning_rates, gamma):
+def build_Q_PID(env, kp, ki, kd, alpha, beta, learning_rates, gamma, decay):
     """Build the Q agent with PID
     """
     return ControlledQLearning(
@@ -85,7 +86,8 @@ def build_Q_PID(env, kp, ki, kd, alpha, beta, learning_rates, gamma):
         None,
         gamma,
         kp, ki, kd, alpha, beta,
-        learning_rates
+        learning_rates,
+        decay
     )
 
 def build_VI_Q_Control_PID(env, kp, ki, kd, alpha, beta, gamma):

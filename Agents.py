@@ -2,6 +2,7 @@
 A collection of agents that learn in an RL setting
 """
 import numpy as np
+from Policy import Policy
 
 class Agent():
     """An abstract class that represents the agent interacting
@@ -32,10 +33,11 @@ class Agent():
         """
         if follow_trajectory:
             state = self.environment.current_state
-            action = self.environment.pick_action(self.policy)
+            action = self.policy.get_action(state, epsilon=0)
             next_state, reward = self.environment.take_action(action)
         else:
-            state, action, reward, next_state = self.environment.get_uniformly_random_sample(self.policy)
+            state, action = self.policy.get_uniformly_random_sample(epsilon=0)
+            next_state, reward = self.environment.take_action(action)
 
         return state, action, next_state, reward
 
@@ -316,7 +318,13 @@ class FarSighted_PID_TD(PID_TD):
         return history, self.V
 
 class ControlledQLearning(Agent):
-    def __init__(self, environment, policy, gamma, kp, ki, kd, alpha, beta, learning_rate):
+    def __init__(self, environment, policy, gamma, kp, ki, kd, alpha, beta, learning_rate, decay):
+        """
+        kp, ki, kd are floats that are the coefficients of the PID controller
+        alpha, beta are floats that are the coefficients of the PID controller
+        learning_rate is a float or a tuple of floats (learning_rate, update_I_rate, update_D_rate)
+        decay is the float that we multiply the exploration rate by at each iteration.
+        """
         super().__init__(environment, policy, gamma)
         if type(learning_rate) == type(()):
             self.learning_rate = learning_rate[0]
@@ -330,6 +338,8 @@ class ControlledQLearning(Agent):
         self.kd = kd
         self.alpha = alpha
         self.beta = beta
+        self.epsilon = 1
+        self.decay = decay
         self.reset()
 
     def reset(self):
@@ -339,6 +349,7 @@ class ControlledQLearning(Agent):
         self.Q = np.zeros((self.num_states, self.num_actions))
         self.Qp = np.zeros((self.num_states, self.num_actions))
         self.z = np.zeros((self.num_states, self.num_actions))
+        self.epsilon = 1
 
     def estimate_value_function(self, num_iterations=1000, test_function=None, stop_if_diverging=True, follow_trajectory=False):
         """Use the Q-learning algorithm to estimate the value function.
@@ -352,6 +363,8 @@ class ControlledQLearning(Agent):
         history = np.zeros(num_iterations)
 
         for k in range(num_iterations):
+            self.epsilon *= self.decay
+            self.build_policy()
             current_state, action, next_state, reward = self.take_action(follow_trajectory)
 
             frequency[current_state] += 1
@@ -379,6 +392,14 @@ class ControlledQLearning(Agent):
             return self.Q
 
         return history, self.Q
+    
+    def build_policy(self):
+        """Create a Policy object based on the Q matrix."""
+        policy = Policy(self.num_actions, self.num_states, self.environment.prg, None)
+        policy.set_policy_from_Q(self.Q, self.epsilon)
+        self.policy = policy
+
+
 
 
 class ControlledSARSA(Agent):

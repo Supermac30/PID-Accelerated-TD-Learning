@@ -67,46 +67,13 @@ class Environment:
         """Return a vector of dimension self.num_states where the ith
         entry is the expected reward of entering state i when following policy k.
         """
-        return np.einsum('ij,ij->i', self.build_reward_matrix(), policy)
+        return np.einsum('ij,ij->i', self.build_reward_matrix(), policy.get_policy())
 
     def build_policy_probability_transition_kernel(self, policy):
         """Return a matrix of dimension self.num_states by self.num_states where the (i, j)
         entry is the probability of going from state i to j when following policy k.
         """
-        return np.einsum('ijk,ik->ij', self.build_probability_transition_kernel(), policy)
-
-    def get_uniformly_random_sample(self, policy):
-        """Return a (state, action, reward, next_state) tuple where state
-        is chosen uniformly at random, and action is chosen from the policy.
-        """
-        state = self.prg.choice(self.num_states)
-
-        old_current = self.current_state  # To avoid spooky action at a distance
-        self.current_state = state
-
-        action = self.pick_action(policy)
-        next_state, reward = self.take_action(action)
-
-        self.current_state = old_current  # To avoid spooky action at a distance
-
-        return state, action, reward, next_state
-
-    def pick_action(self, policy):
-        """Use the current policy to pick an action.
-        This is put in the environment because it is environment dependent and so it
-        can use the same random number generator as the environment.
-        """
-        # Current state
-        state = self.current_state
-
-        random_number = self.prg.uniform()
-        action = 0
-        total = policy[state][0]
-        while total < random_number:
-            action += 1
-            total += policy[state][action]
-
-        return action
+        return np.einsum('ijk,ik->ij', self.build_probability_transition_kernel(), policy.get_policy())
 
 
 

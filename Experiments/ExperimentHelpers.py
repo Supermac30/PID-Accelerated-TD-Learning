@@ -6,6 +6,7 @@ import logging
 
 from MDP import PolicyEvaluation, Control, Control_Q
 from Environments import ChainWalk, Garnet, CliffWalk, IdentityEnv
+from Policy import Policy
 
 def build_test_function(norm, V_pi):
     """Return the function that tests how far away our current estimate is from V_pi
@@ -47,7 +48,7 @@ def cliff_walk(seed):
     for i in range(env.num_states):
         policy[i, :] = 1 / env.num_actions
 
-    return env, policy
+    return env, Policy(env.num_actions, env.num_states, env.prg, policy)
 
 
 def garnet_problem(num_states, num_actions, bP, bR, seed):
@@ -59,7 +60,7 @@ def garnet_problem(num_states, num_actions, bP, bR, seed):
     for i in range(num_states):
         policy[i, :] = 1/num_actions
 
-    return env, policy
+    return env, Policy(num_actions, num_states, env.prg, policy)
 
 
 def PAVIA_garnet_settings(seed):
@@ -73,7 +74,7 @@ def chain_walk_random(num_states, num_actions, seed):
     policy = np.zeros((num_states, num_actions))
     for i in range(num_states):
         policy[i,:] = 1/num_actions
-    return env, policy
+    return env, Policy(num_actions, num_states, env.prg, policy)
 
 
 def chain_walk_left(num_states, num_actions, seed):
@@ -83,7 +84,7 @@ def chain_walk_left(num_states, num_actions, seed):
     for i in range(num_states):
         policy[i,0] = 1
         policy[i,1] = 0
-    return env, policy
+    return env, Policy(num_actions, num_states, env.prg, policy)
 
 def identity(seed):
     """Return the identity environment the policy that picks the only available action."""
@@ -91,7 +92,7 @@ def identity(seed):
     policy = np.zeros((1, 1))
     for i in range(env.num_states):
         policy[i, 0] = 1
-    return env, policy
+    return env, Policy(1, 1, env.prg, policy)
 
 
 def learning_rate_function(alpha, N):
