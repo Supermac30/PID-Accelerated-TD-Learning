@@ -146,12 +146,12 @@ class MDP_Q:
             self.Qp, self.Q = self.Q, self.Q + update
 
             if test_function is not None:
-                history[k] = test_function(self.V, self.Vp, BR)
+                history[k] = test_function(self.Q, self.Qp, BR)
 
         if test_function is None:
-            return self.V
+            return self.Q
 
-        return history, self.V
+        return history, self.Q
 
     def bellman_operator(self, Q):
         """Computes the Bellman Operator.
@@ -170,8 +170,9 @@ class Control_Q(MDP_Q):
     and value iteration performs control.
     """
     def bellman_operator(self, Q):
-        max_future_reward = 0
-        for i in range(self.num_actions):
-            expected_reward = sum(self.P[i, :, j] * Q[j] for j in range(self.num_states))
-            max_future_reward = max(max_future_reward, expected_reward)
-        return self.R + self.gamma * max_future_reward
+        # Create a new matrix Q' whose entries are Q'(x, a) = sum(P(x, a, y) * max(Q(y, b) for b in A) for y in S)
+        Qp = np.zeros((self.num_states, self.num_actions))
+        for a in range(self.num_actions):
+            for s in range(self.num_states):
+                Qp[s, a] = sum(self.P[s, :, a] * np.max(Q, axis=1))
+        return self.R + self.gamma * Qp

@@ -193,7 +193,7 @@ def find_Vstar(env, gamma=0.99):
 def find_Qstar(env, gamma=0.99):
     """Find a good approximation of the value function of the optimal policy in an environment.
     """
-    oracle = Control(
+    oracle = Control_Q(
         env.num_states,
         env.num_actions,
         env.build_reward_matrix(),

@@ -17,21 +17,21 @@ from Experiments.OptimalRateDatabase import get_stored_optimal_rate, store_optim
 
 exhaustive_learning_rates = [
     {
-            1: {1, 10, 100, 250, 500, 750, 1000},
-            0.5: {10, 100, 1000},
-            0.25: {100, 1000},
-            #0.1: {1, 10, 100, 1000},
+            1: {1, 10, 25, 50, 75, 100, 250, 500, 750, 1000},
+            #0.5: {10, 100, 1000},
+            #0.25: {100, 1000},
+            #0.1: {1, 10, 25, 50, 75, 100, 250, 500, 750, 1000},
             #0.05: {1, 10, 100, 1000},
             #0.01: {1, 10, 100, 1000}
         },
         {
-            1: {float("inf"), 1, 10, 100, 1000},
+            1: {float("inf"), 1, 100, 10000},
             #0.5: {1, 10, 100, 1000},
             #0.1: {1, 10, 100, 1000},
             #0.01: {1, 10, 100, 1000}
         },
         {
-            1: {float("inf"), 1, 10, 100, 1000},
+            1: {float("inf"), 1, 100, 10000},
             #0.5: {1, 10, 100, 1000},
             #0.1: {1, 10, 100, 1000},
             #0.01: {1, 10, 100, 1000}
@@ -57,7 +57,7 @@ def get_optimal_pid_rates(agent_description, env_name, kp, ki, kd, alpha, beta, 
 
     return optimal_rates
 
-def get_optimal_pid_q_rates(agent_name, env_name, kp, ki, kd, alpha, beta, gamma, recompute=False, seed=-1, norm=1, decay=1):
+def get_optimal_pid_q_rates(agent_name, env_name, kp, ki, kd, alpha, beta, gamma, recompute=False, seed=-1, norm="fro", decay=1):
     """Find the optimal rates for the choice of controller gains and environment.
     If this has been done before, get the optimal rates from the file of stored rates.
 
@@ -128,7 +128,7 @@ def run_pid_search(agent_description, env_name, kp, ki, kd, alpha, beta, seed, n
 def run_pid_q_search(agent_description, env_name, kp, ki, kd, alpha, beta, seed, norm, gamma, decay):
     """Run a grid search on the exhaustive learning rates for the choice of controller gains"""
     agent, env, _ = build_agent_and_env((agent_description, kp, ki, kd, alpha, beta, decay), env_name, seed=seed, gamma=gamma)
-    Q_star= find_Qstar(env, gamma)
+    Q_star = find_Qstar(env, gamma)
 
     # Don't search over the learning rates for the components that are 0
     if kp == 0:
@@ -189,4 +189,4 @@ if __name__ == '__main__':
 
     for name in {"chain walk", "cliff walk"}:
         for gamma in {0.99, 0.999, 0.9999}:
-            get_optimal_pid_rates("TD", name, 1, 0, 0, 0, 0, gamma, recompute=True)
+            get_optimal_pid_rates("TD", name, 1, 0, 0, 0.05, 0.95, gamma, recompute=True)

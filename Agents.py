@@ -338,7 +338,6 @@ class ControlledQLearning(Agent):
         self.kd = kd
         self.alpha = alpha
         self.beta = beta
-        self.epsilon = 1
         self.decay = decay
         self.reset()
 
@@ -350,6 +349,7 @@ class ControlledQLearning(Agent):
         self.Qp = np.zeros((self.num_states, self.num_actions))
         self.z = np.zeros((self.num_states, self.num_actions))
         self.epsilon = 1
+        self.policy = Policy(self.num_actions, self.num_states, self.environment.prg, None)
 
     def estimate_value_function(self, num_iterations=1000, test_function=None, stop_if_diverging=True, follow_trajectory=False):
         """Use the Q-learning algorithm to estimate the value function.
@@ -364,7 +364,7 @@ class ControlledQLearning(Agent):
 
         for k in range(num_iterations):
             self.epsilon *= self.decay
-            self.build_policy()
+            self.policy.set_policy_from_Q(self.Q, self.epsilon)
             current_state, action, next_state, reward = self.take_action(follow_trajectory)
 
             frequency[current_state] += 1
@@ -382,7 +382,7 @@ class ControlledQLearning(Agent):
 
             if test_function is not None:
                 history[k] = test_function(self.Q, self.Qp, BR)
-                if stop_if_diverging and history[k] > 2 * history[0]:
+                if stop_if_diverging and history[k] > 10 * history[0]:
                     # If we are too large, stop learning
                     history[k:] = float('inf')
                     break
@@ -391,13 +391,6 @@ class ControlledQLearning(Agent):
             return self.Q
 
         return history, self.Q
-    
-    def build_policy(self):
-        """Create a Policy object based on the Q matrix."""
-        policy = Policy(self.num_actions, self.num_states, self.environment.prg, None)
-        policy.set_policy_from_Q(self.Q, self.epsilon)
-        self.policy = policy
-
 
 
 
