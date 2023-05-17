@@ -80,7 +80,8 @@ def adaptive_agent_experiment(cfg):
     ax0.legend()
     ax0.set_xlabel('Iteration')
     ax0.set_ylabel(f'$||V_k - V^\pi||_{{{cfg["norm"]}}}$')
-    ax0.set_yscale('log')
+    if cfg['log_plot']:
+        ax0.set_yscale('log')
     fig0.savefig("history_plot")
 
     plt.show()

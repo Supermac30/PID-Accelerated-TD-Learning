@@ -12,7 +12,7 @@ class Policy():
         self.prg = prg
 
         if policy is None:
-            self.policy = np.zeros((num_states, num_actions))
+            self.policy = np.full((num_states, num_actions), 1/self.num_actions)
         else:
             self.policy = policy
 

@@ -17,7 +17,7 @@ from Experiments.OptimalRateDatabase import get_stored_optimal_rate, store_optim
 
 exhaustive_learning_rates = [
     {
-            1: {1, 10, 100, 250, 500, 750, 1000},
+            1: {1, 10, 25, 50, 75, 100, 250, 500, 750, 1000},
             0.5: {10, 100, 1000},
             0.25: {100, 1000},
             #0.1: {1, 10, 100, 1000},

@@ -507,22 +507,18 @@ class SemiGradientUpdater(AbstractGainUpdater):
 
         BR = reward + gamma * V[next_state] - V[current_state]
 
-        if False:
-            print(f"BR: {BR}, V[current_state]: {V[current_state]}, Vp[current_state]: {Vp[current_state]}")
-            if V[current_state] != Vp[current_state]:
-                breakpoint()
-
         self.p_update += lr * BR * BR
         self.d_update += lr * BR * (V[current_state] - Vp[current_state])
         self.i_update += lr * BR * (beta * z[next_state] + alpha * BR)
+
 
         self.kp = 1 + (1 - self.lambd) * (self.kp - 1)
         self.kd *= 1 - self.lambd
         self.ki *= 1 - self.lambd
         if not intermediate:
-            # self.kp += self.meta_lr * self.p_update / self.agent.update_frequency
-            self.kd += max(0, self.meta_lr * self.d_update / self.agent.update_frequency)
-            self.ki += self.meta_lr * self.i_update / self.agent.update_frequency
+            #self.kp += self.meta_lr * self.p_update
+            self.kd += max(0, self.meta_lr * self.d_update)
+            self.ki += self.meta_lr * self.i_update
 
             self.d_update = 0
             self.i_update = 0

@@ -44,11 +44,7 @@ def get_env_policy(name, seed):
 def cliff_walk(seed):
     """Return the CliffWalk Environment with the policy that moves randomly"""
     env = CliffWalk(0.9, seed)
-    policy = np.zeros((env.num_states, env.num_actions))
-    for i in range(env.num_states):
-        policy[i, :] = 1 / env.num_actions
-
-    return env, Policy(env.num_actions, env.num_states, env.prg, policy)
+    return env, Policy(env.num_actions, env.num_states, env.prg, None)
 
 
 def garnet_problem(num_states, num_actions, bP, bR, seed):
@@ -56,11 +52,7 @@ def garnet_problem(num_states, num_actions, bP, bR, seed):
     env = Garnet(
         num_states, num_actions, bP, bR, seed
     )
-    policy = np.zeros((num_states, num_actions))
-    for i in range(num_states):
-        policy[i, :] = 1/num_actions
-
-    return env, Policy(num_actions, num_states, env.prg, policy)
+    return env, Policy(num_actions, num_states, env.prg, None)
 
 
 def PAVIA_garnet_settings(seed):
@@ -71,10 +63,7 @@ def PAVIA_garnet_settings(seed):
 def chain_walk_random(num_states, num_actions, seed):
     """Return the chain walk environment with the policy that takes random moves."""
     env = ChainWalk(num_states, seed)
-    policy = np.zeros((num_states, num_actions))
-    for i in range(num_states):
-        policy[i,:] = 1/num_actions
-    return env, Policy(num_actions, num_states, env.prg, policy)
+    return env, Policy(num_actions, num_states, env.prg, None)
 
 
 def chain_walk_left(num_states, num_actions, seed):
@@ -89,10 +78,7 @@ def chain_walk_left(num_states, num_actions, seed):
 def identity(seed):
     """Return the identity environment the policy that picks the only available action."""
     env = IdentityEnv(1, seed)
-    policy = np.zeros((1, 1))
-    for i in range(env.num_states):
-        policy[i, 0] = 1
-    return env, Policy(1, 1, env.prg, policy)
+    return env, Policy(1, 1, env.prg, None)
 
 
 def learning_rate_function(alpha, N):

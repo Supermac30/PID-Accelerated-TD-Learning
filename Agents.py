@@ -37,6 +37,7 @@ class Agent():
             next_state, reward = self.environment.take_action(action)
         else:
             state, action = self.policy.get_uniformly_random_sample(epsilon=0)
+            self.environment.current_state = state
             next_state, reward = self.environment.take_action(action)
 
         return state, action, next_state, reward
