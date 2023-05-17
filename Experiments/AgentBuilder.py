@@ -10,7 +10,11 @@ Types of agents:
 - TD (kp, kd, ki): The agent that uses PID to learn the optimal policy with TD
 """
 
+<<<<<<< HEAD
 default_optimal_rates = (1, 10, 1, float("inf"), 1, float("inf"))
+=======
+default_optimal_rates = (1, 25, 1, float("inf"), 1, float("inf"))
+>>>>>>> cbd14f7687c1c43fc32541a8522c0144597b97fe
 
 def build_agent_and_env(agent_name, env_name, get_optimal=False, seed=-1, gamma=0.99):
     """Return both the agent and the environment & policy given their names.
