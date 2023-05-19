@@ -164,7 +164,7 @@ class PID_TD(Agent):
 
             if test_function is not None:
                 history[k] = test_function(self.V, self.Vp, BR)
-                if stop_if_diverging and history[k] > 2 * history[0]:
+                if stop_if_diverging and history[k] > 10 * history[0]:
                     # If we are too large, stop learning
                     history[k:] = float('inf')
                     break
@@ -232,13 +232,13 @@ class PID_TD_with_momentum(PID_TD):
             # Update the value function using the floats kp, ki, kd
             self.z[current_state] = (1 - update_I_rate) * self.z[current_state][0] + update_I_rate * (self.beta * self.z[current_state][0] + self.alpha * BR)
             update = self.ki * self.z + self.kd * (self.V - self.Vp)
-            self.Vp[current_state] = (1 - update_D_rate) * self.Vp[current_state][0] + update_D_rate * self.V[current_state][0]
+            self.Vp = (1 - update_D_rate) * self.Vp + update_D_rate * self.V
             self.V[current_state] += learning_rate * self.kp * BR
             self.V += learning_rate * update
 
             if test_function is not None:
                 history[k] = test_function(self.V, self.Vp, BR)
-                if stop_if_diverging and history[k] > 2 * history[0]:
+                if stop_if_diverging and history[k] > 10 * history[0]:
                     # If we are too large, stop learning
                     history[k:] = float('inf')
                     break

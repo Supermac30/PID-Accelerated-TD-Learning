@@ -16,15 +16,29 @@ def soft_policy_evaluation_experiment(cfg):
         test_function = build_test_function(cfg['norm'], V_pi)
         total_history = 0
         for _ in range(cfg['num_repeats']):
-            history, _ = agent.estimate_value_function(num_iterations=cfg['num_iterations'], test_function=test_function, follow_trajectory=cfg['follow_trajectory'])
+            history, _ = agent.estimate_value_function(
+                num_iterations=cfg['num_iterations'],
+                test_function=test_function,
+                follow_trajectory=cfg['follow_trajectory'],
+                stop_if_diverging=cfg['stop_if_diverging']
+            )
             total_history += history
         total_history /= cfg['num_repeats']
         save_array(total_history, f"{agent_name} kp={kp} ki={ki} kd={kd} alpha={alpha} beta={beta}", plt)
 
-    plt.title(f"Soft Updates: {cfg['env']} gamma={cfg['gamma']}")
+    plt.title(f"PID-TD: {cfg['env']} gamma={cfg['gamma']}")
     plt.legend()
     plt.xlabel('Iteration')
-    plt.ylabel(f"$||V_k - V^\pi||_{{{cfg['norm']}}}$")
+    # Maybe code a function that returns this label to be used in all files?
+    if type(cfg['norm']) == type("") and cfg['norm'][:4] == 'diff':
+        index = cfg['norm'][5:]
+        plt.ylabel(f"$V_k[{index}] - V^\pi[{index}]$")
+        # Draw a dotted line at 0
+        plt.axhline(y=0, color='k', linestyle='--')
+    else:
+        plt.ylabel(f"$||V_k - V^\pi||_{{{cfg['norm']}}}$")
+    if cfg['log_plot']:
+        plt.yscale('log')
     plt.savefig("plot")
     plt.show()
 

@@ -25,6 +25,8 @@ def soft_policy_evaluation_experiment(cfg):
     plt.legend()
     plt.xlabel('Iteration')
     plt.ylabel(f"$||Q_k - Q^*||_{{{cfg['norm']}}}$")
+    if cfg['log_plot']:
+        plt.yscale('log')
     plt.savefig("plot")
     plt.show()
 

@@ -5,7 +5,7 @@ import os
 import logging
 
 from MDP import PolicyEvaluation, Control, Control_Q
-from Environments import ChainWalk, Garnet, CliffWalk, IdentityEnv
+from Environments import *
 from Policy import Policy
 
 def build_test_function(norm, V_pi):
@@ -14,8 +14,19 @@ def build_test_function(norm, V_pi):
     """
     if norm == "inf":
         return lambda V, Vp, BR: np.max(np.abs(V - V_pi))
+    elif type(norm) == type("") and norm[:4] == "diff":
+        index = int(norm[5:])
+        return lambda V, Vp, BR: V[index] - V_pi[index]
+    
+    elif norm == 2:
+        return lambda V, Vp, BR: (V - V_pi).T @ (V - V_pi)
+    elif norm == 1:
+        return lambda V, Vp, BR: np.sum(np.abs(V - V_pi))
     else:
-        return lambda V, Vp, BR: np.linalg.norm(V - V_pi, norm)
+        # How do we fix this bug?
+        #TypeError: array type float128 is unsupported in linalg
+        
+        return lambda V, Vp, BR: np.linalg.norm(V - V_pi, ord=norm)
 
 def get_env_policy(name, seed):
     """Return an environment, policy tuple given its string name as input. A seed is inputted as well
@@ -38,8 +49,21 @@ def get_env_policy(name, seed):
         return cliff_walk(seed)
     elif name == "identity":
         return identity(seed)
+    elif name[:6] == "normal":
+        variance = float(name[7:])
+        return normal_env(variance, seed)
+    elif name == "bernoulli":
+        return bernoulli_env(seed)
     else:
         raise Exception("Environment not indexed")
+
+def bernoulli_env(seed):
+    env = BernoulliApproximation(seed)
+    return env, Policy(env.num_actions, env.num_states, env.prg, None)
+
+def normal_env(variance, seed):
+    env = NormalApproximation(variance, seed)
+    return env, Policy(env.num_actions, env.num_states, env.prg, None)
 
 def cliff_walk(seed):
     """Return the CliffWalk Environment with the policy that moves randomly"""

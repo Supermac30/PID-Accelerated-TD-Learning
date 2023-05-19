@@ -8,6 +8,7 @@ from Experiments.AdaptiveAgentBuilder import build_adaptive_agent_and_env
 from Experiments.AgentBuilder import build_agent_and_env
 from Experiments.ExperimentHelpers import *
 from Experiments.HyperparameterTests import get_optimal_pid_rates, get_optimal_adaptive_rates
+import logging
 
 @hydra.main(version_base=None, config_path="../../config/AdaptationExperiments", config_name="AdaptiveAgentExperiment")
 def adaptive_agent_experiment(cfg):
@@ -48,7 +49,13 @@ def adaptive_agent_experiment(cfg):
             alpha=cfg['alpha'],
             beta=cfg['beta']
         )
-        _, gain_history, history = agent.estimate_value_function(cfg['num_iterations'], test_function, follow_trajectory=cfg['follow_trajectory'])
+        V, gain_history, history = agent.estimate_value_function(
+            cfg['num_iterations'],
+            test_function,
+            follow_trajectory=cfg['follow_trajectory'],
+            stop_if_diverging=cfg['stop_if_diverging']
+        )
+        logging.info(V - V_pi)
 
         save_array(history, f"Adaptive Agent: {agent_name} {meta_lr} {delay} {lambd}", ax0)
 
@@ -75,11 +82,19 @@ def adaptive_agent_experiment(cfg):
         plt.savefig(f"gains_plot_{agent_name}_{str(meta_lr).replace('.', '-')}_{delay}_{str(lambd).replace('.','-')}.png")
         plt.close()
 
+        if cfg['plot_updater']:
+            agent.plot()
 
     ax0.title.set_text(f"Adaptive Agent: {cfg['env']}")
     ax0.legend()
     ax0.set_xlabel('Iteration')
-    ax0.set_ylabel(f'$||V_k - V^\pi||_{{{cfg["norm"]}}}$')
+    if cfg['norm'] == 'inf':
+        ax0.set_ylabel(f'$||V_k - V^\pi||_{{\infty}}$')
+    if type(cfg['norm']) == str and cfg['norm'][:4] == 'diff':
+        state = cfg['norm'][5:]
+        ax0.set_ylabel(f'$V_k[{state}] - V^\pi[{state}]$')
+    else:
+        ax0.set_ylabel(f'$||V_k - V^\pi||_{{{cfg["norm"]}}}$')
     if cfg['log_plot']:
         ax0.set_yscale('log')
     fig0.savefig("history_plot")

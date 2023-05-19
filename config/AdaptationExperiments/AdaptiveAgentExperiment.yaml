@@ -1,31 +1,20 @@
-env: garnet 314 50
-norm: 1
-<<<<<<< HEAD
+env: cliff walk
+norm: diff 10
 num_iterations: 30000
 
 get_optimal: True # Get the optimal parameters from the database
 compute_optimal: False # Run a grid search. When recompute_optimal is false, we don't run a grid search if the optimal parameters are in the database already
 recompute_optimal: False # If compute_optimal is True, run a grid search even if the optimal parameters are in the database
 
-agent_name: [semi gradient updater, semi gradient updater, semi gradient updater, semi gradient updater]
-meta_lr: [1e-4, 2e-4, 3e-4, 4e-4]
-delay: [500, 500, 500, 500]
-lambda: [1e-3, 1e-3, 1e-3, 1e-3]
-=======
-num_iterations: 10000
-
-get_optimal: True # Get the optimal parameters from the database
-compute_optimal: True # Run a grid search. When recompute_optimal is false, we don't run a grid search if the optimal parameters are in the database already
-recompute_optimal: True # If compute_optimal is True, run a grid search even if the optimal parameters are in the database
-
-agent_name: [semi gradient updater, semi gradient updater, semi gradient updater, semi gradient updater]
-meta_lr: [8e-5, 9e-5, 1e-4, 2e-4]
-delay: [250, 250, 250, 250]
-lambda: [1e-4, 1e-4, 1e-4, 1e-4]
->>>>>>> cbd14f7687c1c43fc32541a8522c0144597b97fe
+agent_name: [true diagonal semi gradient updater]
+meta_lr: [1e-2, 5e-3, 7e-7, 7e-7]
+delay: [1, 25, 250, 250]
+lambda: [0.01, 1e-4]
 
 follow_trajectory: False
-log_plot: True
+log_plot: False
+plot_updater: True
+stop_if_diverging: False
 
 kp: 1
 ki: 0
@@ -37,7 +26,7 @@ gamma: 0.99
 
 name: presentation compiler
 
-seed: 42
+seed: 212345
 hydra:
   run:
     dir: ${oc.env:OUTPUT_DIR,./outputs}/${hydra.job.config_name}/${name}/${env}/${now:%Y-%m-%d}/${now:%H-%M-%S}

@@ -327,3 +327,39 @@ class IdentityEnv(Environment):
 
     def take_action(self, action):
         return self.current_state, self.reward
+
+
+class NormalApproximation(Environment):
+    def __init__(self, variance, seed):
+        self.variance = variance
+        self.reward = 10
+        super().__init__(1, 1, 0, seed)
+
+    def build_probability_transition_kernel(self):
+        return np.array([[[1]]])
+
+    def build_reward_matrix(self):
+        return np.array([[self.reward]])
+
+    def take_action(self, action):
+        # Sample from a normal distribution with variance self.variance and mean self.reward
+        return self.current_state, self.prg.normal(self.reward, self.variance)
+
+class BernoulliApproximation(Environment):
+    def __init__(self, seed):
+        self.reward = 0
+        super().__init__(1, 1, 0, seed)
+
+    def build_probability_transition_kernel(self):
+        return np.array([[[1]]])
+
+    def build_reward_matrix(self):
+        return np.array([[self.reward]])
+
+    def take_action(self, action):
+        # Sample from a beta distribution with alpha and beta parameters
+        random_number = self.prg.random()
+        if random_number < 0.05:
+            return self.current_state, 200
+        else:
+            return self.current_state, -100/9
