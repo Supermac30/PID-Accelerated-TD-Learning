@@ -23,14 +23,7 @@ class Environment:
         self.start_state = start_state
         self.current_state = start_state
 
-        if seed == -1:
-            # Create a random seed
-            self.seed = np.random.randint(1, 1000000)
-            # Log it for reproducibility
-            logger = logging.getLogger(__name__)
-            logger.info(f"Random seed for environment: {self.seed}")
-        else:
-            self.seed = seed
+        self.seed = seed
 
         self.prg = np.random.default_rng(self.seed)
 

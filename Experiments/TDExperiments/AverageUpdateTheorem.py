@@ -14,9 +14,10 @@ def find_average_update_experiment(cfg):
 
     looks like. This experimentally verifies theorem 2.1 in the manuscript.
     """
+    seed = pick_seed(cfg['seed'])
 
     for kp, kd in zip(cfg['kp'], cfg['kd']):
-        agent, env, policy = build_agent_and_env(("TD", kp, 0, kd, 0.05, 0.95), cfg['env'], False, cfg['seed'], cfg['gamma'])
+        agent, env, policy = build_agent_and_env(("TD", kp, 0, kd, 0.05, 0.95), cfg['env'], False, seed, cfg['gamma'])
         R = env.get_reward_matrix(policy)
         P = env.get_transition_matrix(policy)
         def bellman(V):
@@ -26,7 +27,7 @@ def find_average_update_experiment(cfg):
         test_function=lambda V, Vp, BR: np.max(np.abs(V_pi - bellman(V) * (kp / (kp - kd)) + Vp * (kd / (kp - kd))))
         history, _ = agent.estimate_value_function(num_iterations=cfg['num_iterations'], test_function=test_function, follow_trajectory=cfg['follow_trajectory'])
 
-        save_array(history, f"{kp=} {kd=}", plt)
+        save_array(history, f"kp={kp} kd={kd}", plt)
 
     plt.title(f"Average Update: {cfg['env']}")
     plt.legend()

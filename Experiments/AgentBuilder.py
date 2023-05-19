@@ -12,7 +12,7 @@ Types of agents:
 
 default_optimal_rates = (0.5, 100, 1, 10000, 1, 10000)
 
-def build_agent_and_env(agent_name, env_name, get_optimal=False, seed=-1, gamma=0.99):
+def build_agent_and_env(agent_name, env_name, get_optimal=False, seed=42, gamma=0.99):
     """Return both the agent and the environment & policy given their names.
     agent_name is a tuple of the form ("TD" or "VI", kp, ki, kd, alpha, beta, *kwargs),
     where kp, ki, kd, alpha, beta are floats, and **kwargs are any special keyword arguments for the agent.

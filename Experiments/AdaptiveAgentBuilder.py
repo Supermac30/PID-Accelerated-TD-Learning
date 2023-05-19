@@ -11,9 +11,9 @@ from AdaptiveAgents import *
 import logging
 
 default_meta_lr = 1
-default_learning_rates = (1, 50, 1, 100000, 1, 100000)
+default_learning_rates = (1, 25, 1, 100000, 1, 100000)
 
-def build_adaptive_agent_and_env(agent_name, env_name, meta_lr, lambd, delay, get_optimal=False, seed=-1, gamma=0.99, kp=1, kd=0, ki=0, alpha=0.05, beta=0.95):
+def build_adaptive_agent_and_env(agent_name, env_name, meta_lr, lambd, delay, get_optimal=False, seed=42, gamma=0.99, kp=1, kd=0, ki=0, alpha=0.05, beta=0.95):
     """Return the adaptive agent and the environment & policy given its name. The names include:
     - planner: The original PAVIA gain adaptation algorithm
     - log space planner: The original PAVIA gain adaptation algorithm, but in the log space
@@ -33,6 +33,7 @@ def build_adaptive_agent_and_env(agent_name, env_name, meta_lr, lambd, delay, ge
     - log space updater: Updates the gains in the log space
     - true log space updater: Updates the gains in the log space using the true gradients
     - true diagonal semi gradient updater: Updates the gains using true knowledge of the BR, and using diagonal gains
+    - true semi gradient updater: Updates the gains using true knowledge of the BR
 
     get_optimal: Try to find the optimal learning rate and set it
     meta_lr_value: It is useful to be able to set meta_lr manually. If this is not None, then regardless of any grid search, meta_lr
@@ -104,13 +105,31 @@ def build_adaptive_agent(agent_name, env_name, env, policy, meta_lr, lambd, dela
         return build_diagonal_true_cost(*params)
     elif agent_name == "true diagonal semi gradient updater":
         return build_true_diagonal_semi_gradient_updater(*params)
+    elif agent_name == "true semi gradient updater":
+        return build_true_semi_gradient_updater(*params)
     return None
+
+
+def build_true_semi_gradient_updater(env, policy, meta_lr, lambd, learning_rates, gamma, delay, kp, kd, ki, alpha, beta):
+    reward = env.build_policy_reward_vector(policy)
+    transition = env.build_policy_probability_transition_kernel(policy)
+    gain_updater = TrueSemiGradient(reward, transition, lambd)
+    return AdaptiveSamplerAgent(
+        gain_updater,
+        learning_rates,
+        meta_lr,
+        env,
+        policy,
+        gamma,
+        delay,
+        kp, kd, ki, alpha, beta
+    )
 
 
 def build_true_diagonal_semi_gradient_updater(env, policy, meta_lr, lambd, learning_rates, gamma, delay, kp, kd, ki, alpha, beta):
     reward = env.build_policy_reward_vector(policy)
     transition = env.build_policy_probability_transition_kernel(policy)
-    gain_updater = TrueDiagonalSemiGradient(env.num_states, lambd, transition, reward)
+    gain_updater = TrueDiagonalSemiGradient(reward, transition, lambd)
     return DiagonalAdaptiveSamplerAgent(
         gain_updater,
         learning_rates,
@@ -140,7 +159,7 @@ def build_diagonal_true_cost(env, policy, meta_lr, lambd, learning_rates, gamma,
 
 
 def build_diagonal_semi_gradient_updater(env, policy, meta_lr, lambd, learning_rates, gamma, delay, kp, kd, ki, alpha, beta):
-    gain_updater = DiagonalSemiGradient(env.num_states, lambd)
+    gain_updater = DiagonalSemiGradient(lambd)
     return DiagonalAdaptiveSamplerAgent(
         gain_updater,
         learning_rates,
@@ -175,7 +194,6 @@ def build_true_log_space_updater(env, policy, meta_lr, lambd, learning_rates, ga
     gain_updater = LogisticExactUpdater(
         transition,
         reward,
-        env.num_states,
         N_p = 0.75,
         N_d = (1 - gamma)/4,
         N_I = (10/19) * (1 - gamma)/(1 + gamma),
@@ -231,7 +249,7 @@ def build_true_soft_updates(env, policy, meta_lr, lambd, learning_rates, gamma, 
 def build_semi_gradient_updater(env, policy, meta_lr, lambd, learning_rates, gamma, delay, kp, kd, ki, alpha, beta):
     reward = env.build_policy_reward_vector(policy)
     transition = env.build_policy_probability_transition_kernel(policy)
-    gain_updater = SemiGradientUpdater(env.num_states, lambd)
+    gain_updater = SemiGradientUpdater(lambd)
     return AdaptiveSamplerAgent(
         gain_updater,
         learning_rates,
@@ -313,7 +331,7 @@ def build_log_space_planner(env, policy, meta_lr, lambd, learning_rates, gamma, 
     reward = env.build_policy_reward_vector(policy)
     transition = env.build_policy_probability_transition_kernel(policy)
 
-    gain_updater = LogisticExactUpdater(transition, reward, env.num_states, lambd)
+    gain_updater = LogisticExactUpdater(transition, reward, lambd)
 
     return AdaptivePlannerAgent(
         reward,

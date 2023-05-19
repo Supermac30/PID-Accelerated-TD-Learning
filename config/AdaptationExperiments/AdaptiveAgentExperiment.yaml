@@ -1,15 +1,15 @@
 env: cliff walk
-norm: diff 10
+norm: 1
 num_iterations: 30000
 
 get_optimal: True # Get the optimal parameters from the database
-compute_optimal: False # Run a grid search. When recompute_optimal is false, we don't run a grid search if the optimal parameters are in the database already
+compute_optimal: True # Run a grid search. When recompute_optimal is false, we don't run a grid search if the optimal parameters are in the database already
 recompute_optimal: False # If compute_optimal is True, run a grid search even if the optimal parameters are in the database
 
-agent_name: [true diagonal semi gradient updater]
+agent_name: [diagonal semi gradient updater]
 meta_lr: [1e-2, 5e-3, 7e-7, 7e-7]
-delay: [1, 25, 250, 250]
-lambda: [0.01, 1e-4]
+delay: [10, 25, 250, 250]
+lambda: [0, 1e-4]
 
 follow_trajectory: False
 log_plot: False
@@ -22,11 +22,11 @@ kd: 0
 alpha: 0.05
 beta: 0.95
 
-gamma: 0.99
+gamma: 0.999
 
 name: presentation compiler
 
-seed: 212345
+seed: 42345
 hydra:
   run:
     dir: ${oc.env:OUTPUT_DIR,./outputs}/${hydra.job.config_name}/${name}/${env}/${now:%Y-%m-%d}/${now:%H-%M-%S}

@@ -8,6 +8,13 @@ from MDP import PolicyEvaluation, Control, Control_Q
 from Environments import *
 from Policy import Policy
 
+def pick_seed(seed):
+    """Return a seed if one is inputted, and -1 otherwise. Log the seed chosen."""
+    if seed == -1:
+        seed = np.random.randint(0, 1000000)
+    logging.info("Seed chosen is %d", seed)
+    return seed
+
 def build_test_function(norm, V_pi):
     """Return the function that tests how far away our current estimate is from V_pi
     in the format that the Agent class expects.

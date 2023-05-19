@@ -459,7 +459,7 @@ class TrueSoftGainUpdater(AbstractGainUpdater):
 
 
 class LogisticExactUpdater(AbstractGainUpdater):
-    def __init__(self, transition, reward, num_states, N_p=0.75, N_d=0.5, N_I=1, lambd=0):
+    def __init__(self, transition, reward, N_p=0.75, N_d=0.5, N_I=1, lambd=0):
         super().__init__(lambd)
         self.transition = transition
         self.reward = reward.reshape(-1, 1)
@@ -491,7 +491,7 @@ class LogisticExactUpdater(AbstractGainUpdater):
             * (self.ki + self.N_I) * (1/2 - (self.ki / (2 * self.N_I)))
 
 class SemiGradientUpdater(AbstractGainUpdater):
-    def __init__(self, num_states, lambd=0):
+    def __init__(self, lambd=0):
         super().__init__(lambd)
 
         self.d_update = 0
@@ -540,9 +540,58 @@ class SemiGradientUpdater(AbstractGainUpdater):
             self.i_update = 0
             self.p_update = 0
 
+class TrueSemiGradient(AbstractGainUpdater):
+    def __init__(self, reward, transition, lambd=0):
+        super().__init__(lambd)
+        self.reward = reward.reshape(-1, 1)
+        self.transition = transition
+
+    def set_agent(self, agent):
+        super().set_agent(agent)
+        self.p_update = 0
+        self.i_update = 0
+        self.d_update = 0
+
+        self.update_frequency = self.agent.update_frequency
+        self.frequencies = np.zeros((agent.num_states))
+
+        self.running_BR = np.zeros((agent.num_states))
+
+    def calculate_updated_values(self, intermediate=False):
+        next_state, current_state = self.agent.next_state, self.agent.current_state
+        V, Vp, z = self.agent.V, self.agent.Vp, self.agent.z
+        alpha, beta = self.alpha, self.beta
+        gamma, lr = self.gamma, self.agent.lr
+
+        BR = (self.reward + gamma * self.transition @ V - V)[current_state][0]
+
+        scale = 0.5
+        self.running_BR[current_state] = (1 - scale) * self.running_BR[current_state] + scale * BR * BR
+
+        self.frequencies[current_state] += 1
+        if self.frequencies[current_state] == self.update_frequency:
+            self.kp = 1 + (1 - self.lambd) * (self.kp - 1)
+            self.kd *= 1 - self.lambd
+            self.ki *= 1 - self.lambd
+
+            self.kp += self.meta_lr * self.p_update / self.update_frequency
+            self.kd += self.meta_lr * self.d_update / self.update_frequency
+            self.ki += self.meta_lr * self.i_update / self.update_frequency
+
+            self.p_update = 0
+            self.d_update = 0
+            self.i_update = 0
+
+            self.frequencies[current_state] = 0
+
+        self.p_update += lr * BR * BR / (1 + self.running_BR[current_state])
+        self.d_update += lr * BR * (V[current_state] - Vp[current_state]) / (1 + self.running_BR[current_state])
+        self.i_update += lr * BR * (beta * z[next_state] + alpha * BR) / (1 + self.running_BR[current_state])
+
+
 
 class TrueDiagonalSemiGradient(AbstractGainUpdater):
-    def __init__(self, num_states, reward, transition, lambd=0):
+    def __init__(self, reward, transition, lambd=0):
         super().__init__(lambd)
         self.transition = transition
         self.reward = reward
@@ -568,13 +617,12 @@ class TrueDiagonalSemiGradient(AbstractGainUpdater):
         self.running_BR = np.zeros((agent.num_states))
 
     def calculate_updated_values(self, intermediate=False):
-        reward = self.agent.reward
         next_state, current_state = self.agent.next_state, self.agent.current_state
         V, Vp, z = self.agent.V, self.agent.Vp, self.agent.z
         alpha, beta = self.alpha, self.beta
         gamma, lr = self.gamma, self.agent.lr
 
-        BR = (self.reward + gamma * self.transition @ V - V)[current_state]
+        BR = (self.reward.reshape(-1, 1) + gamma * self.transition @ V - V)[current_state]
 
         scale = 0.5
         self.running_BR[current_state] = (1 - scale) * self.running_BR[current_state] + scale * BR * BR
@@ -646,7 +694,7 @@ class TrueDiagonalSemiGradient(AbstractGainUpdater):
     
 
 class DiagonalSemiGradient(AbstractGainUpdater):
-    def __init__(self, num_states, lambd=0):
+    def __init__(self, lambd=0):
         super().__init__(lambd)
 
     def set_agent(self, agent):
@@ -666,8 +714,6 @@ class DiagonalSemiGradient(AbstractGainUpdater):
         self.ki_plot = [0]
         self.d_update_plot = [0]
         self.i_update_plot = [0]
-
-        self.running_BR = 0  # Running average of the BR
 
 
     def calculate_updated_values(self, intermediate=False):

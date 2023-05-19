@@ -13,6 +13,7 @@ import logging
 @hydra.main(version_base=None, config_path="../../config/AdaptationExperiments", config_name="AdaptiveAgentExperiment")
 def adaptive_agent_experiment(cfg):
     """Visualize the behavior of adaptation without learning rates."""
+    seed = pick_seed(cfg['seed'])
     fig0 = plt.figure()
     ax0 = fig0.add_subplot()
 
@@ -23,7 +24,7 @@ def adaptive_agent_experiment(cfg):
         ("TD", 1, 0, 0, 0.05, 0.95),
         cfg['env'],
         get_optimal=cfg['get_optimal'],
-        seed=cfg['seed'],
+        seed=seed,
         gamma=cfg['gamma']
     )
     V_pi = find_Vpi(env, policy, cfg['gamma'])
@@ -41,7 +42,7 @@ def adaptive_agent_experiment(cfg):
             lambd,
             delay,
             get_optimal=cfg['get_optimal'],
-            seed=cfg['seed'],
+            seed=seed,
             gamma=cfg['gamma'],
             kp=cfg['kp'],
             ki=cfg['ki'],
@@ -93,6 +94,7 @@ def adaptive_agent_experiment(cfg):
     if type(cfg['norm']) == str and cfg['norm'][:4] == 'diff':
         state = cfg['norm'][5:]
         ax0.set_ylabel(f'$V_k[{state}] - V^\pi[{state}]$')
+        ax0.axhline(y=0, color='k', linestyle='--')
     else:
         ax0.set_ylabel(f'$||V_k - V^\pi||_{{{cfg["norm"]}}}$')
     if cfg['log_plot']:

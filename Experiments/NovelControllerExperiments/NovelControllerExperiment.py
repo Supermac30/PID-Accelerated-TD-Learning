@@ -10,7 +10,8 @@ from Controllers import Adam_Controller, Adagrad_Controller
 @hydra.main(version_base=None, config_path="../../config/NovelControllerExperiments", config_name="NovelControllerExperiment")
 def adam_controller_experiment(cfg):
     """Experiments with policy evaluation and TD"""
-    agent, env, policy = build_agent_and_env(("hard TD", 1, 0, 0, 0, 0), cfg['env'], cfg['get_optimal'], cfg['seed'], cfg['gamma'])
+    seed = pick_seed(cfg['seed'])
+    agent, env, policy = build_agent_and_env(("hard TD", 1, 0, 0, 0, 0), cfg['env'], cfg['get_optimal'], seed, cfg['gamma'])
     num_states = env.num_states
 
     V_pi = find_Vpi(env, policy, cfg['gamma'])
@@ -45,7 +46,7 @@ def adam_controller_experiment(cfg):
     save_array(history, f"{cfg['type']} {params}", plt)
 
 
-    agent, env, policy = build_agent_and_env(("TD", 1, 0, 0, 0, 0), cfg['env'], cfg['get_optimal'], cfg['seed'], cfg['gamma'])
+    agent, env, policy = build_agent_and_env(("TD", 1, 0, 0, 0, 0), cfg['env'], cfg['get_optimal'], seed, cfg['gamma'])
     history, _ = agent.estimate_value_function(num_iterations=cfg['num_iterations'], test_function=test_function, follow_trajectory=cfg['follow_trajectory'])
     save_array(history, f"Regular TD", plt)
 
