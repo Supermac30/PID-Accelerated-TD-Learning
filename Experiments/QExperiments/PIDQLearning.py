@@ -25,7 +25,7 @@ def soft_policy_evaluation_experiment(cfg):
     plt.title(f"Q Learning: {cfg['env']} gamma={cfg['gamma']}")
     plt.legend()
     plt.xlabel('Iteration')
-    plt.ylabel(f"$||Q_k - Q^*||_{{{cfg['norm']}}}$")
+    create_label(plt, cfg['norm'], cfg['normalize'], True)
     if cfg['log_plot']:
         plt.yscale('log')
     plt.savefig("plot")

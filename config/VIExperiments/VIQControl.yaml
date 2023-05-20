@@ -9,6 +9,7 @@ env: cliff walk
 
 norm: fro   # fro or nuc
 num_iterations: 1000
+normalize: True
 
 seed: -1
 hydra:

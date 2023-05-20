@@ -58,7 +58,7 @@ def adaptive_agent_experiment(cfg):
         )
         logging.info(V - V_pi)
 
-        save_array(history, f"Adaptive Agent: {agent_name} {meta_lr} {delay} {lambd}", ax0)
+        save_array(history, f"Adaptive Agent: {agent_name} {meta_lr} {delay} {lambd}", ax0, normalize=cfg['normalize'])
 
         fig = plt.figure(figsize=(10, 4))
         gs = fig.add_gridspec(nrows=1, ncols=3, width_ratios=[1,1,1], wspace=0.3, hspace=0.5)
@@ -89,14 +89,7 @@ def adaptive_agent_experiment(cfg):
     ax0.title.set_text(f"Adaptive Agent: {cfg['env']}")
     ax0.legend()
     ax0.set_xlabel('Iteration')
-    if cfg['norm'] == 'inf':
-        ax0.set_ylabel(f'$||V_k - V^\pi||_{{\infty}}$')
-    if type(cfg['norm']) == str and cfg['norm'][:4] == 'diff':
-        state = cfg['norm'][5:]
-        ax0.set_ylabel(f'$V_k[{state}] - V^\pi[{state}]$')
-        ax0.axhline(y=0, color='k', linestyle='--')
-    else:
-        ax0.set_ylabel(f'$||V_k - V^\pi||_{{{cfg["norm"]}}}$')
+    create_label(ax0, cfg['norm'], cfg['normalize'], False)
     if cfg['log_plot']:
         ax0.set_yscale('log')
     fig0.savefig("history_plot")

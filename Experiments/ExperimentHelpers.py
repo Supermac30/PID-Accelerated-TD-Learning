@@ -221,10 +221,14 @@ def find_Qstar(env, gamma=0.99):
     return oracle.value_iteration(num_iterations=10000)
 
 
-def save_array(nparr, name, graph=None):
+def save_array(nparr, name, graph=None, normalize=False):
     """Save nparr in a file with name name. If graph is not None, this is plotted on graph.
     Creates the npy and txt files if they don't exist to store the numpy arrays.
     """
+    if normalize:
+        # Normalize the array by the first element
+        nparr = nparr / nparr[0]
+
     if not os.path.isdir('npy'):
         os.mkdir('npy')
     if not os.path.isdir('txt'):
@@ -257,3 +261,33 @@ def plot_comparison(fig, ax1, ax2, title1, title2, ylabel, show_fig=True, fig_na
 
     fig.savefig(fig_name)
     if show_fig: plt.show()
+
+def create_label(ax, norm, normalize, is_q, is_v_star=False):
+    if is_q:
+        current = 'Q_k'
+        goal = 'Q^*'
+        start = 'Q_0'
+    else:
+        current = 'V_k'
+        if is_v_star:
+            goal = 'V^*'
+        else:
+            goal = 'V^\pi'
+        start = 'V_0'
+    if norm == 'inf':
+        if normalize:
+            ax.set_ylabel(f'$||{current} - {goal}||_{{\infty}} / ||{start} - {goal}||_{{\infty}}$')
+        else:
+            ax.set_ylabel(f'$||{current} - {goal}||_{{\infty}}$')
+    if norm == str and norm[:4] == 'diff':
+        state = norm[5:]
+        if normalize:
+            ax.set_ylabel(f'${current}[{state}] - {goal}[{state}] / {start}[{state}] - {goal}[{state}]$')
+        else:
+            ax.set_ylabel(f'${current}[{state}] - {goal}[{state}]$')
+        ax.axhline(y=0, color='k', linestyle='--')
+    else:
+        if normalize:
+            ax.set_ylabel(f'$||{current} - {goal}||_{norm} / ||{start} - {goal}||_{norm}')
+        else:
+            ax.set_ylabel(f'$||{current}- {goal}||_{norm}$')

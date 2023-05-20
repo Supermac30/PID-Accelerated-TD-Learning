@@ -21,7 +21,7 @@ def policy_evaluation_experiment(cfg):
     plt.legend()
     plt.yscale('log')
     plt.xlabel('Iteration')
-    plt.ylabel(f"$||V_k - V^\pi||_{{{cfg['norm']}}}$")
+    create_label(plt, cfg['norm'], cfg['normalize'], False)
     plt.savefig("plot")
     plt.show()
 

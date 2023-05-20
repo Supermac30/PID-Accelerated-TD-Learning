@@ -19,7 +19,7 @@ def policy_evaluation_experiment(cfg):
     plt.title(f"Hard TD Updates: {cfg['env']}")
     plt.legend()
     plt.xlabel('Iteration')
-    plt.ylabel(f"$||V_k - V^\pi||_{{{cfg['norm']}}}$")
+    create_label(plt, cfg['norm'], cfg['normalize'], False)
     plt.savefig("plot")
     plt.show()
 

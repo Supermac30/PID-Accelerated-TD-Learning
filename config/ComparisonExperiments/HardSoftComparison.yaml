@@ -11,6 +11,7 @@ norm: 1  # Type inf for infinity norm, and a number p for the ||.||_p norm
 env: chain walk
 
 follow_trajectory: False
+normalize: True
 
 seed: -1
 hydra:

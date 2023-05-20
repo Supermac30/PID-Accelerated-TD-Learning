@@ -12,6 +12,7 @@ gamma: 0.99
 ka: 3
 
 follow_trajectory: False
+normalize: True
 
 learning_rates: {}
 update_D_rates: {}

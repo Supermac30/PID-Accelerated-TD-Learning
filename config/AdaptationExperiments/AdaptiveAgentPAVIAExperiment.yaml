@@ -5,6 +5,7 @@ meta_lr: 0.1
 gamma: 0.999
 
 follow_trajectory: False
+normalize: True
 
 agent_name: planner
 

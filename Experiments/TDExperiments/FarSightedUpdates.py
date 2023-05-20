@@ -19,7 +19,7 @@ def far_sighted_update_experiment(cfg):
     plt.title(f"Far Sighted Updates: {cfg['env']}")
     plt.legend()
     plt.xlabel('Iteration')
-    plt.ylabel('$||V_k - V^\pi||_\infty$')
+    create_label(plt, cfg['norm'], cfg['normalize'], False)
     plt.savefig("plot")
     plt.show()
 

@@ -18,8 +18,9 @@ num_repeats: 3
 follow_trajectory: False
 stop_if_diverging: False
 log_plot: False
+normalize: True
 
-seed: 2388
+seed: -1
 hydra:
   run:
     dir: ${oc.env:OUTPUT_DIR,./outputs}/${hydra.job.config_name}/${now:%Y-%m-%d}/${now:%H-%M-%S}

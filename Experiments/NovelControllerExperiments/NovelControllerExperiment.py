@@ -54,7 +54,7 @@ def adam_controller_experiment(cfg):
     plt.legend()
     plt.title(f"{cfg['type']}")
     plt.xlabel('Iteration')
-    plt.ylabel(f"$||V_k - V^\pi||_{{{cfg['norm']}}}$")
+    create_label(plt, cfg['norm'], cfg['normalize'], False)
     plt.savefig("plot")
     plt.show()
 

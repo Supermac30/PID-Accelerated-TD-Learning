@@ -30,14 +30,7 @@ def soft_policy_evaluation_experiment(cfg):
     plt.title(f"PID-TD: {cfg['env']} gamma={cfg['gamma']}")
     plt.legend()
     plt.xlabel('Iteration')
-    # Maybe code a function that returns this label to be used in all files?
-    if type(cfg['norm']) == type("") and cfg['norm'][:4] == 'diff':
-        index = cfg['norm'][5:]
-        plt.ylabel(f"$V_k[{index}] - V^\pi[{index}]$")
-        # Draw a dotted line at 0
-        plt.axhline(y=0, color='k', linestyle='--')
-    else:
-        plt.ylabel(f"$||V_k - V^\pi||_{{{cfg['norm']}}}$")
+    create_label(plt, cfg['norm'], cfg['normalize'], False)
     if cfg['log_plot']:
         plt.yscale('log')
     plt.savefig("plot")

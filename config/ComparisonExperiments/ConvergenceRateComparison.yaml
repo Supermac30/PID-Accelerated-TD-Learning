@@ -9,6 +9,7 @@ get_optimal: False
 isSoft: True
 num_iterations: 20000
 norm: 1
+normalize: True
 
 follow_trajectory: False
 

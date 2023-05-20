@@ -11,8 +11,9 @@ get_optimal: False
 norm: 1
 env: chain walk
 follow_trajectory: False
+normalize: True
 
-seed: 424242
+seed: -1
 hydra:
   run:
     dir: ${oc.env:OUTPUT_DIR,./outputs}/${hydra.job.config_name}/${now:%Y-%m-%d}/${now:%H-%M-%S}

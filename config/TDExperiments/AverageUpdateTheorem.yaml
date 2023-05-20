@@ -10,6 +10,7 @@ norm: 1
 env: chain walk
 
 follow_trajectory: False
+normalize: True
 
 seed: -1
 hydra:

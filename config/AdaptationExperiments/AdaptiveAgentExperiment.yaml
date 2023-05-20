@@ -6,15 +6,16 @@ get_optimal: True # Get the optimal parameters from the database
 compute_optimal: True # Run a grid search. When recompute_optimal is false, we don't run a grid search if the optimal parameters are in the database already
 recompute_optimal: False # If compute_optimal is True, run a grid search even if the optimal parameters are in the database
 
-agent_name: [diagonal semi gradient updater]
-meta_lr: [1e-2, 5e-3, 7e-7, 7e-7]
-delay: [10, 25, 250, 250]
-lambda: [0, 1e-4]
+agent_name: [diagonal semi gradient updater, diagonal semi gradient updater, diagonal semi gradient updater, diagonal semi gradient updater]
+meta_lr: [1e-2, 1e-3, 1e-4, 1e-5]
+delay: [10, 10, 10, 10]
+lambda: [0, 0, 0, 0]
 
 follow_trajectory: False
 log_plot: False
 plot_updater: True
 stop_if_diverging: False
+normalize: True
 
 kp: 1
 ki: 0
@@ -26,7 +27,7 @@ gamma: 0.999
 
 name: presentation compiler
 
-seed: 42345
+seed: -1
 hydra:
   run:
     dir: ${oc.env:OUTPUT_DIR,./outputs}/${hydra.job.config_name}/${name}/${env}/${now:%Y-%m-%d}/${now:%H-%M-%S}

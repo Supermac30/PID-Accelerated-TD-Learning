@@ -1,14 +1,14 @@
 kp: [1, 1, 1, 1, 1]
-kd: [0, 0, 0, 0, 0]
-ki: [0, -0.1, -0.2, -0.3, -0.4]
+kd: [0, 0.1, 0.2, 0.3, 0.4]
+ki: [0, 0, 0, 0, 0]
 alpha: [0.05, 0.05, 0.05, 0.05, 0.05]
 beta: [0.95, 0.95, 0.95, 0.95, 0.95]
-decay: [0.99999, 0.99999, 0.99999, 0.99999, 0.99999]
+decay: [1, 1, 1, 1, 1]
 gamma: 0.99
 
 agent_name: [Q learning, Q learning, Q learning, Q learning, Q learning]
 
-env: garnet 2123 50
+env: cliff walk
 num_iterations: 100000
 norm: fro
 get_optimal: True # Get the optimal parameters from the database
@@ -17,10 +17,11 @@ recompute_optimal: True  # If compute_optimal is True, run a grid search even if
 num_repeats: 3
 
 log_plot: True
+normalize: True
 
 follow_trajectory: False
 
-seed: 848384
+seed: -1
 hydra:
   run:
     dir: ${oc.env:OUTPUT_DIR,./outputs}/${hydra.job.config_name}/${now:%Y-%m-%d}/${now:%H-%M-%S}

@@ -48,7 +48,7 @@ def adaptive_agent_experiment(cfg):
     ax.title.set_text(f"Adaptive Agent: {cfg['env']}")
     ax.legend()
     ax.set_xlabel('Iteration')
-    ax.set_ylabel(f'Gain Value')
+    create_label(ax, cfg['norm'], cfg['normalize'], False)
     fig.savefig("gains_plot")
 
 

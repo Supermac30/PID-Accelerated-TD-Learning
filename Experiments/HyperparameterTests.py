@@ -9,7 +9,7 @@ Notes about the hyperparameter tuning procedure:
 - We do not follow a trajectory, choosing instead to receive arbitrary samples from the environment.
 """
 
-from Experiments.ExperimentHelpers import find_optimal_learning_rates, find_Vpi, build_test_function, find_Qstar
+from Experiments.ExperimentHelpers import find_optimal_learning_rates, find_Vpi, build_test_function, find_Qstar, pick_seed
 from Experiments.AdaptiveAgentBuilder import build_adaptive_agent_and_env
 from Experiments.AgentBuilder import build_agent_and_env
 import logging
@@ -44,6 +44,7 @@ def get_optimal_pid_rates(agent_description, env_name, kp, ki, kd, alpha, beta, 
 
     If recompute is True, recompute the learning rates even if it is in the file of stored rates.
     """
+    seed = pick_seed(seed)
     # To remove duplicates, if ki is zero the values of alpha and beta don't matter
     if ki == 0:
         alpha = 0.05
@@ -63,6 +64,7 @@ def get_optimal_pid_q_rates(agent_name, env_name, kp, ki, kd, alpha, beta, gamma
 
     If recompute is True, recompute the learning rates even if it is in the file of stored rates.
     """
+    seed = pick_seed(seed)
     # To remove duplicates, if ki is zero the values of alpha and beta don't matter
     if ki == 0:
         alpha = 0.05
@@ -82,6 +84,7 @@ def get_optimal_adaptive_rates(agent_name, env_name, meta_lr, gamma, lambd, dela
 
     If recompute is True, recompute the learning rates even if it is in the file of stored rates.
     """
+    seed = pick_seed(seed)
     optimal_rates = get_stored_optimal_rate((agent_name, meta_lr, lambd, delay), env_name, gamma)
 
     if optimal_rates is None or recompute:

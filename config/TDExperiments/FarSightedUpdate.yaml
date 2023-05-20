@@ -12,6 +12,7 @@ gamma: 0.99
 
 follow_trajectory: False
 get_optimal: False
+normalize: True
 
 seed: -1
 hydra:

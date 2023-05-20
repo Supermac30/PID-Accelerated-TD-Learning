@@ -19,7 +19,7 @@ def control_experiment(cfg):
     plt.legend()
     plt.yscale('log')
     plt.xlabel('Iteration')
-    plt.ylabel(f"$||Q_k - Q^*||_{{{cfg['norm']}}}$")
+    create_label(plt, cfg['norm'], cfg['normalize'], True)
     plt.savefig("plot")
     plt.show()
 

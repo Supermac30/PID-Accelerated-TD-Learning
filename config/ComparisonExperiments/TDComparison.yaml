@@ -12,6 +12,7 @@ norm: 1
 
 follow_trajectory: False
 env: garnet
+normalize: True
 
 seed: -1
 hydra:
