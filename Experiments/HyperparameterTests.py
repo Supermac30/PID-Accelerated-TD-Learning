@@ -84,10 +84,10 @@ def get_optimal_adaptive_rates(agent_name, env_name, meta_lr, gamma, lambd, dela
 
     If recompute is True, recompute the learning rates even if it is in the file of stored rates.
     """
-    seed = pick_seed(seed)
     optimal_rates = get_stored_optimal_rate((agent_name, meta_lr, lambd, delay), env_name, gamma)
 
     if optimal_rates is None or recompute:
+        seed = pick_seed(seed)
         optimal_rates = run_adaptive_search(agent_name, env_name, seed, norm, gamma, lambd, delay, meta_lr)
         store_optimal_rate((agent_name, meta_lr, lambd, delay), env_name, optimal_rates, gamma)
 

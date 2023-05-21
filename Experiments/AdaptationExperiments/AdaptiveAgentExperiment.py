@@ -30,7 +30,7 @@ def adaptive_agent_experiment(cfg):
     V_pi = find_Vpi(env, policy, cfg['gamma'])
     test_function = build_test_function(cfg['norm'], V_pi)
     TDhistory, _ = TDagent.estimate_value_function(num_iterations=cfg['num_iterations'], test_function=test_function, follow_trajectory=cfg['follow_trajectory'])
-    save_array(TDhistory, f"TD Agent", ax0)
+    save_array(TDhistory, f"TD Agent", ax0, normalize=cfg['normalize'])
 
     for agent_name, meta_lr, delay, lambd in zip(cfg['agent_name'], cfg['meta_lr'], cfg['delay'], cfg['lambda']):
         if cfg['compute_optimal']:

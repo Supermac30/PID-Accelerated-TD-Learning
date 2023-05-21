@@ -606,7 +606,7 @@ class TrueDiagonalSemiGradient(AbstractGainUpdater):
         self.update_frequency = self.agent.update_frequency
         self.frequencies = np.zeros((agent.num_states))
 
-        self.plot_state = 11
+        self.plot_state = 25
         self.BR_plot = [0]
         self.kp_plot = [1]
         self.kd_plot = [0]
