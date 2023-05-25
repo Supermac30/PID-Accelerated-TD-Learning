@@ -17,24 +17,34 @@ def adaptive_agent_experiment(cfg):
     fig0 = plt.figure()
     ax0 = fig0.add_subplot()
 
-    if cfg['compute_optimal']:
-        get_optimal_pid_rates("TD", cfg['env'], 1, 0, 0, 0.05, 0.95, cfg['gamma'], cfg['recompute_optimal'])
+    if cfg['compute_optimal_TD']:
+        get_optimal_pid_rates("TD", cfg['env'], 1, 0, 0, 0.05, 0.95, cfg['gamma'], cfg['recompute_optimal_TD'])
 
     TDagent, env, policy = build_agent_and_env(
         ("TD", 1, 0, 0, 0.05, 0.95),
         cfg['env'],
-        get_optimal=cfg['get_optimal'],
+        get_optimal=cfg['get_optimal_TD'],
         seed=seed,
         gamma=cfg['gamma']
     )
     V_pi = find_Vpi(env, policy, cfg['gamma'])
     test_function = build_test_function(cfg['norm'], V_pi)
-    TDhistory, _ = TDagent.estimate_value_function(num_iterations=cfg['num_iterations'], test_function=test_function, follow_trajectory=cfg['follow_trajectory'])
-    save_array(TDhistory, f"TD Agent", ax0, normalize=cfg['normalize'])
+    average_history = np.zeros((cfg['num_iterations'],))
+    for i in range(cfg['repeat']):
+        TDhistory, V = TDagent.estimate_value_function(
+            num_iterations=cfg['num_iterations'],
+            test_function=test_function,
+            follow_trajectory=cfg['follow_trajectory'],
+            stop_if_diverging=cfg['stop_if_diverging']
+        )
+        average_history += TDhistory
+    
+    average_history /= cfg['repeat']
+    save_array(average_history, f"TD Agent", ax0, normalize=cfg['normalize'])
 
-    for agent_name, meta_lr, delay, lambd in zip(cfg['agent_name'], cfg['meta_lr'], cfg['delay'], cfg['lambda']):
+    for agent_name, meta_lr, delay, lambd, alpha, beta in zip(cfg['agent_name'], cfg['meta_lr'], cfg['delay'], cfg['lambda'], cfg['alphas'], cfg['betas']):
         if cfg['compute_optimal']:
-            get_optimal_adaptive_rates(agent_name, cfg['env'], meta_lr, cfg['gamma'], lambd, delay, cfg['recompute_optimal'])
+            get_optimal_adaptive_rates(agent_name, cfg['env'], meta_lr, cfg['gamma'], lambd, delay, alpha, beta, recompute=cfg['recompute_optimal'])
         agent, _, _ = build_adaptive_agent_and_env(
             agent_name,
             cfg['env'],
@@ -47,18 +57,25 @@ def adaptive_agent_experiment(cfg):
             kp=cfg['kp'],
             ki=cfg['ki'],
             kd=cfg['kd'],
-            alpha=cfg['alpha'],
-            beta=cfg['beta']
+            alpha=alpha,
+            beta=beta
         )
-        V, gain_history, history = agent.estimate_value_function(
-            cfg['num_iterations'],
-            test_function,
-            follow_trajectory=cfg['follow_trajectory'],
-            stop_if_diverging=cfg['stop_if_diverging']
-        )
+        # Run the following agent.estimate_value_function 20 times and take an average of the histories
+        average_history = np.zeros((cfg['num_iterations'],))
+        for i in range(cfg['repeat']):
+            V, gain_history, history = agent.estimate_value_function(
+                cfg['num_iterations'],
+                test_function,
+                follow_trajectory=cfg['follow_trajectory'],
+                stop_if_diverging=cfg['stop_if_diverging']
+            )
+            average_history += history
+
+        average_history /= cfg['repeat']
+
         logging.info(V - V_pi)
 
-        save_array(history, f"Adaptive Agent: {agent_name} {meta_lr} {delay} {lambd}", ax0, normalize=cfg['normalize'])
+        save_array(average_history, f"Adaptive Agent: {agent_name} {meta_lr} {delay} {lambd}", ax0, normalize=cfg['normalize'])
 
         fig = plt.figure(figsize=(10, 4))
         gs = fig.add_gridspec(nrows=1, ncols=3, width_ratios=[1,1,1], wspace=0.3, hspace=0.5)

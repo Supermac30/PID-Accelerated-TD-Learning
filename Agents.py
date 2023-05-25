@@ -157,8 +157,9 @@ class PID_TD(Agent):
             update_I_rate = self.update_I_rate(frequency[current_state])
 
             # Update the value function using the floats kp, ki, kd
-            self.z[current_state] = (1 - update_I_rate) * self.z[current_state][0] + update_I_rate * (self.beta * self.z[current_state][0] + self.alpha * BR)
-            update = self.kp * BR + self.ki * self.z[current_state][0] + self.kd * (self.V[current_state][0] - self.Vp[current_state][0])
+            z_update = (self.beta * self.z[current_state][0] + self.alpha * BR)
+            self.z[current_state] = (1 - update_I_rate) * self.z[current_state][0] + update_I_rate * z_update
+            update = self.kp * BR + self.ki * z_update + self.kd * (self.V[current_state][0] - self.Vp[current_state][0])
             self.Vp[current_state] = (1 - update_D_rate) * self.Vp[current_state][0] + update_D_rate * self.V[current_state][0]
             self.V[current_state] = self.V[current_state][0] + learning_rate * update
 
@@ -238,7 +239,7 @@ class PID_TD_with_momentum(PID_TD):
 
             if test_function is not None:
                 history[k] = test_function(self.V, self.Vp, BR)
-                if stop_if_diverging and history[k] > 10 * history[0]:
+                if stop_if_diverging and history[k] > 2 * history[0]:
                     # If we are too large, stop learning
                     history[k:] = float('inf')
                     break
@@ -308,7 +309,7 @@ class FarSighted_PID_TD(PID_TD):
 
             if test_function is not None:
                 history[k] = test_function(self.V, self.Vp, BR)
-                if stop_if_diverging and history[k] > 5 * history[0]:
+                if stop_if_diverging and history[k] > 2 * history[0]:
                     # If we are too large, stop learning
                     history[k:] = float('inf')
                     break
@@ -383,7 +384,7 @@ class ControlledQLearning(Agent):
 
             if test_function is not None:
                 history[k] = test_function(self.Q, self.Qp, BR)
-                if stop_if_diverging and history[k] > 10 * history[0]:
+                if stop_if_diverging and history[k] > 2 * history[0]:
                     # If we are too large, stop learning
                     history[k:] = float('inf')
                     break

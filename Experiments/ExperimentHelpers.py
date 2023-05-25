@@ -129,39 +129,58 @@ def find_optimal_learning_rates(agent, value_function_estimator, learning_rates=
     value_function_estimator should be a function that runs agent.estimate_value_function with
         the correct parameters, and does not plot
 
-    Return the optimal parameters and the associated history
+    Find the learning rates that make the error decrease below the threshold the fastest. If no such rate exists,
+    pick the learning rates that minimize the error at the end.
+
+    Return the optimal parameters and the associated history.
     """
     # Store for later restoration to avoid spooky action at a distance
     original_learning_rate = agent.learning_rate
 
     minimum_params = None
     minimum_history = [float('inf')]
+    minimum_index = float("inf")
 
     def try_params(params):
         """Run the current value function with the parameters set, and return
         the optimal length, optimal params, and optimal history.
         params: an object representing the parameters we initialized the value_function_estimator to
         """
+        threshold = 0.2
         if verbose:
             logging.info(f"trying {params}")
         history = value_function_estimator()
-        if verbose:
-            logging.info(f"final value: {history[-1]}")
-        if history[-1] < minimum_history[-1]:
-            return params, history
-        return minimum_params, minimum_history
+        # Find the first index in history where the error is below 0.2, using vectorization
+        indices = np.where(history / history[0] < threshold)[0]
+        if len(indices) > 0 and indices[-1] == len(history) - 1:
+            index = indices[0]
+            if verbose:
+                logging.info(f"index: {index}, best_index: {minimum_index}")
+            if index < minimum_index:
+                return params, index, history
+        else:
+            if verbose:
+                if len(indices) == 0:
+                    logging.info(f"didn't reach threshold, final_error: {history[-1]/history[0]}, best_index: {minimum_index}")
+                else:
+                    logging.info(f"Exploded after reaching threshold, final_error: {history[-1]/history[0]}, best_index: {minimum_index}")
+            if history[-1] < minimum_history[-1]:
+                if minimum_index == float("inf"):
+                    return params, minimum_index, history
+                return minimum_params, minimum_index, minimum_history
+        return minimum_params, minimum_index, minimum_history
 
     for alpha, beta, gamma in itertools.product(learning_rates, update_I_rates, update_D_rates):
         for N, M, L in itertools.product(learning_rates[alpha], update_I_rates[beta], update_D_rates[gamma]):
             agent.learning_rate = learning_rate_function(alpha, N)
             agent.update_I_rate = learning_rate_function(beta, M)
             agent.update_D_rate = learning_rate_function(gamma, L)
-            minimum_params, minimum_history = try_params((alpha, N, beta, M, gamma, L))
+            minimum_params, minimum_index, minimum_history = try_params((alpha, N, beta, M, gamma, L))
 
     # Restore original learning rate
     agent.learning_rate = original_learning_rate
 
-    return minimum_history, minimum_params
+    return minimum_index, minimum_params
 
 
 def repeat_experiment(agent, num_times, **kwargs):
@@ -226,8 +245,8 @@ def save_array(nparr, name, graph=None, normalize=False):
     Creates the npy and txt files if they don't exist to store the numpy arrays.
     """
     if normalize:
-        # Normalize the array by the first element
-        nparr = nparr / nparr[0]
+        # Normalize the array by the first non-zero element:
+        nparr = nparr / nparr[np.nonzero(nparr)[0][0]]
 
     if not os.path.isdir('npy'):
         os.mkdir('npy')
@@ -282,7 +301,7 @@ def create_label(ax, norm, normalize, is_q, is_v_star=False):
     if type(norm) == str and norm[:4] == 'diff':
         state = norm[5:]
         if normalize:
-            ax.set_ylabel(f'\\frac{{${current}[{state}] - {goal}[{state}]}}{{{start}[{state}] - {goal}[{state}]}}$')
+            ax.set_ylabel(f'$\\frac{{{current}[{state}] - {goal}[{state}]}}{{{start}[{state}] - {goal}[{state}]}}$')
         else:
             ax.set_ylabel(f'${current}[{state}] - {goal}[{state}]$')
         ax.axhline(y=0, color='k', linestyle='--')

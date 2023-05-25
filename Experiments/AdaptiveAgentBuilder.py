@@ -11,7 +11,7 @@ from AdaptiveAgents import *
 import logging
 
 default_meta_lr = 1
-default_learning_rates = (0.5, 10, 0.1, float("inf"), 0.01, float("inf"))
+default_learning_rates =  (0.5, 100, 1, float("inf"), 0.1, float("inf"))
 
 def build_adaptive_agent_and_env(agent_name, env_name, meta_lr, lambd, delay, get_optimal=False, seed=42, gamma=0.99, kp=1, kd=0, ki=0, alpha=0.05, beta=0.95):
     """Return the adaptive agent and the environment & policy given its name. The names include:
@@ -55,7 +55,7 @@ def build_adaptive_agent(agent_name, env_name, env, policy, meta_lr, lambd, dela
     Return None if the names are not in the list of possible names.
     """
     if get_optimal:
-        optimal_rates = get_stored_optimal_rate((agent_name, meta_lr, lambd, delay), env_name, gamma)
+        optimal_rates = get_stored_optimal_rate((agent_name, meta_lr, lambd, delay, alpha, beta), env_name, gamma)
     if not get_optimal or optimal_rates is None:
         optimal_rates = default_learning_rates
 

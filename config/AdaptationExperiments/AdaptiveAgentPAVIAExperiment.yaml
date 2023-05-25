@@ -1,13 +1,14 @@
-env: cliff walk
-norm: inf
-num_iterations: 10000
-meta_lr: 0.1
+env: chain walk
+norm: diff 25
+num_iterations: 1000
+meta_lr: 1e-6
 gamma: 0.999
 
 follow_trajectory: False
 normalize: True
 
 agent_name: planner
+log_plot: False
 
 seed: -1
 hydra:
