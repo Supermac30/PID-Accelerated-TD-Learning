@@ -23,8 +23,9 @@ class AbstractAdaptiveAgent(Agent):
 
         self.reset()
 
-    def reset(self):
-        self.environment.reset()
+    def reset(self, reset_environment=True):
+        if reset_environment:
+            self.environment.reset()
         self.kp, self.ki, self.kd = self.original_kp, self.original_ki, self.original_kd
         self.alpha, self.beta = self.original_alpha, self.original_beta
         self.lr, self.previous_lr, self.update_D_rate_value, self.previous_update_D_rate_value, self.update_I_rate_value, self.previous_update_I_rate_value = 0, 0, 0, 0, 0, 0
@@ -40,8 +41,8 @@ class AbstractAdaptiveAgent(Agent):
 
         self.gain_updater.set_agent(self)
 
-    def estimate_value_function(self, num_iterations=1000, test_function=None, initial_V=None, stop_if_diverging=True, follow_trajectory=True):
-        self.reset()
+    def estimate_value_function(self, num_iterations=1000, test_function=None, initial_V=None, stop_if_diverging=True, follow_trajectory=True, reset_environment=True):
+        self.reset(reset_environment)
         # V is the current value function, Vp is the previous value function
         # Vp stores the previous value of the x state when it was last changed
         if initial_V is not None:
@@ -147,8 +148,9 @@ class DiagonalAdaptiveSamplerAgent(AbstractAdaptiveAgent):
         
         gain_updater.set_agent(self)
     
-    def reset(self):
-        self.environment.reset()
+    def reset(self, reset_environment=True):
+        if reset_environment:
+            self.environment.reset()
         self.kp = np.full((self.num_states), self.original_kp, dtype=np.longdouble)
         self.ki = np.full((self.num_states), self.original_ki, dtype=np.longdouble)
         self.kd = np.full((self.num_states), self.original_kd, dtype=np.longdouble)
@@ -186,6 +188,8 @@ class DiagonalAdaptiveSamplerAgent(AbstractAdaptiveAgent):
         self.previous_previous_V[state], self.previous_V[state], self.V[state] = self.previous_V[state][0], self.V[state][0], (1 - lr) * self.V[state][0] + lr * new_V
         self.previous_z[state], self.z[state] = self.z[state][0], (1 - update_I_rate) * self.z[state][0] + update_I_rate * new_z
         self.previous_Vp[state], self.Vp[state] = self.Vp[state][0], (1 - update_D_rate) * self.Vp[state][0] + update_D_rate * new_Vp
+
+        breakpoint()
 
     def BR(self):
         """Return the empirical bellman residual"""
@@ -798,7 +802,7 @@ class DiagonalSemiGradient(AbstractGainUpdater):
         self.update_frequency = self.agent.update_frequency
         self.frequencies = np.zeros((agent.num_states))
 
-        self.plot_state = 10
+        self.plot_state = 25
         self.BR_plot = [0]
         self.kp_plot = [1]
         self.kd_plot = [0]
@@ -897,6 +901,23 @@ class DiagonalSemiGradient(AbstractGainUpdater):
         plt.savefig("semi_gradient_updater.png")
 
         plt.show()
+
+        # Create a new plot just with the BR_plot, with a different name
+        fig, axs = plt.subplots(1, 1)
+
+        # Title it
+        fig.suptitle('Chain Walk BR on State 25')
+
+        # Set the axes
+        axs.set_xlabel("Iterations")
+        axs.set_ylabel("Bellman Residual")
+
+        axs.plot(self.BR_plot, label="BR")
+        # Plot and save this
+        plt.savefig("semi_gradient_updater_BR.png")
+        plt.show()
+
+        
 
 class EmpiricalCostUpdater(AbstractGainUpdater):
     """We need agent.update_frequency = 2 for this to mathematically make sense"""

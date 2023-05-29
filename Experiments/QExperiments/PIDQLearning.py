@@ -9,6 +9,7 @@ from Experiments.HyperparameterTests import get_optimal_pid_q_rates
 def soft_policy_evaluation_experiment(cfg):
     """Experiments with policy evaluation and TD"""
     seed = pick_seed(cfg['seed'])
+    fig, ax = plt.subplots(1, 1)
     for agent_name, kp, ki, kd, alpha, beta, decay in zip(cfg['agent_name'], cfg['kp'], cfg['ki'], cfg['kd'], cfg['alpha'], cfg['beta'], cfg['decay']):
         if cfg['compute_optimal']:
             get_optimal_pid_q_rates(agent_name, cfg['env'], kp, ki, kd, alpha, beta, cfg['gamma'], cfg['recompute_optimal'], decay=decay)
@@ -20,16 +21,16 @@ def soft_policy_evaluation_experiment(cfg):
             history, _ = agent.estimate_value_function(num_iterations=cfg['num_iterations'], test_function=test_function, follow_trajectory=cfg['follow_trajectory'])
             total_history += history
         total_history /= cfg['num_repeats']
-        save_array(total_history, f"{agent_name} kp={kp} ki={ki} kd={kd} alpha={alpha} beta={beta}", plt)
+        save_array(total_history, f"{agent_name} kp={kp} ki={ki} kd={kd} alpha={alpha} beta={beta}", ax)
 
-    plt.title(f"Q Learning: {cfg['env']} gamma={cfg['gamma']}")
-    plt.legend()
-    plt.xlabel('Iteration')
-    create_label(plt, cfg['norm'], cfg['normalize'], True)
+    ax.title.set_text(f"Q Learning: {cfg['env']} gamma={cfg['gamma']}")
+    ax.legend()
+    ax.set_xlabel('Iteration')
+    create_label(ax, cfg['norm'], cfg['normalize'], True)
     if cfg['log_plot']:
-        plt.yscale('log')
-    plt.savefig("plot")
-    plt.show()
+        ax.set_yscale('log')
+    fig.savefig("plot")
+    fig.show()
 
 if __name__ == "__main__":
     soft_policy_evaluation_experiment()

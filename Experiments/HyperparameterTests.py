@@ -20,9 +20,9 @@ default_rates = (1, 1, 1, 1, 1, 1)
 exhaustive_learning_rates = [
     {
             1: {1, 10, 25, 50, 75, 100, 250, 500, 750, 1000},
-            0.5: {10, 100, 1000},
-            0.25: {100, 1000},
-            #0.1: {1, 10, 100, 1000},
+            0.5: {1, 10, 100, 1000},
+            0.25: {1, 10, 100, 1000},
+            0.1: {1, 10, 100, 1000},
             #0.05: {1, 10, 100, 1000},
             #0.01: {1, 10, 100, 1000}
         },
@@ -66,13 +66,13 @@ def get_optimal_pid_q_rates(agent_name, env_name, kp, ki, kd, alpha, beta, gamma
 
     If recompute is True, recompute the learning rates even if it is in the file of stored rates.
     """
-    seed = pick_seed(seed)
     # To remove duplicates, if ki is zero the values of alpha and beta don't matter
     if ki == 0:
         alpha = 0.05
         beta = 0.95
     optimal_rates = get_stored_optimal_rate((agent_name, kp, ki, kd, alpha, beta, decay), env_name, gamma)
     if optimal_rates is None or recompute:
+        seed = pick_seed(seed)
         optimal_rates = run_pid_q_search(agent_name, env_name, kp, ki, kd, alpha, beta, seed, norm, gamma, decay)
         store_optimal_rate((agent_name, kp, ki, kd, alpha, beta, decay), env_name, optimal_rates, gamma)
 

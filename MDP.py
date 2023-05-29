@@ -158,7 +158,6 @@ class MDP_Q:
         The implementation depends on whether we are using policy evaluation
         or control.
         """
-        # The Q learning update is below, not an DO NOT RAISE A NotImplementedError
         raise NotImplementedError
 
 

@@ -19,9 +19,10 @@ class Agent():
         self.num_states = environment.num_states
         self.policy = policy
 
-    def reset(self):
+    def reset(self, reset_environment=True):
         """Reset the agent to its initial state."""
-        self.environment.reset()
+        if reset_environment:
+            self.environment.reset()
 
     def estimate_value_function(self, follow_trajectory=True, num_iterations=1000, test_function=None):
         """Estimate the value function. This could be V^pi or V*"""
@@ -43,7 +44,7 @@ class Agent():
         return state, action, next_state, reward
 
 
-    def generate_episode(self, num_steps=1000):
+    def generate_episode(self, num_steps=1000, reset_environment=True):
         """Return a full episode following the policy matrix policy
 
         The returned object is a trajectory represented as a list of 4-tuples
@@ -51,7 +52,8 @@ class Agent():
         where first_time_seen is True if and only if this is the first
         time we have visited the state.
         """
-        self.environment.reset()
+        if reset_environment:
+            self.environment.reset()
         trajectory = []
         seen = set()
         for _ in range(num_steps):
@@ -121,12 +123,13 @@ class PID_TD(Agent):
         self.beta = beta
         self.reset()
 
-    def reset(self):
+    def reset(self, reset_environment=True):
         """Reset parameters to be able to run a new test."""
         self.V, self.Vp, self.z = (np.zeros((self.num_states, 1)) for _ in range(3))
-        self.environment.reset()
+        if reset_environment:
+            self.environment.reset()
 
-    def estimate_value_function(self, num_iterations=1000, test_function=None, stop_if_diverging=True, follow_trajectory=True, reset=True):
+    def estimate_value_function(self, num_iterations=1000, test_function=None, stop_if_diverging=True, follow_trajectory=True, reset=True, reset_environment=True):
         """Computes V^pi of the inputted policy using TD learning augmented with controllers.
         Takes in Controller objects that the agent will use to control the dynamics of learning.
 
@@ -138,7 +141,7 @@ class PID_TD(Agent):
         we stop learning and return a history with the last element being very large
         """
         if reset:
-            self.reset()
+            self.reset(reset_environment)
 
         # A vector storing the number of times we have seen a state.
         frequency = np.zeros((self.num_states, 1))
@@ -343,9 +346,10 @@ class ControlledQLearning(Agent):
         self.decay = decay
         self.reset()
 
-    def reset(self):
+    def reset(self, reset_environment=True):
         """Reset parameters to be able to run a new test."""
-        self.environment.reset()
+        if reset_environment:
+            self.environment.reset()
 
         self.Q = np.zeros((self.num_states, self.num_actions))
         self.Qp = np.zeros((self.num_states, self.num_actions))
@@ -353,11 +357,11 @@ class ControlledQLearning(Agent):
         self.epsilon = 1
         self.policy = Policy(self.num_actions, self.num_states, self.environment.prg, None)
 
-    def estimate_value_function(self, num_iterations=1000, test_function=None, stop_if_diverging=True, follow_trajectory=False):
+    def estimate_value_function(self, num_iterations=1000, test_function=None, stop_if_diverging=True, follow_trajectory=False, reset_environment=True):
         """Use the Q-learning algorithm to estimate the value function.
         That is, create a matrix of size num_states by num_actions, Q, and update it according to the Q-learning update rule.
         """
-        self.reset()
+        self.reset(reset_environment)
         # A vector storing the number of times we have seen a state.
         frequency = np.zeros((self.num_states, 1))
 
@@ -377,10 +381,11 @@ class ControlledQLearning(Agent):
 
             # Update the value function using the floats kp, ki, kd
             BR = reward + self.gamma * np.max(self.Q[next_state]) - self.Q[current_state][action]
-            self.z[current_state][action] = (1 - update_I_rate) * self.z[current_state][action] + update_I_rate * (self.beta * self.z[current_state][action] + self.alpha * BR)
-            update = self.ki * self.z[current_state][action] + self.kd * (self.Q[current_state][action] - self.Qp[current_state][action])
+            z_update = (self.beta * self.z[current_state][action] + self.alpha * BR)
+            self.z[current_state][action] = (1 - update_I_rate) * self.z[current_state][action] + update_I_rate * z_update
+            update = self.kp * BR + self.ki * z_update + self.kd * (self.Q[current_state][action] - self.Qp[current_state][action])
             self.Qp[current_state][action] = (1 - update_D_rate) * self.Qp[current_state][action] + update_D_rate * self.Q[current_state][action]
-            self.Q[current_state][action] += learning_rate * (self.kp * BR + update)
+            self.Q[current_state][action] += learning_rate * update
 
             if test_function is not None:
                 history[k] = test_function(self.Q, self.Qp, BR)

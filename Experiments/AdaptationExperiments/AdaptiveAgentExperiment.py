@@ -35,7 +35,8 @@ def adaptive_agent_experiment(cfg):
             num_iterations=cfg['num_iterations'],
             test_function=test_function,
             follow_trajectory=cfg['follow_trajectory'],
-            stop_if_diverging=cfg['stop_if_diverging']
+            stop_if_diverging=cfg['stop_if_diverging'],
+            reset_environment=False
         )
         average_history += TDhistory
     
@@ -67,7 +68,8 @@ def adaptive_agent_experiment(cfg):
                 cfg['num_iterations'],
                 test_function,
                 follow_trajectory=cfg['follow_trajectory'],
-                stop_if_diverging=cfg['stop_if_diverging']
+                stop_if_diverging=cfg['stop_if_diverging'],
+                reset_environment=False
             )
             average_history += history
 
