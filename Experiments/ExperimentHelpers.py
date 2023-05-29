@@ -198,7 +198,7 @@ def repeat_experiment(agent, num_times, **kwargs):
     return average_history
 
 
-def find_Vpi(env, policy, gamma=0.99):
+def find_Vpi(env, policy, gamma):
     """Find a good approximation of the value function of policy in an environment.
     """
     oracle = PolicyEvaluation(
@@ -212,7 +212,7 @@ def find_Vpi(env, policy, gamma=0.99):
     return oracle.value_iteration(num_iterations=10000)
 
 
-def find_Vstar(env, gamma=0.99):
+def find_Vstar(env, gamma):
     """Find a good approximation of the value function of the optimal policy in an environment.
     """
     oracle = Control_Q(
@@ -226,7 +226,7 @@ def find_Vstar(env, gamma=0.99):
     return oracle.value_iteration(num_iterations=10000)
 
 
-def find_Qstar(env, gamma=0.99):
+def find_Qstar(env, gamma):
     """Find a good approximation of the value function of the optimal policy in an environment.
     """
     oracle = Control_Q(
@@ -237,7 +237,7 @@ def find_Qstar(env, gamma=0.99):
         1,0,0,0,0,
         gamma
     )
-    return oracle.value_iteration(num_iterations=10000)
+    return oracle.value_iteration(num_iterations=100000)
 
 
 def save_array(nparr, name, graph=None, normalize=False):

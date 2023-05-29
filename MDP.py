@@ -138,6 +138,8 @@ class MDP_Q:
         history = np.zeros(num_iterations)
 
         for k in range(num_iterations):
+            if k % 1000 == 0:
+                print(k)
             TQ = self.bellman_operator(self.Q)
             BR = TQ - self.Q
 
@@ -170,8 +172,14 @@ class Control_Q(MDP_Q):
     """
     def bellman_operator(self, Q):
         # Create a new matrix Q' whose entries are Q'(x, a) = sum(P(x, a, y) * max(Q(y, b) for b in A) for y in S)
+        """
         Qp = np.zeros((self.num_states, self.num_actions))
         for a in range(self.num_actions):
             for s in range(self.num_states):
-                Qp[s, a] = sum(self.P[s, :, a] * np.max(Q, axis=1))
-        return self.R + self.gamma * Qp
+                Qp[s, a] = self.R[s, a] + self.gamma * self.P[s, :, a] @ np.max(Q, axis=1)
+        """
+
+        # Vectorize the above
+        return self.R + self.gamma * np.einsum('ijk,j->ik', self.P, np.max(Q, axis=1))
+
+        return Qp

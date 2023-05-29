@@ -7,6 +7,7 @@ TD:
 	python3 -m Experiments.TDExperiments.SoftTDPolicyEvaluation
 params:
 	python3 -m Experiments.HyperparameterTests
-
 Q:
 	python3 -m Experiments.QExperiments.PIDQLearning
+true_Q:
+	python3 -m Experiments.VIExperiments.VIQControl
