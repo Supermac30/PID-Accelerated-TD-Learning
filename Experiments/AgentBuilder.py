@@ -101,8 +101,8 @@ def build_VI_Q_Control_PID(env, kp, ki, kd, alpha, beta, gamma):
         env.num_actions,
         reward,
         transition,
-        gamma,
-        kp, ki, kd, alpha, beta
+        kp, ki, kd, alpha, beta,
+        gamma
     )
 
 

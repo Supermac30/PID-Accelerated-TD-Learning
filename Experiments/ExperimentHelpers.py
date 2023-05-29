@@ -307,6 +307,6 @@ def create_label(ax, norm, normalize, is_q, is_v_star=False):
         ax.axhline(y=0, color='k', linestyle='--')
     else:
         if normalize:
-            ax.set_ylabel(f'$\\frac{{||{current} - {goal}||_{norm}}}{{||{start} - {goal}||_{norm}}}$')
+            ax.set_ylabel(f'$\\frac{{||{current} - {goal}||_{{{norm}}}}}{{||{start} - {goal}||_{{{norm}}}}}$')
         else:
-            ax.set_ylabel(f'$||{current} - {goal}||_{norm}$')
+            ax.set_ylabel(f'$||{current} - {goal}||_{{{norm}}}$')

@@ -12,10 +12,11 @@ def control_experiment(cfg):
     for kp, kd, ki, alpha, beta in zip(cfg['kp'], cfg['kd'], cfg['ki'], cfg['alpha'], cfg['beta']):
         agent, env, _ = build_agent_and_env(("VI Q control", kp, ki, kd, alpha, beta), cfg['env'], False, seed, cfg['gamma'])
         Q_star = find_Qstar(env, cfg['gamma'])
-        history, _ = agent.value_iteration(num_iterations=cfg['num_iterations'], test_function=build_test_function(cfg['norm'], Q_star))
+        history, Q = agent.value_iteration(num_iterations=cfg['num_iterations'], test_function=build_test_function(cfg['norm'], Q_star))
+        print(Q_star, Q)
         save_array(history, f"kp={kp} kd={kd} ki={ki} alpha={alpha} beta={beta}", ax)
 
-    ax.title.set_text(f"VI Control: {cfg['env']}")
+    ax.title.set_text(f"VI Q Control: {cfg['env']}")
     ax.legend()
     ax.set_yscale('log')
     ax.set_xlabel('Iteration')
