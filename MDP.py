@@ -138,8 +138,6 @@ class MDP_Q:
         history = np.zeros(num_iterations)
 
         for k in range(num_iterations):
-            if k % 1000 == 0:
-                print(k)
             TQ = self.bellman_operator(self.Q)
             BR = TQ - self.Q
 
@@ -182,4 +180,4 @@ class Control_Q(MDP_Q):
         # Vectorize the above
         return self.R + self.gamma * np.einsum('ijk,j->ik', self.P, np.max(Q, axis=1))
 
-        return Qp
+        # return Qp

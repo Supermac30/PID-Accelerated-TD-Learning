@@ -29,8 +29,8 @@ class Policy():
         self.policy = np.zeros((self.num_states, self.num_actions))
         self.policy = np.where(
             np.arange(self.num_actions) == np.argmax(Q, axis=1)[:, None],
+            1 - (1 - epsilon) * (self.num_actions - 1),
             1 - epsilon,
-            epsilon / (self.num_actions - 1)
         )
 
     def get_action(self, state, epsilon=0):
