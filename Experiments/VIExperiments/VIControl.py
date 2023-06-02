@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import hydra
 
 from Experiments.ExperimentHelpers import *
-from Experiments.AgentBuilder import build_agent_and_env
+from TabularPID.AgentBuilders.AgentBuilder import build_agent_and_env
 
 @hydra.main(version_base=None, config_path="../../config/VIExperiments", config_name="VIControl")
 def control_experiment(cfg):
@@ -13,7 +13,7 @@ def control_experiment(cfg):
         agent, env, _ = build_agent_and_env(("VI control", kp, ki, kd, alpha, beta), cfg['env'], False, seed, cfg['gamma'])
         V_star = find_Vstar(env, cfg['gamma'])
         history, _ = agent.value_iteration(num_iterations=cfg['num_iterations'], test_function=build_test_function(cfg['norm'], V_star))
-        save_array(history, f"kp={kp} kd={kd} ki={ki} alpha={alpha} beta={beta}", ax)
+        save_array(history, f"kp={kp} kd={kd} ki={ki} alpha={alpha} beta={beta}", ax, normalize=cfg['normalize'])
 
     ax.title.set_text(f"VI Control: {cfg['env']}")
     ax.legend()

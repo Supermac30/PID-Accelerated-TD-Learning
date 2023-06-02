@@ -1,8 +1,8 @@
 import matplotlib.pyplot as plt
 import hydra
 
-from Experiments.AdaptiveAgentBuilder import build_adaptive_agent_and_env
-from Experiments.AgentBuilder import build_agent_and_env
+from AdaptiveAgentBuilder import build_adaptive_agent_and_env
+from AgentBuilder import build_agent_and_env
 from Experiments.ExperimentHelpers import *
 
 @hydra.main(version_base=None, config_path="../../config/AdaptationExperiments", config_name="AdaptiveAgentPAVIAExperiment")

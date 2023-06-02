@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import hydra
 
 from Experiments.ExperimentHelpers import *
-from Experiments.AgentBuilder import build_agent_and_env
+from TabularPID.AgentBuilders.AgentBuilder import build_agent_and_env
 
 @hydra.main(version_base=None, config_path="../../config/ComparisonExperiments", config_name="HardSoftComparison")
 def hard_soft_convergence_experiment(cfg):
@@ -20,8 +20,8 @@ def hard_soft_convergence_experiment(cfg):
         soft_history, _ = soft.estimate_value_function(num_iterations=cfg['num_iterations'], test_function=test_function, follow_trajectory=cfg['follow_trajectory'])
         hard_history, _ = hard.estimate_value_function(num_iterations=cfg['num_iterations'], test_function=test_function, follow_trajectory=cfg['follow_trajectory'])
 
-        save_array(soft_history, f"soft kp={kp} kd={kd} ki={ki} alpha={alpha} beta={beta}", ax1)
-        save_array(hard_history, f"hard kp={kp} kd={kd} ki={ki} alpha={alpha} beta={beta}", ax2)
+        save_array(soft_history, f"soft kp={kp} kd={kd} ki={ki} alpha={alpha} beta={beta}", ax1, cfg['normalize'])
+        save_array(hard_history, f"hard kp={kp} kd={kd} ki={ki} alpha={alpha} beta={beta}", ax2, cfg['normalize'])
 
     plot_comparison(fig, ax1, ax2, 'Soft Updates', 'Hard Updates', f"$||V_k - V^\pi||_{{{cfg['norm']}}}$")
 

@@ -1,7 +1,7 @@
-from Experiments.OptimalRateDatabase import get_stored_optimal_rate
+from TabularPID.OptimalRates.OptimalRateDatabase import get_stored_optimal_rate
 from Experiments.ExperimentHelpers import get_env_policy, learning_rate_function
-from Agents import PID_TD, FarSighted_PID_TD, Hard_PID_TD, PID_TD_with_momentum, ControlledQLearning
-from MDP import PolicyEvaluation, Control, Control_Q
+from TabularPID.Agents.Agents import PID_TD, FarSighted_PID_TD, Hard_PID_TD, PID_TD_with_momentum, ControlledQLearning
+from TabularPID.MDPs.MDP import PolicyEvaluation, Control, Control_Q
 import logging
 
 """

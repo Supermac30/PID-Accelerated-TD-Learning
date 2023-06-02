@@ -1,8 +1,9 @@
 import numpy as np
-from Agents import Agent
 from collections import defaultdict
 import logging
 import matplotlib.pyplot as plt
+
+from TabularPID.Agents.Agents import Agent
 
 # TODO: Rewrite this class to use the agent class instead of rewriting the updates here.
 
@@ -62,12 +63,12 @@ class AbstractAdaptiveAgent(Agent):
 
             self.frequencies[self.current_state] += 1
             if (k + 1) % self.update_frequency == 0:
+                self.update_value()
                 self.gain_updater.calculate_updated_values()
                 self.gain_updater.update_gains()
-                self.update_value()
             else:
-                self.gain_updater.intermediate_update()
                 self.update_value()
+                self.gain_updater.intermediate_update()
 
 
             # Keep a record
@@ -215,9 +216,9 @@ class AdaptivePlannerAgent(AbstractAdaptiveAgent):
 
 
 class AbstractGainUpdater():
-    def __init__(self, lambd):
+    def __init__(self, lambd, epsilon=0.1):
         self.agent = None
-        self.epsilon = 1e-20
+        self.epsilon = epsilon
         self.lambd = lambd
 
     def set_agent(self, agent):
@@ -253,14 +254,104 @@ class AbstractGainUpdater():
         return None
 
 
+class SemiGradientUpdater(AbstractGainUpdater):
+    def __init__(self, lambd=0, epsilon=0.1):
+        super().__init__(lambd, epsilon)
+
+        self.d_update = 0
+        self.i_update = 0
+        self.p_update = 0
+
+        self.running_BR = 0
+        self.previous_average_BR = float("inf")
+
+
+    def set_agent(self, agent):
+        self.running_BR = np.zeros((agent.num_states))
+        self.previous_average_BR = float("inf")
+        self.d_update = 0
+        self.i_update = 0
+        self.p_update = 0
+
+        self.BR_plot = [0]
+        self.i_update_plot = [0]
+        self.z_plot = [0]
+
+        self.plot_state = 25
+
+        return super().set_agent(agent)
+
+    def calculate_updated_values(self, intermediate=False):
+        reward = self.agent.reward
+        next_state, current_state = self.agent.next_state, self.agent.current_state
+        V, Vp, z = self.agent.previous_V, self.agent.previous_Vp, self.agent.previous_z
+        next_V, next_Vp, next_z = self.agent.V, self.agent.Vp, self.agent.z
+        alpha, beta = self.alpha, self.beta
+        gamma, lr = self.gamma, self.agent.lr
+
+        BR = reward + gamma * V[next_state][0] - V[current_state][0]
+        next_BR = reward + gamma * next_V[next_state][0] - next_V[current_state][0]
+
+        scale = 0.5
+        self.running_BR[current_state] = (1 - scale) * self.running_BR[current_state] + scale * BR * BR
+
+        self.p_update += lr * next_BR * BR / (self.epsilon + self.running_BR[current_state])
+        self.d_update += lr * next_BR * (V[current_state] - Vp[current_state]) / (self.epsilon + self.running_BR[current_state])
+        self.i_update += lr * next_BR * (beta * z[current_state][0] + alpha * BR) / (self.epsilon + self.running_BR[current_state])
+
+        if self.plot_state == current_state:
+            self.BR_plot.append(BR)
+            self.i_update_plot.append(beta * z[self.plot_state][0] + alpha * BR)
+            self.z_plot.append(z[self.plot_state][0])
+        else:
+            self.BR_plot.append(self.BR_plot[-1])
+            self.i_update_plot.append(self.i_update_plot[-1])
+            self.z_plot.append(self.z_plot[-1])
+
+        if not intermediate:
+            self.kp = 1 + (1 - self.lambd) * (self.kp - 1) + self.meta_lr * self.p_update / self.agent.update_frequency
+            self.kd = self.kd * (1 - self.lambd) + self.meta_lr * self.d_update / self.agent.update_frequency
+            self.ki = self.ki * (1 - self.lambd) + self.meta_lr * self.i_update / self.agent.update_frequency
+
+            self.d_update = 0
+            self.i_update = 0
+            self.p_update = 0
+
+    def plot(self):
+        # Plot BR_plot and i_update_plot on separate sub-plots
+        fig, (ax1, ax2, ax3) = plt.subplots(3, 1)
+        ax1.plot(self.BR_plot, color="red", label="BR")
+        ax2.plot(self.i_update_plot, color="blue", label="i_update")
+        ax3.plot(self.z_plot, color="green", label="z")
+        # Add the legend
+        ax1.legend()
+        ax2.legend()
+        ax3.legend()
+        # Add the title
+        ax1.set_title("BR")
+        ax2.set_title("i_update")
+        ax3.set_title("z")
+        # Save the figure
+        fig.savefig("BR_plot.png")
+        plt.show()
+
+
+
+
+
+
+
+
+
+
 
 class LogSpaceUpdater(AbstractGainUpdater):
-    def __init__(self, num_states, N_p=0.75, N_I=1, N_d=0.1, lambd=0, lax=1):
+    def __init__(self, num_states, N_p=0.75, N_I=1, N_d=0.1, lambd=0, lax=1, epsilon=0.1):
         self.fp, self.fd, self.fi = (np.zeros((num_states, 1)) for _ in range(3))
         self.fp_next, self.fd_next, self.fi_next = (np.zeros((num_states, 1)) for _ in range(3))
         self.BR = (np.zeros((num_states, 1)))
 
-        super().__init__(lambd)
+        super().__init__(lambd, epsilon)
 
         self.N_p = N_p
         self.N_I = N_I * lax
@@ -297,12 +388,12 @@ class LogSpaceUpdater(AbstractGainUpdater):
 
 
 class DiagonalSoftGainUpdater(AbstractGainUpdater):
-    def __init__(self, num_states, lambd=0):
+    def __init__(self, num_states, lambd=0, epsilon=0.1):
         self.fp, self.fd, self.fi = (np.zeros((num_states)) for _ in range(3))
         self.fp_next, self.fd_next, self.fi_next = (np.zeros((num_states, 1)) for _ in range(3))
         self.BR = (np.zeros((num_states, 1)))
 
-        super().__init__(lambd)
+        super().__init__(lambd, epsilon)
 
         self.plot_state = 25
         self.plot_BR = []
@@ -377,12 +468,12 @@ class DiagonalSoftGainUpdater(AbstractGainUpdater):
 
 
 class DiagonalLogSpaceUpdater(AbstractGainUpdater):
-    def __init__(self, num_states, N_p=0.75, N_I=1, N_d=0.1, lambd=0):
+    def __init__(self, num_states, N_p=0.75, N_I=1, N_d=0.1, lambd=0, epsilon=0.1):
         self.fp, self.fd, self.fi = (np.zeros((num_states, 1)) for _ in range(3))
         self.fp_next, self.fd_next, self.fi_next = (np.zeros((num_states, 1)) for _ in range(3))
         self.BR = (np.zeros((num_states, 1)))
 
-        super().__init__(lambd)
+        super().__init__(lambd, epsilon)
 
         self.kp = np.ones((num_states, 1))
         self.ki = np.zeros((num_states, 1))
@@ -423,11 +514,11 @@ class DiagonalLogSpaceUpdater(AbstractGainUpdater):
 
 
 class NaiveSoftGainUpdater(AbstractGainUpdater):
-    def __init__(self, num_states, lambd=0):
+    def __init__(self, num_states, lambd=0, epsilon=0.1):
         self.fp, self.fd, self.fi = (np.zeros((num_states)) for _ in range(3))
         self.fp_next, self.fd_next, self.fi_next = (np.zeros((num_states, 1)) for _ in range(3))
 
-        super().__init__(lambd)
+        super().__init__(lambd, epsilon)
 
 
     def set_agent(self, agent):
@@ -469,14 +560,14 @@ class NaiveSoftGainUpdater(AbstractGainUpdater):
 
 
 class TrueSoftGainUpdater(AbstractGainUpdater):
-    def __init__(self, num_states, lambd=0):
+    def __init__(self, num_states, lambd=0, epsilon=0.1):
         # The order is [p, i, d]
         self.num_states = num_states
         self.reset_partials()
 
         self.BR = (np.zeros((num_states)))
 
-        super().__init__(lambd)
+        super().__init__(lambd, epsilon)
 
     def reset_partials(self):
         self.fs = [np.zeros((self.num_states)) for _ in range(3)]
@@ -521,8 +612,8 @@ class TrueSoftGainUpdater(AbstractGainUpdater):
 
 
 class LogisticExactUpdater(AbstractGainUpdater):
-    def __init__(self, transition, reward, N_p=0.75, N_d=0.5, N_I=1, lambd=0):
-        super().__init__(lambd)
+    def __init__(self, transition, reward, N_p=0.75, N_d=0.5, N_I=1, lambd=0, epsilon=0.1):
+        super().__init__(lambd, epsilon)
         self.transition = transition
         self.reward = reward.reshape(-1, 1)
         self.N_p = N_p
@@ -552,89 +643,12 @@ class LogisticExactUpdater(AbstractGainUpdater):
         self.lambda_I -= lr * self.meta_lr * BR.T @ (gamma * self.transition @ (beta * z + alpha * BR) - (beta * z + alpha * BR)) \
             * (self.ki + self.N_I) * (1/2 - (self.ki / (2 * self.N_I)))
 
-class SemiGradientUpdater(AbstractGainUpdater):
-    def __init__(self, lambd=0):
-        super().__init__(lambd)
 
-        self.d_update = 0
-        self.i_update = 0
-        self.p_update = 0
-
-        self.running_BR = 0
-        self.previous_average_BR = float("inf")
-
-
-    def set_agent(self, agent):
-        self.running_BR = np.zeros((agent.num_states, 1))
-        self.previous_average_BR = float("inf")
-        self.d_update = 0
-        self.i_update = 0
-        self.p_update = 0
-
-        self.BR_plot = [0]
-        self.i_update_plot = [0]
-        self.z_plot = [0]
-
-        self.plot_state = 25
-
-        return super().set_agent(agent)
-
-    def calculate_updated_values(self, intermediate=False):
-        reward = self.agent.reward
-        next_state, current_state = self.agent.next_state, self.agent.current_state
-        V, Vp, z = self.agent.V, self.agent.Vp, self.agent.z
-        alpha, beta = self.alpha, self.beta
-        gamma, lr = self.gamma, self.agent.lr
-
-        BR = reward + gamma * V[next_state][0] - V[current_state][0]
-
-        scale = 0.5
-        self.running_BR[current_state] = (1 - scale) * self.running_BR[current_state] + scale * BR * BR
-
-        self.p_update += lr * BR * BR / (self.epsilon + self.running_BR[current_state])
-        self.d_update += lr * BR * (V[current_state] - Vp[current_state]) / (self.epsilon + self.running_BR[current_state])
-        self.i_update += lr * BR * (beta * z[current_state][0] + alpha * BR) / (self.epsilon + self.running_BR[current_state])
-
-        if self.plot_state == current_state:
-            self.BR_plot.append(BR)
-            self.i_update_plot.append(beta * z[self.plot_state][0] + alpha * BR)
-            self.z_plot.append(z[self.plot_state][0])
-        else:
-            self.BR_plot.append(self.BR_plot[-1])
-            self.i_update_plot.append(self.i_update_plot[-1])
-            self.z_plot.append(self.z_plot[-1])
-
-        if not intermediate:
-            self.kp = 1 + (1 - self.lambd) * (self.kp - 1) + self.meta_lr * self.p_update / self.agent.update_frequency
-            self.kd = self.kd * (1 - self.lambd) + self.meta_lr * self.d_update / self.agent.update_frequency
-            self.ki = self.ki * (1 - self.lambd) + self.meta_lr * self.i_update / self.agent.update_frequency
-
-            self.d_update = 0
-            self.i_update = 0
-            self.p_update = 0
-
-    def plot(self):
-        # Plot BR_plot and i_update_plot on separate sub-plots
-        fig, (ax1, ax2, ax3) = plt.subplots(3, 1)
-        ax1.plot(self.BR_plot, color="red", label="BR")
-        ax2.plot(self.i_update_plot, color="blue", label="i_update")
-        ax3.plot(self.z_plot, color="green", label="z")
-        # Add the legend
-        ax1.legend()
-        ax2.legend()
-        ax3.legend()
-        # Add the title
-        ax1.set_title("BR")
-        ax2.set_title("i_update")
-        ax3.set_title("z")
-        # Save the figure
-        fig.savefig("BR_plot.png")
-        plt.show()
 
 
 class TrueSemiGradient(AbstractGainUpdater):
-    def __init__(self, reward, transition, lambd=0):
-        super().__init__(lambd)
+    def __init__(self, reward, transition, lambd=0, epsilon=0.1):
+        super().__init__(lambd, epsilon)
         self.reward = reward.reshape(-1, 1)
         self.transition = transition
 
@@ -683,8 +697,8 @@ class TrueSemiGradient(AbstractGainUpdater):
 
 
 class TrueDiagonalSemiGradient(AbstractGainUpdater):
-    def __init__(self, reward, transition, lambd=0):
-        super().__init__(lambd)
+    def __init__(self, reward, transition, lambd=0, epsilon=0.1):
+        super().__init__(lambd, epsilon)
         self.transition = transition
         self.reward = reward
 
@@ -786,8 +800,8 @@ class TrueDiagonalSemiGradient(AbstractGainUpdater):
     
 
 class DiagonalSemiGradient(AbstractGainUpdater):
-    def __init__(self, lambd=0):
-        super().__init__(lambd)
+    def __init__(self, lambd=0, epsilon=0.1):
+        super().__init__(lambd, epsilon)
 
     def set_agent(self, agent):
         super().set_agent(agent)
@@ -970,8 +984,8 @@ class EmpiricalCostUpdater(AbstractGainUpdater):
 
 
 class AbstractOriginalCostUpdater(AbstractGainUpdater):
-    def __init__(self, scale_by_lr, lambd=0):
-        super().__init__(lambd)
+    def __init__(self, scale_by_lr, lambd=0, epsilon=0.1):
+        super().__init__(lambd, epsilon)
         self.scale_by_lr = scale_by_lr
         self.partial_br_kp = []
         self.partial_br_ki = []
@@ -1011,8 +1025,8 @@ class AbstractOriginalCostUpdater(AbstractGainUpdater):
 
 
 class ExactUpdater(AbstractOriginalCostUpdater):
-    def __init__(self, transition, reward, scale, lambd=0):
-        super().__init__(scale, lambd)
+    def __init__(self, transition, reward, scale, lambd=0, epsilon=0.1):
+        super().__init__(scale, lambd, epsilon)
         self.transition = transition.astype(np.float64)
         self.reward = reward.reshape(-1, 1).astype(np.float64)
 
@@ -1148,8 +1162,8 @@ class SamplerUpdater(AbstractOriginalCostUpdater):
 
 class BellmanExactUpdater(AbstractOriginalCostUpdater):
     """Test having knowledge of the transitions to update the gradients, but not the Bellman residual"""
-    def __init__(self, transition, reward, sample_size, scale, lambd=0):
-        super().__init__(scale, lambd)
+    def __init__(self, transition, reward, sample_size, scale, lambd=0, epsilon=0.1):
+        super().__init__(scale, lambd, epsilon)
         self.transition = transition
         self.reward = reward.reshape(-1, 1)
         self.sample_size = sample_size
@@ -1179,8 +1193,8 @@ class BellmanExactUpdater(AbstractOriginalCostUpdater):
 
 class PartialsExactUpdater(AbstractOriginalCostUpdater):
     """Test having knowledge of the transitions to update the gradients, but not the Bellman residual"""
-    def __init__(self, transition, reward, sample_size, scale, lambd=0):
-        super().__init__(scale, lambd)
+    def __init__(self, transition, reward, sample_size, scale, lambd=0, epsilon=0.1):
+        super().__init__(scale, lambd, epsilon)
         self.transition = transition
         self.reward = reward.reshape(-1, 1)
         self.sample_size = sample_size

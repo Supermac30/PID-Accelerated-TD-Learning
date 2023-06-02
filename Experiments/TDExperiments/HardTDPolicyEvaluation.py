@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import hydra
 
 from Experiments.ExperimentHelpers import *
-from Experiments.AgentBuilder import build_agent_and_env
+from TabularPID.AgentBuilders.AgentBuilder import build_agent_and_env
 
 @hydra.main(version_base=None, config_path="../../config/TDExperiments", config_name="HardTDPolicyEvaluation")
 def policy_evaluation_experiment(cfg):
@@ -13,7 +13,7 @@ def policy_evaluation_experiment(cfg):
         V_pi = find_Vpi(env, policy, cfg['gamma'])
         test_function = build_test_function(cfg['norm'], V_pi)
         history, _ = agent.estimate_value_function(num_iterations=cfg['num_iterations'], test_function=test_function, follow_trajectory=cfg['follow_trajectory'])
-        save_array(history, f"kp={kp} kd={kd} ki={ki} alpha={alpha} beta={beta}", plt)
+        save_array(history, f"kp={kp} kd={kd} ki={ki} alpha={alpha} beta={beta}", plt, cfg['normalize'])
 
 
     plt.title(f"Hard TD Updates: {cfg['env']}")

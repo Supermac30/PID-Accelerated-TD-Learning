@@ -9,22 +9,20 @@ Notes about the hyperparameter tuning procedure:
 - We do not follow a trajectory, choosing instead to receive arbitrary samples from the environment.
 """
 
-from Experiments.ExperimentHelpers import find_optimal_learning_rates, find_Vpi, build_test_function, find_Qstar, pick_seed
-from Experiments.AdaptiveAgentBuilder import build_adaptive_agent_and_env
-from Experiments.AgentBuilder import build_agent_and_env
 import logging
-from Experiments.OptimalRateDatabase import get_stored_optimal_rate, store_optimal_rate
+
+from Experiments.ExperimentHelpers import find_optimal_learning_rates, find_Vpi, build_test_function, find_Qstar, pick_seed
+from TabularPID.AgentBuilders.AdaptiveAgentBuilder import build_adaptive_agent_and_env
+from TabularPID.AgentBuilders.AgentBuilder import build_agent_and_env
+from TabularPID.OptimalRates.OptimalRateDatabase import get_stored_optimal_rate, store_optimal_rate
 
 default_rates = (1, 1, 1, 1, 1, 1)
 
 exhaustive_learning_rates = [
     {
-            1: {1, 10, 25, 50, 75, 100, 250, 500, 750, 1000},
+            1: {1, 25, 50, 75, 100, 250, 500, 750, 1000},
             0.5: {1, 10, 100, 1000},
-            0.25: {1, 10, 100, 1000},
             0.1: {1, 10, 100, 1000},
-            #0.05: {1, 10, 100, 1000},
-            #0.01: {1, 10, 100, 1000}
         },
         {
             1: {float("inf"), 1, 100, 10000},
@@ -80,20 +78,20 @@ def get_optimal_pid_q_rates(agent_name, env_name, kp, ki, kd, alpha, beta, gamma
 
     return optimal_rates
 
-def get_optimal_adaptive_rates(agent_name, env_name, meta_lr, gamma, lambd, delay, alpha, beta, recompute=False, seed=-1, norm=1):
+def get_optimal_adaptive_rates(agent_name, env_name, meta_lr, gamma, lambd, delay, alpha, beta, recompute=False, seed=-1, norm=1, epsilon=0.01):
     """Find the optimal rates for the choice of adaptive agent and environment.
     If this has been done before, get the optimal rates from the file of stored rates.
 
     If recompute is True, recompute the learning rates even if it is in the file of stored rates.
     """
-    optimal_rates = get_stored_optimal_rate((agent_name, meta_lr, lambd, delay, alpha, beta), env_name, gamma)
+    optimal_rates = get_stored_optimal_rate((agent_name, meta_lr, lambd, delay, alpha, beta, epsilon), env_name, gamma)
 
     if optimal_rates is None or recompute:
         seed = pick_seed(seed)
-        optimal_rates = run_adaptive_search(agent_name, env_name, seed, norm, gamma, lambd, delay, meta_lr, alpha, beta)
-        store_optimal_rate((agent_name, meta_lr, lambd, delay, alpha, beta), env_name, optimal_rates, gamma)
+        optimal_rates = run_adaptive_search(agent_name, env_name, seed, norm, gamma, lambd, delay, meta_lr, alpha, beta, epsilon)
+        store_optimal_rate((agent_name, meta_lr, lambd, delay, alpha, beta, epsilon), env_name, optimal_rates, gamma)
 
-    logging.info(f"The optimal rates for {(env_name, agent_name, lambd, delay, alpha, beta)} are: {optimal_rates}")
+    logging.info(f"The optimal rates for {(env_name, agent_name, lambd, delay, alpha, beta, epsilon)} are: {optimal_rates}")
 
     return optimal_rates
 
@@ -167,9 +165,9 @@ def run_pid_q_search(agent_description, env_name, kp, ki, kd, alpha, beta, seed,
         return default_rates
     return rates
 
-def run_adaptive_search(agent_name, env_name, seed, norm, gamma, lambd, delay, meta_lr, alpha, beta):
+def run_adaptive_search(agent_name, env_name, seed, norm, gamma, lambd, delay, meta_lr, alpha, beta, epsilon):
     """Run a grid search on the exhaustive learning rates for the choice of adaptive agent"""
-    agent, env, policy = build_adaptive_agent_and_env(agent_name, env_name, meta_lr, lambd, delay, alpha=alpha, beta=beta, seed=seed, gamma=gamma)
+    agent, env, policy = build_adaptive_agent_and_env(agent_name, env_name, meta_lr, lambd, delay, alpha=alpha, beta=beta, seed=seed, gamma=gamma, epsilon=epsilon)
     V_pi = find_Vpi(env, policy, gamma)
 
     # For now, only optimize the learning rate of the controller

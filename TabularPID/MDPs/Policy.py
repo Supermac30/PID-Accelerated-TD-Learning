@@ -43,7 +43,7 @@ class Policy():
     def get_uniformly_random_sample(self, epsilon):
         """Get a uniformly random sample from the policy, with a probability of epsilon of choosing a random action"""
         if self.prg.random() < epsilon:
-            return self.prg.randint(self.num_states), self.prg.randint(self.num_actions)
+            return self.prg.choice(self.num_states), self.prg.choice(self.num_actions)
 
         state = self.prg.choice(self.num_states)
         action = self.prg.choice(self.num_actions, p=self.policy[state])

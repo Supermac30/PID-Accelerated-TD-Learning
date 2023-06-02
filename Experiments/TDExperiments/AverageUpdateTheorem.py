@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import hydra
 
-from AgentBuilder import build_agent_and_env
+from TabularPID.AgentBuilders.AgentBuilder import build_agent_and_env
 from Experiments.ExperimentHelpers import *
 
 @hydra.main(version_base=None, config_path="../../config/TDExperiments", config_name="AverageUpdateTheorem")
@@ -27,7 +27,7 @@ def find_average_update_experiment(cfg):
         test_function=lambda V, Vp, BR: np.max(np.abs(V_pi - bellman(V) * (kp / (kp - kd)) + Vp * (kd / (kp - kd))))
         history, _ = agent.estimate_value_function(num_iterations=cfg['num_iterations'], test_function=test_function, follow_trajectory=cfg['follow_trajectory'])
 
-        save_array(history, f"kp={kp} kd={kd}", plt)
+        save_array(history, f"kp={kp} kd={kd}", plt, cfg['normalize'])
 
     plt.title(f"Average Update: {cfg['env']}")
     plt.legend()

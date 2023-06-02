@@ -4,9 +4,9 @@ import itertools
 import os
 import logging
 
-from MDP import PolicyEvaluation, Control, Control_Q
-from Environments import *
-from Policy import Policy
+from TabularPID.MDPs.MDP import PolicyEvaluation, Control, Control_Q
+from TabularPID.MDPs.Environments import *
+from TabularPID.MDPs.Policy import Policy
 
 def pick_seed(seed):
     """Return a seed if one is inputted, and -1 otherwise. Log the seed chosen."""
@@ -215,7 +215,7 @@ def find_Vpi(env, policy, gamma):
 def find_Vstar(env, gamma):
     """Find a good approximation of the value function of the optimal policy in an environment.
     """
-    oracle = Control_Q(
+    oracle = Control(
         env.num_states,
         env.num_actions,
         env.build_reward_matrix(),

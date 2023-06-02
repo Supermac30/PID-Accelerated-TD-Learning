@@ -1,8 +1,9 @@
 import numpy as np
-from Agents import Agent
 from collections import defaultdict
 import logging
 import matplotlib.pyplot as plt
+
+from TabularPID.Agents.Agents import Agent
 
 class AbstractAdaptiveAgent(Agent):
     def __init__(self, gain_updater, learning_rates, meta_lr, environment, policy, gamma, update_frequency=1, kp=1, kd=0, ki=0, alpha=0.05, beta=0.95):

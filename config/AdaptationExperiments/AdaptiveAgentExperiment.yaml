@@ -1,21 +1,22 @@
-env: cliff walk
+env: chain walk
 norm: 1
 num_iterations: 30000
 
 get_optimal: True # Get the optimal parameters from the database
-compute_optimal: False # Run a grid search. When recompute_optimal is false, we don't run a grid search if the optimal parameters are in the database already
+compute_optimal: True # Run a grid search. When recompute_optimal is false, we don't run a grid search if the optimal parameters are in the database already
 recompute_optimal: False # If compute_optimal is True, run a grid search even if the optimal parameters are in the database
 
 get_optimal_TD: True # Get the optimal parameters from the database
 compute_optimal_TD: True # Tune the TD agent
 recompute_optimal_TD: False
 
-agent_name: [diagonal semi gradient updater, semi gradient updater, semi gradient updater, diagonal semi gradient updater]
-meta_lr: [0.001]
-delay: [1, 10, 100, 1]
+agent_name: [semi gradient updater, semi gradient updater, semi gradient updater, diagonal semi gradient updater]
+meta_lr: [1e-4]
+delay: [1, 1, 1, 1]
 lambda: [0, 0, 0, 0]
 alphas: [0.01, 0.01, 0.01, 0.01]
 betas: [0.99, 0.99, 0.99, 0.99]
+epsilon: [0.1, 0.1, 0.1, 0.1]
 
 follow_trajectory: False
 log_plot: False
@@ -28,9 +29,10 @@ kp: 1
 ki: 0
 kd: 0
 
+epsilon: 0.1
 gamma: 0.999
 
-name: presentation compiler
+name: fine-tuning
 
 seed: -1
 hydra:

@@ -2,8 +2,8 @@ import matplotlib.pyplot as plt
 import hydra
 
 from Experiments.ExperimentHelpers import *
-from Experiments.AgentBuilder import build_agent_and_env
-from Experiments.HyperparameterTests import get_optimal_pid_q_rates
+from TabularPID.AgentBuilders.AgentBuilder import build_agent_and_env
+from TabularPID.OptimalRates.HyperparameterTests import get_optimal_pid_q_rates
 
 @hydra.main(version_base=None, config_path="../../config/QExperiments", config_name="PIDQLearning")
 def soft_policy_evaluation_experiment(cfg):
@@ -21,7 +21,7 @@ def soft_policy_evaluation_experiment(cfg):
             history, _ = agent.estimate_value_function(num_iterations=cfg['num_iterations'], test_function=test_function, follow_trajectory=cfg['follow_trajectory'])
             total_history += history
         total_history /= cfg['num_repeats']
-        save_array(total_history, f"{agent_name} kp={kp} ki={ki} kd={kd} alpha={alpha} beta={beta}", ax)
+        save_array(total_history, f"{agent_name} kp={kp} ki={ki} kd={kd} alpha={alpha} beta={beta}", ax, cfg['normalize'])
 
     ax.title.set_text(f"Q Learning: {cfg['env']} gamma={cfg['gamma']}")
     ax.legend()

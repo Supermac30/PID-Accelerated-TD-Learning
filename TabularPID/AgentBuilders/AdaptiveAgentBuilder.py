@@ -6,14 +6,14 @@ Possible agents include:
 - Planners: VI Agents (For reproducing PAVIA results)
 """
 from Experiments.ExperimentHelpers import learning_rate_function, get_env_policy
-from Experiments.OptimalRateDatabase import get_stored_optimal_rate
-from AdaptiveAgents import *
+from TabularPID.OptimalRates.OptimalRateDatabase import get_stored_optimal_rate
+from TabularPID.Agents.AdaptiveAgents import *
 import logging
 
 default_meta_lr = 1
-default_learning_rates = (0.25, 25, 1, 100, 1, 1) # (0.1, 10, 1, float("inf"), 0.01, float("inf"))
+default_learning_rates = (1, 1000, 1, 100, 0.5, float("inf")) # (0.1, 10, 1, float("inf"), 0.01, float("inf"))
 
-def build_adaptive_agent_and_env(agent_name, env_name, meta_lr, lambd, delay, get_optimal=False, seed=42, gamma=0.99, kp=1, kd=0, ki=0, alpha=0.05, beta=0.95):
+def build_adaptive_agent_and_env(agent_name, env_name, meta_lr, lambd, delay, get_optimal=False, seed=42, gamma=0.99, kp=1, kd=0, ki=0, alpha=0.05, beta=0.95, epsilon=0.1):
     """Return the adaptive agent and the environment & policy given its name. The names include:
     - planner: The original PAVIA gain adaptation algorithm
     - log space planner: The original PAVIA gain adaptation algorithm, but in the log space
@@ -42,10 +42,10 @@ def build_adaptive_agent_and_env(agent_name, env_name, meta_lr, lambd, delay, ge
     Return None if the names are not in the list of possible names.
     """
     env, policy = get_env_policy(env_name, seed)
-    agent = build_adaptive_agent(agent_name, env_name, env, policy, meta_lr, lambd, delay, get_optimal, gamma, kp, kd, ki, alpha, beta)
+    agent = build_adaptive_agent(agent_name, env_name, env, policy, meta_lr, lambd, delay, get_optimal, gamma, kp, kd, ki, alpha, beta, epsilon)
     return agent, env, policy
 
-def build_adaptive_agent(agent_name, env_name, env, policy, meta_lr, lambd, delay, get_optimal, gamma, kp, kd, ki, alpha, beta):
+def build_adaptive_agent(agent_name, env_name, env, policy, meta_lr, lambd, delay, get_optimal, gamma, kp, kd, ki, alpha, beta, epsilon):
     """Return the adaptive agent given its name.
 
     get_optimal: Try to find the optimal learning rate and set it
@@ -67,7 +67,7 @@ def build_adaptive_agent(agent_name, env_name, env, policy, meta_lr, lambd, dela
 
     logging.info(f"Using rates {optimal_rates} for agent {agent_name} on env {env_name}")
 
-    params = env, policy, meta_lr, lambd, rates, gamma, delay, kp, kd, ki, alpha, beta
+    params = env, policy, meta_lr, lambd, rates, gamma, delay, kp, kd, ki, alpha, beta, epsilon
 
     if agent_name == "planner":
         return build_planner(*params)
@@ -110,10 +110,10 @@ def build_adaptive_agent(agent_name, env_name, env, policy, meta_lr, lambd, dela
     return None
 
 
-def build_true_semi_gradient_updater(env, policy, meta_lr, lambd, learning_rates, gamma, delay, kp, kd, ki, alpha, beta):
+def build_true_semi_gradient_updater(env, policy, meta_lr, lambd, learning_rates, gamma, delay, kp, kd, ki, alpha, beta, epsilon):
     reward = env.build_policy_reward_vector(policy)
     transition = env.build_policy_probability_transition_kernel(policy)
-    gain_updater = TrueSemiGradient(reward, transition, lambd)
+    gain_updater = TrueSemiGradient(reward, transition, lambd, epsilon)
     return AdaptiveSamplerAgent(
         gain_updater,
         learning_rates,
@@ -126,10 +126,10 @@ def build_true_semi_gradient_updater(env, policy, meta_lr, lambd, learning_rates
     )
 
 
-def build_true_diagonal_semi_gradient_updater(env, policy, meta_lr, lambd, learning_rates, gamma, delay, kp, kd, ki, alpha, beta):
+def build_true_diagonal_semi_gradient_updater(env, policy, meta_lr, lambd, learning_rates, gamma, delay, kp, kd, ki, alpha, beta, epsilon):
     reward = env.build_policy_reward_vector(policy)
     transition = env.build_policy_probability_transition_kernel(policy)
-    gain_updater = TrueDiagonalSemiGradient(reward, transition, lambd)
+    gain_updater = TrueDiagonalSemiGradient(reward, transition, lambd, epsilon)
     return DiagonalAdaptiveSamplerAgent(
         gain_updater,
         learning_rates,
@@ -142,10 +142,10 @@ def build_true_diagonal_semi_gradient_updater(env, policy, meta_lr, lambd, learn
     )
 
 
-def build_diagonal_true_cost(env, policy, meta_lr, lambd, learning_rates, gamma, delay, kp, kd, ki, alpha, beta):
+def build_diagonal_true_cost(env, policy, meta_lr, lambd, learning_rates, gamma, delay, kp, kd, ki, alpha, beta, epsilon):
     reward = env.build_policy_reward_vector(policy)
     transition = env.build_policy_probability_transition_kernel(policy)
-    gain_updater = DiagonalExactUpdater(transition, reward, lambd)
+    gain_updater = DiagonalExactUpdater(transition, reward, lambd, epsilon)
     return DiagonalAdaptiveSamplerAgent(
         gain_updater,
         learning_rates,
@@ -158,8 +158,8 @@ def build_diagonal_true_cost(env, policy, meta_lr, lambd, learning_rates, gamma,
     )
 
 
-def build_diagonal_semi_gradient_updater(env, policy, meta_lr, lambd, learning_rates, gamma, delay, kp, kd, ki, alpha, beta):
-    gain_updater = DiagonalSemiGradient(lambd)
+def build_diagonal_semi_gradient_updater(env, policy, meta_lr, lambd, learning_rates, gamma, delay, kp, kd, ki, alpha, beta, epsilon):
+    gain_updater = DiagonalSemiGradient(lambd, epsilon)
     return DiagonalAdaptiveSamplerAgent(
         gain_updater,
         learning_rates,
@@ -172,8 +172,8 @@ def build_diagonal_semi_gradient_updater(env, policy, meta_lr, lambd, learning_r
     )
 
 
-def build_diagonal_log_space_updater(env, policy, meta_lr, lambd, learning_rates, gamma, delay, kp, kd, ki, alpha, beta):
-    gain_updater = DiagonalLogSpaceUpdater(env.num_states, lambd)
+def build_diagonal_log_space_updater(env, policy, meta_lr, lambd, learning_rates, gamma, delay, kp, kd, ki, alpha, beta, epsilon):
+    gain_updater = DiagonalLogSpaceUpdater(env.num_states, lambd, epsilon)
     return DiagonalAdaptiveSamplerAgent(
         gain_updater,
         learning_rates,
@@ -187,7 +187,7 @@ def build_diagonal_log_space_updater(env, policy, meta_lr, lambd, learning_rates
 
 
 
-def build_true_log_space_updater(env, policy, meta_lr, lambd, learning_rates, gamma, delay, kp, kd, ki, alpha, beta):
+def build_true_log_space_updater(env, policy, meta_lr, lambd, learning_rates, gamma, delay, kp, kd, ki, alpha, beta, epsilon):
     reward = env.build_policy_reward_vector(policy)
     transition = env.build_policy_probability_transition_kernel(policy)
 
@@ -197,7 +197,8 @@ def build_true_log_space_updater(env, policy, meta_lr, lambd, learning_rates, ga
         N_p = 0.75,
         N_d = (1 - gamma)/4,
         N_I = (10/19) * (1 - gamma)/(1 + gamma),
-        lambd=lambd
+        lambd=lambd,
+        epsilon=epsilon
     )
     return AdaptiveSamplerAgent(
         gain_updater,
@@ -211,14 +212,15 @@ def build_true_log_space_updater(env, policy, meta_lr, lambd, learning_rates, ga
     )
 
 
-def build_log_space_updater(env, policy, meta_lr, lambd, learning_rates, gamma, delay, kp, kd, ki, alpha, beta):
+def build_log_space_updater(env, policy, meta_lr, lambd, learning_rates, gamma, delay, kp, kd, ki, alpha, beta, epsilon):
     gain_updater = LogSpaceUpdater(
         env.num_states,
         N_p = 9,
         N_d = (1 - gamma)/4,
         N_I = (1/19) * (1 - gamma)/(1 + gamma),
         lambd=lambd,
-        lax=10
+        lax=10,
+        epsilon=epsilon
     )
     return AdaptiveSamplerAgent(
         gain_updater,
@@ -232,8 +234,8 @@ def build_log_space_updater(env, policy, meta_lr, lambd, learning_rates, gamma, 
     )
 
 
-def build_true_soft_updates(env, policy, meta_lr, lambd, learning_rates, gamma, delay, kp, kd, ki, alpha, beta):
-    gain_updater = TrueSoftGainUpdater(env.num_states, lambd)
+def build_true_soft_updates(env, policy, meta_lr, lambd, learning_rates, gamma, delay, kp, kd, ki, alpha, beta, epsilon):
+    gain_updater = TrueSoftGainUpdater(env.num_states, lambd, epsilon)
     return AdaptiveSamplerAgent(
         gain_updater,
         learning_rates,
@@ -246,10 +248,10 @@ def build_true_soft_updates(env, policy, meta_lr, lambd, learning_rates, gamma, 
     )
 
 
-def build_semi_gradient_updater(env, policy, meta_lr, lambd, learning_rates, gamma, delay, kp, kd, ki, alpha, beta):
+def build_semi_gradient_updater(env, policy, meta_lr, lambd, learning_rates, gamma, delay, kp, kd, ki, alpha, beta, epsilon):
     reward = env.build_policy_reward_vector(policy)
     transition = env.build_policy_probability_transition_kernel(policy)
-    gain_updater = SemiGradientUpdater(lambd)
+    gain_updater = SemiGradientUpdater(lambd, epsilon)
     return AdaptiveSamplerAgent(
         gain_updater,
         learning_rates,
@@ -262,10 +264,10 @@ def build_semi_gradient_updater(env, policy, meta_lr, lambd, learning_rates, gam
     )
 
 
-def build_bellman_exact_sampler(env, policy, meta_lr, lambd, learning_rates, gamma, delay, kp, kd, ki, alpha, beta):
+def build_bellman_exact_sampler(env, policy, meta_lr, lambd, learning_rates, gamma, delay, kp, kd, ki, alpha, beta, epsilon):
     reward = env.build_policy_reward_vector(policy)
     transition = env.build_policy_probability_transition_kernel(policy)
-    gain_updater = BellmanExactUpdater(transition, reward, 1, False, lambd)
+    gain_updater = BellmanExactUpdater(transition, reward, 1, False, lambd, epsilon)
     return AdaptiveSamplerAgent(
         gain_updater,
         learning_rates,
@@ -278,10 +280,10 @@ def build_bellman_exact_sampler(env, policy, meta_lr, lambd, learning_rates, gam
     )
 
 
-def build_partials_exact_sampler(env, policy, meta_lr, lambd, learning_rates, gamma, delay, kp, kd, ki, alpha, beta):
+def build_partials_exact_sampler(env, policy, meta_lr, lambd, learning_rates, gamma, delay, kp, kd, ki, alpha, beta, epsilon):
     reward = env.build_policy_reward_vector(policy)
     transition = env.build_policy_probability_transition_kernel(policy)
-    gain_updater = PartialsExactUpdater(transition, reward, 1, False, lambd)
+    gain_updater = PartialsExactUpdater(transition, reward, 1, False, lambd, epsilon)
     return AdaptiveSamplerAgent(
         gain_updater,
         learning_rates,
@@ -294,8 +296,8 @@ def build_partials_exact_sampler(env, policy, meta_lr, lambd, learning_rates, ga
     )
 
 
-def build_diagonal_sampler(env, policy, meta_lr, lambd, learning_rates, gamma, delay, kp, kd, ki, alpha, beta):
-    gain_updater = DiagonalSoftGainUpdater(env.num_states, lambd)
+def build_diagonal_sampler(env, policy, meta_lr, lambd, learning_rates, gamma, delay, kp, kd, ki, alpha, beta, epsilon):
+    gain_updater = DiagonalSoftGainUpdater(env.num_states, lambd, epsilon)
     return DiagonalAdaptiveSamplerAgent(
         gain_updater,
         learning_rates,
@@ -308,11 +310,11 @@ def build_diagonal_sampler(env, policy, meta_lr, lambd, learning_rates, gamma, d
     )
 
 
-def build_planner(env, policy, meta_lr, lambd, learning_rates, gamma, delay, kp, kd, ki, alpha, beta):
+def build_planner(env, policy, meta_lr, lambd, learning_rates, gamma, delay, kp, kd, ki, alpha, beta, epsilon):
     reward = env.build_policy_reward_vector(policy)
     transition = env.build_policy_probability_transition_kernel(policy)
 
-    gain_updater = ExactUpdater(transition, reward, False, lambd)
+    gain_updater = ExactUpdater(transition, reward, False, lambd, epsilon)
 
     return AdaptivePlannerAgent(
         reward,
@@ -327,11 +329,11 @@ def build_planner(env, policy, meta_lr, lambd, learning_rates, gamma, delay, kp,
         kp, kd, ki, alpha, beta
     )
 
-def build_log_space_planner(env, policy, meta_lr, lambd, learning_rates, gamma, delay, kp, kd, ki, alpha, beta):
+def build_log_space_planner(env, policy, meta_lr, lambd, learning_rates, gamma, delay, kp, kd, ki, alpha, beta, epsilon):
     reward = env.build_policy_reward_vector(policy)
     transition = env.build_policy_probability_transition_kernel(policy)
 
-    gain_updater = LogisticExactUpdater(transition, reward, lambd)
+    gain_updater = LogisticExactUpdater(transition, reward, lambd, epsilon)
 
     return AdaptivePlannerAgent(
         reward,
@@ -346,10 +348,10 @@ def build_log_space_planner(env, policy, meta_lr, lambd, learning_rates, gamma, 
         kp, kd, ki, alpha, beta
     )
 
-def build_true_cost(env, policy, meta_lr, lambd, learning_rates, gamma, delay, kp, kd, ki, alpha, beta):
+def build_true_cost(env, policy, meta_lr, lambd, learning_rates, gamma, delay, kp, kd, ki, alpha, beta, epsilon):
     reward = env.build_policy_reward_vector(policy)
     transition = env.build_policy_probability_transition_kernel(policy)
-    gain_updater = ExactUpdater(transition, reward, True, lambd)
+    gain_updater = ExactUpdater(transition, reward, True, lambd, epsilon)
     return AdaptiveSamplerAgent(
         gain_updater,
         learning_rates,
@@ -361,11 +363,11 @@ def build_true_cost(env, policy, meta_lr, lambd, learning_rates, gamma, delay, k
         kp, kd, ki, alpha, beta
     )
 
-def build_scaled_true_cost(env, policy, meta_lr, lambd, learning_rates, gamma, delay, kp, kd, ki, alpha, beta):
+def build_scaled_true_cost(env, policy, meta_lr, lambd, learning_rates, gamma, delay, kp, kd, ki, alpha, beta, epsilon):
     reward = env.build_policy_reward_vector(policy)
     transition = env.build_policy_probability_transition_kernel(policy)
 
-    gain_updater = ExactUpdater(transition, reward, True, lambd)
+    gain_updater = ExactUpdater(transition, reward, True, lambd, epsilon)
     return AdaptiveSamplerAgent(
         gain_updater,
         learning_rates,
@@ -377,8 +379,8 @@ def build_scaled_true_cost(env, policy, meta_lr, lambd, learning_rates, gamma, d
         kp, kd, ki, alpha, beta
     )
 
-def build_sampled_true_cost(env, policy, meta_lr, lambd, learning_rates, gamma, delay, kp, kd, ki, alpha, beta):
-    gain_updater = SamplerUpdater(4, True, lambd)
+def build_sampled_true_cost(env, policy, meta_lr, lambd, learning_rates, gamma, delay, kp, kd, ki, alpha, beta, epsilon):
+    gain_updater = SamplerUpdater(4, True, lambd, epsilon)
     return AdaptiveSamplerAgent(
         gain_updater,
         learning_rates,
@@ -390,8 +392,8 @@ def build_sampled_true_cost(env, policy, meta_lr, lambd, learning_rates, gamma, 
         kp, kd, ki, alpha, beta
     )
 
-def build_naive_soft_updates(env, policy, meta_lr, lambd, learning_rates, gamma, delay, kp, kd, ki, alpha, beta):
-    gain_updater = NaiveSoftGainUpdater(env.num_states, lambd)
+def build_naive_soft_updates(env, policy, meta_lr, lambd, learning_rates, gamma, delay, kp, kd, ki, alpha, beta, epsilon):
+    gain_updater = NaiveSoftGainUpdater(env.num_states, lambd, epsilon)
     return AdaptiveSamplerAgent(
         gain_updater,
         learning_rates,
@@ -403,9 +405,9 @@ def build_naive_soft_updates(env, policy, meta_lr, lambd, learning_rates, gamma,
         kp, kd, ki, alpha, beta
     )
 
-def build_empirical_cost(env, policy, meta_lr, lambd, learning_rates, gamma, delay, kp, kd, ki, alpha, beta):
+def build_empirical_cost(env, policy, meta_lr, lambd, learning_rates, gamma, delay, kp, kd, ki, alpha, beta, epsilon):
     assert delay >= 2  # delays have to be at least two for this to make sense
-    gain_updater = EmpiricalCostUpdater(lambd)
+    gain_updater = EmpiricalCostUpdater(lambd, epsilon)
     return AdaptiveSamplerAgent(
         gain_updater,
         learning_rates,

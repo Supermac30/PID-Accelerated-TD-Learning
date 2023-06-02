@@ -3,9 +3,9 @@ import numpy as np
 import hydra
 
 from Experiments.ExperimentHelpers import *
-from Experiments.AgentBuilder import build_agent_and_env
+from TabularPID.AgentBuilders.AgentBuilder import build_agent_and_env
 
-from Controllers import Adam_Controller, Adagrad_Controller
+from TabularPID.Controllers import Adam_Controller, Adagrad_Controller
 
 @hydra.main(version_base=None, config_path="../../config/NovelControllerExperiments", config_name="NovelControllerExperiment")
 def adam_controller_experiment(cfg):
@@ -43,12 +43,12 @@ def adam_controller_experiment(cfg):
         update_I_rates=cfg['update_I_rates'],
         verbose=False
     )
-    save_array(history, f"{cfg['type']} {params}", plt)
+    save_array(history, f"{cfg['type']} {params}", plt, cfg['normalize'])
 
 
     agent, env, policy = build_agent_and_env(("TD", 1, 0, 0, 0, 0), cfg['env'], cfg['get_optimal'], seed, cfg['gamma'])
     history, _ = agent.estimate_value_function(num_iterations=cfg['num_iterations'], test_function=test_function, follow_trajectory=cfg['follow_trajectory'])
-    save_array(history, f"Regular TD", plt)
+    save_array(history, f"Regular TD", plt, cfg['normalize'])
 
     plt.title(f"{cfg['type']}: {cfg['env']}")
     plt.legend()

@@ -2,8 +2,8 @@ import matplotlib.pyplot as plt
 import hydra
 
 from Experiments.ExperimentHelpers import *
-from Experiments.AgentBuilder import build_agent_and_env
-from Experiments.HyperparameterTests import get_optimal_pid_rates
+from TabularPID.AgentBuilders.AgentBuilder import build_agent_and_env
+from TabularPID.OptimalRates.HyperparameterTests import get_optimal_pid_rates
 
 @hydra.main(version_base=None, config_path="../../config/TDExperiments", config_name="SoftTDPolicyEvaluation")
 def soft_policy_evaluation_experiment(cfg):

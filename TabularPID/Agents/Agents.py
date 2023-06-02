@@ -2,7 +2,8 @@
 A collection of agents that learn in an RL setting
 """
 import numpy as np
-from Policy import Policy
+
+from TabularPID.MDPs.Policy import Policy
 
 class Agent():
     """An abstract class that represents the agent interacting
@@ -28,7 +29,7 @@ class Agent():
         """Estimate the value function. This could be V^pi or V*"""
         raise NotImplementedError
 
-    def take_action(self, follow_trajectory):
+    def take_action(self, follow_trajectory, on_policy=True):
         """Use the current policy to play an action in the environment.
         Return a 4-tuple of (current_state, action, next_state, reward).
         """
@@ -37,7 +38,12 @@ class Agent():
             action = self.policy.get_action(state, epsilon=0)
             next_state, reward = self.environment.take_action(action)
         else:
-            state, action = self.policy.get_uniformly_random_sample(epsilon=0)
+            if on_policy:
+                epsilon = 0
+            else:
+                epsilon = 1
+
+            state, action = self.policy.get_uniformly_random_sample(epsilon)
             self.environment.current_state = state
             next_state, reward = self.environment.take_action(action)
 
@@ -371,7 +377,7 @@ class ControlledQLearning(Agent):
         for k in range(num_iterations):
             self.epsilon *= self.decay
             self.policy.set_policy_from_Q(self.Q, self.epsilon)
-            current_state, action, next_state, reward = self.take_action(follow_trajectory)
+            current_state, action, next_state, reward = self.take_action(follow_trajectory, on_policy=False)
 
             frequency[current_state] += 1
 

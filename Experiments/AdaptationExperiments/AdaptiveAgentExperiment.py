@@ -3,12 +3,12 @@
 import matplotlib.pyplot as plt
 
 import hydra
-
-from Experiments.AdaptiveAgentBuilder import build_adaptive_agent_and_env
-from Experiments.AgentBuilder import build_agent_and_env
-from Experiments.ExperimentHelpers import *
-from Experiments.HyperparameterTests import get_optimal_pid_rates, get_optimal_adaptive_rates
 import logging
+
+from TabularPID.AgentBuilders.AdaptiveAgentBuilder import build_adaptive_agent_and_env
+from TabularPID.AgentBuilders.AgentBuilder import build_agent_and_env
+from TabularPID.OptimalRates.HyperparameterTests import get_optimal_pid_rates, get_optimal_adaptive_rates
+from Experiments.ExperimentHelpers import *
 
 @hydra.main(version_base=None, config_path="../../config/AdaptationExperiments", config_name="AdaptiveAgentExperiment")
 def adaptive_agent_experiment(cfg):
@@ -43,9 +43,9 @@ def adaptive_agent_experiment(cfg):
     average_history /= cfg['repeat']
     save_array(average_history, f"TD Agent", ax0, normalize=cfg['normalize'])
 
-    for agent_name, meta_lr, delay, lambd, alpha, beta in zip(cfg['agent_name'], cfg['meta_lr'], cfg['delay'], cfg['lambda'], cfg['alphas'], cfg['betas']):
+    for agent_name, meta_lr, delay, lambd, alpha, beta, epsilon in zip(cfg['agent_name'], cfg['meta_lr'], cfg['delay'], cfg['lambda'], cfg['alphas'], cfg['betas'], cfg['epsilon']):
         if cfg['compute_optimal']:
-            get_optimal_adaptive_rates(agent_name, cfg['env'], meta_lr, cfg['gamma'], lambd, delay, alpha, beta, recompute=cfg['recompute_optimal'])
+            get_optimal_adaptive_rates(agent_name, cfg['env'], meta_lr, cfg['gamma'], lambd, delay, alpha, beta, recompute=cfg['recompute_optimal'], epsilon=epsilon)
         agent, _, _ = build_adaptive_agent_and_env(
             agent_name,
             cfg['env'],
@@ -59,7 +59,8 @@ def adaptive_agent_experiment(cfg):
             ki=cfg['ki'],
             kd=cfg['kd'],
             alpha=alpha,
-            beta=beta
+            beta=beta,
+            epsilon=epsilon
         )
         # Run the following agent.estimate_value_function 20 times and take an average of the histories
         average_history = np.zeros((cfg['num_iterations'],))
@@ -77,7 +78,7 @@ def adaptive_agent_experiment(cfg):
 
         logging.info(V - V_pi)
 
-        save_array(average_history, f"Adaptive Agent: {agent_name} {meta_lr} {delay} {lambd}", ax0, normalize=cfg['normalize'])
+        save_array(average_history, f"Adaptive Agent: {agent_name} {meta_lr} {delay} {lambd} {epsilon}", ax0, normalize=cfg['normalize'])
 
         fig = plt.figure(figsize=(10, 4))
         gs = fig.add_gridspec(nrows=1, ncols=3, width_ratios=[1,1,1], wspace=0.3, hspace=0.5)
@@ -90,7 +91,7 @@ def adaptive_agent_experiment(cfg):
             ax.set_ylabel(titles[i])
             ax.legend()
 
-        plt.suptitle(f"Adaptive Agent: {agent_name}, {cfg['env']}, delay={delay}, meta_lr={meta_lr}, lambda={lambd}")
+        plt.suptitle(f"Adaptive Agent: {agent_name}, {cfg['env']}, meta_lr={meta_lr}, epsilon={epsilon}")
 
         # Set square aspect ratio for each subplot
         for ax in fig.axes:

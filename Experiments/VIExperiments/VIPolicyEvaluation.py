@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import hydra
 
-from Experiments.AgentBuilder import build_agent_and_env
+from TabularPID.AgentBuilders.AgentBuilder import build_agent_and_env
 from Experiments.ExperimentHelpers import *
 
 @hydra.main(version_base=None, config_path="../../config/VIExperiments", config_name="VIPolicyEvaluation")
@@ -15,7 +15,7 @@ def policy_evaluation_experiment(cfg):
             num_iterations=cfg['num_iterations'],
             test_function=build_test_function(cfg['norm'], find_Vpi(env, policy, cfg['gamma']))
         )
-        save_array(history, f"kp={kp} kd={kd} ki={ki} alpha={alpha} beta={beta}", ax)
+        save_array(history, f"kp={kp} kd={kd} ki={ki} alpha={alpha} beta={beta}", ax, normalize=cfg['normalize'])
 
 
     ax.title.set_text(f"Policy Evaluation: {cfg['env']}")
