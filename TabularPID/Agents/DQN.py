@@ -6,15 +6,17 @@ import torch.nn.functional as F
 import torch.optim as optim
 import numpy as np
 
+import gym
+
 class DQN(nn.Module):
     """
     A DQN
     """
-    def __init__(self, num_states, num_actions):
+    def __init__(self, num_features, num_actions):
         super().__init__()
 
         # Build the first layer
-        self.fc1 = nn.Linear(num_states, 128)
+        self.fc1 = nn.Linear(num_features, 128)
         # Build the second layer
         self.fc2 = nn.Linear(128, 128)
         # Build the third layer
@@ -29,16 +31,18 @@ class DQN(nn.Module):
         x = self.fc3(x)
         return x
 
-class PID_DQN(Agent):
+class PID_DQN():
     """
     An agent that uses PID to learn the optimal policy with DQN
     """
-    def __init__(self, environment, policy, gamma, follow_trajectory=True,
+    def __init__(self, kp, ki, kd, alpha, beta, environment, gamma, optimizer="Adam",
                  replay_memory_size=10000, batch_size=128, learning_rate=0.001,
                  target_net_update_steps=100, epsilon=0.1, epsilon_decay=0.999,
                  epsilon_min=0.01, epsilon_decay_step=1000, train_steps=1000):
         """
         Initialize the agent:
+
+        environment: a gym environment
 
         Replay memory size: the size of the replay memory
         Batch size: the size of the batch to sample from the replay memory
@@ -50,20 +54,40 @@ class PID_DQN(Agent):
         Epsilon decay step: the number of steps to decay epsilon
         Train steps: the number of iterations to train the DQN after each sample
         """
-        super().__init__(environment, policy, gamma, follow_trajectory)
+        self.env = environment
+
+        self.kp = kp
+        self.ki = ki
+        self.kd = kd
+        self.alpha = alpha
+        self.beta = beta
+        self.gamma = gamma
+
+        # Get num_features from the envirnoment
+        self.num_features = self.env.observation_space.shape[0]
+
+        # Get num_actions from the environment
+        self.num_actions = self.env.action_space.n
 
         # Build the DQN
         # Build the policy net
-        self.policy_net = DQN(self.num_states, self.num_actions).to(self.device)
+        self.policy_net = DQN(self.num_features, self.num_actions).to(self.device)
         # Build the target net
-        self.target_net = DQN(self.num_states, self.num_actions).to(self.device)
+        self.target_net = DQN(self.num_features, self.num_actions).to(self.device)
         # Set the target net to the policy net
         self.target_net.load_state_dict(self.policy_net.state_dict())
         # Set the target net to evaluation mode
         self.target_net.eval()
 
         # Build the optimizer
-        self.optimizer = optim.RMSprop(self.policy_net.parameters())
+        if optimizer == "Adam":
+            self.optimizer = optim.Adam(self.policy_net.parameters())
+        elif optimizer == "RMSprop":
+            self.optimizer = optim.RMSprop(self.policy_net.parameters())
+        elif optimizer == "SGD":
+            self.optimizer = optim.SGD(self.policy_net.parameters(), lr=learning_rate)
+        else:
+            raise ValueError("Optimizer must be Adam, RMSprop, or SGD")
 
         # Build the loss function
         self.loss_function = nn.MSELoss()
@@ -100,20 +124,20 @@ class PID_DQN(Agent):
 
     def reset(self, reset_environment):
         if reset_environment:
-            self.environment.reset()
+            self.env.reset()
         
         # Reset the replay memory
         self.replay_memory = {}
         # Reset the policy net
-        self.policy_net = DQN(self.num_states, self.num_actions).to(self.device)
+        self.policy_net = DQN(self.num_features, self.num_actions).to(self.device)
         # Reset the target net
-        self.target_net = DQN(self.num_states, self.num_actions).to(self.device)
+        self.target_net = DQN(self.num_features, self.num_actions).to(self.device)
         # Set the target net to the policy net
         self.target_net.load_state_dict(self.policy_net.state_dict())
         # Set the target net to evaluation mode
         self.target_net.eval()
 
-    def estimate_value_function(self, follow_trajectory=True, num_iterations=1000, reset=True, reset_environment=True, stop_if_diverging=True):
+    def rollout(self, follow_trajectory=True, num_iterations=1000, reset=True, reset_environment=True):
         if reset:
             self.reset(reset_environment)
 
@@ -126,47 +150,47 @@ class PID_DQN(Agent):
             # Add the current state, action, next state, and reward to the replay memory
             self.replay_memory.add((current_state, action, next_state, reward))
 
+            for _ in range(self.train_steps):
+                # Sample a batch from the replay memory
+                batch = np.random.choice(list(self.replay_memory), self.batch_size)
 
-            # Sample a batch from the replay memory
-            batch = np.random.choice(list(self.replay_memory), self.batch_size)
+                # Build the current states
+                current_states = torch.tensor([x[0] for x in batch], dtype=torch.float32).to(self.device)
+                # Build the actions
+                actions = torch.tensor([x[1] for x in batch], dtype=torch.long).to(self.device)
+                # Build the next states
+                next_states = torch.tensor([x[2] for x in batch], dtype=torch.float32).to(self.device)
+                # Build the rewards
+                rewards = torch.tensor([x[3] for x in batch], dtype=torch.float32).to(self.device)
 
-            # Build the current states
-            current_states = torch.tensor([x[0] for x in batch], dtype=torch.float32).to(self.device)
-            # Build the actions
+                # Compute the Q values for the current states
+                current_Q_values = self.policy_net(current_states)
+                # Compute the Q values for the next states
+                next_Q_values = self.target_net(next_states)
+                # Compute the Q values for the current states and actions
+                current_Q_values = current_Q_values.gather(1, actions.unsqueeze(1)).squeeze(1)
+                # Compute the Q values for the next states
+                next_Q_values = next_Q_values.max(1)[0].detach()
+                # Compute the expected Q values
+                expected_Q_values = rewards + self.gamma * next_Q_values
 
-            actions = torch.tensor([x[1] for x in batch], dtype=torch.long).to(self.device)
-            # Build the next states
-            next_states = torch.tensor([x[2] for x in batch], dtype=torch.float32).to(self.device)
-            # Build the rewards
-            rewards = torch.tensor([x[3] for x in batch], dtype=torch.float32).to(self.device)
+                # Compute the loss
+                loss = self.loss_function(current_Q_values, expected_Q_values)
 
-            # Compute the Q values for the current states
-            current_Q_values = self.policy_net(current_states)
-            # Compute the Q values for the next states
-            next_Q_values = self.target_net(next_states)
-            # Compute the Q values for the current states and actions
-            current_Q_values = current_Q_values.gather(1, actions.unsqueeze(1)).squeeze(1)
-            # Compute the Q values for the next states
-            next_Q_values = next_Q_values.max(1)[0].detach()
-            # Compute the expected Q values
-            expected_Q_values = rewards + self.gamma * next_Q_values
-
-            # Compute the loss
-            loss = self.loss_function(current_Q_values, expected_Q_values)
-
-            # Zero the gradients
-            self.optimizer.zero_grad()
-            # Compute the gradients
-            loss.backward()
-            # Update the weights
-            self.optimizer.step()
+                # Zero the gradients
+                self.optimizer.zero_grad()
+                # Compute the gradients
+                loss.backward()
+                # Update the weights
+                self.optimizer.step()
 
             # Update the target net
             if k % self.target_net_update_steps == 0:
                 self.target_net.load_state_dict(self.policy_net.state_dict())
 
             # Update epsilon
-            self.epsilon = max(self.epsilon_min, self.epsilon * self.epsilon_decay)
+            if k % self.epsilon_decay_step == 0:
+                self.epsilon = max(self.epsilon_min, self.epsilon * self.epsilon_decay)
 
             history[k] = reward
 
