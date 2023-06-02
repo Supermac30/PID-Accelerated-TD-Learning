@@ -11,3 +11,6 @@ Q:
 	python3 -m Experiments.QExperiments.PIDQLearning
 true_Q:
 	python3 -m Experiments.VIExperiments.VIQControl
+
+DQN:
+	python3 -m Experiments.DQNExperiments.DQNExperiment

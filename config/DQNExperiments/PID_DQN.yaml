@@ -25,7 +25,7 @@ normalize: True
 
 follow_trajectory: False
 
-env: garnet
+env: CartPole-v0
 
 seed: -1
 hydra:
