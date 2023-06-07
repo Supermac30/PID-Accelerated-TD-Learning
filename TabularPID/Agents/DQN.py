@@ -27,9 +27,9 @@ class DQN(nn.Module):
     """
     def __init__(self, num_features, num_actions):
         super(DQN, self).__init__()
-        self.layer1 = nn.Linear(num_features, 16)
-        self.layer2 = nn.Linear(16, 16)
-        self.layer3 = nn.Linear(16, num_actions)
+        self.layer1 = nn.Linear(num_features, 128)
+        self.layer2 = nn.Linear(128, 128)
+        self.layer3 = nn.Linear(128, num_actions)
 
     def forward(self, x):
         x = F.relu(self.layer1(x))
@@ -70,66 +70,45 @@ class PID_DQN():
         self.beta = beta
         self.gamma = gamma
 
-        # Get num_features from the envirnoment
         self.num_features = self.env.observation_space.shape[0]
-
-        # Get num_actions from the environment
         self.num_actions = self.env.action_space.n
+        self.loss_function = nn.MSELoss()  # nn.SmoothL1Loss()
 
-        # Build the loss function
-        self.loss_function = nn.MSELoss()
-
-        # Build the replay memory
         self.replay_memory = ReplayMemory(replay_memory_size, batch_size, self.device)
+        self.batch_size = batch_size
 
+        self.optimizer_name = optimizer
+        self.learning_rate = learning_rate
         self.reset(True)
 
-        # Build the optimizer
-        if optimizer == "Adam":
-            self.optimizer = optim.AdamW(self.policy_net.parameters(), lr=learning_rate, amsgrad=True)
-        elif optimizer == "RMSprop":
-            self.optimizer = optim.RMSprop(self.policy_net.parameters())
-        elif optimizer == "SGD":
-            self.optimizer = optim.SGD(self.policy_net.parameters(), lr=learning_rate)
-        else:
-            raise ValueError("Optimizer must be Adam, RMSprop, or SGD")
-
-        # Build the tau
         self.tau = tau
-
-        # Build the epsilon
         self.epsilon = epsilon
-
-        # Build the epsilon decay
         self.epsilon_decay = epsilon_decay
-
-        # Build the epsilon minimum
         self.epsilon_min = epsilon_min
-
-        # Build the epsilon decay step
         self.epsilon_decay_step = epsilon_decay_step
-
-        # Build the number of steps to train
         self.train_steps = train_steps
 
     def reset(self, reset_environment):
         if reset_environment:
             self.env.reset()
         
-        # Reset the replay memory
         self.replay_memory.reset()
-        # Reset the policy net
         self.policy_net = DQN(self.num_features, self.num_actions).to(self.device)
-        # Reset the test net
-        self.test_net = DQN(self.num_features, 1).to(self.device)
-        # Reset the target net
         self.target_net = DQN(self.num_features, self.num_actions).to(self.device)
-        # Reset the D network
         self.D = DQN(self.num_features, self.num_actions).to(self.device)
-        # Set the target net to the policy net
         self.target_net.load_state_dict(self.policy_net.state_dict())
         self.D.load_state_dict(self.target_net.state_dict())
         self.average_loss = 0
+
+        # Build the optimizer
+        if self.optimizer_name == "Adam":
+            self.optimizer = optim.AdamW(self.policy_net.parameters(), lr=self.learning_rate, amsgrad=True)
+        elif self.optimizer_name == "RMSprop":
+            self.optimizer = optim.RMSprop(self.policy_net.parameters(), lr=self.learning_rate)
+        elif self.optimizer_name == "SGD":
+            self.optimizer = optim.SGD(self.policy_net.parameters(), lr=self.learning_rate)
+        else:
+            raise ValueError("Optimizer must be Adam, RMSprop, or SGD")
 
     def rollout(self, max_num_iterations=1000, max_num_episodes=1000, reset=True, reset_environment=True, use_episodes=True, debug=True):
         """
@@ -142,7 +121,6 @@ class PID_DQN():
         """
         if reset:
             self.reset(reset_environment)
-
         # Recorded rewards
         history = []
 
@@ -157,27 +135,12 @@ class PID_DQN():
             k += 1
             action, done, next_state, reward = self.take_action(current_state)
 
-            if done:
-                if use_episodes:
-                    history.append(episode_reward)
-                    episode_count += 1
-                if debug:
-                    if episode_count % 50 == 0:
-                        print("Episode: {} | Reward: {} | epsilon: {}".format(episode_count, episode_reward, self.epsilon))
-                        print("Average loss: {}".format(self.average_loss))
-                episode_reward = 0
-                # reset the environment
-                self.env.reset()
-
-            # Add the current state, action, next state, and reward to the replay memory
             self.replay_memory.add(current_state, action, next_state, reward)
             self.train()
 
-            # Update the target net
             self.update_target_net()
             self.update_D_net()
 
-            # Update epsilon
             if k % self.epsilon_decay_step == 0:
                 self.epsilon = max(self.epsilon_min, self.epsilon * self.epsilon_decay)
 
@@ -187,46 +150,56 @@ class PID_DQN():
 
             episode_reward += reward.item()
             current_state = next_state
-        
+
+            if done:
+                if use_episodes:
+                    history.append(episode_reward)
+                    episode_count += 1
+                if debug:
+                    if episode_count % 10 == 0:
+                        print("Episode: {} | Reward: {} | epsilon: {}".format(episode_count, episode_reward, self.epsilon))
+                        print("Average loss: {}".format(self.average_loss))
+                episode_reward = 0
+                state, _ = self.env.reset()
+                current_state = torch.tensor(state, dtype=torch.float32).to(self.device).unsqueeze(0)
+
         history = np.array(history)
         return history, self.policy_net
-    
+
     def train(self):
+        if len(self.replay_memory.replay_memory) < self.batch_size:
+            return
         for _ in range(self.train_steps):
             # Sample a batch from the replay memory
-            current_states, actions, next_states, rewards = self.replay_memory.sample()
+            samples = self.replay_memory.sample()
+
+            non_final_mask = torch.tensor(tuple(map(lambda s: s is not None, samples.next_state)), dtype=torch.bool).to(self.device)
+            non_final_next_states = torch.cat([s for s in samples.next_state if s is not None]).to(self.device)
+            states = torch.cat(samples.state).to(self.device)
+            actions = torch.cat(samples.action).to(self.device)
+            rewards = torch.cat(samples.reward).to(self.device)
 
             # Compute the Q values for the current states and actions
-            current_Q_values = self.test_net(torch.zeros(self.num_features, device=self.device))
-            """
-            # Create an empty tensor with the same shape as the next states
-            #next_Q_values = torch.zeros(next_states.shape[0], device=self.device)
-            #current_Q_target_values = torch.zeros(next_states.shape[0], device=self.device)
-            #D_values = torch.zeros(next_states.shape[0], device=self.device)
+            current_Q_values = self.policy_net(states).gather(1, actions)
+
+            # Compute the Q values for the next states
+            next_Q_values = torch.zeros(self.batch_size).to(self.device)
             with torch.no_grad():
                 # Compute the Q values for the next states
-                next_Q_values = self.target_net(next_states).max(1)[0]
-                current_Q_target_values = self.target_net(current_states).gather(1, actions).squeeze(1)
-                D_values = self.D(current_states).gather(1, actions).squeeze(1)
+                next_Q_values[non_final_mask] = self.target_net(non_final_next_states).max(1)[0]
+                current_Q_target_values = self.target_net(states).gather(1, actions).squeeze(1)
+                D_values = self.D(states).gather(1, actions).squeeze(1)
 
-                # Compute the expected Q values
-                target = (1 - self.kp) * current_Q_target_values + self.kp * (rewards + self.gamma * next_Q_values) \
-                    + self.kd * (current_Q_target_values - D_values) \
-                #   + self.ki * zs
-            """
-            
-            # Make target a tensor of ones
-            target = torch.ones(1, device=self.device)
+            # Compute the expected Q values
+            target = (1 - self.kp) * current_Q_target_values + self.kp * (rewards + self.gamma * next_Q_values) \
+                + self.kd * (current_Q_target_values - D_values) \
+            #    + self.ki * zs
 
-            # Compute the loss
-            if np.random.rand() < 0.001:
-                breakpoint()
-            loss_function = torch.nn.MSELoss()
-            loss = loss_function(current_Q_values, target)
+            loss = self.loss_function(current_Q_values, target.unsqueeze(1))
 
             self.optimizer.zero_grad()
             loss.backward()
-            #torch.nn.utils.clip_grad_value_(self.policy_net.parameters(), 100)
+            torch.nn.utils.clip_grad_value_(self.policy_net.parameters(), 100)
             self.optimizer.step()
 
             self.average_loss = loss.item() * 0.01 + self.average_loss * 0.99
@@ -252,13 +225,17 @@ class PID_DQN():
         action = self.choose_action(current_state)
 
         # Take the action
-        next_state, reward, done, _, _ = self.env.step(action)
+        next_state, reward, done, truncated, _ = self.env.step(action)
+        terminated = done or truncated
 
-        next_state = torch.tensor(next_state, dtype=torch.float32, device=self.device).unsqueeze(0)
+        if terminated:
+            next_state = None
+        else:
+            next_state = torch.tensor(next_state, dtype=torch.float32, device=self.device).unsqueeze(0)
         reward = torch.tensor([reward], dtype=torch.float32, device=self.device)
         action = torch.tensor([[action]], dtype=torch.long, device=self.device)
 
-        return action, done, next_state, reward
+        return action, terminated, next_state, reward
 
     def choose_action(self, state):
         # With probability epsilon, choose a random action
@@ -272,7 +249,7 @@ class PID_DQN():
         with torch.no_grad():
             return self.policy_net(state).max(1)[1].item()
 
-    def visualize_episode(self, file_name="episode"):
+    def visualize_episode(self, file_name="episode", max_length=10000):
         """Render the environment until the episode is done.
 
         Args:
@@ -281,16 +258,18 @@ class PID_DQN():
         # Reset the environment
         self.env.reset()
 
-        env = RecordVideo(self.env, file_name)
+        env = RecordVideo(self.env, file_name + f"{self.kp},{self.ki},{self.kd}.mp4")
 
         env.reset()
         done = False
+        k = 0
 
-        while not done:
+        while not done and k < max_length:
             # Take an action
             action = self.choose_best_action(torch.tensor(self.env.state, dtype=torch.float32).unsqueeze(0).to(self.device))
             # Take the action
             _, _, done, _, _ = env.step(action)
+            k += 1
 
         env.close()
 
@@ -310,14 +289,7 @@ class ReplayMemory():
         else:
             batch = random.sample(self.replay_memory, self.batch_size)
 
-        sample = Sample(*zip(*batch))
+        return Sample(*zip(*batch))
 
-        current_states = torch.cat(sample.state)
-        actions = torch.cat(sample.action)
-        rewards = torch.cat(sample.reward)
-        next_states = torch.cat(sample.next_state)
-
-        return current_states, actions, next_states, rewards
-    
     def reset(self):
         self.replay_memory = []

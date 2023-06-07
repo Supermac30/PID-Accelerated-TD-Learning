@@ -30,9 +30,8 @@ def control_experiment(cfg):
 
     ax.title.set_text(f"PID-DQN: {cfg['env']}")
     ax.legend()
-    ax.set_yscale('log')
     ax.set_xlabel('Iteration')
-    create_label(ax, cfg['norm'], cfg['normalize'], False, True)
+    ax.set_ylabel('Episode Reward')
     fig.savefig("plot")
     fig.show()
 

@@ -1,4 +1,4 @@
-import gym
+import gymnasium as gym
 from TabularPID.Agents.DQN import PID_DQN
 
 def build_PID_DQN(kp, ki, kd, alpha, beta, env_name, gamma, optimizer, replay_memory_size, batch_size,
