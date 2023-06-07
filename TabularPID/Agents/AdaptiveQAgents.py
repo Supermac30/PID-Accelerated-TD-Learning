@@ -201,3 +201,123 @@ class AdaptivePlannerAgent(AbstractAdaptiveAgent):
             max_future_reward = max(max_future_reward, expected_reward)
         return self.R + self.gamma * max_future_reward - self.Q
 
+
+class AbstractGainUpdater():
+    def __init__(self, lambd, epsilon=0.1):
+        self.agent = None
+        self.epsilon = epsilon
+        self.lambd = lambd
+
+    def set_agent(self, agent):
+        self.agent = agent
+        self.num_states = self.agent.num_states
+        self.gamma = self.agent.gamma
+        self.meta_lr = self.agent.meta_lr
+
+        self.kp = self.agent.kp
+        self.ki = self.agent.ki
+        self.kd = self.agent.kd
+        self.alpha = self.agent.alpha
+        self.beta = self.agent.beta
+
+    def intermediate_update(self):
+        """This is an update during a delay in case some internal variables need to change while V is changing."""
+        self.calculate_updated_values(intermediate=True)
+
+    def calculate_updated_values(self, intermediate=False):
+        raise NotImplementedError
+
+    def update_gains(self):
+        self.agent.kp = self.kp
+        self.agent.ki = self.ki
+        self.agent.kd = self.kd
+
+        #self.agent.alpha = self.alpha
+        #self.agent.beta = self.beta
+
+    def plot(self):
+        """Plot any relavant information"""
+        # raise NotImplementedError
+        return None
+
+
+class SemiGradientUpdater(AbstractGainUpdater):
+    def __init__(self, lambd=0, epsilon=0.1):
+        super().__init__(lambd, epsilon)
+
+        self.d_update = 0
+        self.i_update = 0
+        self.p_update = 0
+
+        self.running_BR = 0
+        self.previous_average_BR = float("inf")
+
+
+    def set_agent(self, agent):
+        self.running_BR = np.zeros((agent.num_states))
+        self.previous_average_BR = float("inf")
+        self.d_update = 0
+        self.i_update = 0
+        self.p_update = 0
+
+        self.BR_plot = [0]
+        self.i_update_plot = [0]
+        self.z_plot = [0]
+
+        self.plot_state = 25
+
+        return super().set_agent(agent)
+
+    def calculate_updated_values(self, intermediate=False):
+        reward = self.agent.reward
+        next_state, current_state, action = self.agent.next_state, self.agent.current_state, self.agent.action
+        Q, Qp, z = self.agent.previous_Q, self.agent.previous_Qp, self.agent.previous_z
+        next_Q = self.agent.Q
+        alpha, beta = self.alpha, self.beta
+        gamma, lr = self.gamma, self.agent.lr
+
+        BR = reward + gamma * Q[next_state][0] - Q[current_state][0]
+        next_BR = reward + gamma * next_Q[next_state][0] - next_Q[current_state][0]
+
+        scale = 0.5
+        self.running_BR[current_state] = (1 - scale) * self.running_BR[current_state] + scale * BR * BR
+
+        self.p_update += lr * next_BR * BR / (self.epsilon + self.running_BR[current_state])
+        self.d_update += lr * next_BR * (Q[current_state] - Qp[current_state]) / (self.epsilon + self.running_BR[current_state])
+        self.i_update += lr * next_BR * (beta * z[current_state][0] + alpha * BR) / (self.epsilon + self.running_BR[current_state])
+
+        if self.plot_state == current_state:
+            self.BR_plot.append(BR)
+            self.i_update_plot.append(beta * z[self.plot_state][0] + alpha * BR)
+            self.z_plot.append(z[self.plot_state][0])
+        else:
+            self.BR_plot.append(self.BR_plot[-1])
+            self.i_update_plot.append(self.i_update_plot[-1])
+            self.z_plot.append(self.z_plot[-1])
+
+        if not intermediate:
+            self.kp = 1 + (1 - self.lambd) * (self.kp - 1) + self.meta_lr * self.p_update / self.agent.update_frequency
+            self.kd = self.kd * (1 - self.lambd) + self.meta_lr * self.d_update / self.agent.update_frequency
+            self.ki = self.ki * (1 - self.lambd) + self.meta_lr * self.i_update / self.agent.update_frequency
+
+            self.d_update = 0
+            self.i_update = 0
+            self.p_update = 0
+
+    def plot(self):
+        # Plot BR_plot and i_update_plot on separate sub-plots
+        fig, (ax1, ax2, ax3) = plt.subplots(3, 1)
+        ax1.plot(self.BR_plot, color="red", label="BR")
+        ax2.plot(self.i_update_plot, color="blue", label="i_update")
+        ax3.plot(self.z_plot, color="green", label="z")
+        # Add the legend
+        ax1.legend()
+        ax2.legend()
+        ax3.legend()
+        # Add the title
+        ax1.set_title("BR")
+        ax2.set_title("i_update")
+        ax3.set_title("z")
+        # Save the figure
+        fig.savefig("BR_plot.png")
+        plt.show()

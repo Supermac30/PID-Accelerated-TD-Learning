@@ -43,8 +43,6 @@ def build_agent(agent_name, env_name, env, policy, get_optimal, gamma):
     """
     agent_description, kp, ki, kd, alpha, beta, *kwargs = agent_name
 
-    if agent_description == "PID DQN":
-        return build_PID_DQN(env, policy, kp, ki, kd, alpha, beta, gamma)
     if agent_description == "VI":
         return build_VI_PID(env, policy, kp, ki, kd, alpha, beta, gamma)
     elif agent_description == "VI control":

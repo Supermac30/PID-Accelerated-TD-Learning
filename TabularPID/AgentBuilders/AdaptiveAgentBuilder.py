@@ -8,6 +8,7 @@ Possible agents include:
 from Experiments.ExperimentHelpers import learning_rate_function, get_env_policy
 from TabularPID.OptimalRates.OptimalRateDatabase import get_stored_optimal_rate
 from TabularPID.Agents.AdaptiveAgents import *
+import TabularPID.Agents.AdaptiveQAgents as AdaptiveQAgents
 import logging
 
 default_meta_lr = 1
@@ -107,7 +108,25 @@ def build_adaptive_agent(agent_name, env_name, env, policy, meta_lr, lambd, dela
         return build_true_diagonal_semi_gradient_updater(*params)
     elif agent_name == "true semi gradient updater":
         return build_true_semi_gradient_updater(*params)
+
+
+    elif agent_name == "semi gradient Q updater":
+        return build_semi_gradient_Q_updater(*params)
     return None
+
+
+def build_semi_gradient_Q_updater(env, policy, meta_lr, lambd, learning_rates, gamma, delay, kp, kd, ki, alpha, beta, epsilon):
+    gain_updater = AdaptiveQAgents.SemiGradientUpdater(lambd, epsilon)
+    return AdaptiveQAgents.AdaptiveSamplerAgent(
+        gain_updater,
+        learning_rates,
+        meta_lr,
+        env,
+        policy,
+        gamma,
+        delay,
+        kp, kd, ki, alpha, beta
+    )
 
 
 def build_true_semi_gradient_updater(env, policy, meta_lr, lambd, learning_rates, gamma, delay, kp, kd, ki, alpha, beta, epsilon):
