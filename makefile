@@ -2,7 +2,8 @@ adapt:
 	python3 -m Experiments.AdaptationExperiments.AdaptiveAgentExperiment
 true_adapt:
 	python3 -m Experiments.AdaptationExperiments.AdaptiveAgentPAVIAExperiment
-
+Q_adapt:
+	python3 -m Experiments.AdaptationExperiments.AdaptiveQAgentExperiment
 TD:
 	python3 -m Experiments.TDExperiments.SoftTDPolicyEvaluation
 params:

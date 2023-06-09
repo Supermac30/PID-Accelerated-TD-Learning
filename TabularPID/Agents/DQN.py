@@ -6,8 +6,10 @@ import torch.nn.functional as F
 import torch.optim as optim
 import numpy as np
 import random
-from collections import deque, namedtuple
+from collections import deque
+from recordclass import recordclass
 from torchviz import make_dot
+import logging
 
 from gym.wrappers import RecordVideo
 
@@ -19,17 +21,17 @@ TODOs:
     - Implement seeds
 """
 
-Sample = namedtuple('Sample', ('state', 'action', 'next_state', 'reward'))
+Sample = recordclass('Sample', ('state', 'action', 'next_state', 'reward', 'z'))
 
 class DQN(nn.Module):
     """
     A DQN
     """
-    def __init__(self, num_features, num_actions):
+    def __init__(self, num_features, num_actions, inner_size=128):
         super(DQN, self).__init__()
-        self.layer1 = nn.Linear(num_features, 128)
-        self.layer2 = nn.Linear(128, 128)
-        self.layer3 = nn.Linear(128, num_actions)
+        self.layer1 = nn.Linear(num_features, inner_size)
+        self.layer2 = nn.Linear(inner_size, inner_size)
+        self.layer3 = nn.Linear(inner_size, num_actions)
 
     def forward(self, x):
         x = F.relu(self.layer1(x))
@@ -44,6 +46,7 @@ class PID_DQN():
                  replay_memory_size=10000, batch_size=128, learning_rate=0.001,
                  tau=0.005, epsilon=0.1, epsilon_decay=0.999,
                  epsilon_min=0.01, epsilon_decay_step=1000, train_steps=1000,
+                 D_tau=0.5, adapt_gains=False, meta_lr=0.1, inner_size=128,
                  device="cuda"):
         """
         Initialize the agent:
@@ -54,14 +57,20 @@ class PID_DQN():
         Batch size: the size of the batch to sample from the replay memory
         Learning rate: the learning rate for the optimizer
         Tau: the tau for soft updates
+        D_tau: The update rate for the D controller
         Epsilon: the probability of choosing a random action
         Epsilon decay: the decay of epsilon
         Epsilon min: the minimum epsilon
         Epsilon decay step: the number of steps to decay epsilon
         Train steps: the number of iterations to train the DQN after each sample
+        adapt_gains: whether to adapt the gains or not
+        meta_lr: the learning rate for the meta optimizer
+        inner_size: the size of the hidden layers
         """
         self.env = environment
         self.device = device
+
+        self.inner_size = inner_size
 
         self.kp = kp
         self.ki = ki
@@ -70,7 +79,10 @@ class PID_DQN():
         self.beta = beta
         self.gamma = gamma
 
-        self.num_features = self.env.observation_space.shape[0]
+        if self.env.observation_space.shape is None:
+            self.num_features = len(self.env.observation_space)
+        else:
+            self.num_features = self.env.observation_space.shape[0]
         self.num_actions = self.env.action_space.n
         self.loss_function = nn.MSELoss()  # nn.SmoothL1Loss()
 
@@ -82,20 +94,24 @@ class PID_DQN():
         self.reset(True)
 
         self.tau = tau
+        self.D_tau = D_tau
         self.epsilon = epsilon
         self.epsilon_decay = epsilon_decay
         self.epsilon_min = epsilon_min
         self.epsilon_decay_step = epsilon_decay_step
         self.train_steps = train_steps
 
+        self.adapt_gains = adapt_gains
+        self.meta_lr = meta_lr
+
     def reset(self, reset_environment):
         if reset_environment:
             self.env.reset()
         
         self.replay_memory.reset()
-        self.policy_net = DQN(self.num_features, self.num_actions).to(self.device)
-        self.target_net = DQN(self.num_features, self.num_actions).to(self.device)
-        self.D = DQN(self.num_features, self.num_actions).to(self.device)
+        self.policy_net = DQN(self.num_features, self.num_actions, self.inner_size).to(self.device)
+        self.target_net = DQN(self.num_features, self.num_actions, self.inner_size).to(self.device)
+        self.D = DQN(self.num_features, self.num_actions, self.inner_size).to(self.device)
         self.target_net.load_state_dict(self.policy_net.state_dict())
         self.D.load_state_dict(self.target_net.state_dict())
         self.average_loss = 0
@@ -110,7 +126,7 @@ class PID_DQN():
         else:
             raise ValueError("Optimizer must be Adam, RMSprop, or SGD")
 
-    def rollout(self, max_num_iterations=1000, max_num_episodes=1000, reset=True, reset_environment=True, use_episodes=True, debug=True):
+    def rollout(self, max_num_iterations=1000, max_num_episodes=1000, reset=True, reset_environment=True, use_episodes=True, debug=True, adapt=False, debug_num_steps=10):
         """
         Rollout the agent for a number of iterations
 
@@ -129,14 +145,17 @@ class PID_DQN():
         episode_count = 0
         k = 0
 
-        current_state = torch.tensor(self.env.state, dtype=torch.float32).to(self.device).unsqueeze(0)
+        current_state = torch.tensor(self.env.reset()[0], dtype=torch.float32).to(self.device).unsqueeze(0)
 
-        while episode_count < max_num_episodes and iteration_count < max_num_iterations:
+        while (use_episodes and episode_count < max_num_episodes) or (not use_episodes and iteration_count < max_num_iterations):
             k += 1
             action, done, next_state, reward = self.take_action(current_state)
 
             self.replay_memory.add(current_state, action, next_state, reward)
             self.train()
+
+            if self.adapt_gains:
+                self.update_gains()
 
             self.update_target_net()
             self.update_D_net()
@@ -154,18 +173,20 @@ class PID_DQN():
             if done:
                 if use_episodes:
                     history.append(episode_reward)
-                    episode_count += 1
                 if debug:
-                    if episode_count % 10 == 0:
-                        print("Episode: {} | Reward: {} | epsilon: {}".format(episode_count, episode_reward, self.epsilon))
-                        print("Average loss: {}".format(self.average_loss))
+                    if episode_count % debug_num_steps == 0:
+                        logging.info("Episode: {} | Reward: {} | epsilon: {}".format(episode_count, episode_reward, self.epsilon))
+                        logging.info("Average loss: {}".format(self.average_loss))
+
+
+                episode_count += 1
                 episode_reward = 0
                 state, _ = self.env.reset()
                 current_state = torch.tensor(state, dtype=torch.float32).to(self.device).unsqueeze(0)
 
         history = np.array(history)
         return history, self.policy_net
-
+    
     def train(self):
         if len(self.replay_memory.replay_memory) < self.batch_size:
             return
@@ -174,10 +195,15 @@ class PID_DQN():
             samples = self.replay_memory.sample()
 
             non_final_mask = torch.tensor(tuple(map(lambda s: s is not None, samples.next_state)), dtype=torch.bool).to(self.device)
-            non_final_next_states = torch.cat([s for s in samples.next_state if s is not None]).to(self.device)
+            non_final_next_states = [s for s in samples.next_state if s is not None]
+            if non_final_next_states != []:
+                non_final_next_states = torch.cat([s for s in samples.next_state if s is not None]).to(self.device)
+            else:
+                non_final_next_states = torch.zeros(0).to(self.device)
             states = torch.cat(samples.state).to(self.device)
             actions = torch.cat(samples.action).to(self.device)
             rewards = torch.cat(samples.reward).to(self.device)
+            zs = torch.cat(samples.z).to(self.device)
 
             # Compute the Q values for the current states and actions
             current_Q_values = self.policy_net(states).gather(1, actions)
@@ -190,10 +216,15 @@ class PID_DQN():
                 current_Q_target_values = self.target_net(states).gather(1, actions).squeeze(1)
                 D_values = self.D(states).gather(1, actions).squeeze(1)
 
+                self.BRs = rewards + self.gamma * next_Q_values - current_Q_target_values
+                new_zs = self.beta * zs + self.alpha * self.BRs
+
+            self.p_update = rewards + self.gamma * next_Q_values - current_Q_target_values
+            self.d_update = current_Q_target_values - D_values
+            self.i_update = new_zs
+
             # Compute the expected Q values
-            target = (1 - self.kp) * current_Q_target_values + self.kp * (rewards + self.gamma * next_Q_values) \
-                + self.kd * (current_Q_target_values - D_values) \
-            #    + self.ki * zs
+            target = current_Q_target_values + self.kp * self.p_update + self.kd * self.d_update + self.ki * self.i_update
 
             loss = self.loss_function(current_Q_values, target.unsqueeze(1))
 
@@ -203,6 +234,22 @@ class PID_DQN():
             self.optimizer.step()
 
             self.average_loss = loss.item() * 0.01 + self.average_loss * 0.99
+
+            if self.ki != 0:
+                self.update_zs(samples, new_zs)
+
+    def update_zs(self, samples, new_zs):
+        """In all of the samples, replace the zs with the new zs"""
+        # TODO: Figrue out how to make this more efficient
+        for i in range(len(samples)):
+            samples.z[i][0] = new_zs[i]
+
+    def update_gains(self):
+        """Update the gains"""
+        self.running_BRs = 0.5 * self.running_BRs + 0.5 * self.BRs.T @ self.BRs
+        self.kp += self.meta_lr * self.BRs.T @ self.p_update / (self.epsilon + self.running_BRs)
+        self.ki += self.meta_lr * self.BRs.T @ self.i_update / (self.epsilon + self.running_BRs)
+        self.kd += self.meta_lr * self.BRs.T @ self.d_update / (self.epsilon + self.running_BRs)
 
     def update_target_net(self):
         with torch.no_grad():
@@ -217,7 +264,7 @@ class PID_DQN():
             D_net_state_dict = self.D.state_dict()
             target_net_state_dict = self.target_net.state_dict()
             for key in D_net_state_dict:
-                D_net_state_dict[key] = target_net_state_dict[key]*self.tau + D_net_state_dict[key]*(1-self.tau)
+                D_net_state_dict[key] = target_net_state_dict[key]*self.D_tau + D_net_state_dict[key]*(1-self.D_tau)
             self.D.load_state_dict(D_net_state_dict)
 
     def take_action(self, current_state):
@@ -260,15 +307,15 @@ class PID_DQN():
 
         env = RecordVideo(self.env, file_name + f"{self.kp},{self.ki},{self.kd}.mp4")
 
-        env.reset()
+        state = env.reset()[0]
         done = False
         k = 0
 
         while not done and k < max_length:
             # Take an action
-            action = self.choose_best_action(torch.tensor(self.env.state, dtype=torch.float32).unsqueeze(0).to(self.device))
+            action = self.choose_best_action(torch.tensor(state, dtype=torch.float32).unsqueeze(0).to(self.device))
             # Take the action
-            _, _, done, _, _ = env.step(action)
+            state, reward, done, _, _ = env.step(action)
             k += 1
 
         env.close()
@@ -281,7 +328,8 @@ class ReplayMemory():
         self.replay_memory = deque([], maxlen=replay_memory_size)
 
     def add(self, current_state, action, next_state, reward):
-        self.replay_memory.append((current_state, action, next_state, reward))
+        z = torch.zeros(1, device=self.device)
+        self.replay_memory.append((current_state, action, next_state, reward, z))
 
     def sample(self):
         if self.batch_size > len(self.replay_memory):
@@ -293,3 +341,6 @@ class ReplayMemory():
 
     def reset(self):
         self.replay_memory = []
+
+
+

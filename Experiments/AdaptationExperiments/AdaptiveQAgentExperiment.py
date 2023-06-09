@@ -21,7 +21,7 @@ def adaptive_agent_experiment(cfg):
         get_optimal_pid_q_rates("Q learning", cfg['env'], 1, 0, 0, 0.05, 0.95, cfg['gamma'], cfg['recompute_optimal_Q'])
 
     Qagent, env, policy = build_agent_and_env(
-        ("Q learning", 1, 0, 0, 0.05, 0.95),
+        ("Q learning", 1, 0, 0, 0.05, 0.95, 1),
         cfg['env'],
         get_optimal=cfg['get_optimal_Q'],
         seed=seed,
@@ -43,9 +43,9 @@ def adaptive_agent_experiment(cfg):
     average_history /= cfg['repeat']
     save_array(average_history, f"Q-learner", ax0, normalize=cfg['normalize'])
 
-    for agent_name, meta_lr, delay, lambd, alpha, beta, epsilon in zip(cfg['agent_name'], cfg['meta_lr'], cfg['delay'], cfg['lambda'], cfg['alphas'], cfg['betas'], cfg['epsilon']):
+    for meta_lr, delay, lambd, alpha, beta, epsilon in zip(cfg['meta_lr'], cfg['delay'], cfg['lambda'], cfg['alphas'], cfg['betas'], cfg['epsilon']):
         if cfg['compute_optimal']:
-            get_optimal_adaptive_rates(agent_name, cfg['env'], meta_lr, cfg['gamma'], lambd, delay, alpha, beta, recompute=cfg['recompute_optimal'], epsilon=epsilon)
+            get_optimal_adaptive_rates('semi gradient Q updater', cfg['env'], meta_lr, cfg['gamma'], lambd, delay, alpha, beta, recompute=cfg['recompute_optimal'], epsilon=epsilon, norm=cfg['norm'], is_q=True)
         agent, _, _ = build_adaptive_agent_and_env(
             "semi gradient Q updater",
             cfg['env'],
@@ -78,7 +78,7 @@ def adaptive_agent_experiment(cfg):
 
         logging.info(Q - Q_star)
 
-        save_array(average_history, f"Adaptive Q Agent: {agent_name} {meta_lr} {delay} {lambd} {epsilon}", ax0, normalize=cfg['normalize'])
+        save_array(average_history, f"Adaptive Q Agent: {meta_lr} {delay} {lambd} {epsilon}", ax0, normalize=cfg['normalize'])
 
         fig = plt.figure(figsize=(10, 4))
         gs = fig.add_gridspec(nrows=1, ncols=3, width_ratios=[1,1,1], wspace=0.3, hspace=0.5)
@@ -91,7 +91,7 @@ def adaptive_agent_experiment(cfg):
             ax.set_ylabel(titles[i])
             ax.legend()
 
-        plt.suptitle(f"Adaptive Q Agent: {agent_name}, {cfg['env']}, meta_lr={meta_lr}, epsilon={epsilon}")
+        plt.suptitle(f"Adaptive Q Agent: {cfg['env']}, meta_lr={meta_lr}, epsilon={epsilon}")
 
         # Set square aspect ratio for each subplot
         for ax in fig.axes:
@@ -100,7 +100,7 @@ def adaptive_agent_experiment(cfg):
         # Center the subplots in a single row and move up to remove whitespace
         gs.tight_layout(fig, rect=[0.05, 0.08, 0.95, 0.95])
 
-        plt.savefig(f"gains_plot_{agent_name}_{str(meta_lr).replace('.', '-')}_{delay}_{str(lambd).replace('.','-')}.png")
+        plt.savefig(f"gains_plot_{str(meta_lr).replace('.', '-')}_{delay}_{str(lambd).replace('.','-')}.png")
         plt.close()
 
         if cfg['plot_updater']:

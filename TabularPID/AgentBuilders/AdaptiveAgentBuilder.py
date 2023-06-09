@@ -56,7 +56,7 @@ def build_adaptive_agent(agent_name, env_name, env, policy, meta_lr, lambd, dela
     Return None if the names are not in the list of possible names.
     """
     if get_optimal:
-        optimal_rates = get_stored_optimal_rate((agent_name, meta_lr, lambd, delay, alpha, beta), env_name, gamma)
+        optimal_rates = get_stored_optimal_rate((agent_name, meta_lr, lambd, delay, alpha, beta, epsilon), env_name, gamma)
     if not get_optimal or optimal_rates is None:
         optimal_rates = default_learning_rates
 
@@ -122,7 +122,6 @@ def build_semi_gradient_Q_updater(env, policy, meta_lr, lambd, learning_rates, g
         learning_rates,
         meta_lr,
         env,
-        policy,
         gamma,
         delay,
         kp, kd, ki, alpha, beta

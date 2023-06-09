@@ -2,12 +2,13 @@ import numpy as np
 from collections import defaultdict
 import logging
 import matplotlib.pyplot as plt
+from TabularPID.MDPs.Policy import Policy
 
 from TabularPID.Agents.Agents import Agent
 
 class AbstractAdaptiveAgent(Agent):
-    def __init__(self, gain_updater, learning_rates, meta_lr, environment, policy, gamma, update_frequency=1, kp=1, kd=0, ki=0, alpha=0.05, beta=0.95):
-        super().__init__(environment, policy, gamma)
+    def __init__(self, gain_updater, learning_rates, meta_lr, environment, gamma, update_frequency=1, kp=1, kd=0, ki=0, alpha=0.05, beta=0.95):
+        super().__init__(environment, None, gamma)
 
         self.meta_lr = meta_lr
         self.learning_rate = learning_rates[0]
@@ -22,8 +23,9 @@ class AbstractAdaptiveAgent(Agent):
 
         self.reset()
 
-    def reset(self):
-        self.environment.reset()
+    def reset(self, reset_environment=True):
+        if reset_environment:
+            self.environment.reset()
         self.kp, self.ki, self.kd = self.original_kp, self.original_ki, self.original_kd
         self.alpha, self.beta = self.original_alpha, self.original_beta
         self.lr, self.previous_lr, self.update_D_rate_value, self.previous_update_D_rate_value, self.update_I_rate_value, self.previous_update_I_rate_value = 0, 0, 0, 0, 0, 0
@@ -39,8 +41,10 @@ class AbstractAdaptiveAgent(Agent):
 
         self.gain_updater.set_agent(self)
 
-    def estimate_value_function(self, num_iterations=1000, test_function=None, initial_Q=None, stop_if_diverging=True, follow_trajectory=True):
-        self.reset()
+        self.policy = Policy(self.num_actions, self.num_states, self.environment.prg, None)
+
+    def estimate_value_function(self, num_iterations=1000, test_function=None, initial_Q=None, stop_if_diverging=True, follow_trajectory=True, reset_environment=True):
+        self.reset(reset_environment)
         # Q is the current value function, Qp is the previous value function
         # Qp stores the previous value of the x state when it was last changed
         if initial_Q is not None:
@@ -52,7 +56,7 @@ class AbstractAdaptiveAgent(Agent):
 
         for k in range(num_iterations):
             self.previous_previous_state, self.previous_state, self.previous_reward = self.previous_state, self.current_state, self.reward
-            self.current_state, self.action, self.next_state, self.reward = self.take_action(follow_trajectory)
+            self.current_state, self.action, self.next_state, self.reward = self.take_action(follow_trajectory, on_policy=False)
 
             self.replay_buffer[self.current_state].append(
                 (self.previous_reward, self.reward, self.previous_state, self.next_state, self.action)
@@ -97,6 +101,9 @@ class AbstractAdaptiveAgent(Agent):
     def BR(self):
         """Return the bellman residual"""
         raise NotImplementedError
+    
+    def plot(self):
+        return self.gain_updater.plot()
 
 
 
@@ -122,13 +129,14 @@ class AdaptiveSamplerAgent(AbstractAdaptiveAgent):
         new_z = self.beta * self.z[state][action] + self.alpha * BR
         new_Qp = self.Q[state][action]
 
-        self.previous_previous_Q[state][action], self.previous_Q[state][action], self.Q[state][action] = self.previous_Q[state][0], self.Q[state][0], (1 - lr) * self.Q[state][0] + lr * new_Q
+        self.previous_previous_Q[state][action], self.previous_Q[state][action], self.Q[state][action] = self.previous_Q[state][action], self.Q[state][action], (1 - lr) * self.Q[state][action] + lr * new_Q
         self.previous_z[state][action], self.z[state][action] = self.z[state][action], (1 - update_I_rate) * self.z[state][action] + update_I_rate * new_z
         self.previous_Qp[state][action], self.Qp[state][action] = self.Qp[state][action], (1 - update_D_rate) * self.Qp[state][action] + update_D_rate * new_Qp
 
     def BR(self):
         """Return the empirical bellman residual"""
         return self.reward + self.gamma * np.max(self.Q[self.next_state]) - self.Q[self.current_state][self.action]
+    
 
 
 class DiagonalAdaptiveSamplerAgent(AbstractAdaptiveAgent):
@@ -276,15 +284,15 @@ class SemiGradientUpdater(AbstractGainUpdater):
         alpha, beta = self.alpha, self.beta
         gamma, lr = self.gamma, self.agent.lr
 
-        BR = reward + gamma * Q[next_state][0] - Q[current_state][0]
-        next_BR = reward + gamma * next_Q[next_state][0] - next_Q[current_state][0]
+        BR = reward + gamma * np.max(Q[next_state]) - Q[current_state][action]
+        next_BR = reward + gamma * np.max(next_Q[next_state]) - next_Q[current_state][action]
 
         scale = 0.5
         self.running_BR[current_state] = (1 - scale) * self.running_BR[current_state] + scale * BR * BR
 
         self.p_update += lr * next_BR * BR / (self.epsilon + self.running_BR[current_state])
-        self.d_update += lr * next_BR * (Q[current_state] - Qp[current_state]) / (self.epsilon + self.running_BR[current_state])
-        self.i_update += lr * next_BR * (beta * z[current_state][0] + alpha * BR) / (self.epsilon + self.running_BR[current_state])
+        self.d_update += lr * next_BR * (Q[current_state][action] - Qp[current_state][action]) / (self.epsilon + self.running_BR[current_state])
+        self.i_update += lr * next_BR * (beta * z[current_state][action] + alpha * BR) / (self.epsilon + self.running_BR[current_state])
 
         if self.plot_state == current_state:
             self.BR_plot.append(BR)

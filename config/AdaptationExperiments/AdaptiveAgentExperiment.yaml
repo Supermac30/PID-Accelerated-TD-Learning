@@ -29,7 +29,6 @@ kp: 1
 ki: 0
 kd: 0
 
-epsilon: 0.1
 gamma: 0.999
 
 name: fine-tuning
