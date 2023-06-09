@@ -139,6 +139,7 @@ class PID_DQN():
             self.reset(reset_environment)
         # Recorded rewards
         history = []
+        self.gain_history = [[] for _ in range(5)]
 
         episode_reward = 0
         iteration_count = 0
@@ -156,6 +157,7 @@ class PID_DQN():
 
             if self.adapt_gains:
                 self.update_gains()
+                self.update_gain_history()
 
             self.update_target_net()
             self.update_D_net()
@@ -185,8 +187,10 @@ class PID_DQN():
                 current_state = torch.tensor(state, dtype=torch.float32).to(self.device).unsqueeze(0)
 
         history = np.array(history)
+        if self.adapt_gains:
+            return history, self.gain_history, self.policy_net
         return history, self.policy_net
-    
+
     def train(self):
         if len(self.replay_memory.replay_memory) < self.batch_size:
             return
@@ -250,6 +254,14 @@ class PID_DQN():
         self.kp += self.meta_lr * self.BRs.T @ self.p_update / (self.epsilon + self.running_BRs)
         self.ki += self.meta_lr * self.BRs.T @ self.i_update / (self.epsilon + self.running_BRs)
         self.kd += self.meta_lr * self.BRs.T @ self.d_update / (self.epsilon + self.running_BRs)
+
+    def update_gain_history(self):
+        """Update the gain history"""
+        self.gain_history[0].append(self.kp)
+        self.gain_history[1].append(self.ki)
+        self.gain_history[2].append(self.kd)
+        self.gain_history[3].append(self.alpha)
+        self.gain_history[4].append(self.beta)
 
     def update_target_net(self):
         with torch.no_grad():
