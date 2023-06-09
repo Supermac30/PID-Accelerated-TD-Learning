@@ -244,7 +244,7 @@ class PID_DQN():
 
     def update_zs(self, samples, new_zs):
         """In all of the samples, replace the zs with the new zs"""
-        # TODO: Figrue out how to make this more efficient
+        # TODO: Figure out how to make this more efficient
         for i in range(len(samples)):
             samples.z[i][0] = new_zs[i]
 
