@@ -1,0 +1,36 @@
+import gymnasium as gym
+import numpy as np
+
+# Create a gym class
+class GymWrapper(gym.Wrapper):
+    """A gym environment with slow motion"""
+
+    def __init__(self, env_name, slow_motion=1):
+        """Create a gym environment with the given name.
+        The slow_motion parameter controls how much slower the environment should run.
+        prg is a random number generator, which should have a rand() method.
+        The assumption is that slow_motion is in [0, 1].
+        """
+        super().__init__(gym.make(env_name))
+        self.slow_motion = slow_motion
+
+    def step(self, action):
+        """Take a step in the environment, and return the next state, reward, and done flag."""
+        current_state = self.env.state
+        next_state, reward, done, truncated, info = self.env.step(action)
+
+        # Slow motion
+        next_state = self.slow_motion * next_state + (1 - self.slow_motion) * current_state
+
+        # Set the state
+        self.env.state = next_state
+
+        # Set the true reward to zero with probability self.slow_motion
+        if self.env.np_random.random() < self.slow_motion:
+            reward = 0
+
+        return next_state, reward, done, truncated, info
+    
+    def reset(self, **kwargs):
+        """Reset the environment, and return the initial state."""
+        return self.env.reset(**kwargs)

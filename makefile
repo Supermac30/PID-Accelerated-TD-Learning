@@ -15,3 +15,5 @@ true_Q:
 
 DQN:
 	python3 -m Experiments.DQNExperiments.DQNExperiment
+DQN_adapt:
+	python3 -m Experiments.DQNExperiments.DQNAdaptationExperiment

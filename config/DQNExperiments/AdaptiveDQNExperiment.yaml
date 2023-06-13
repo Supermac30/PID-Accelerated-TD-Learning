@@ -19,6 +19,8 @@ D_tau: [0.5, 0.5, 0.5, 0.5, 0.5, 0.5]
 inner_size: [64, 64, 64, 64, 64, 64]
 meta_lr: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
 
+slow_motion: 1
+
 num_episodes: 400
 num_iterations: 100000
 num_average: 10  # The number of steps to average out when visualizing the results
