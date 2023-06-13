@@ -11,7 +11,7 @@ class GymWrapper(gym.Wrapper):
         prg is a random number generator, which should have a rand() method.
         The assumption is that slow_motion is in [0, 1].
         """
-        super().__init__(gym.make(env_name))
+        super().__init__(gym.make(env_name, render_mode='rgb_array'))
         self.slow_motion = slow_motion
 
     def step(self, action):

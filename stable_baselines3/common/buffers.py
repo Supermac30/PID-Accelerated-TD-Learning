@@ -316,8 +316,7 @@ class ReplayBuffer(BaseBuffer):
     
     def update_zs(self, indices, zs):
         """Replace the zs of the buffer at batch_inds with zs"""
-        breakpoint()
-        self.zs[indices[0], indices[1]] = zs.cpu().numpy()
+        self.zs[indices[0].cpu().numpy(), indices[1].cpu().numpy()] = zs.cpu().numpy().squeeze()
 
 
 class RolloutBuffer(BaseBuffer):
