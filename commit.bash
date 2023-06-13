@@ -8,6 +8,7 @@ git add commit.bash
 git add config
 git add TabularPID/*.py
 git add TabularPID/*/*.py
+git add stable_baselines3
 git add README.md
 git add requirements.txt
 
