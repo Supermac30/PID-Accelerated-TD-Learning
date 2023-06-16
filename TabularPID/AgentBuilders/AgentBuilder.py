@@ -2,6 +2,8 @@ from TabularPID.OptimalRates.OptimalRateDatabase import get_stored_optimal_rate
 from Experiments.ExperimentHelpers import get_env_policy, learning_rate_function
 from TabularPID.Agents.Agents import PID_TD, FarSighted_PID_TD, Hard_PID_TD, PID_TD_with_momentum, ControlledQLearning
 from TabularPID.MDPs.MDP import PolicyEvaluation, Control, Control_Q
+
+from TabularPID.MDPs.GymWrapper import create_gym_wrapper, create_policy
 import logging
 
 """
@@ -12,7 +14,7 @@ Types of agents:
 
 default_optimal_rates = (0.5, 100, 1, 100, 1, 100)
 
-def build_agent_and_env(agent_name, env_name, get_optimal=False, seed=42, gamma=0.99):
+def build_agent_and_env(agent_name, env_name, get_optimal=False, seed=42, gamma=0.99, gym_env=False):
     """Return both the agent and the environment & policy given their names.
     agent_name is a tuple of the form ("TD" or "VI", kp, ki, kd, alpha, beta, *kwargs),
     where kp, ki, kd, alpha, beta are floats, and **kwargs are any special keyword arguments for the agent.
@@ -20,7 +22,11 @@ def build_agent_and_env(agent_name, env_name, get_optimal=False, seed=42, gamma=
     get_optimal: Try to find the optimal learning rate and set it
     Return None is the agent name is not found.
     """
-    env, policy = get_env_policy(env_name, seed)
+    if gym_env:
+        env = create_gym_wrapper(env_name, slow_motion=False)
+        policy = create_policy(env_name)
+    else:
+        env, policy = get_env_policy(env_name, seed)
     return build_agent(agent_name, env_name, env, policy, get_optimal, gamma), env, policy
 
 def build_agent(agent_name, env_name, env, policy, get_optimal, gamma):
@@ -75,6 +81,9 @@ def build_agent(agent_name, env_name, env, policy, get_optimal, gamma):
     elif agent_description == "Q learning":
         decay = kwargs[0]
         return build_Q_PID(env, kp, ki, kd, alpha, beta, learning_rates, gamma, decay)
+    
+    elif agent_description == "polynomial linear TD":
+        return build_polynomial_linear_TD_PID(env, policy, kp, ki, kd, alpha, beta, learning_rates, gamma)
     return None
 
 

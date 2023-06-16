@@ -95,6 +95,22 @@ def get_optimal_adaptive_rates(agent_name, env_name, meta_lr, gamma, lambd, dela
 
     return optimal_rates
 
+def get_optimal_linear_FA_rates(agent_name, env_name, gamma, kp, ki, kd, alpha, beta, recompute=False, seed=-1, norm=1, is_q=False):
+    """Find the optimal rates for the choice of linear FA agent and environment."""
+    optimal_rates = get_stored_optimal_rate((agent_name, kp, ki, kd, alpha, beta), env_name, gamma)
+
+    if optimal_rates is None or recompute:
+        seed = pick_seed(seed)
+        optimal_rates = run_linear_FA_search(agent_name, env_name, seed, norm, gamma, kp, ki, kd, alpha, beta, is_q)
+        store_optimal_rate((agent_name, kp, ki, kd, alpha, beta), env_name, optimal_rates, gamma)
+    
+    logging.info(f"The optimal rates for {(env_name, agent_name, kp, ki, kd, alpha, beta)} are: {optimal_rates}")
+
+    return optimal_rates
+
+def run_linear_FA_search(agent_name, env_name, seed, norm, gamma, kp, ki, kd, alpha, beta, is_q):
+    pass
+
 def run_pid_search(agent_description, env_name, kp, ki, kd, alpha, beta, seed, norm, gamma):
     """Run a grid search on the exhaustive learning rates for the choice of controller gains"""
     agent, env, policy = build_agent_and_env((agent_description, kp, ki, kd, alpha, beta), env_name, seed=seed, gamma=gamma)

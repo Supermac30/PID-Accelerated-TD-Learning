@@ -1,32 +1,32 @@
 kp: [1, 1]
 kd: [0, 0, 0, 0, 0, 0]
-ki: [0, 0, 0, 0, 0, 0]
+ki: [0, 0, 0.2, 0.3, 0.4, 0.5]
 alpha: [0.05, 0.05, 0.05, 0.05, 0.05, 0.05]
 beta: [0.95, 0.95, 0.95, 0.95, 0.95, 0.95]
-gamma: 0.999
+gamma: 0.995
 
 optimizer: [Adam, Adam, Adam, Adam, Adam, Adam]
 replay_memory_size: [1000000, 1000000, 1000000, 1000000, 1000000, 1000000]
 batch_size: [128, 128, 128, 128, 128, 128]
 learning_rate: [1e-4, 1e-4, 1e-4, 1e-4, 1e-4, 1e-4]
 initial_eps: [1, 1, 1, 1, 1, 1]
-exploration_fraction: [0.5, 0.5, 0.1, 0.1, 0.1, 0.1]
+exploration_fraction: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
 minimum_eps: [0.05, 0.05, 0.05, 0.05, 0.05, 0.05]
 epsilon_decay_step: [1, 1, 1, 1, 1, 1]
 train_step: [5, 5, 5, 5, 5, 5]
 target_update_interval: [1, 1, 1, 1, 1, 1]
-tau: [0.005, 0.005, 0.005, 0.005, 0.005, 0.005]
-d_tau: [0.05, 0.05, 0.5, 0.5, 0.5, 0.5]
+tau: [0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
+d_tau: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
 inner_size: [64, 64, 64, 64, 64, 64]
 
 # Gain adaptation parameters
-adapt_gains: [False, True, False, False, False, False]
+adapt_gains: [False, True]
 epsilon: [1e-5, 1e-5, 1e-5, 1e-5, 1e-5, 1e-5]
-meta_lr: [5e-4, 5e-4, 5e-4, 5e-4, 5e-4, 5e-4]
+meta_lr: [1e-2, 1e-2, 1e-2, 1e-3, 5e-3, 5e-3]
 
 slow_motion: 1
 
-num_iterations: 3000
+num_iterations: 15000
 num_average: 10  # The number of steps to average out when visualizing the results
 norm: 1
 normalize: False
@@ -38,7 +38,7 @@ env: LunarLander-v2 # Possible Environments include: CartPole-v1, MountainCar-v0
 use_episodes: True
 
 log_interval: 1  # The number of episodes before reward is logged to the console
-progress_bar: False
+progress_bar: True
 tensorboard_log: tensorboard
 
 

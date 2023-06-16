@@ -2,6 +2,7 @@
 Use linear function approximation to learn the optimal policy.
 """
 import numpy as np
+from TabularPID.MDPs.Policy import Policy
 
 class LinearFuncSpace():
     """A set of basis functions to approximate the value function.
@@ -51,8 +52,8 @@ class PolynomialBasis(LinearFuncSpace):
         """
         return np.prod(np.power(state, np.arange(self.order + 1)), axis=1)
 
-class LinearFA():
-    def __init__(self, env, gamma, basis, kp, ki, kd, alpha, beta, lr_V, lr_z, lr_Vp):
+class LinearTD():
+    def __init__(self, env, policy, gamma, basis, kp, ki, kd, alpha, beta, lr_V, lr_z, lr_Vp, adapt_gains=False, meta_lr=0.1, epsilon=0.001):
         """
         Initialize the agent.
 
@@ -60,6 +61,8 @@ class LinearFA():
 
         env: gym.Env
             The environment to learn from.
+        policy: Policy object
+            The policy to use.
         gamma: float
             The discount factor.
         basis: LinearFuncSpace
@@ -72,6 +75,7 @@ class LinearFA():
             The learning rate for the D component.
         """
         self.env = env
+        self.policy = policy
         self.gamma = gamma
         self.basis = basis
         self.lr_V = lr_V
@@ -86,6 +90,22 @@ class LinearFA():
 
         self.epsilon = 1e-2
 
+        self.current_state = None
+        self.running_reward = 0
+        self.history = []
+    
+    def take_action(self):
+        action = self.policy.get_action(self.current_state)
+        next_state, reward, done, truncated, info = self.env.step(action)
+        if done:
+            next_state = self.env.reset()[0]
+            self.running_reward = 0
+            self.history.append(self.running_reward)
+        else:
+            self.running_reward += reward
+        
+        return self.current_state, next_state, reward
+
     def reset(self, reset_environment=True):
         if reset_environment:
             self.current_state = self.env.reset()[0]
@@ -95,17 +115,16 @@ class LinearFA():
 
         self.running_BR = 0
 
-    def estimate_value_function(self, num_iterations, test_function, follow_trajectory=False, reset_environment=True, stop_if_diverging=True, adapt_gains=False):
+    def estimate_value_function(self, num_iterations, test_function, reset_environment=True, stop_if_diverging=True, adapt_gains=False):
         self.reset(reset_environment)
 
-        # The history of test_function
-        history = np.zeros(num_iterations)
+        # The history of the gains
         self.gain_history = [[] for _ in range(5)]
 
         for k in range(num_iterations):
-            self.epsilon *= self.decay
-            self.policy.set_policy_from_Q(self.Q, self.epsilon)
-            current_state, action, next_state, reward = self.take_action(follow_trajectory, on_policy=False)
+            # self.epsilon *= self.decay
+            # self.policy.set_policy_from_Q(self.Q, self.epsilon)
+            current_state, next_state, reward = self.take_action()
             self.current_state = current_state
 
             # Update the value function using the floats kp, ki, kd
