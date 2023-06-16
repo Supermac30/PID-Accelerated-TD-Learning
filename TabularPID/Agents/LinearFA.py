@@ -115,11 +115,11 @@ class LinearFA():
             current_state_z_value = np.dot(self.basis.value(current_state), self.w_z)
 
             self.BR = reward + self.gamma * next_state_value - current_state_value
-            V_update = self.w_V + self.kp * self.BR \
+            V_update = self.kp * self.BR \
                 + self.kd * (current_state_Vp_value - current_state_value) \
                 + self.ki * (self.beta * current_state_z_value + self.alpha * self.BR)
-            Vp_update = current_state_value
-            z_update = self.beta * current_state_z_value + self.alpha * self.BR
+            Vp_update = current_state_value - current_state_Vp_value
+            z_update = (self.beta - 1) * current_state_z_value + self.alpha * self.BR
 
             w_V += self.lr_V * V_update * self.basis.value(current_state)
             w_Vp += self.lr_Vp * Vp_update * self.basis.value(current_state)

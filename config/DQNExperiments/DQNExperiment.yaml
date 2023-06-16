@@ -1,31 +1,32 @@
-kp: [1]
-kd: [0, 0.2, 0.3]
+kp: [1, 1]
+kd: [0, 0, 0, 0, 0, 0]
 ki: [0, 0, 0, 0, 0, 0]
 alpha: [0.05, 0.05, 0.05, 0.05, 0.05, 0.05]
 beta: [0.95, 0.95, 0.95, 0.95, 0.95, 0.95]
-gamma: 0.99
+gamma: 0.999
 
 optimizer: [Adam, Adam, Adam, Adam, Adam, Adam]
 replay_memory_size: [1000000, 1000000, 1000000, 1000000, 1000000, 1000000]
-batch_size: [32, 32, 32, 32, 32, 32]
-learning_rate: [1e-3, 1e-3, 1e-3, 1e-3, 1e-3, 1e-3]
+batch_size: [128, 128, 128, 128, 128, 128]
+learning_rate: [1e-4, 1e-4, 1e-4, 1e-4, 1e-4, 1e-4]
 initial_eps: [1, 1, 1, 1, 1, 1]
-exploration_fraction: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
+exploration_fraction: [0.5, 0.5, 0.1, 0.1, 0.1, 0.1]
 minimum_eps: [0.05, 0.05, 0.05, 0.05, 0.05, 0.05]
 epsilon_decay_step: [1, 1, 1, 1, 1, 1]
-train_step: [1, 1, 1, 1, 1, 1]
+train_step: [5, 5, 5, 5, 5, 5]
+target_update_interval: [1, 1, 1, 1, 1, 1]
 tau: [0.005, 0.005, 0.005, 0.005, 0.005, 0.005]
-d_tau: [0.5, 0.5, 0.5, 0.5, 0.5, 0.5]
+d_tau: [0.05, 0.05, 0.5, 0.5, 0.5, 0.5]
 inner_size: [64, 64, 64, 64, 64, 64]
 
 # Gain adaptation parameters
-adapt_gains: False
-epsilon: 0.01
-meta_lr: 0.01
+adapt_gains: [False, True, False, False, False, False]
+epsilon: [1e-5, 1e-5, 1e-5, 1e-5, 1e-5, 1e-5]
+meta_lr: [5e-4, 5e-4, 5e-4, 5e-4, 5e-4, 5e-4]
 
 slow_motion: 1
 
-num_iterations: 10000
+num_iterations: 3000
 num_average: 10  # The number of steps to average out when visualizing the results
 norm: 1
 normalize: False
@@ -33,17 +34,17 @@ num_runs: 1
 
 follow_trajectory: False
 
-env: CartPole-v1 # Possible Environments include: CartPole-v1, MountainCar-v0, Acrobot-v1, LunarLander-v2, LunarLanderContinuous-v2, Pendulum-v0, MountainCarContinuous-v0, BipedalWalker-v3, BipedalWalkerHardcore-v3, CarRacing-v0, Pong-v0, MsPacman-v0, SpaceInvaders-v0, Breakout-v0, MountainCar-v0, Acrobot-v1, LunarLander-v2, LunarLanderContinuous-v2, Pendulum-v0, MountainCarContinuous-v0, BipedalWalker-v3, BipedalWalkerHardcore-v3, CarRacing-v0, Pong-v0, MsPacman-v0, SpaceInvaders-v0, Breakout-v0
+env: LunarLander-v2 # Possible Environments include: CartPole-v1, MountainCar-v0, Acrobot-v1, LunarLander-v2, LunarLanderContinuous-v2, Pendulum-v0, MountainCarContinuous-v0, BipedalWalker-v3, BipedalWalkerHardcore-v3, CarRacing-v0, Pong-v0, MsPacman-v0, SpaceInvaders-v0, Breakout-v0, MountainCar-v0, Acrobot-v1, LunarLander-v2, LunarLanderContinuous-v2, Pendulum-v0, MountainCarContinuous-v0, BipedalWalker-v3, BipedalWalkerHardcore-v3, CarRacing-v0, Pong-v0, MsPacman-v0, SpaceInvaders-v0, Breakout-v0
 use_episodes: True
 
-log_interval: 10  # The number of episodes before reward is logged to the console
-progress_bar: True
+log_interval: 1  # The number of episodes before reward is logged to the console
+progress_bar: False
 tensorboard_log: tensorboard
 
 
 seed: -1
 hydra:
   run:
-    dir: ${oc.env:OUTPUT_DIR,./outputs}/${hydra.job.config_name}/${now:%Y-%m-%d}/${now:%H-%M-%S}
+    dir: ${oc.env:OUTPUT_DIR,./outputs}/${hydra.job.config_name}/${env}/${now:%Y-%m-%d}/${now:%H-%M-%S}
   job:
     chdir: True

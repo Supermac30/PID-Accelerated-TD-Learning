@@ -1,16 +1,16 @@
 import gymnasium as gym
 import torch as th
-from TabularPID.MDPs.GymWrapper import GymWrapper
+from TabularPID.MDPs.GymWrapper import create_gym_wrapper
 from TabularPID.Agents.DQN.DQN import PID_DQN
 import logging
 
 def build_PID_DQN(kp, ki, kd, alpha, beta, env_name, gamma, optimizer, replay_memory_size, batch_size,
                   learning_rate, tau, initial_eps, exploration_fraction, minimum_eps, epsilon_decay_step,
-                  train_step, d_tau, inner_size, slow_motion, tensorboard_log=None, seed=42,
+                  train_step, target_update_interval, d_tau, inner_size, slow_motion, tensorboard_log=None, seed=42,
                   adapt_gains=False, meta_lr=0.1, epsilon=0.1):
     """Build the PID DQN agent
     """
-    env = GymWrapper(env_name, slow_motion=slow_motion)
+    env = create_gym_wrapper(env_name, slow_motion=slow_motion)
     optimizer_class = create_optimizer(optimizer)
 
     return PID_DQN(
@@ -24,7 +24,7 @@ def build_PID_DQN(kp, ki, kd, alpha, beta, env_name, gamma, optimizer, replay_me
         tau=tau,
         gamma=gamma,
         gradient_steps=train_step,
-        target_update_interval=1,  # Polyak update every step
+        target_update_interval=target_update_interval,
         exploration_fraction=exploration_fraction,
         exploration_initial_eps=initial_eps,
         exploration_final_eps=minimum_eps,
