@@ -100,7 +100,7 @@ class AbstractAdaptiveAgent(Agent):
     def BR(self):
         """Return the bellman residual"""
         raise NotImplementedError
-    
+
     def plot(self):
         return self.gain_updater.plot()
 

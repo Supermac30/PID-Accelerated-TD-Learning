@@ -1,6 +1,6 @@
 import gymnasium as gym
 import torch as th
-from TabularPID.MDPs.GymWrapper import create_gym_wrapper
+from TabularPID.MDPs.GymWrapper import create_environment
 from TabularPID.Agents.DQN.DQN import PID_DQN
 import logging
 
@@ -10,11 +10,11 @@ def build_PID_DQN(kp, ki, kd, alpha, beta, env_name, gamma, optimizer, replay_me
                   adapt_gains=False, meta_lr=0.1, epsilon=0.1):
     """Build the PID DQN agent
     """
-    env = create_gym_wrapper(env_name, slow_motion=slow_motion)
+    env, stopping_criterion = create_environment(env_name, slow_motion=slow_motion)
     optimizer_class = create_optimizer(optimizer)
 
     return PID_DQN(
-        kp, ki, kd, alpha, beta, d_tau, adapt_gains, meta_lr, epsilon,
+        kp, ki, kd, alpha, beta, d_tau, adapt_gains, meta_lr, epsilon, stopping_criterion,
         policy='MlpPolicy',
         env=env,
         learning_rate=learning_rate,
