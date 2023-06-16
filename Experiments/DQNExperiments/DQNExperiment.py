@@ -1,12 +1,8 @@
 import matplotlib.pyplot as plt
 import hydra
 
-import os
-
 from Experiments.ExperimentHelpers import *
 from TabularPID.AgentBuilders.DQNBuilder import build_PID_DQN
-from TabularPID.Agents.DQN.DQN import PID_DQN
-from TabularPID.MDPs.GymWrapper import GymWrapper
 
 @hydra.main(version_base=None, config_path="../../config/DQNExperiments", config_name="DQNExperiment")
 def control_experiment(cfg):
