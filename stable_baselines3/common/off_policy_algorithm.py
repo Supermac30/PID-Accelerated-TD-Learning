@@ -106,6 +106,7 @@ class OffPolicyAlgorithm(BaseAlgorithm):
         use_sde_at_warmup: bool = False,
         sde_support: bool = True,
         supported_action_spaces: Optional[Tuple[Type[spaces.Space], ...]] = None,
+        stopping_criterion = None,
     ):
         super().__init__(
             policy=policy,
@@ -123,6 +124,9 @@ class OffPolicyAlgorithm(BaseAlgorithm):
             sde_sample_freq=sde_sample_freq,
             supported_action_spaces=supported_action_spaces,
         )
+        self.stopping_criterion = stopping_criterion
+        self.number_of_stops = 0  # The number of times we reached the stopping criterion in a row.
+
         self.buffer_size = buffer_size
         self.batch_size = batch_size
         self.learning_starts = learning_starts
@@ -308,7 +312,7 @@ class OffPolicyAlgorithm(BaseAlgorithm):
 
         callback.on_training_start(locals(), globals())
 
-        while self.num_timesteps < total_timesteps:
+        while self.num_timesteps < total_timesteps and self._continue_training():
             rollout = self.collect_rollouts(
                 self.env,
                 train_freq=self.train_freq,
@@ -340,6 +344,17 @@ class OffPolicyAlgorithm(BaseAlgorithm):
         (gradient descent and update target networks)
         """
         raise NotImplementedError()
+
+    def _continue_training(self, thresholds_needed=3) -> bool:
+        """Return if we meet the stopping criterion sufficiently many times in a row."""
+        if self.stopping_criterion is None:
+            return True
+        if self.stopping_criterion(self.episode_reward_mean):
+            self.number_of_stops += 1
+        else:
+            self.number_of_stops = 0
+        if self.number_of_stops == thresholds_needed:
+            return False
 
     def _sample_action(
         self,
@@ -397,7 +412,8 @@ class OffPolicyAlgorithm(BaseAlgorithm):
         fps = int((self.num_timesteps - self._num_timesteps_at_start) / time_elapsed)
         self.logger.record("time/episodes", self._episode_num, exclude="tensorboard")
         if len(self.ep_info_buffer) > 0 and len(self.ep_info_buffer[0]) > 0:
-            self.logger.record("rollout/ep_rew_mean", safe_mean([ep_info["r"] for ep_info in self.ep_info_buffer]))
+            self.reward_mean = safe_mean([ep_info["r"] for ep_info in self.ep_info_buffer])
+            self.logger.record("rollout/ep_rew_mean", self.reward_mean)
             self.logger.record("rollout/ep_len_mean", safe_mean([ep_info["l"] for ep_info in self.ep_info_buffer]))
         self.logger.record("time/fps", fps)
         self.logger.record("time/time_elapsed", int(time_elapsed), exclude="tensorboard")

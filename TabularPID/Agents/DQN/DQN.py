@@ -76,7 +76,7 @@ class PID_DQN(OffPolicyAlgorithm):
 
     def __init__(
         self,
-        kp, ki, kd, alpha, beta, d_tau, adapt_gains, meta_lr, epsilon,
+        kp, ki, kd, alpha, beta, d_tau, adapt_gains, meta_lr, epsilon, stopping_criterion,
         policy: Union[str, Type[DQNPolicy]],
         env: Union[GymEnv, str],
         learning_rate: Union[float, Schedule] = 1e-4,
@@ -127,9 +127,11 @@ class PID_DQN(OffPolicyAlgorithm):
             optimize_memory_usage=optimize_memory_usage,
             supported_action_spaces=(spaces.Discrete,),
             support_multi_env=True,
+            stopping_criterion=stopping_criterion,
         )
         # The stable baselines wrapped env don't play nice with the RecordVideo Wrapper
         # The simplest solution is to reserve an unwrapped instance for video recording, instead of modifying the API
+        # Our additions atop stable baselines:
         self.visualization_env = env
         self.kp = kp
         self.ki = ki
