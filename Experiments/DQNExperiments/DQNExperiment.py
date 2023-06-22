@@ -50,9 +50,10 @@ def graph_experiment():
             if file.endswith(".csv"):
                 # Read the csv file
                 df = pd.read_csv(f"{directory}/tensorboard/{subdir}/{file}")
+                x_axis = df['time/episodes'].index
 
                 # Plot the data under the column 'ep_rew_mean'
-                total_ax.plot(df['rollout/ep_rew_mean'], label=subdir)
+                total_ax.plot(x_axis, df['rollout/ep_rew_mean'], label=subdir)
 
                 # If there is a column called train/k_p, plot that as well along with train_k_i and train_k_d on a separate graph
                 if 'train/k_p' in df.columns:
@@ -61,8 +62,8 @@ def graph_experiment():
 
                     for i, gain in enumerate(['k_p', 'k_i', 'k_d']):
                         ax = fig.add_subplot(gs[0, i])
-                        ax.plot(df[f"train/{gain}"], label=f"train_{gain}")
-                        ax.set_xlabel('Iteration')
+                        ax.plot(x_axis, df[f"train/{gain}"], label=f"train_{gain}")
+                        ax.set_xlabel('Episode')
                         ax.set_ylabel(gain)
                         ax.legend()
 
