@@ -3,10 +3,14 @@ from stable_baselines3.common.atari_wrappers import AtariWrapper
 
 def create_environment(env_name, slow_motion=1):
     """
-    Return the environment with the given name as well as the stopping criterion.
+    Return the environment with the given name, the name of the type of policy to be used, as well as the stopping criterion.
+
+    The type of policy is the regular MlpPolicy for all environments except for the Atari environments, which use CnnPolicy.
+
     The stopping criterion is the function that takes the reward for the current episode,
     and returns True if the agent has solved the environment and we should stop training, and False otherwise.
-    The criteria are taken from the gymnasium documentation when possible.
+
+    The stopping criteria are taken from the gymnasium documentation when possible.
 
     Possible Environments include:
     - CartPole-v1: The time between actions is 0.02 * slow_motion.
@@ -26,21 +30,21 @@ def create_environment(env_name, slow_motion=1):
     if env_name == "CartPole-v1":
         env = gym.make(env_name, render_mode='rgb_array')
         env.tau *= slow_motion
-        return env, "DQNPolicy", lambda n: n >= 195
+        return env, "MlpPolicy", lambda n: n >= 195
     elif env_name == "LunarLander-v2":
-        return gym.make(env_name, gravity=-10 * slow_motion, render_mode='rgb_array'), DQNPolicy, lambda n: n >= 200
+        return gym.make(env_name, gravity=-10 * slow_motion, render_mode='rgb_array'), "MlpPolicy", lambda n: n >= 200
     elif env_name == "Acrobot-v1":
         env = gym.make(env_name, render_mode='rgb_array')
         env.dt *= slow_motion
-        return env, "DQNPolicy", lambda n: n >= -100
+        return env, "MlpPolicy", lambda n: n >= -100
     elif env_name == "MountainCar-v0":
         env = gym.make(env_name, render_mode='rgb_array')
         env.max_speed *= slow_motion
-        return env, "DQNPolicy", lambda n: n >= -130
+        return env, "MlpPolicy", lambda n: n >= -130
     elif env_name in {"PongNoFrameskip-v4", "BreakoutNoFrameskip-v4", "SpaceInvadersNoFrameskip-v4"}:
         return AtariWrapper(gym.make(env_name, render_mode='rgb_array')), "CnnPolicy", lambda n: n >= 18
     else:
-        return gym.make(env_name, render_mode='rgb_array'), "DQNPolicy", lambda n: False
+        return gym.make(env_name, render_mode='rgb_array'), "MlpPolicy", lambda n: False
 
 """
 class GymWrapperClassicControl(gym.Wrapper):

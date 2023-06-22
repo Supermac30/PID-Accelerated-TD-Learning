@@ -75,7 +75,7 @@ def graph_experiment():
                     # Center the subplots in a single row and move up to remove whitespace
                     gs.tight_layout(fig, rect=[0.05, 0.08, 0.95, 0.95])
 
-                    plt.savefig(f"{directory}/gains_plot_{subdir}")
+                    plt.savefig(f"{directory}/gains_plot_{subdir}.png")
                     plt.close()
 
     # Set the title of the graph
