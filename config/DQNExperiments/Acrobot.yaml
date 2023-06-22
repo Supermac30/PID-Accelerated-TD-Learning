@@ -56,7 +56,7 @@ hydra:
   mode: MULTIRUN
   sweeper:
     params:
-      adapt_gains: False, True
-      meta_lr: 1e-3
+      adapt_gains: True
+      meta_lr: 1e-3, 1e-4
       epsilon: 1
-      d_tau: 1e-3
+      d_tau: 1e-3, 1e-2

@@ -55,7 +55,7 @@ hydra:
 
   sweeper:
     params:
-      adapt_gains: True, False
-      d_tau: 0.1
+      adapt_gains: True
+      d_tau: 1e-2, 1e-1
       epsilon: 1
-      meta_lr: 0.001
+      meta_lr: 1e-4, 1e-5

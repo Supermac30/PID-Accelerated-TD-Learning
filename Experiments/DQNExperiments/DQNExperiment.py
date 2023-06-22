@@ -51,21 +51,10 @@ def graph_experiment():
                 df = pd.read_csv(f"{directory}/tensorboard/{subdir}/{file}")
 
                 # Plot the data under the column 'ep_rew_mean'
-                ax.plot(df['rollout/ep_rew_mean'], label=subdir)
+                total_ax.plot(df['rollout/ep_rew_mean'], label=subdir)
 
                 # If there is a column called train/k_p, plot that as well along with train_k_i and train_k_d on a separate graph
                 if 'train/k_p' in df.columns:
-                    gains_fig, gains_ax = plt.subplots()
-                    gains_ax.plot(df['train/k_p'], label='train_k_p')
-                    gains_ax.plot(df['train/k_i'], label='train_k_i')
-                    gains_ax.plot(df['train/k_d'], label='train_k_d')
-                    gains_ax.set_title(f"{file[:-4]}:{environment_name}:{seed}")
-                    gains_ax.set_xlabel("Episode")
-                    gains_ax.set_ylabel("Gain Value")
-                    gains_ax.legend()
-                    gains_fig.savefig(f"{directory}/{file[:-4]}_gains")
-                    gains_fig.show()
-
                     fig = plt.figure(figsize=(10, 4))
                     gs = fig.add_gridspec(nrows=1, ncols=3, width_ratios=[1,1,1], wspace=0.3, hspace=0.5)
 
