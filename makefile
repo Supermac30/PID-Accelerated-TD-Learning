@@ -13,7 +13,13 @@ Q:
 true_Q:
 	python3 -m Experiments.VIExperiments.VIQControl
 
-DQN:
-	python3 -m Experiments.DQNExperiments.DQNExperiment
-DQN_adapt:
-	python3 -m Experiments.DQNExperiments.DQNAdaptationExperiment
+DQN_cartpole:
+	python3 -m Experiments.DQNExperiments.DQNExperiment --config-name CartPole
+DQN_lunarlander:
+	python3 -m Experiments.DQNExperiments.DQNExperiment --config-name LunarLander
+DQN_mountaincar:
+	python3 -m Experiments.DQNExperiments.DQNExperiment --config-name MountainCar
+DQN_acrobot:
+	python3 -m Experiments.DQNExperiments.DQNExperiment --config-name Acrobot
+DQN_atari:
+	python3 -m Experiments.DQNExperiments.DQNExperiment --config-name Atari

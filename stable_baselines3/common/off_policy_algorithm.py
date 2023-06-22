@@ -126,6 +126,7 @@ class OffPolicyAlgorithm(BaseAlgorithm):
         )
         self.stopping_criterion = stopping_criterion
         self.number_of_stops = 0  # The number of times we reached the stopping criterion in a row.
+        self.reward_log = None  # The reward we received in the last episode for the purpose of determining if we should stop.
 
         self.buffer_size = buffer_size
         self.batch_size = batch_size
@@ -345,16 +346,11 @@ class OffPolicyAlgorithm(BaseAlgorithm):
         """
         raise NotImplementedError()
 
-    def _continue_training(self, thresholds_needed=3) -> bool:
+    def _continue_training(self) -> bool:
         """Return if we meet the stopping criterion sufficiently many times in a row."""
-        if self.stopping_criterion is None:
+        if self.stopping_criterion is None or self.reward_log is None:
             return True
-        if self.stopping_criterion(self.episode_reward_mean):
-            self.number_of_stops += 1
-        else:
-            self.number_of_stops = 0
-        if self.number_of_stops == thresholds_needed:
-            return False
+        return not self.stopping_criterion(self.reward_log)
 
     def _sample_action(
         self,
@@ -415,6 +411,7 @@ class OffPolicyAlgorithm(BaseAlgorithm):
             self.reward_mean = safe_mean([ep_info["r"] for ep_info in self.ep_info_buffer])
             self.logger.record("rollout/ep_rew_mean", self.reward_mean)
             self.logger.record("rollout/ep_len_mean", safe_mean([ep_info["l"] for ep_info in self.ep_info_buffer]))
+            self.reward_log = self.reward_mean
         self.logger.record("time/fps", fps)
         self.logger.record("time/time_elapsed", int(time_elapsed), exclude="tensorboard")
         self.logger.record("time/total_timesteps", self.num_timesteps, exclude="tensorboard")

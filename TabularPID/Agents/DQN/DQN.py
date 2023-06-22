@@ -249,6 +249,9 @@ class PID_DQN(OffPolicyAlgorithm):
                     + self.kd * self.d_update
 
                 self.replay_buffer.update_zs(replay_data.indices, new_zs)
+
+                if self.update_gains:
+                    self.adapt_gains()
                 
             # Get current Q-values estimates
             current_q_values = self.q_net(replay_data.observations)
@@ -266,9 +269,6 @@ class PID_DQN(OffPolicyAlgorithm):
             # Clip gradient norm
             th.nn.utils.clip_grad_norm_(self.policy.parameters(), self.max_grad_norm)
             self.policy.optimizer.step()
-
-            if self.update_gains:
-                self.adapt_gains()
 
         # Increase update counter
         self._n_updates += gradient_steps
@@ -360,9 +360,8 @@ class PID_DQN(OffPolicyAlgorithm):
     def adapt_gains(self):
         """Update the gains"""
         self.running_BRs = 0.5 * self.running_BRs + 0.5 * self.BRs.T @ self.BRs
-        if self.previous_p_update is not None:
-            self.kp += self.meta_lr * (self.BRs.T @ self.previous_p_update / (self.epsilon + self.running_BRs)).item()
-        if self.previous_i_update is not None:
-            self.ki += self.meta_lr * (self.BRs.T @ self.previous_i_update / (self.epsilon + self.running_BRs)).item()
-        if self.previous_d_update is not None:
-            self.kd += self.meta_lr * (self.BRs.T @ self.previous_d_update / (self.epsilon + self.running_BRs)).item()
+        learning_rate = self.meta_lr * self.learning_rate / self.batch_size
+
+        self.kp += learning_rate * (self.BRs.T @ self.p_update / (self.epsilon + self.running_BRs)).item()
+        self.ki += learning_rate * (self.BRs.T @ self.i_update / (self.epsilon + self.running_BRs)).item()
+        self.kd += learning_rate * (self.BRs.T @ self.d_update / (self.epsilon + self.running_BRs)).item()
