@@ -1,4 +1,5 @@
 import gymnasium as gym
+from stable_baselines3.common.atari_wrappers import AtariWrapper
 
 def create_environment(env_name, slow_motion=1):
     """
@@ -16,6 +17,8 @@ def create_environment(env_name, slow_motion=1):
         The stopping reward is -100.
     - MountainCar-v0: The max speed is self.max_speed * slow_motion
         The stopping reward is -100.
+    - PongNoFrameskip-v4, BreakoutNoFrameskip-v4, SpaceInvadersNoFrameskip-v4: The Atari envs don't support any slow motion.
+        The stopping reward is 15.
 
     Otherwise, slow_motion is ignored, and the environment is created as normal, and the criteria always returns False.
     """
@@ -34,6 +37,8 @@ def create_environment(env_name, slow_motion=1):
         env = gym.make(env_name, render_mode='rgb_array')
         env.max_speed *= slow_motion
         return env, lambda n: n >= -100
+    elif env_name in {"PongNoFrameskip-v4", "BreakoutNoFrameskip-v4", "SpaceInvadersNoFrameskip-v4"}:
+        return AtariWrapper(gym.make(env_name, render_mode='rgb_array')), lambda n: n >= 18
     else:
         return gym.make(env_name, render_mode='rgb_array'), lambda n: False
 
