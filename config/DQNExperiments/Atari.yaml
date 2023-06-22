@@ -43,11 +43,7 @@ seed: -1
 
 
 # Atari Configs
-frame_stack: 4
 optimize_memory_usage: False
-env_wrapper:
-  - stable_baselines3.common.atari_wrappers.AtariWrapper
-
 
 env: Pong-v0 # Possible Environments include: Pong-v0, MsPacman-v0, SpaceInvaders-v0, Breakout-v0
 hydra:

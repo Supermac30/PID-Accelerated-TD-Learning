@@ -68,7 +68,7 @@ def graph_experiment():
                     fig = plt.figure(figsize=(10, 4))
                     gs = fig.add_gridspec(nrows=1, ncols=3, width_ratios=[1,1,1], wspace=0.3, hspace=0.5)
 
-                    for i, gain in enumerate(['kp', 'ki', 'kd']):
+                    for i, gain in enumerate(['k_p', 'k_i', 'k_d']):
                         ax = fig.add_subplot(gs[0, i])
                         ax.plot(df[f"train/{gain}"], label=f"train_{gain}")
                         ax.set_xlabel('Iteration')
