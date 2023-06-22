@@ -12,12 +12,12 @@ def build_PID_DQN(kp, ki, kd, alpha, beta, env_name, gamma, optimizer, replay_me
                   tensorboard_log=None, seed=42, adapt_gains=False, meta_lr=0.1, epsilon=0.1, log_name=""):
     """Build the PID DQN agent
     """
-    env, stopping_criterion = create_environment(env_name, slow_motion=slow_motion)
+    env, policy_type, stopping_criterion = create_environment(env_name, slow_motion=slow_motion)
     optimizer_class = create_optimizer(optimizer)
 
     dqn = PID_DQN(
         kp, ki, kd, alpha, beta, d_tau, adapt_gains, meta_lr, epsilon, stopping_criterion,
-        policy='MlpPolicy',
+        policy=policy_type,
         env=env,
         learning_rate=learning_rate,
         buffer_size=replay_memory_size,

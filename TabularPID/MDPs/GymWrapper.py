@@ -16,7 +16,7 @@ def create_environment(env_name, slow_motion=1):
     - Acrobot-v1: The time between actions is 0.2 * slow_motion
         The stopping reward is -100.
     - MountainCar-v0: The max speed is self.max_speed * slow_motion
-        The stopping reward is -100.
+        The stopping reward is -130.
     - PongNoFrameskip-v4, BreakoutNoFrameskip-v4, SpaceInvadersNoFrameskip-v4: The Atari envs don't support any slow motion.
         The stopping reward is 15.
 
@@ -26,21 +26,21 @@ def create_environment(env_name, slow_motion=1):
     if env_name == "CartPole-v1":
         env = gym.make(env_name, render_mode='rgb_array')
         env.tau *= slow_motion
-        return env, lambda n: n >= 195
+        return env, "DQNPolicy", lambda n: n >= 195
     elif env_name == "LunarLander-v2":
-        return gym.make(env_name, gravity=-10 * slow_motion, render_mode='rgb_array'), lambda n: n >= 200
+        return gym.make(env_name, gravity=-10 * slow_motion, render_mode='rgb_array'), DQNPolicy, lambda n: n >= 200
     elif env_name == "Acrobot-v1":
         env = gym.make(env_name, render_mode='rgb_array')
         env.dt *= slow_motion
-        return env, lambda n: n >= -100
+        return env, "DQNPolicy", lambda n: n >= -100
     elif env_name == "MountainCar-v0":
         env = gym.make(env_name, render_mode='rgb_array')
         env.max_speed *= slow_motion
-        return env, lambda n: n >= -100
+        return env, "DQNPolicy", lambda n: n >= -130
     elif env_name in {"PongNoFrameskip-v4", "BreakoutNoFrameskip-v4", "SpaceInvadersNoFrameskip-v4"}:
-        return AtariWrapper(gym.make(env_name, render_mode='rgb_array')), lambda n: n >= 18
+        return AtariWrapper(gym.make(env_name, render_mode='rgb_array')), "CnnPolicy", lambda n: n >= 18
     else:
-        return gym.make(env_name, render_mode='rgb_array'), lambda n: False
+        return gym.make(env_name, render_mode='rgb_array'), "DQNPolicy", lambda n: False
 
 """
 class GymWrapperClassicControl(gym.Wrapper):

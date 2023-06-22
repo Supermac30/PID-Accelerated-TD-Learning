@@ -16,17 +16,8 @@ def control_experiment(cfg):
     if cfg['seed'] != -1:
         seed = cfg['seed']
     logging.info(f"The chosen seed is: {seed}")
-    log_name = f"""
-    kp: {cfg['kp']}
-    kd: {cfg['kd']}
-    ki: {cfg['ki']}
-    alpha: {cfg['alpha']}
-    beta: {cfg['beta']}
-    d_tau: {cfg['d_tau']}
-    """ + (f"""
-    epsilon: {cfg['epsilon']}
-    meta_lr: {cfg['meta_lr']}
-    """ if cfg['adapt_gains'] else "")
+    log_name = f"kp={cfg['kp']} kd={cfg['kd']} ki={cfg['ki']} alpha={cfg['alpha']} beta={cfg['beta']} d_tau={cfg['d_tau']} " \
+          + (f"epsilon={cfg['epsilon']} meta_lr={cfg['meta_lr']}" if cfg['adapt_gains'] else "")
     agent = build_PID_DQN(
         cfg['kp'], cfg['ki'], cfg['kd'], cfg['alpha'], cfg['beta'], 
         cfg['env'], cfg['gamma'], cfg['optimizer'],
@@ -72,7 +63,7 @@ def graph_experiment():
                         ax = fig.add_subplot(gs[0, i])
                         ax.plot(df[f"train/{gain}"], label=f"train_{gain}")
                         ax.set_xlabel('Iteration')
-                        ax.set_ylabel()
+                        ax.set_ylabel(gain)
                         ax.legend()
 
                     plt.suptitle(f"Adaptive Agent: {subdir}")
