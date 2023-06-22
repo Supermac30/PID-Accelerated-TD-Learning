@@ -40,9 +40,7 @@ def control_experiment(cfg):
 def graph_experiment():
     """Plots all the data in the directory tensorboard."""
     # Create a graph for plotting the rewards called fig and ax
-    fig, ax = plt.subplots()
-
-    
+    total_fig, total_ax = plt.subplots()
 
     # Loop through all directories in f"{directory}/tensorboard"
     for subdir in os.listdir(f"{directory}/tensorboard"):
@@ -51,8 +49,9 @@ def graph_experiment():
             if file.endswith(".csv"):
                 # Read the csv file
                 df = pd.read_csv(f"{directory}/tensorboard/{subdir}/{file}")
+
                 # Plot the data under the column 'ep_rew_mean'
-                ax.plot(df['rollout/ep_rew_mean'], label=file[:-4])
+                ax.plot(df['rollout/ep_rew_mean'], label=subdir)
 
                 # If there is a column called train/k_p, plot that as well along with train_k_i and train_k_d on a separate graph
                 if 'train/k_p' in df.columns:
@@ -67,18 +66,40 @@ def graph_experiment():
                     gains_fig.savefig(f"{directory}/{file[:-4]}_gains")
                     gains_fig.show()
 
+                    fig = plt.figure(figsize=(10, 4))
+                    gs = fig.add_gridspec(nrows=1, ncols=3, width_ratios=[1,1,1], wspace=0.3, hspace=0.5)
+
+                    for i, gain in enumerate(['kp', 'ki', 'kd']):
+                        ax = fig.add_subplot(gs[0, i])
+                        ax.plot(df[f"train/{gain}"], label=f"train_{gain}")
+                        ax.set_xlabel('Iteration')
+                        ax.set_ylabel()
+                        ax.legend()
+
+                    plt.suptitle(f"Adaptive Agent: {subdir}")
+
+                    # Set square aspect ratio for each subplot
+                    for ax in fig.axes:
+                        ax.set_box_aspect(1)
+
+                    # Center the subplots in a single row and move up to remove whitespace
+                    gs.tight_layout(fig, rect=[0.05, 0.08, 0.95, 0.95])
+
+                    plt.savefig(f"{directory}/gains_plot_{subdir}")
+                    plt.close()
+
     # Set the title of the graph
-    ax.set_title(f"{environment_name}:{seed}")
+    total_ax.set_title(f"{environment_name}:{seed}")
     # Set the x-axis label
-    ax.set_xlabel("Episode")
+    total_ax.set_xlabel("Episode")
     # Set the y-axis label
-    ax.set_ylabel("Mean Reward")
+    total_ax.set_ylabel("Mean Reward")
     # Set the legend
-    ax.legend()
+    total_ax.legend()
 
     # Save and show the plot:
-    fig.savefig(f"{directory}/plot")
-    fig.show()
+    total_fig.savefig(f"{directory}/plot")
+    total_fig.show()
 
 
 if __name__ == "__main__":
