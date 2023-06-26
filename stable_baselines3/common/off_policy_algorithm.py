@@ -350,7 +350,7 @@ class OffPolicyAlgorithm(BaseAlgorithm):
         """Return if we meet the stopping criterion sufficiently many times in a row."""
         if self.stopping_criterion is None or self.reward_log is None:
             return True
-        return not self.stopping_criterion(self.reward_log)
+        return self.stopping_criterion <= self.reward_log
 
     def _sample_action(
         self,

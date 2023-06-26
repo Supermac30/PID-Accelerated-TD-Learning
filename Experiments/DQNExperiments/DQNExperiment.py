@@ -9,9 +9,7 @@ from TabularPID.AgentBuilders.DQNBuilder import build_PID_DQN
 @hydra.main(version_base=None, config_path="../../config/DQNExperiments", config_name="DQNExperiment")
 def control_experiment(cfg):
     """Attempt to replicate results in figure 2 of PID Accelerated VI"""
-    global seed, environment_name, directory
-
-    directory = os.getcwd()  # A small hack to get the current directory outside of hydra
+    global seed, environment_name, directory, target_reward
 
     if cfg['seed'] != -1:
         seed = cfg['seed']
@@ -20,7 +18,11 @@ def control_experiment(cfg):
           + (f"epsilon={cfg['epsilon']} meta_lr={cfg['meta_lr']}" if cfg['adapt_gains'] else "")
 
     env_cfg = next(iter(cfg['env'].values()))
+
+    # A small hack to get this info outside of hydra
+    directory = os.getcwd()
     environment_name = env_cfg['env']
+    target_reward = agent.stopping_criterion
 
     for i in range(cfg['num_runs']):
         agent = build_PID_DQN(
@@ -32,7 +34,7 @@ def control_experiment(cfg):
             cfg['d_tau'], env_cfg['inner_size'], cfg['slow_motion'], env_cfg['learning_starts'],
             tabular_d=cfg['tabular_d'], tensorboard_log=cfg['tensorboard_log'], seed=seed,
             adapt_gains=cfg['adapt_gains'], meta_lr=cfg['meta_lr'],
-            epsilon=cfg['epsilon'], log_name=log_name, name_append=f"run {i}"
+            epsilon=cfg['epsilon'], log_name=log_name, name_append=f"run {i}", should_stop=cfg['should_stop']
         )
 
         agent = agent.learn(
@@ -42,6 +44,7 @@ def control_experiment(cfg):
             tb_log_name=log_name
         )
     agent.visualize_episode()
+
 
 def graph_experiment():
     """Plots all the data in the directory tensorboard."""
@@ -97,6 +100,9 @@ def graph_experiment():
                 plt.savefig(f"{directory}/gains_plot_{subdir}.png")
                 plt.close()
 
+    # Draw a dotted line at the target reward
+    total_ax.axhline(y=target_reward, color='r', linestyle='--', label="Target Reward")
+
     # Set the title of the graph
     total_ax.set_title(f"{environment_name} seed:{seed}")
     # Set the x-axis label
@@ -115,6 +121,7 @@ if __name__ == "__main__":
     seed = np.random.randint(0, 1000000)
     environment_name = ""
     directory = ""
+    target_reward = float("inf")
 
     control_experiment()
     graph_experiment()
