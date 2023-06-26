@@ -236,6 +236,7 @@ class PID_DQN(OffPolicyAlgorithm):
 
                 if self.tabular_d:
                     d_values = replay_data.ds
+                    new_ds = (1 - self.d_tau) * d_values + self.d_tau * target_current_q_values
                 else:
                     d_values = self.d_net(replay_data.observations)
                     d_values = th.gather(d_values, dim=1, index=replay_data.actions.long())
@@ -253,6 +254,8 @@ class PID_DQN(OffPolicyAlgorithm):
                     + self.kd * self.d_update
 
                 self.replay_buffer.update_zs(replay_data.indices, new_zs)
+                if self.tabular_d:
+                    self.replay_buffer.update_ds(replay_data.indices, new_ds)
 
                 if self.update_gains:
                     self.adapt_gains()
