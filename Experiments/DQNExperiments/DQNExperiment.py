@@ -71,8 +71,8 @@ def graph_experiment():
             
             total_ax.plot(x_axis, total_history / count, label=subdir)
 
-            # Plot the gains
-            if total_gain_history['k_p'] != 0:
+            # Plot the gains, if they exist
+            if isinstance(total_gain_history['k_p'], np.ndarray):
                 fig = plt.figure(figsize=(10, 4))
                 gs = fig.add_gridspec(nrows=1, ncols=3, width_ratios=[1,1,1], wspace=0.3, hspace=0.5)
 
