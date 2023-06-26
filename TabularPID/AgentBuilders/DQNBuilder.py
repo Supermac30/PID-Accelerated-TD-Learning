@@ -9,11 +9,18 @@ from stable_baselines3.common.utils import get_latest_run_id
 def build_PID_DQN(kp, ki, kd, alpha, beta, env_name, gamma, optimizer, replay_memory_size, batch_size,
                   learning_rate, tau, initial_eps, exploration_fraction, minimum_eps,
                   gradient_steps, train_freq, target_update_interval, d_tau, inner_size, slow_motion, learning_starts,
-                  tensorboard_log=None, seed=42, adapt_gains=False, meta_lr=0.1, epsilon=0.1, log_name=""):
+                  tensorboard_log=None, seed=42, adapt_gains=False, meta_lr=0.1, epsilon=0.1, log_name="", name_append=""):
     """Build the PID DQN agent
     """
-    env, policy_type, stopping_criterion = create_environment(env_name, slow_motion=slow_motion)
+    env, is_atari, stopping_criterion = create_environment(env_name, slow_motion=slow_motion)
     optimizer_class = create_optimizer(optimizer)
+
+    if is_atari:
+        policy_type = "CnnPolicy"
+        optimize_memory_usage = True
+    else:
+        policy_type = "MlpPolicy"
+        optimize_memory_usage = False
 
     dqn = PID_DQN(
         kp, ki, kd, alpha, beta, d_tau, adapt_gains, meta_lr, epsilon, stopping_criterion,
@@ -30,6 +37,7 @@ def build_PID_DQN(kp, ki, kd, alpha, beta, env_name, gamma, optimizer, replay_me
         exploration_fraction=exploration_fraction,
         exploration_initial_eps=initial_eps,
         exploration_final_eps=minimum_eps,
+        optimize_memory_usage=optimize_memory_usage,
         learning_starts=learning_starts,
         tensorboard_log=tensorboard_log,
         policy_kwargs=dict(net_arch=[inner_size, inner_size],
@@ -40,6 +48,7 @@ def build_PID_DQN(kp, ki, kd, alpha, beta, env_name, gamma, optimizer, replay_me
     if log_name == "":
         latest_run_id = get_latest_run_id("tensorboard", "run")
         log_name = f"tensorboard_{latest_run_id + 1}"
+    log_name += f"/{name_append}"
 
     dqn.set_logger(
         configure(

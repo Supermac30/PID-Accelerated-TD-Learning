@@ -56,6 +56,7 @@ class ReplayBufferSamples(NamedTuple):
     dones: th.Tensor
     rewards: th.Tensor
     zs: th.Tensor
+    ds: th.Tensor
     indices: th.Tensor
 
 

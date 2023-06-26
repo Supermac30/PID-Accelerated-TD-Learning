@@ -233,8 +233,12 @@ class PID_DQN(OffPolicyAlgorithm):
                 target_current_q_values = self.q_net_target(replay_data.observations)
                 target_current_q_values = th.gather(target_current_q_values, dim=1, index=replay_data.actions.long())
 
-                d_values = self.d_net(replay_data.observations)
-                d_values = th.gather(d_values, dim=1, index=replay_data.actions.long())
+
+                if self.tabular_d:
+                    d_values = replay_data.ds
+                else:
+                    d_values = self.d_net(replay_data.observations)
+                    d_values = th.gather(d_values, dim=1, index=replay_data.actions.long())
 
                 self.BRs = target_q_values - target_current_q_values
                 new_zs = self.beta * replay_data.zs + self.alpha * self.BRs
@@ -342,7 +346,7 @@ class PID_DQN(OffPolicyAlgorithm):
         Args:
             file_name (str, optional): The name of the file. Defaults to "episode".
         """
-        env = RecordVideo(self.visualization_env, file_name + f"{self.kp},{self.ki},{self.kd}.mp4")
+        env = RecordVideo(self.visualization_env, file_name + f"{self.kp},{self.ki},{self.kd},{self.update_gains}.mp4")
 
         state = env.reset()[0]
         done = False

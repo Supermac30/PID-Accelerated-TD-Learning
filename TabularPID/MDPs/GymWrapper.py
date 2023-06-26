@@ -1,9 +1,11 @@
 import gymnasium as gym
 from stable_baselines3.common.atari_wrappers import AtariWrapper
 
+atari_envs = {'PongNoFrameskip-v4', 'MsPacmanNoFrameskip-v4', 'SpaceInvadersNoFrameskip-v4', 'BreakoutNoFrameskip-v4'}
+
 def create_environment(env_name, slow_motion=1):
     """
-    Return the environment with the given name, the name of the type of policy to be used, as well as the stopping criterion.
+    Return the environment with the given name, whether the environment is an Atari env, as well as the stopping criterion.
 
     The type of policy is the regular MlpPolicy for all environments except for the Atari environments, which use CnnPolicy.
 
@@ -30,21 +32,21 @@ def create_environment(env_name, slow_motion=1):
     if env_name == "CartPole-v1":
         env = gym.make(env_name, render_mode='rgb_array')
         env.tau *= slow_motion
-        return env, "MlpPolicy", lambda n: n >= 195
+        return env, False, lambda n: n >= 195
     elif env_name == "LunarLander-v2":
-        return gym.make(env_name, gravity=-10 * slow_motion, render_mode='rgb_array'), "MlpPolicy", lambda n: n >= 200
+        return gym.make(env_name, gravity=-10 * slow_motion, render_mode='rgb_array'), False, lambda n: n >= 200
     elif env_name == "Acrobot-v1":
         env = gym.make(env_name, render_mode='rgb_array')
         env.dt *= slow_motion
-        return env, "MlpPolicy", lambda n: n >= -100
+        return env, False, lambda n: n >= -100
     elif env_name == "MountainCar-v0":
         env = gym.make(env_name, render_mode='rgb_array')
         env.max_speed *= slow_motion
-        return env, "MlpPolicy", lambda n: n >= -130
-    elif env_name in {"PongNoFrameskip-v4", "BreakoutNoFrameskip-v4", "SpaceInvadersNoFrameskip-v4"}:
-        return AtariWrapper(gym.make(env_name, render_mode='rgb_array')), "CnnPolicy", lambda n: n >= 18
+        return env, False, lambda n: n >= -130
+    elif env_name in atari_envs:
+        return AtariWrapper(gym.make(env_name, render_mode='rgb_array')), True, lambda n: n >= 18
     else:
-        return gym.make(env_name, render_mode='rgb_array'), "MlpPolicy", lambda n: False
+        return gym.make(env_name, render_mode='rgb_array'), False, lambda n: False
 
 """
 class GymWrapperClassicControl(gym.Wrapper):

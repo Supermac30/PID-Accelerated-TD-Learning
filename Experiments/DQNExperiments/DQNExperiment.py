@@ -1,11 +1,12 @@
 import matplotlib.pyplot as plt
 import hydra
 import pandas as pd
+import numpy as np
 
 from Experiments.ExperimentHelpers import *
 from TabularPID.AgentBuilders.DQNBuilder import build_PID_DQN
 
-@hydra.main(version_base=None, config_path="../../config/DQNExperiments")
+@hydra.main(version_base=None, config_path="../../config/DQNExperiments", config_name="DQNExperiment")
 def control_experiment(cfg):
     """Attempt to replicate results in figure 2 of PID Accelerated VI"""
     global seed, environment_name, directory
@@ -18,20 +19,24 @@ def control_experiment(cfg):
     logging.info(f"The chosen seed is: {seed}")
     log_name = f"kp={cfg['kp']} kd={cfg['kd']} ki={cfg['ki']} alpha={cfg['alpha']} beta={cfg['beta']} d_tau={cfg['d_tau']} " \
           + (f"epsilon={cfg['epsilon']} meta_lr={cfg['meta_lr']}" if cfg['adapt_gains'] else "")
-    agent = build_PID_DQN(
-        cfg['kp'], cfg['ki'], cfg['kd'], cfg['alpha'], cfg['beta'], 
-        cfg['env'], cfg['gamma'], cfg['optimizer'],
-        cfg['replay_memory_size'], cfg['batch_size'], cfg['learning_rate'],
-        cfg['tau'], cfg['initial_eps'], cfg['exploration_fraction'],
-        cfg['minimum_eps'], cfg['gradient_steps'], cfg['train_freq'], cfg['target_update_interval'],
-        cfg['d_tau'], cfg['inner_size'], cfg['slow_motion'], cfg['learning_starts'],
-        tensorboard_log=cfg['tensorboard_log'], seed=seed,
-        adapt_gains=cfg['adapt_gains'], meta_lr=cfg['meta_lr'], epsilon=cfg['epsilon'], log_name=log_name
-    )
 
-    for _ in range(cfg['num_runs']):
+    env_cfg = next(iter(cfg['env'].values()))
+
+    for i in range(cfg['num_runs']):
+        agent = build_PID_DQN(
+            cfg['kp'], cfg['ki'], cfg['kd'], cfg['alpha'], cfg['beta'], 
+            env_cfg['env'], env_cfg['gamma'], env_cfg['optimizer'],
+            env_cfg['replay_memory_size'], env_cfg['batch_size'], env_cfg['learning_rate'],
+            env_cfg['tau'], env_cfg['initial_eps'], env_cfg['exploration_fraction'],
+            env_cfg['minimum_eps'], env_cfg['gradient_steps'], env_cfg['train_freq'], env_cfg['target_update_interval'],
+            cfg['d_tau'], env_cfg['inner_size'], cfg['slow_motion'], env_cfg['learning_starts'],
+            tensorboard_log=cfg['tensorboard_log'], seed=seed,
+            adapt_gains=cfg['adapt_gains'], meta_lr=cfg['meta_lr'], epsilon=cfg['epsilon'], log_name=log_name,
+            name_append=f"run {i}"
+        )
+
         agent = agent.learn(
-            total_timesteps=cfg['num_iterations'],
+            total_timesteps=env_cfg['num_iterations'],
             log_interval=cfg['log_interval'],
             progress_bar=cfg['progress_bar'],
             tb_log_name=log_name
@@ -45,39 +50,50 @@ def graph_experiment():
 
     # Loop through all directories in f"{directory}/tensorboard"
     for subdir in os.listdir(f"{directory}/tensorboard"):
-        for file in os.listdir(f"{directory}/tensorboard/{subdir}"):
-            # If the file is a csv file
-            if file.endswith(".csv"):
-                # Read the csv file
-                df = pd.read_csv(f"{directory}/tensorboard/{subdir}/{file}")
+        for batch in os.listdir(f"{directory}/tensorboard/{subdir}"):
+            total_history = 0
+            total_gain_history = {'k_p': 0, 'k_i': 0, 'k_d': 0}
+            count = 0
+            for run in os.listdir(f"{directory}/tensorboard/{subdir}/{batch}"):
+                if not run.endswith(".csv"):
+                    continue
+                df = pd.read_csv(f"{directory}/tensorboard/{subdir}/{batch}/{run}")
                 x_axis = df['time/episodes'].index
 
-                # Plot the data under the column 'ep_rew_mean'
-                total_ax.plot(x_axis, df['rollout/ep_rew_mean'], label=subdir)
-
-                # If there is a column called train/k_p, plot that as well along with train_k_i and train_k_d on a separate graph
+                # Plot the gains
                 if 'train/k_p' in df.columns:
-                    fig = plt.figure(figsize=(10, 4))
-                    gs = fig.add_gridspec(nrows=1, ncols=3, width_ratios=[1,1,1], wspace=0.3, hspace=0.5)
+                    total_gain_history['k_p'] += np.array(df['train/k_p'])
+                    total_gain_history['k_i'] += np.array(df['train/k_i'])
+                    total_gain_history['k_d'] += np.array(df['train/k_d'])
 
-                    for i, gain in enumerate(['k_p', 'k_i', 'k_d']):
-                        ax = fig.add_subplot(gs[0, i])
-                        ax.plot(x_axis, df[f"train/{gain}"], label=f"train_{gain}")
-                        ax.set_xlabel('Episode')
-                        ax.set_ylabel(gain)
-                        ax.legend()
+                count += 1
+                total_history += np.array(df['rollout/ep_rew_mean'])
+            
+            total_ax.plot(x_axis, total_history, label=subdir)
 
-                    plt.suptitle(f"Adaptive Agent: {subdir}")
+            # Plot the gains
+            if total_gain_history['k_p'] != 0:
+                fig = plt.figure(figsize=(10, 4))
+                gs = fig.add_gridspec(nrows=1, ncols=3, width_ratios=[1,1,1], wspace=0.3, hspace=0.5)
 
-                    # Set square aspect ratio for each subplot
-                    for ax in fig.axes:
-                        ax.set_box_aspect(1)
+                for i, gain in enumerate(['k_p', 'k_i', 'k_d']):
+                    ax = fig.add_subplot(gs[0, i])
+                    ax.plot(x_axis, total_gain_history[gain] / count, label=f"train_{gain}")
+                    ax.set_xlabel('Episode')
+                    ax.set_ylabel(gain)
+                    ax.legend()
 
-                    # Center the subplots in a single row and move up to remove whitespace
-                    gs.tight_layout(fig, rect=[0.05, 0.08, 0.95, 0.95])
+                plt.suptitle(f"Adaptive Agent: {subdir}")
 
-                    plt.savefig(f"{directory}/gains_plot_{subdir}.png")
-                    plt.close()
+                # Set square aspect ratio for each subplot
+                for ax in fig.axes:
+                    ax.set_box_aspect(1)
+
+                # Center the subplots in a single row and move up to remove whitespace
+                gs.tight_layout(fig, rect=[0.05, 0.08, 0.95, 0.95])
+
+                plt.savefig(f"{directory}/gains_plot_{subdir}.png")
+                plt.close()
 
     # Set the title of the graph
     total_ax.set_title(f"{environment_name}:{seed}")

@@ -1,0 +1,47 @@
+kp: 1
+kd: 0
+ki: 0
+alpha: 0.05
+beta: 0.95
+
+# D component parameters
+tabular_d: False
+d_tau: 1e-3
+
+# Gain adaptation parameters
+adapt_gains: False
+epsilon: 1e-1
+meta_lr: 1e-2
+
+slow_motion: 1
+
+normalize: False
+num_runs: 2
+
+log_interval: 10  # The number of episodes before reward is logged to the console
+progress_bar: True
+tensorboard_log: tensorboard
+
+name: cartpole
+defaults:
+  - _self_
+  - env: cartpole
+
+seed: -1
+hydra:
+  run:
+    dir: ${oc.env:OUTPUT_DIR,./outputs}/DQNExperiment/${name}/${now:%Y-%m-%d}/${now:%H-%M-%S}
+  job:
+    chdir: True
+
+  mode: MULTIRUN
+  sweep:
+    dir: outputs/DQNExperiment/${name}/${now:%Y-%m-%d}/${now:%H-%M-%S}
+    subdir: ""
+  
+  sweeper:
+    params:
+      adapt_gains: False, True
+      meta_lr: 1e-3
+      epsilon: 1e-1
+      d_tau: 1e-3

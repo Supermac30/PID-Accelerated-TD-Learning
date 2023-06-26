@@ -212,6 +212,7 @@ class ReplayBuffer(BaseBuffer):
         self.rewards = np.zeros((self.buffer_size, self.n_envs), dtype=np.float32)
         self.dones = np.zeros((self.buffer_size, self.n_envs), dtype=np.float32)
         self.zs = np.zeros((self.buffer_size, self.n_envs), dtype=np.float32)
+        self.ds = np.zeros((self.buffer_size, self.n_envs), dtype=np.float32)
         # Handle timeouts termination properly if needed
         # see https://github.com/DLR-RM/stable-baselines3/issues/284
         self.handle_timeout_termination = handle_timeout_termination
@@ -261,6 +262,7 @@ class ReplayBuffer(BaseBuffer):
         self.rewards[self.pos] = np.array(reward).copy()
         self.dones[self.pos] = np.array(done).copy()
         self.zs[self.pos] = np.array(0)
+        self.ds[self.pos] = np.array(0)
 
         if self.handle_timeout_termination:
             self.timeouts[self.pos] = np.array([info.get("TimeLimit.truncated", False) for info in infos])
@@ -310,6 +312,7 @@ class ReplayBuffer(BaseBuffer):
             (self.dones[batch_inds, env_indices] * (1 - self.timeouts[batch_inds, env_indices])).reshape(-1, 1),
             self._normalize_reward(self.rewards[batch_inds, env_indices].reshape(-1, 1), env),
             self.zs[batch_inds, env_indices].reshape(-1, 1),
+            self.ds[batch_inds, env_indices].reshape(-1, 1),
             (batch_inds, env_indices)
         )
         return ReplayBufferSamples(*tuple(map(self.to_torch, data)))
@@ -317,6 +320,10 @@ class ReplayBuffer(BaseBuffer):
     def update_zs(self, indices, zs):
         """Replace the zs of the buffer at batch_inds with zs"""
         self.zs[indices[0].cpu().numpy(), indices[1].cpu().numpy()] = zs.cpu().numpy().squeeze()
+
+    def update_ds(self, indices, ds):
+        """Replace the ds of the buffer at batch_inds with zs"""
+        self.ds[indices[0].cpu().numpy(), indices[1].cpu().numpy()] = ds.cpu().numpy().squeeze()
 
 
 class RolloutBuffer(BaseBuffer):
