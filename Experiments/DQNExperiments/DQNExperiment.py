@@ -13,7 +13,6 @@ def control_experiment(cfg):
 
     directory = os.getcwd()  # A small hack to get the current directory outside of hydra
 
-    environment_name = cfg['env']
     if cfg['seed'] != -1:
         seed = cfg['seed']
     logging.info(f"The chosen seed is: {seed}")
@@ -21,6 +20,7 @@ def control_experiment(cfg):
           + (f"epsilon={cfg['epsilon']} meta_lr={cfg['meta_lr']}" if cfg['adapt_gains'] else "")
 
     env_cfg = next(iter(cfg['env'].values()))
+    environment_name = env_cfg['env']
 
     for i in range(cfg['num_runs']):
         agent = build_PID_DQN(
@@ -30,9 +30,9 @@ def control_experiment(cfg):
             env_cfg['tau'], env_cfg['initial_eps'], env_cfg['exploration_fraction'],
             env_cfg['minimum_eps'], env_cfg['gradient_steps'], env_cfg['train_freq'], env_cfg['target_update_interval'],
             cfg['d_tau'], env_cfg['inner_size'], cfg['slow_motion'], env_cfg['learning_starts'],
-            tensorboard_log=cfg['tensorboard_log'], seed=seed,
-            adapt_gains=cfg['adapt_gains'], meta_lr=cfg['meta_lr'], epsilon=cfg['epsilon'], log_name=log_name,
-            name_append=f"run {i}"
+            tabular_d=cfg['tabular_d'], tensorboard_log=cfg['tensorboard_log'], seed=seed,
+            adapt_gains=cfg['adapt_gains'], meta_lr=cfg['meta_lr'],
+            epsilon=cfg['epsilon'], log_name=log_name, name_append=f"run {i}"
         )
 
         agent = agent.learn(
@@ -69,7 +69,7 @@ def graph_experiment():
                 count += 1
                 total_history += np.array(df['rollout/ep_rew_mean'])
             
-            total_ax.plot(x_axis, total_history, label=subdir)
+            total_ax.plot(x_axis, total_history / count, label=subdir)
 
             # Plot the gains
             if total_gain_history['k_p'] != 0:
@@ -96,7 +96,7 @@ def graph_experiment():
                 plt.close()
 
     # Set the title of the graph
-    total_ax.set_title(f"{environment_name}:{seed}")
+    total_ax.set_title(f"{environment_name} seed:{seed}")
     # Set the x-axis label
     total_ax.set_xlabel("Episode")
     # Set the y-axis label

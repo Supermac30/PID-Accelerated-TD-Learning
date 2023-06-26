@@ -76,7 +76,7 @@ class PID_DQN(OffPolicyAlgorithm):
 
     def __init__(
         self,
-        kp, ki, kd, alpha, beta, d_tau, adapt_gains, meta_lr, epsilon, stopping_criterion,
+        kp, ki, kd, alpha, beta, d_tau, adapt_gains, meta_lr, epsilon, stopping_criterion, tabular_d,
         policy: Union[str, Type[DQNPolicy]],
         env: Union[GymEnv, str],
         learning_rate: Union[float, Schedule] = 1e-4,
@@ -139,6 +139,7 @@ class PID_DQN(OffPolicyAlgorithm):
         self.alpha = alpha
         self.beta = beta
         self.d_tau = d_tau
+        self.tabular_d = tabular_d
 
         self.exploration_initial_eps = exploration_initial_eps
         self.exploration_final_eps = exploration_final_eps
