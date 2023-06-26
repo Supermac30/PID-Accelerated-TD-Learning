@@ -53,6 +53,7 @@ def graph_experiment():
         for batch in os.listdir(f"{directory}/tensorboard/{subdir}"):
             total_history = 0
             total_gain_history = {'k_p': 0, 'k_i': 0, 'k_d': 0}
+            plot_gains = False
             count = 0
             for run in os.listdir(f"{directory}/tensorboard/{subdir}/{batch}"):
                 if not run.endswith(".csv"):
@@ -65,6 +66,7 @@ def graph_experiment():
                     total_gain_history['k_p'] += np.array(df['train/k_p'])
                     total_gain_history['k_i'] += np.array(df['train/k_i'])
                     total_gain_history['k_d'] += np.array(df['train/k_d'])
+                    plot_gains = True
 
                 count += 1
                 total_history += np.array(df['rollout/ep_rew_mean'])
@@ -72,7 +74,7 @@ def graph_experiment():
             total_ax.plot(x_axis, total_history / count, label=subdir)
 
             # Plot the gains, if they exist
-            if isinstance(total_gain_history['k_p'], np.ndarray):
+            if plot_gains:
                 fig = plt.figure(figsize=(10, 4))
                 gs = fig.add_gridspec(nrows=1, ncols=3, width_ratios=[1,1,1], wspace=0.3, hspace=0.5)
 
