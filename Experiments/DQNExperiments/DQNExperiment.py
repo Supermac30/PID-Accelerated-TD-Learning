@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import hydra
 import pandas as pd
 import numpy as np
+import colorsys
 
 from Experiments.ExperimentHelpers import *
 from TabularPID.AgentBuilders.DQNBuilder import build_PID_DQN
@@ -14,8 +15,8 @@ def control_experiment(cfg):
     if cfg['seed'] != -1:
         seed = cfg['seed']
     logging.info(f"The chosen seed is: {seed}")
-    log_name = f"kp={cfg['kp']} kd={cfg['kd']} ki={cfg['ki']} alpha={cfg['alpha']} beta={cfg['beta']} d_tau={cfg['d_tau']} " \
-          + (f"epsilon={cfg['epsilon']} meta_lr={cfg['meta_lr']}" if cfg['adapt_gains'] else "")
+    log_name = f"{cfg['kp']} {cfg['kd']} {cfg['ki']} {cfg['alpha']} {cfg['beta']} {cfg['d_tau']} " \
+          + (f"{cfg['epsilon']} {cfg['meta_lr']}" if cfg['adapt_gains'] else "")
 
     env_cfg = next(iter(cfg['env'].values()))
 
@@ -72,10 +73,12 @@ def graph_experiment():
                     plot_gains = True
 
                 count += 1
-                total_history += np.array(df['rollout/ep_rew_mean'])
+                total_history += np.array(df['rollout/ep_rew'])
 
         smoothed_history = pd.DataFrame(total_history / count)
-        total_ax.plot(x_axis, total_history / count, 'lightblue', smoothed_history[0].rolling(10).mean(), 'b', label=subdir)
+        total_ax.plot(smoothed_history[0].rolling(10).mean(), label=subdir)
+        color = total_ax.lines()[-1].get_color()
+        total_ax.plot(x_axis, total_history / count, color=color, alpha=0.2)
 
         # Plot the gains, if they exist
         if plot_gains:
@@ -102,7 +105,7 @@ def graph_experiment():
             plt.close()
 
     # Draw a dotted line at the target reward
-    total_ax.axhline(y=target_reward, color='r', linestyle='--', label="Target Reward")
+    total_ax.axhline(y=target_reward, color='r', linestyle='--')
 
     # Set the title of the graph
     total_ax.set_title(f"{environment_name} seed:{seed}")
@@ -111,7 +114,7 @@ def graph_experiment():
     # Set the y-axis label
     total_ax.set_ylabel("Mean Reward")
     # Set the legend
-    total_ax.legend()
+    total_ax.legend(loc="lower right")
 
     # Save and show the plot:
     total_fig.savefig(f"{directory}/plot")

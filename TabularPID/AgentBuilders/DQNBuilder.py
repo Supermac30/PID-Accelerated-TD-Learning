@@ -13,8 +13,6 @@ def build_PID_DQN(kp, ki, kd, alpha, beta, env_name, gamma, optimizer, replay_me
     """Build the PID DQN agent
     """
     env, is_atari, stopping_criterion = create_environment(env_name, slow_motion=slow_motion)
-    if not should_stop:
-        stopping_criterion = float("inf")
     optimizer_class = create_optimizer(optimizer)
 
     if is_atari:
@@ -44,7 +42,8 @@ def build_PID_DQN(kp, ki, kd, alpha, beta, env_name, gamma, optimizer, replay_me
         tensorboard_log=tensorboard_log,
         policy_kwargs=dict(net_arch=[inner_size, inner_size],
                            optimizer_class=optimizer_class),
-        seed=seed
+        seed=seed,
+        should_stop=should_stop
     )
 
     if log_name == "":

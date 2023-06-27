@@ -350,7 +350,7 @@ class OffPolicyAlgorithm(BaseAlgorithm):
         """Return if we meet the stopping criterion sufficiently many times in a row."""
         if self.stopping_criterion is None or self.reward_log is None:
             return True
-        return self.stopping_criterion > self.reward_log
+        return (not self.should_stop) or (self.stopping_criterion > self.reward_log)
 
     def _sample_action(
         self,
@@ -410,6 +410,7 @@ class OffPolicyAlgorithm(BaseAlgorithm):
         if len(self.ep_info_buffer) > 0 and len(self.ep_info_buffer[0]) > 0:
             self.reward_mean = safe_mean([ep_info["r"] for ep_info in self.ep_info_buffer])
             self.logger.record("rollout/ep_rew_mean", self.reward_mean)
+            self.logger.record("rollout/ep_rew", self.ep_info_buffer[-1]["r"])
             self.logger.record("rollout/ep_len_mean", safe_mean([ep_info["l"] for ep_info in self.ep_info_buffer]))
             self.reward_log = self.reward_mean
         self.logger.record("time/fps", fps)

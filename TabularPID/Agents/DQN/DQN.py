@@ -79,6 +79,7 @@ class PID_DQN(OffPolicyAlgorithm):
         kp, ki, kd, alpha, beta, d_tau, adapt_gains, meta_lr, epsilon, stopping_criterion, tabular_d,
         policy: Union[str, Type[DQNPolicy]],
         env: Union[GymEnv, str],
+        should_stop: bool = False,
         learning_rate: Union[float, Schedule] = 1e-4,
         buffer_size: int = 1_000_000,  # 1e6
         learning_starts: int = 50000,
@@ -140,6 +141,7 @@ class PID_DQN(OffPolicyAlgorithm):
         self.beta = beta
         self.d_tau = d_tau
         self.tabular_d = tabular_d
+        self.should_stop = should_stop
 
         self.exploration_initial_eps = exploration_initial_eps
         self.exploration_final_eps = exploration_final_eps
