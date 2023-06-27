@@ -17,9 +17,9 @@ slow_motion: 1
 
 normalize: False
 should_stop: False  # Whether we early stop the training once some amount of reward is reached
-num_runs: 2
+num_runs: 10
 
-log_interval: 10  # The number of episodes before reward is logged to the console
+log_interval: 1  # The number of episodes before reward is logged to the console
 progress_bar: True
 tensorboard_log: tensorboard
 
@@ -42,7 +42,6 @@ hydra:
   
   sweeper:
     params:
-      adapt_gains: False, True
       meta_lr: 1e-3
       epsilon: 1e-1
       d_tau: 1e-3

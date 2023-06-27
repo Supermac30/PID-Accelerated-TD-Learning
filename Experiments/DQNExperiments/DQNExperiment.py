@@ -19,11 +19,6 @@ def control_experiment(cfg):
 
     env_cfg = next(iter(cfg['env'].values()))
 
-    # A small hack to get this info outside of hydra
-    directory = os.getcwd()
-    environment_name = env_cfg['env']
-    target_reward = agent.stopping_criterion
-
     for i in range(cfg['num_runs']):
         agent = build_PID_DQN(
             cfg['kp'], cfg['ki'], cfg['kd'], cfg['alpha'], cfg['beta'], 
@@ -44,6 +39,11 @@ def control_experiment(cfg):
             tb_log_name=log_name
         )
     agent.visualize_episode()
+
+    # A small hack to get this info outside of hydra
+    directory = os.getcwd()
+    environment_name = env_cfg['env']
+    target_reward = agent.stopping_criterion
 
 
 def graph_experiment():
@@ -74,7 +74,8 @@ def graph_experiment():
                 count += 1
                 total_history += np.array(df['rollout/ep_rew_mean'])
             
-            total_ax.plot(x_axis, total_history / count, label=subdir)
+            smoothed_history = pd.DataFrame(total_history / count)
+            total_ax.plot(x_axis, smoothed_history[0], 'lightblue', smoothed_history[0].rolling(10).mean(), 'b', label=subdir)
 
             # Plot the gains, if they exist
             if plot_gains:
