@@ -13,4 +13,7 @@ conda activate myenv
 
 cd /h/bedaywim/PID-Accelerated-TD-Learning
 
-make DQN_mountaincar
+python3 -m Experiments.DQNExperiments.DQNExperiment \
+    env=cartpole name=cartpole \
+    hydra.mode=MULTIRUN \
+    kd=0, 0.1, 0.2, 0.3, 0.4, 0.5

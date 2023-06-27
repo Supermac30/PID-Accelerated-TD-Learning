@@ -15,6 +15,10 @@ def control_experiment(cfg):
     if cfg['seed'] != -1:
         seed = cfg['seed']
     logging.info(f"The chosen seed is: {seed}")
+
+    # Create a prg with this seed
+    prg = np.random.RandomState(seed)
+
     log_name = f"{cfg['kp']} {cfg['kd']} {cfg['ki']} {cfg['alpha']} {cfg['beta']} {cfg['d_tau']} " \
           + (f"{cfg['epsilon']} {cfg['meta_lr']}" if cfg['adapt_gains'] else "")
 
@@ -28,7 +32,7 @@ def control_experiment(cfg):
             env_cfg['tau'], env_cfg['initial_eps'], env_cfg['exploration_fraction'],
             env_cfg['minimum_eps'], env_cfg['gradient_steps'], env_cfg['train_freq'], env_cfg['target_update_interval'],
             cfg['d_tau'], env_cfg['inner_size'], cfg['slow_motion'], env_cfg['learning_starts'],
-            tabular_d=cfg['tabular_d'], tensorboard_log=cfg['tensorboard_log'], seed=seed,
+            tabular_d=cfg['tabular_d'], tensorboard_log=cfg['tensorboard_log'], seed=prg.randint(0, 2**32),
             adapt_gains=cfg['adapt_gains'], meta_lr=cfg['meta_lr'],
             epsilon=cfg['epsilon'], log_name=log_name, name_append=f"run {i}", should_stop=cfg['should_stop']
         )

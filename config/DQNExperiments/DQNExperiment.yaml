@@ -35,13 +35,13 @@ hydra:
   job:
     chdir: True
 
-  mode: MULTIRUN
   sweep:
     dir: outputs/DQNExperiment/${name}/${now:%Y-%m-%d}/${now:%H-%M-%S}
     subdir: ""
   
-  sweeper:
-    params:
-      meta_lr: 1e-2, 1e-3, 1e-4
-      epsilon: 1e-1, 1e-2, 1e-3
-      tau_d: 1e-1, 1e-2, 1e-3
+  #mode: MULTIRUN
+  #sweeper:
+  #  params:
+  #    meta_lr: 1e-2, 1e-3, 1e-4
+  #    epsilon: 1e-1, 1e-2, 1e-3
+  #    tau_d: 1e-1, 1e-2, 1e-3
