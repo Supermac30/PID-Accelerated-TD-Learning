@@ -53,11 +53,11 @@ def graph_experiment():
 
     # Loop through all directories in f"{directory}/tensorboard"
     for subdir in os.listdir(f"{directory}/tensorboard"):
+        total_history = 0
+        total_gain_history = {'k_p': 0, 'k_i': 0, 'k_d': 0}
+        plot_gains = False
+        count = 0
         for batch in os.listdir(f"{directory}/tensorboard/{subdir}"):
-            total_history = 0
-            total_gain_history = {'k_p': 0, 'k_i': 0, 'k_d': 0}
-            plot_gains = False
-            count = 0
             for run in os.listdir(f"{directory}/tensorboard/{subdir}/{batch}"):
                 if not run.endswith(".csv"):
                     continue
@@ -73,33 +73,33 @@ def graph_experiment():
 
                 count += 1
                 total_history += np.array(df['rollout/ep_rew_mean'])
-            
-            smoothed_history = pd.DataFrame(total_history / count)
-            total_ax.plot(x_axis, smoothed_history[0], 'lightblue', smoothed_history[0].rolling(10).mean(), 'b', label=subdir)
 
-            # Plot the gains, if they exist
-            if plot_gains:
-                fig = plt.figure(figsize=(10, 4))
-                gs = fig.add_gridspec(nrows=1, ncols=3, width_ratios=[1,1,1], wspace=0.3, hspace=0.5)
+        smoothed_history = pd.DataFrame(total_history / count)
+        total_ax.plot(x_axis, total_history / count, 'lightblue', smoothed_history[0].rolling(10).mean(), 'b', label=subdir)
 
-                for i, gain in enumerate(['k_p', 'k_i', 'k_d']):
-                    ax = fig.add_subplot(gs[0, i])
-                    ax.plot(x_axis, total_gain_history[gain] / count, label=f"train_{gain}")
-                    ax.set_xlabel('Episode')
-                    ax.set_ylabel(gain)
-                    ax.legend()
+        # Plot the gains, if they exist
+        if plot_gains:
+            fig = plt.figure(figsize=(10, 4))
+            gs = fig.add_gridspec(nrows=1, ncols=3, width_ratios=[1,1,1], wspace=0.3, hspace=0.5)
 
-                plt.suptitle(f"Adaptive Agent: {subdir}")
+            for i, gain in enumerate(['k_p', 'k_i', 'k_d']):
+                ax = fig.add_subplot(gs[0, i])
+                ax.plot(x_axis, total_gain_history[gain] / count, label=f"train_{gain}")
+                ax.set_xlabel('Episode')
+                ax.set_ylabel(gain)
+                ax.legend()
 
-                # Set square aspect ratio for each subplot
-                for ax in fig.axes:
-                    ax.set_box_aspect(1)
+            plt.suptitle(f"Adaptive Agent: {subdir}")
 
-                # Center the subplots in a single row and move up to remove whitespace
-                gs.tight_layout(fig, rect=[0.05, 0.08, 0.95, 0.95])
+            # Set square aspect ratio for each subplot
+            for ax in fig.axes:
+                ax.set_box_aspect(1)
 
-                plt.savefig(f"{directory}/gains_plot_{subdir}.png")
-                plt.close()
+            # Center the subplots in a single row and move up to remove whitespace
+            gs.tight_layout(fig, rect=[0.05, 0.08, 0.95, 0.95])
+
+            plt.savefig(f"{directory}/gains_plot_{subdir}.png")
+            plt.close()
 
     # Draw a dotted line at the target reward
     total_ax.axhline(y=target_reward, color='r', linestyle='--', label="Target Reward")

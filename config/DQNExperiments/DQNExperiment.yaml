@@ -42,6 +42,6 @@ hydra:
   
   sweeper:
     params:
-      meta_lr: 1e-3
-      epsilon: 1e-1
-      d_tau: 1e-3
+      meta_lr: 1e-2, 1e-3, 1e-4
+      epsilon: 1e-1, 1e-2, 1e-3
+      tau_d: 1e-1, 1e-2, 1e-3
