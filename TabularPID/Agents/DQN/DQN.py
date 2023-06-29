@@ -129,6 +129,7 @@ class PID_DQN(OffPolicyAlgorithm):
             supported_action_spaces=(spaces.Discrete,),
             support_multi_env=True,
             stopping_criterion=stopping_criterion,
+            should_stop=should_stop,
         )
         # The stable baselines wrapped env don't play nice with the RecordVideo Wrapper
         # The simplest solution is to reserve an unwrapped instance for video recording, instead of modifying the API
@@ -141,7 +142,6 @@ class PID_DQN(OffPolicyAlgorithm):
         self.beta = beta
         self.d_tau = d_tau
         self.tabular_d = tabular_d
-        self.should_stop = should_stop
 
         self.exploration_initial_eps = exploration_initial_eps
         self.exploration_final_eps = exploration_final_eps
@@ -352,7 +352,7 @@ class PID_DQN(OffPolicyAlgorithm):
         Args:
             file_name (str, optional): The name of the file. Defaults to "episode".
         """
-        env = RecordVideo(self.visualization_env, file_name + f"{self.kp},{self.ki},{self.kd},{self.update_gains}.mp4")
+        env = RecordVideo(self.visualization_env, file_name + f"{self.kp},{self.ki},{self.kd},{self.update_gains},{self.tabular_d}.mp4")
 
         state = env.reset()[0]
         done = False

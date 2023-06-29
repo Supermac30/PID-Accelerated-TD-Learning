@@ -1,0 +1,460 @@
+[2023-06-27 20:45:37,079][HYDRA] Launching 27 jobs locally
+[2023-06-27 20:45:37,080][HYDRA] 	#0 : env=mountaincar name=mountaincar adapt_gains=True meta_lr=0.01 epsilon=0.25 d_tau=0.1
+[2023-06-27 20:45:37,240][root][INFO] - The chosen seed is: 8908
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:34 < 0:00:00 , 306 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:25 < 0:00:00 , 304 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:31 < 0:00:00 , 304 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:38 < 0:00:00 , 288 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:40 < 0:00:00 , 261 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:40 < 0:00:00 , 295 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:28 < 0:00:00 , 294 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:23 < 0:00:00 , 299 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:28 < 0:00:00 , 306 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:30 < 0:00:00 , 300 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.0171152430015364,0.006974614342276727,0.07571521617052869,True.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.0171152430015364,0.006974614342276727,0.07571521617052869,True.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.0171152430015364,0.006974614342276727,0.07571521617052869,True.mp4/rl-video-episode-0.mp4
+[2023-06-27 21:51:10,829][HYDRA] 	#1 : env=mountaincar name=mountaincar adapt_gains=True meta_lr=0.01 epsilon=0.25 d_tau=0.01
+[2023-06-27 21:51:11,160][root][INFO] - The chosen seed is: 8908
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:29 < 0:00:00 , 292 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:40 < 0:00:00 , 298 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:27 < 0:00:00 , 297 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:31 < 0:00:00 , 298 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:26 < 0:00:00 , 310 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:30 < 0:00:00 , 301 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:24 < 0:00:00 , 290 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:12 < 0:00:00 , 316 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:23 < 0:00:00 , 313 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:33 < 0:00:00 , 293 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.016951092473443,0.005639063407681573,-0.00875243341234045,True.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.016951092473443,0.005639063407681573,-0.00875243341234045,True.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.016951092473443,0.005639063407681573,-0.00875243341234045,True.mp4/rl-video-episode-0.mp4
+[2023-06-27 22:55:53,798][HYDRA] 	#2 : env=mountaincar name=mountaincar adapt_gains=True meta_lr=0.01 epsilon=0.25 d_tau=0.001
+[2023-06-27 22:55:53,965][root][INFO] - The chosen seed is: 8908
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:35 < 0:00:00 , 290 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:33 < 0:00:00 , 297 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:32 < 0:00:00 , 305 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:28 < 0:00:00 , 295 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:30 < 0:00:00 , 291 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:29 < 0:00:00 , 300 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:24 < 0:00:00 , 299 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:26 < 0:00:00 , 294 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:28 < 0:00:00 , 297 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:33 < 0:00:00 , 237 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.0176844812646115,0.006916207338473105,0.043164800371068346,True.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.0176844812646115,0.006916207338473105,0.043164800371068346,True.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.0176844812646115,0.006916207338473105,0.043164800371068346,True.mp4/rl-video-episode-0.mp4
+[2023-06-28 00:00:59,890][HYDRA] 	#3 : env=mountaincar name=mountaincar adapt_gains=True meta_lr=0.01 epsilon=0.1 d_tau=0.1
+[2023-06-28 00:01:00,061][root][INFO] - The chosen seed is: 8908
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:31 < 0:00:00 , 297 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:24 < 0:00:00 , 307 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:33 < 0:00:00 , 279 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:24 < 0:00:00 , 301 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:24 < 0:00:00 , 306 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:28 < 0:00:00 , 312 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:27 < 0:00:00 , 301 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:25 < 0:00:00 , 312 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:36 < 0:00:00 , 294 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:36 < 0:00:00 , 289 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.0174827000903113,0.008283174239910245,0.06323997621659697,True.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.0174827000903113,0.008283174239910245,0.06323997621659697,True.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.0174827000903113,0.008283174239910245,0.06323997621659697,True.mp4/rl-video-episode-0.mp4
+[2023-06-28 01:06:01,682][HYDRA] 	#4 : env=mountaincar name=mountaincar adapt_gains=True meta_lr=0.01 epsilon=0.1 d_tau=0.01
+[2023-06-28 01:06:01,869][root][INFO] - The chosen seed is: 8908
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:46 < 0:00:00 , 292 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:35 < 0:00:00 , 296 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:25 < 0:00:00 , 297 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:28 < 0:00:00 , 306 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:26 < 0:00:00 , 294 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:26 < 0:00:00 , 299 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:30 < 0:00:00 , 298 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:26 < 0:00:00 , 303 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:43 < 0:00:00 , 275 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:22 < 0:00:00 , 298 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.0181065396198028,0.008996192162004051,0.013265641190452412,True.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.0181065396198028,0.008996192162004051,0.013265641190452412,True.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.0181065396198028,0.008996192162004051,0.013265641190452412,True.mp4/rl-video-episode-0.mp4
+[2023-06-28 02:11:24,811][HYDRA] 	#5 : env=mountaincar name=mountaincar adapt_gains=True meta_lr=0.01 epsilon=0.1 d_tau=0.001
+[2023-06-28 02:11:24,993][root][INFO] - The chosen seed is: 8908
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:24 < 0:00:00 , 304 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:27 < 0:00:00 , 310 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:29 < 0:00:00 , 277 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:29 < 0:00:00 , 274 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:31 < 0:00:00 , 288 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:20 < 0:00:00 , 298 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:26 < 0:00:00 , 309 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:18 < 0:00:00 , 299 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:17 < 0:00:00 , 307 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:21 < 0:00:00 , 286 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.01683315940565,0.0049333703233858705,0.0032245452122048475,True.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.01683315940565,0.0049333703233858705,0.0032245452122048475,True.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.01683315940565,0.0049333703233858705,0.0032245452122048475,True.mp4/rl-video-episode-0.mp4
+[2023-06-28 03:15:34,010][HYDRA] 	#6 : env=mountaincar name=mountaincar adapt_gains=True meta_lr=0.01 epsilon=0.01 d_tau=0.1
+[2023-06-28 03:15:34,181][root][INFO] - The chosen seed is: 8908
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:18 < 0:00:00 , 315 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:18 < 0:00:00 , 306 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:15 < 0:00:00 , 317 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:15 < 0:00:00 , 312 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:15 < 0:00:00 , 316 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:22 < 0:00:00 , 312 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:15 < 0:00:00 , 313 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:18 < 0:00:00 , 311 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:16 < 0:00:00 , 312 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:16 < 0:00:00 , 313 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.01754467010006,0.008425311845961079,0.07832167183236284,True.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.01754467010006,0.008425311845961079,0.07832167183236284,True.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.01754467010006,0.008425311845961079,0.07832167183236284,True.mp4/rl-video-episode-0.mp4
+[2023-06-28 04:18:32,860][HYDRA] 	#7 : env=mountaincar name=mountaincar adapt_gains=True meta_lr=0.01 epsilon=0.01 d_tau=0.01
+[2023-06-28 04:18:33,190][root][INFO] - The chosen seed is: 8908
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:27 < 0:00:00 , 280 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:16 < 0:00:00 , 313 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:21 < 0:00:00 , 310 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:12 < 0:00:00 , 310 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:12 < 0:00:00 , 315 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:14 < 0:00:00 , 314 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:21 < 0:00:00 , 316 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:16 < 0:00:00 , 312 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:07 < 0:00:00 , 322 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:02 < 0:00:00 , 328 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.017942360606514,0.020253714579265204,-0.05829518586886119,True.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.017942360606514,0.020253714579265204,-0.05829518586886119,True.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.017942360606514,0.020253714579265204,-0.05829518586886119,True.mp4/rl-video-episode-0.mp4
+[2023-06-28 05:21:13,647][HYDRA] 	#8 : env=mountaincar name=mountaincar adapt_gains=True meta_lr=0.01 epsilon=0.01 d_tau=0.001
+[2023-06-28 05:21:13,815][root][INFO] - The chosen seed is: 8908
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:13 < 0:00:00 , 304 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:18 < 0:00:00 , 303 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:21 < 0:00:00 , 305 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:23 < 0:00:00 , 304 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:17 < 0:00:00 , 309 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:14 < 0:00:00 , 313 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:12 < 0:00:00 , 318 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:16 < 0:00:00 , 320 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:15 < 0:00:00 , 301 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:30 < 0:00:00 , 313 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.0185324719026578,0.012313772132653857,0.016226485826286222,True.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.0185324719026578,0.012313772132653857,0.016226485826286222,True.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.0185324719026578,0.012313772132653857,0.016226485826286222,True.mp4/rl-video-episode-0.mp4
+[2023-06-28 06:24:26,037][HYDRA] 	#9 : env=mountaincar name=mountaincar adapt_gains=True meta_lr=0.001 epsilon=0.25 d_tau=0.1
+[2023-06-28 06:24:26,217][root][INFO] - The chosen seed is: 8908
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:19 < 0:00:00 , 307 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:22 < 0:00:00 , 307 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:20 < 0:00:00 , 309 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:26 < 0:00:00 , 300 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:25 < 0:00:00 , 309 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:26 < 0:00:00 , 301 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:27 < 0:00:00 , 293 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:23 < 0:00:00 , 306 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:28 < 0:00:00 , 304 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:27 < 0:00:00 , 295 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.001630289289456,0.0011296768574860698,0.013415275179876708,True.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.001630289289456,0.0011296768574860698,0.013415275179876708,True.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.001630289289456,0.0011296768574860698,0.013415275179876708,True.mp4/rl-video-episode-0.mp4
+[2023-06-28 07:28:36,996][HYDRA] 	#10 : env=mountaincar name=mountaincar adapt_gains=True meta_lr=0.001 epsilon=0.25 d_tau=0.01
+[2023-06-28 07:28:37,169][root][INFO] - The chosen seed is: 8908
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:25 < 0:00:00 , 294 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:28 < 0:00:00 , 299 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:28 < 0:00:00 , 305 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:23 < 0:00:00 , 296 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:26 < 0:00:00 , 307 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:27 < 0:00:00 , 294 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:21 < 0:00:00 , 302 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:19 < 0:00:00 , 316 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:24 < 0:00:00 , 308 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:33 < 0:00:00 , 297 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.001708584318904,0.0008581644688558173,-0.006641163759955959,True.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.001708584318904,0.0008581644688558173,-0.006641163759955959,True.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.001708584318904,0.0008581644688558173,-0.006641163759955959,True.mp4/rl-video-episode-0.mp4
+[2023-06-28 08:32:59,988][HYDRA] 	#11 : env=mountaincar name=mountaincar adapt_gains=True meta_lr=0.001 epsilon=0.25 d_tau=0.001
+[2023-06-28 08:33:00,164][root][INFO] - The chosen seed is: 8908
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:30 < 0:00:00 , 301 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:25 < 0:00:00 , 300 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:19 < 0:00:00 , 306 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:14 < 0:00:00 , 310 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:16 < 0:00:00 , 302 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:30 < 0:00:00 , 302 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:18 < 0:00:00 , 304 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:18 < 0:00:00 , 309 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:28 < 0:00:00 , 301 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:15 < 0:00:00 , 313 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.0015837095727456,0.0006808101744705476,-0.005178481624607021,True.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.0015837095727456,0.0006808101744705476,-0.005178481624607021,True.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.0015837095727456,0.0006808101744705476,-0.005178481624607021,True.mp4/rl-video-episode-0.mp4
+[2023-06-28 09:36:46,582][HYDRA] 	#12 : env=mountaincar name=mountaincar adapt_gains=True meta_lr=0.001 epsilon=0.1 d_tau=0.1
+[2023-06-28 09:36:46,772][root][INFO] - The chosen seed is: 8908
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:15 < 0:00:00 , 306 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:28 < 0:00:00 , 305 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:20 < 0:00:00 , 312 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:22 < 0:00:00 , 307 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:20 < 0:00:00 , 308 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:19 < 0:00:00 , 308 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:18 < 0:00:00 , 254 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:14 < 0:00:00 , 315 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:23 < 0:00:00 , 309 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:23 < 0:00:00 , 303 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.0017391803931526,0.0011366649933301257,0.014507192029377327,True.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.0017391803931526,0.0011366649933301257,0.014507192029377327,True.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.0017391803931526,0.0011366649933301257,0.014507192029377327,True.mp4/rl-video-episode-0.mp4
+[2023-06-28 10:40:16,027][HYDRA] 	#13 : env=mountaincar name=mountaincar adapt_gains=True meta_lr=0.001 epsilon=0.1 d_tau=0.01
+[2023-06-28 10:40:16,377][root][INFO] - The chosen seed is: 8908
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:17 < 0:00:00 , 305 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:20 < 0:00:00 , 313 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:18 < 0:00:00 , 298 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:26 < 0:00:00 , 305 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:23 < 0:00:00 , 310 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:22 < 0:00:00 , 305 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:14 < 0:00:00 , 310 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:33 < 0:00:00 , 312 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:16 < 0:00:00 , 309 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:28 < 0:00:00 , 300 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.0014735653204285,0.0008070414706280431,-0.002526765411685042,True.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.0014735653204285,0.0008070414706280431,-0.002526765411685042,True.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.0014735653204285,0.0008070414706280431,-0.002526765411685042,True.mp4/rl-video-episode-0.mp4
+[2023-06-28 11:43:59,864][HYDRA] 	#14 : env=mountaincar name=mountaincar adapt_gains=True meta_lr=0.001 epsilon=0.1 d_tau=0.001
+[2023-06-28 11:44:00,033][root][INFO] - The chosen seed is: 8908
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:22 < 0:00:00 , 314 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:21 < 0:00:00 , 304 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:15 < 0:00:00 , 297 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:19 < 0:00:00 , 294 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:19 < 0:00:00 , 309 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:23 < 0:00:00 , 307 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:16 < 0:00:00 , 308 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:20 < 0:00:00 , 309 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:19 < 0:00:00 , 288 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:20 < 0:00:00 , 303 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.001702702661377,0.0007670476804983672,-0.0003433272392050255,True.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.001702702661377,0.0007670476804983672,-0.0003433272392050255,True.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.001702702661377,0.0007670476804983672,-0.0003433272392050255,True.mp4/rl-video-episode-0.mp4
+[2023-06-28 12:47:20,282][HYDRA] 	#15 : env=mountaincar name=mountaincar adapt_gains=True meta_lr=0.001 epsilon=0.01 d_tau=0.1
+[2023-06-28 12:47:20,447][root][INFO] - The chosen seed is: 8908
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:22 < 0:00:00 , 303 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:27 < 0:00:00 , 315 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:05 < 0:00:00 , 328 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:05 < 0:00:00 , 324 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:07 < 0:00:00 , 317 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:23 < 0:00:00 , 313 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:14 < 0:00:00 , 312 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:15 < 0:00:00 , 308 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:14 < 0:00:00 , 296 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:09 < 0:00:00 , 311 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.0017744891617038,0.0010721584602043771,0.01408405245202442,True.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.0017744891617038,0.0010721584602043771,0.01408405245202442,True.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.0017744891617038,0.0010721584602043771,0.01408405245202442,True.mp4/rl-video-episode-0.mp4
+[2023-06-28 13:49:47,679][HYDRA] 	#16 : env=mountaincar name=mountaincar adapt_gains=True meta_lr=0.001 epsilon=0.01 d_tau=0.01
+[2023-06-28 13:49:47,883][root][INFO] - The chosen seed is: 8908
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:15 < 0:00:00 , 313 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:13 < 0:00:00 , 323 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:01 < 0:00:00 , 313 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:05:56 < 0:00:00 , 319 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:04 < 0:00:00 , 307 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:04 < 0:00:00 , 321 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:05 < 0:00:00 , 315 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:03 < 0:00:00 , 317 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:06 < 0:00:00 , 314 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:06 < 0:00:00 , 315 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.0017615370073167,0.0007144788903077247,0.000802970452178272,True.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.0017615370073167,0.0007144788903077247,0.000802970452178272,True.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.0017615370073167,0.0007144788903077247,0.000802970452178272,True.mp4/rl-video-episode-0.mp4
+[2023-06-28 14:50:46,778][HYDRA] 	#17 : env=mountaincar name=mountaincar adapt_gains=True meta_lr=0.001 epsilon=0.01 d_tau=0.001
+[2023-06-28 14:50:46,943][root][INFO] - The chosen seed is: 8908
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:09 < 0:00:00 , 312 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:12 < 0:00:00 , 318 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:11 < 0:00:00 , 305 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:16 < 0:00:00 , 308 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:33 < 0:00:00 , 280 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:12 < 0:00:00 , 319 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:07 < 0:00:00 , 321 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:04 < 0:00:00 , 321 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:16 < 0:00:00 , 302 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:10 < 0:00:00 , 324 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.0017390578458536,0.000789999347907841,0.002047900016511327,True.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.0017390578458536,0.000789999347907841,0.002047900016511327,True.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.0017390578458536,0.000789999347907841,0.002047900016511327,True.mp4/rl-video-episode-0.mp4
+[2023-06-28 15:53:09,942][HYDRA] 	#18 : env=mountaincar name=mountaincar adapt_gains=True meta_lr=0.0001 epsilon=0.25 d_tau=0.1
+[2023-06-28 15:53:10,117][root][INFO] - The chosen seed is: 8908
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:29 < 0:00:00 , 294 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:11 < 0:00:00 , 312 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:26 < 0:00:00 , 313 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:12 < 0:00:00 , 313 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:26 < 0:00:00 , 263 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:17 < 0:00:00 , 309 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:13 < 0:00:00 , 278 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:08 < 0:00:00 , 306 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:16 < 0:00:00 , 301 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:20 < 0:00:00 , 247 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.0001761157756819,0.00010060088350076971,0.001213080495859302,True.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.0001761157756819,0.00010060088350076971,0.001213080495859302,True.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.0001761157756819,0.00010060088350076971,0.001213080495859302,True.mp4/rl-video-episode-0.mp4
+[2023-06-28 16:56:14,296][HYDRA] 	#19 : env=mountaincar name=mountaincar adapt_gains=True meta_lr=0.0001 epsilon=0.25 d_tau=0.01
+[2023-06-28 16:56:14,469][root][INFO] - The chosen seed is: 8908
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:12 < 0:00:00 , 307 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:19 < 0:00:00 , 305 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:21 < 0:00:00 , 308 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:21 < 0:00:00 , 313 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:10 < 0:00:00 , 319 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:12 < 0:00:00 , 306 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:13 < 0:00:00 , 304 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:11 < 0:00:00 , 310 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:13 < 0:00:00 , 306 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:14 < 0:00:00 , 305 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.000175829928615,9.558453881337097e-05,0.005415218920219203,True.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.000175829928615,9.558453881337097e-05,0.005415218920219203,True.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.000175829928615,9.558453881337097e-05,0.005415218920219203,True.mp4/rl-video-episode-0.mp4
+[2023-06-28 17:58:47,227][HYDRA] 	#20 : env=mountaincar name=mountaincar adapt_gains=True meta_lr=0.0001 epsilon=0.25 d_tau=0.001
+[2023-06-28 17:58:47,402][root][INFO] - The chosen seed is: 8908
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:10 < 0:00:00 , 314 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:17 < 0:00:00 , 294 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:14 < 0:00:00 , 315 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:10 < 0:00:00 , 305 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:13 < 0:00:00 , 299 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:14 < 0:00:00 , 312 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:18 < 0:00:00 , 312 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:13 < 0:00:00 , 317 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:07 < 0:00:00 , 308 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:15 < 0:00:00 , 317 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.0001710145171936,0.00010488997014924706,0.004832237859172069,True.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.0001710145171936,0.00010488997014924706,0.004832237859172069,True.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.0001710145171936,0.00010488997014924706,0.004832237859172069,True.mp4/rl-video-episode-0.mp4
+[2023-06-28 19:01:05,188][HYDRA] 	#21 : env=mountaincar name=mountaincar adapt_gains=True meta_lr=0.0001 epsilon=0.1 d_tau=0.1
+[2023-06-28 19:01:05,351][root][INFO] - The chosen seed is: 8908
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:10 < 0:00:00 , 314 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:12 < 0:00:00 , 311 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:13 < 0:00:00 , 319 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:09 < 0:00:00 , 307 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:11 < 0:00:00 , 315 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:10 < 0:00:00 , 310 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:08 < 0:00:00 , 319 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:02 < 0:00:00 , 318 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:23 < 0:00:00 , 318 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:09 < 0:00:00 , 311 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.0001762831609393,0.00010918313791170924,0.001305273591526682,True.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.0001762831609393,0.00010918313791170924,0.001305273591526682,True.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.0001762831609393,0.00010918313791170924,0.001305273591526682,True.mp4/rl-video-episode-0.mp4
+[2023-06-28 20:02:59,570][HYDRA] 	#22 : env=mountaincar name=mountaincar adapt_gains=True meta_lr=0.0001 epsilon=0.1 d_tau=0.01
+[2023-06-28 20:02:59,744][root][INFO] - The chosen seed is: 8908
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:10 < 0:00:00 , 307 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:22 < 0:00:00 , 304 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:14 < 0:00:00 , 312 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:12 < 0:00:00 , 308 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:19 < 0:00:00 , 309 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:14 < 0:00:00 , 301 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:16 < 0:00:00 , 300 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:17 < 0:00:00 , 314 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:17 < 0:00:00 , 302 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:25 < 0:00:00 , 296 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.0001736245039512,0.0001076897759194681,0.005440992756175674,True.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.0001736245039512,0.0001076897759194681,0.005440992756175674,True.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.0001736245039512,0.0001076897759194681,0.005440992756175674,True.mp4/rl-video-episode-0.mp4
+[2023-06-28 21:05:51,522][HYDRA] 	#23 : env=mountaincar name=mountaincar adapt_gains=True meta_lr=0.0001 epsilon=0.1 d_tau=0.001
+[2023-06-28 21:05:51,691][root][INFO] - The chosen seed is: 8908
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:10 < 0:00:00 , 302 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:20 < 0:00:00 , 310 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:01 < 0:00:00 , 323 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:05:54 < 0:00:00 , 313 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:01 < 0:00:00 , 310 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:35 < 0:00:00 , 289 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:39 < 0:00:00 , 290 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:44 < 0:00:00 , 287 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:41 < 0:00:00 , 289 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:33 < 0:00:00 , 308 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.0001759594342408,9.639984685748466e-05,0.0033680561699180158,True.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.0001759594342408,9.639984685748466e-05,0.0033680561699180158,True.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.0001759594342408,9.639984685748466e-05,0.0033680561699180158,True.mp4/rl-video-episode-0.mp4
+[2023-06-28 22:09:37,162][HYDRA] 	#24 : env=mountaincar name=mountaincar adapt_gains=True meta_lr=0.0001 epsilon=0.01 d_tau=0.1
+[2023-06-28 22:09:37,717][root][INFO] - The chosen seed is: 8908
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:13 < 0:00:00 , 313 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:17 < 0:00:00 , 299 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:15 < 0:00:00 , 292 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:25 < 0:00:00 , 289 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:22 < 0:00:00 , 297 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:21 < 0:00:00 , 308 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:15 < 0:00:00 , 302 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:14 < 0:00:00 , 313 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:15 < 0:00:00 , 304 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:22 < 0:00:00 , 296 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.0001778567983235,0.00010742321987884058,0.0013010172542577078,True.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.0001778567983235,0.00010742321987884058,0.0013010172542577078,True.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.0001778567983235,0.00010742321987884058,0.0013010172542577078,True.mp4/rl-video-episode-0.mp4
+[2023-06-28 23:12:43,509][HYDRA] 	#25 : env=mountaincar name=mountaincar adapt_gains=True meta_lr=0.0001 epsilon=0.01 d_tau=0.01
+[2023-06-28 23:12:43,674][root][INFO] - The chosen seed is: 8908
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:24 < 0:00:00 , 291 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:32 < 0:00:00 , 296 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:19 < 0:00:00 , 312 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:17 < 0:00:00 , 310 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:18 < 0:00:00 , 297 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:18 < 0:00:00 , 307 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:17 < 0:00:00 , 295 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:12 < 0:00:00 , 312 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:21 < 0:00:00 , 299 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:25 < 0:00:00 , 307 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.0001624156405282,0.00011463219287696196,0.00764110836589352,True.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.0001624156405282,0.00011463219287696196,0.00764110836589352,True.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.0001624156405282,0.00011463219287696196,0.00764110836589352,True.mp4/rl-video-episode-0.mp4
+[2023-06-29 00:16:12,759][HYDRA] 	#26 : env=mountaincar name=mountaincar adapt_gains=True meta_lr=0.0001 epsilon=0.01 d_tau=0.001
+[2023-06-29 00:16:12,911][root][INFO] - The chosen seed is: 8908
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:19 < 0:00:00 , 320 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:29 < 0:00:00 , 302 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:38 < 0:00:00 , 298 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:33 < 0:00:00 , 295 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:29 < 0:00:00 , 297 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:33 < 0:00:00 , 280 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:42 < 0:00:00 , 203 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:33 < 0:00:00 , 311 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:42 < 0:00:00 , 267 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 120,000/120,000  [ 0:06:27 < 0:00:00 , 301 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.000177250653971,0.00011080725159499073,0.0025725148838979814,True.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.000177250653971,0.00011080725159499073,0.0025725148838979814,True.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/mountaincar/2023-06-27/20-45-34/episode1.000177250653971,0.00011080725159499073,0.0025725148838979814,True.mp4/rl-video-episode-0.mp4

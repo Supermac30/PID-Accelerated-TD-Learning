@@ -2,7 +2,9 @@ import matplotlib.pyplot as plt
 import hydra
 import pandas as pd
 import numpy as np
-import colorsys
+
+from torch.utils.tensorboard import SummaryWriter
+from torch.utils.tensorboard.summary import hparams
 
 from Experiments.ExperimentHelpers import *
 from TabularPID.AgentBuilders.DQNBuilder import build_PID_DQN
@@ -19,7 +21,7 @@ def control_experiment(cfg):
     # Create a prg with this seed
     prg = np.random.RandomState(seed)
 
-    log_name = f"{cfg['kp']} {cfg['kd']} {cfg['ki']} {cfg['alpha']} {cfg['beta']} {cfg['d_tau']} " \
+    log_name = f"{cfg['kp']} {cfg['ki']}{'*' if cfg['tabular_d'] else ''} {cfg['kd']} {cfg['alpha']} {cfg['beta']} {cfg['d_tau']} " \
           + (f"{cfg['epsilon']} {cfg['meta_lr']}" if cfg['adapt_gains'] else "")
 
     env_cfg = next(iter(cfg['env'].values()))
@@ -51,7 +53,37 @@ def control_experiment(cfg):
     target_reward = agent.stopping_criterion
 
 
-def graph_experiment():
+def graph_experiment(seed, environment_name, directory, target_reward):
+    def add_arrays(array1, array2):
+        if isinstance(array1, int):
+            return array2
+        # Get the sizes of the arrays
+        size1 = array1.size
+        size2 = array2.size
+
+        # Truncate the larger array if needed
+        if size1 > size2:
+            array1 = array1[:size2]
+        elif size2 > size1:
+            array2 = array2[:size1]
+
+        # Add the arrays
+        result = array1 + array2
+
+        return result
+
+    def create_tensorboard_average(arr, directory, subdir, name):
+        # If the directory doesn't exist, create it
+        if not os.path.exists(f"{directory}/tensorboard"):
+            os.makedirs(f"{directory}/tensorboard")
+
+        # Create a tensorboard writer
+        writer = SummaryWriter(f"{directory}/tensorboard/{subdir}")
+
+        # Add the array to tensorboard by looping through it
+        for i in range(arr.size):
+            writer.add_scalar(f"{name}", arr[i], i)
+
     """Plots all the data in the directory tensorboard."""
     # Create a graph for plotting the rewards called fig and ax
     total_fig, total_ax = plt.subplots()
@@ -71,18 +103,22 @@ def graph_experiment():
 
                 # Plot the gains
                 if 'train/k_p' in df.columns:
-                    total_gain_history['k_p'] += np.array(df['train/k_p'])
-                    total_gain_history['k_i'] += np.array(df['train/k_i'])
-                    total_gain_history['k_d'] += np.array(df['train/k_d'])
+                    total_gain_history['k_p'] = add_arrays(total_gain_history['k_p'], np.array(df['train/k_p']))
+                    total_gain_history['k_i'] = add_arrays(total_gain_history['k_i'], np.array(df['train/k_i']))
+                    total_gain_history['k_d'] = add_arrays(total_gain_history['k_d'], np.array(df['train/k_d']))
                     plot_gains = True
 
                 count += 1
-                total_history += np.array(df['rollout/ep_rew'])
+                total_history = add_arrays(total_history, np.array(df['rollout/ep_rew']))
+
+        # Truncate the x_axis to be the same size as total_history
+        x_axis = x_axis[:total_history.size]
 
         smoothed_history = pd.DataFrame(total_history / count)
         total_ax.plot(smoothed_history[0].rolling(10).mean(), label=subdir)
-        color = total_ax.lines()[-1].get_color()
+        color = total_ax.lines[-1].get_color()
         total_ax.plot(x_axis, total_history / count, color=color, alpha=0.2)
+        create_tensorboard_average(total_history / count, f"{directory}/average", subdir, "ep_rew")
 
         # Plot the gains, if they exist
         if plot_gains:
@@ -95,6 +131,14 @@ def graph_experiment():
                 ax.set_xlabel('Episode')
                 ax.set_ylabel(gain)
                 ax.legend()
+
+                create_tensorboard_average(
+                    total_gain_history[gain] / count,
+                    f"{directory}/average",
+                    subdir,
+                    f"train_{gain}"
+                )
+
 
             plt.suptitle(f"Adaptive Agent: {subdir}")
 
@@ -132,4 +176,4 @@ if __name__ == "__main__":
     target_reward = float("inf")
 
     control_experiment()
-    graph_experiment()
+    graph_experiment(seed, environment_name, directory, target_reward)

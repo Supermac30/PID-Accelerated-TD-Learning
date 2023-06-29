@@ -1,0 +1,35 @@
+[2023-06-27 20:38:53,940][HYDRA] Launching 2 jobs locally
+[2023-06-27 20:38:53,940][HYDRA] 	#0 : env=lunarlander name=lunarlander adapt_gains=True meta_lr=0.001 epsilon=0.1 d_tau=0.001
+[2023-06-27 20:38:54,091][root][INFO] - The chosen seed is: 521687
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 100,000/100,000  [ 0:12:44 < 0:00:00 , 138 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 100,000/100,000  [ 0:12:14 < 0:00:00 , 135 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 100,000/100,000  [ 0:12:46 < 0:00:00 , 135 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 100,000/100,000  [ 0:12:28 < 0:00:00 , 138 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 100,000/100,000  [ 0:12:19 < 0:00:00 , 152 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 100,000/100,000  [ 0:11:20 < 0:00:00 , 149 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 100,000/100,000  [ 0:11:37 < 0:00:00 , 141 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 100,000/100,000  [ 0:11:19 < 0:00:00 , 151 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 100,000/100,000  [ 0:11:32 < 0:00:00 , 155 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 100,000/100,000  [ 0:11:23 < 0:00:00 , 133 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/lunarlander/2023-06-27/20-38-53/episode1.0003738520154422,0.0003001758658290924,5.509934334862934e-05,True.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/lunarlander/2023-06-27/20-38-53/episode1.0003738520154422,0.0003001758658290924,5.509934334862934e-05,True.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/lunarlander/2023-06-27/20-38-53/episode1.0003738520154422,0.0003001758658290924,5.509934334862934e-05,True.mp4/rl-video-episode-0.mp4
+[2023-06-27 22:38:54,872][HYDRA] 	#1 : env=lunarlander name=lunarlander adapt_gains=False meta_lr=0.001 epsilon=0.1 d_tau=0.001
+[2023-06-27 22:38:55,040][root][INFO] - The chosen seed is: 521687
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 100,000/100,000  [ 0:10:46 < 0:00:00 , 168 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 100,000/100,000  [ 0:10:44 < 0:00:00 , 168 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 100,000/100,000  [ 0:10:28 < 0:00:00 , 159 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 100,000/100,000  [ 0:10:30 < 0:00:00 , 168 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 100,000/100,000  [ 0:10:14 < 0:00:00 , 166 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 100,000/100,000  [ 0:10:03 < 0:00:00 , 170 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 100,000/100,000  [ 0:10:20 < 0:00:00 , 162 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 100,000/100,000  [ 0:11:05 < 0:00:00 , 161 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 100,000/100,000  [ 0:10:25 < 0:00:00 , 169 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━ 100,000/100,000  [ 0:10:17 < 0:00:00 , 166 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/lunarlander/2023-06-27/20-38-53/episode1,0,0,False.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/lunarlander/2023-06-27/20-38-53/episode1,0,0,False.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/lunarlander/2023-06-27/20-38-53/episode1,0,0,False.mp4/rl-video-episode-0.mp4

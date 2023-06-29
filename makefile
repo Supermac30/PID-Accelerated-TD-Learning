@@ -23,3 +23,6 @@ DQN_acrobot:
 	python3 -m Experiments.DQNExperiments.DQNExperiment env=acrobot name=acrobot
 DQN_atari:
 	python3 -m Experiments.DQNExperiments.DQNExperiment env=atari name=atari
+
+DQN_slurm:
+	sbatch slurm/dqn.sh

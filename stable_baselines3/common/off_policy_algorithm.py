@@ -107,6 +107,7 @@ class OffPolicyAlgorithm(BaseAlgorithm):
         sde_support: bool = True,
         supported_action_spaces: Optional[Tuple[Type[spaces.Space], ...]] = None,
         stopping_criterion = None,
+        should_stop = False,
     ):
         super().__init__(
             policy=policy,
@@ -125,6 +126,7 @@ class OffPolicyAlgorithm(BaseAlgorithm):
             supported_action_spaces=supported_action_spaces,
         )
         self.stopping_criterion = stopping_criterion
+        self.should_stop = should_stop
         self.number_of_stops = 0  # The number of times we reached the stopping criterion in a row.
         self.reward_log = None  # The reward we received in the last episode for the purpose of determining if we should stop.
 

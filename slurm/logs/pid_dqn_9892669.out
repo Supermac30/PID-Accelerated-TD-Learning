@@ -1,0 +1,205 @@
+[2023-06-27 20:40:58,384][HYDRA] Launching 12 jobs locally
+[2023-06-27 20:40:58,385][HYDRA] 	#0 : env=cartpole name=cartpole kd=0 d_tau=1 tabular_d=True
+[2023-06-27 20:40:58,577][root][INFO] - The chosen seed is: 6365
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:27 < 0:00:00 , 338 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:24 < 0:00:00 , 354 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:32 < 0:00:00 , 342 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:24 < 0:00:00 , 362 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:22 < 0:00:00 , 361 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:23 < 0:00:00 , 361 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:26 < 0:00:00 , 356 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:23 < 0:00:00 , 350 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:26 < 0:00:00 , 345 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:25 < 0:00:00 , 353 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/cartpole/2023-06-27/20-40-57/episode1,0,0,False.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/cartpole/2023-06-27/20-40-57/episode1,0,0,False.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/cartpole/2023-06-27/20-40-57/episode1,0,0,False.mp4/rl-video-episode-0.mp4
+[2023-06-27 21:05:36,753][HYDRA] 	#1 : env=cartpole name=cartpole kd=0 d_tau=1 tabular_d=False
+[2023-06-27 21:05:36,937][root][INFO] - The chosen seed is: 6365
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:31 < 0:00:00 , 333 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:29 < 0:00:00 , 349 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:37 < 0:00:00 , 345 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:29 < 0:00:00 , 346 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:31 < 0:00:00 , 342 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:32 < 0:00:00 , 342 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:33 < 0:00:00 , 346 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:34 < 0:00:00 , 336 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:26 < 0:00:00 , 346 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:26 < 0:00:00 , 342 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/cartpole/2023-06-27/20-40-57/episode1,0,0,False.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/cartpole/2023-06-27/20-40-57/episode1,0,0,False.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/cartpole/2023-06-27/20-40-57/episode1,0,0,False.mp4/rl-video-episode-0.mp4
+[2023-06-27 21:31:06,583][HYDRA] 	#2 : env=cartpole name=cartpole kd=0.1 d_tau=1 tabular_d=True
+[2023-06-27 21:31:06,762][root][INFO] - The chosen seed is: 6365
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:26 < 0:00:00 , 336 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:20 < 0:00:00 , 352 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:23 < 0:00:00 , 353 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:27 < 0:00:00 , 351 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:25 < 0:00:00 , 345 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:29 < 0:00:00 , 359 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:23 < 0:00:00 , 360 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:31 < 0:00:00 , 295 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:23 < 0:00:00 , 351 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:24 < 0:00:00 , 351 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/cartpole/2023-06-27/20-40-57/episode1,0,0.1,False.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/cartpole/2023-06-27/20-40-57/episode1,0,0.1,False.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/cartpole/2023-06-27/20-40-57/episode1,0,0.1,False.mp4/rl-video-episode-0.mp4
+[2023-06-27 21:55:30,621][HYDRA] 	#3 : env=cartpole name=cartpole kd=0.1 d_tau=1 tabular_d=False
+[2023-06-27 21:55:30,788][root][INFO] - The chosen seed is: 6365
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:33 < 0:00:00 , 325 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:33 < 0:00:00 , 351 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:34 < 0:00:00 , 333 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:33 < 0:00:00 , 346 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:29 < 0:00:00 , 343 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:28 < 0:00:00 , 342 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:30 < 0:00:00 , 345 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:29 < 0:00:00 , 334 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:28 < 0:00:00 , 345 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:33 < 0:00:00 , 333 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/cartpole/2023-06-27/20-40-57/episode1,0,0.1,False.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/cartpole/2023-06-27/20-40-57/episode1,0,0.1,False.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/cartpole/2023-06-27/20-40-57/episode1,0,0.1,False.mp4/rl-video-episode-0.mp4
+[2023-06-27 22:21:01,127][HYDRA] 	#4 : env=cartpole name=cartpole kd=0.2 d_tau=1 tabular_d=True
+[2023-06-27 22:21:01,311][root][INFO] - The chosen seed is: 6365
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:22 < 0:00:00 , 349 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:26 < 0:00:00 , 360 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:29 < 0:00:00 , 330 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:25 < 0:00:00 , 331 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:25 < 0:00:00 , 345 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:28 < 0:00:00 , 343 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:25 < 0:00:00 , 354 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:29 < 0:00:00 , 355 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:24 < 0:00:00 , 350 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:29 < 0:00:00 , 330 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/cartpole/2023-06-27/20-40-57/episode1,0,0.2,False.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/cartpole/2023-06-27/20-40-57/episode1,0,0.2,False.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/cartpole/2023-06-27/20-40-57/episode1,0,0.2,False.mp4/rl-video-episode-0.mp4
+[2023-06-27 22:45:35,755][HYDRA] 	#5 : env=cartpole name=cartpole kd=0.2 d_tau=1 tabular_d=False
+[2023-06-27 22:45:35,921][root][INFO] - The chosen seed is: 6365
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:32 < 0:00:00 , 310 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:26 < 0:00:00 , 355 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:32 < 0:00:00 , 351 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:26 < 0:00:00 , 354 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:27 < 0:00:00 , 338 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:28 < 0:00:00 , 354 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:30 < 0:00:00 , 348 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:29 < 0:00:00 , 323 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:27 < 0:00:00 , 336 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:30 < 0:00:00 , 346 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/cartpole/2023-06-27/20-40-57/episode1,0,0.2,False.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/cartpole/2023-06-27/20-40-57/episode1,0,0.2,False.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/cartpole/2023-06-27/20-40-57/episode1,0,0.2,False.mp4/rl-video-episode-0.mp4
+[2023-06-27 23:10:44,702][HYDRA] 	#6 : env=cartpole name=cartpole kd=0.3 d_tau=1 tabular_d=True
+[2023-06-27 23:10:44,878][root][INFO] - The chosen seed is: 6365
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:30 < 0:00:00 , 342 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:31 < 0:00:00 , 320 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:28 < 0:00:00 , 356 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:29 < 0:00:00 , 337 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:32 < 0:00:00 , 312 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:27 < 0:00:00 , 341 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:31 < 0:00:00 , 308 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:32 < 0:00:00 , 283 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:27 < 0:00:00 , 352 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:26 < 0:00:00 , 344 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/cartpole/2023-06-27/20-40-57/episode1,0,0.3,False.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/cartpole/2023-06-27/20-40-57/episode1,0,0.3,False.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/cartpole/2023-06-27/20-40-57/episode1,0,0.3,False.mp4/rl-video-episode-0.mp4
+[2023-06-27 23:35:50,286][HYDRA] 	#7 : env=cartpole name=cartpole kd=0.3 d_tau=1 tabular_d=False
+[2023-06-27 23:35:50,454][root][INFO] - The chosen seed is: 6365
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:29 < 0:00:00 , 315 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:26 < 0:00:00 , 350 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:28 < 0:00:00 , 343 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:28 < 0:00:00 , 333 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:27 < 0:00:00 , 346 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:34 < 0:00:00 , 350 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:28 < 0:00:00 , 344 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:27 < 0:00:00 , 330 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:28 < 0:00:00 , 340 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:35 < 0:00:00 , 290 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/cartpole/2023-06-27/20-40-57/episode1,0,0.3,False.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/cartpole/2023-06-27/20-40-57/episode1,0,0.3,False.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/cartpole/2023-06-27/20-40-57/episode1,0,0.3,False.mp4/rl-video-episode-0.mp4
+[2023-06-28 00:01:02,006][HYDRA] 	#8 : env=cartpole name=cartpole kd=0.4 d_tau=1 tabular_d=True
+[2023-06-28 00:01:02,293][root][INFO] - The chosen seed is: 6365
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:36 < 0:00:00 , 282 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:29 < 0:00:00 , 287 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:36 < 0:00:00 , 248 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:32 < 0:00:00 , 255 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:34 < 0:00:00 , 297 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:28 < 0:00:00 , 286 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:38 < 0:00:00 , 269 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:44 < 0:00:00 , 276 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:25 < 0:00:00 , 339 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:40 < 0:00:00 , 232 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/cartpole/2023-06-27/20-40-57/episode1,0,0.4,False.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/cartpole/2023-06-27/20-40-57/episode1,0,0.4,False.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/cartpole/2023-06-27/20-40-57/episode1,0,0.4,False.mp4/rl-video-episode-0.mp4
+[2023-06-28 00:26:58,067][HYDRA] 	#9 : env=cartpole name=cartpole kd=0.4 d_tau=1 tabular_d=False
+[2023-06-28 00:26:58,232][root][INFO] - The chosen seed is: 6365
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:32 < 0:00:00 , 326 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:27 < 0:00:00 , 345 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:31 < 0:00:00 , 327 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:31 < 0:00:00 , 312 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:27 < 0:00:00 , 346 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:27 < 0:00:00 , 353 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:27 < 0:00:00 , 350 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:30 < 0:00:00 , 318 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:29 < 0:00:00 , 339 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:31 < 0:00:00 , 347 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/cartpole/2023-06-27/20-40-57/episode1,0,0.4,False.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/cartpole/2023-06-27/20-40-57/episode1,0,0.4,False.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/cartpole/2023-06-27/20-40-57/episode1,0,0.4,False.mp4/rl-video-episode-0.mp4
+[2023-06-28 00:52:10,225][HYDRA] 	#10 : env=cartpole name=cartpole kd=0.5 d_tau=1 tabular_d=True
+[2023-06-28 00:52:10,411][root][INFO] - The chosen seed is: 6365
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:49 < 0:00:00 , 195 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:50 < 0:00:00 , 243 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:48 < 0:00:00 , 230 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:55 < 0:00:00 , 225 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:51 < 0:00:00 , 232 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:03:04 < 0:00:00 , 209 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:56 < 0:00:00 , 214 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:56 < 0:00:00 , 216 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:59 < 0:00:00 , 243 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:52 < 0:00:00 , 222 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/cartpole/2023-06-27/20-40-57/episode1,0,0.5,False.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/cartpole/2023-06-27/20-40-57/episode1,0,0.5,False.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/cartpole/2023-06-27/20-40-57/episode1,0,0.5,False.mp4/rl-video-episode-0.mp4
+[2023-06-28 01:21:25,263][HYDRA] 	#11 : env=cartpole name=cartpole kd=0.5 d_tau=1 tabular_d=False
+[2023-06-28 01:21:25,592][root][INFO] - The chosen seed is: 6365
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:31 < 0:00:00 , 329 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:27 < 0:00:00 , 342 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:29 < 0:00:00 , 342 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:31 < 0:00:00 , 351 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:28 < 0:00:00 , 342 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:29 < 0:00:00 , 337 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:28 < 0:00:00 , 345 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:29 < 0:00:00 , 338 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:26 < 0:00:00 , 336 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,176/50,000  [ 0:02:32 < 0:00:00 , 337 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/cartpole/2023-06-27/20-40-57/episode1,0,0.5,False.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/cartpole/2023-06-27/20-40-57/episode1,0,0.5,False.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/cartpole/2023-06-27/20-40-57/episode1,0,0.5,False.mp4/rl-video-episode-0.mp4

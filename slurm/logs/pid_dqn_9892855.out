@@ -1,0 +1,686 @@
+[2023-06-27 22:45:20,938][HYDRA] Launching 81 jobs locally
+[2023-06-27 22:45:20,939][HYDRA] 	#0 : env=acrobot name=acrobot kp=1 kd=0 ki=-0.1 d_tau=1
+[2023-06-27 22:45:21,086][root][INFO] - The chosen seed is: 555773
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:15 < 0:00:00 , 192 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:17 < 0:00:00 , 189 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:10 < 0:00:00 , 189 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:12 < 0:00:00 , 185 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:12 < 0:00:00 , 196 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:10 < 0:00:00 , 187 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:14 < 0:00:00 , 185 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:08 < 0:00:00 , 190 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:08 < 0:00:00 , 185 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:13 < 0:00:00 , 192 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,-0.1,0,False,False.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,-0.1,0,False,False.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,-0.1,0,False,False.mp4/rl-video-episode-0.mp4
+[2023-06-27 23:27:33,256][HYDRA] 	#1 : env=acrobot name=acrobot kp=1 kd=0 ki=-0.1 d_tau=0.5
+[2023-06-27 23:27:33,416][root][INFO] - The chosen seed is: 555773
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:15 < 0:00:00 , 192 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:12 < 0:00:00 , 191 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:06 < 0:00:00 , 193 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:07 < 0:00:00 , 189 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:12 < 0:00:00 , 189 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:10 < 0:00:00 , 192 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:10 < 0:00:00 , 192 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:16 < 0:00:00 , 155 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:13 < 0:00:00 , 193 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:07 < 0:00:00 , 199 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,-0.1,0,False,False.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,-0.1,0,False,False.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,-0.1,0,False,False.mp4/rl-video-episode-0.mp4
+[2023-06-28 00:09:28,238][HYDRA] 	#2 : env=acrobot name=acrobot kp=1 kd=0 ki=-0.1 d_tau=0.1
+[2023-06-28 00:09:28,407][root][INFO] - The chosen seed is: 555773
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:12 < 0:00:00 , 191 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:11 < 0:00:00 , 192 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:11 < 0:00:00 , 195 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:06 < 0:00:00 , 192 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:08 < 0:00:00 , 194 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:11 < 0:00:00 , 184 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:14 < 0:00:00 , 184 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:10 < 0:00:00 , 187 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:08 < 0:00:00 , 185 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:09 < 0:00:00 , 184 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,-0.1,0,False,False.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,-0.1,0,False,False.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,-0.1,0,False,False.mp4/rl-video-episode-0.mp4
+[2023-06-28 00:51:15,866][HYDRA] 	#3 : env=acrobot name=acrobot kp=1 kd=0 ki=0 d_tau=1
+[2023-06-28 00:51:16,029][root][INFO] - The chosen seed is: 555773
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:14 < 0:00:00 , 186 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:14 < 0:00:00 , 190 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:20 < 0:00:00 , 188 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:16 < 0:00:00 , 189 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:22 < 0:00:00 , 186 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:15 < 0:00:00 , 177 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:16 < 0:00:00 , 183 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:07 < 0:00:00 , 193 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:10 < 0:00:00 , 193 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:08 < 0:00:00 , 198 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,0,0,False,False.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,0,0,False,False.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,0,0,False,False.mp4/rl-video-episode-0.mp4
+[2023-06-28 01:33:45,392][HYDRA] 	#4 : env=acrobot name=acrobot kp=1 kd=0 ki=0 d_tau=0.5
+[2023-06-28 01:33:45,561][root][INFO] - The chosen seed is: 555773
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:11 < 0:00:00 , 195 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:11 < 0:00:00 , 193 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:16 < 0:00:00 , 188 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:15 < 0:00:00 , 191 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:10 < 0:00:00 , 191 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:11 < 0:00:00 , 193 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:20 < 0:00:00 , 191 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:16 < 0:00:00 , 191 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:09 < 0:00:00 , 195 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:10 < 0:00:00 , 192 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,0,0,False,False.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,0,0,False,False.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,0,0,False,False.mp4/rl-video-episode-0.mp4
+[2023-06-28 02:16:01,611][HYDRA] 	#5 : env=acrobot name=acrobot kp=1 kd=0 ki=0 d_tau=0.1
+[2023-06-28 02:16:01,766][root][INFO] - The chosen seed is: 555773
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:13 < 0:00:00 , 183 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:10 < 0:00:00 , 192 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:13 < 0:00:00 , 186 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:11 < 0:00:00 , 193 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:16 < 0:00:00 , 181 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:15 < 0:00:00 , 190 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:14 < 0:00:00 , 188 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:04 < 0:00:00 , 192 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:14 < 0:00:00 , 190 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:07 < 0:00:00 , 192 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,0,0,False,False.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,0,0,False,False.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,0,0,False,False.mp4/rl-video-episode-0.mp4
+[2023-06-28 02:58:04,797][HYDRA] 	#6 : env=acrobot name=acrobot kp=1 kd=0 ki=0.1 d_tau=1
+[2023-06-28 02:58:04,959][root][INFO] - The chosen seed is: 555773
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:11 < 0:00:00 , 195 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:07 < 0:00:00 , 194 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:06 < 0:00:00 , 196 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:13 < 0:00:00 , 193 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:06 < 0:00:00 , 199 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:10 < 0:00:00 , 189 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:07 < 0:00:00 , 199 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:06 < 0:00:00 , 196 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:04 < 0:00:00 , 196 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:04 < 0:00:00 , 198 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,0.1,0,False,False.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,0.1,0,False,False.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,0.1,0,False,False.mp4/rl-video-episode-0.mp4
+[2023-06-28 03:39:23,542][HYDRA] 	#7 : env=acrobot name=acrobot kp=1 kd=0 ki=0.1 d_tau=0.5
+[2023-06-28 03:39:23,697][root][INFO] - The chosen seed is: 555773
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:04 < 0:00:00 , 196 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:06 < 0:00:00 , 196 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:07 < 0:00:00 , 192 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:08 < 0:00:00 , 196 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:09 < 0:00:00 , 177 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:05 < 0:00:00 , 201 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:05 < 0:00:00 , 195 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:07 < 0:00:00 , 196 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:06 < 0:00:00 , 196 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:09 < 0:00:00 , 178 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,0.1,0,False,False.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,0.1,0,False,False.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,0.1,0,False,False.mp4/rl-video-episode-0.mp4
+[2023-06-28 04:20:37,104][HYDRA] 	#8 : env=acrobot name=acrobot kp=1 kd=0 ki=0.1 d_tau=0.1
+[2023-06-28 04:20:37,265][root][INFO] - The chosen seed is: 555773
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:09 < 0:00:00 , 171 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:02 < 0:00:00 , 197 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:03 < 0:00:00 , 194 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:14 < 0:00:00 , 198 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:04 < 0:00:00 , 198 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:04 < 0:00:00 , 197 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:01 < 0:00:00 , 197 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:01 < 0:00:00 , 195 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:04 < 0:00:00 , 197 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:13 < 0:00:00 , 196 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,0.1,0,False,False.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,0.1,0,False,False.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,0.1,0,False,False.mp4/rl-video-episode-0.mp4
+[2023-06-28 05:01:38,391][HYDRA] 	#9 : env=acrobot name=acrobot kp=1 kd=0.1 ki=-0.1 d_tau=1
+[2023-06-28 05:01:38,747][root][INFO] - The chosen seed is: 555773
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:02 < 0:00:00 , 209 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:03:59 < 0:00:00 , 204 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:02 < 0:00:00 , 206 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:03:56 < 0:00:00 , 208 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:03:59 < 0:00:00 , 205 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:03:59 < 0:00:00 , 206 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:00 < 0:00:00 , 209 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:03:58 < 0:00:00 , 208 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:03 < 0:00:00 , 208 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:03:58 < 0:00:00 , 209 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,-0.1,0.1,False,False.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,-0.1,0.1,False,False.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,-0.1,0.1,False,False.mp4/rl-video-episode-0.mp4
+[2023-06-28 05:41:50,844][HYDRA] 	#10 : env=acrobot name=acrobot kp=1 kd=0.1 ki=-0.1 d_tau=0.5
+[2023-06-28 05:41:51,181][root][INFO] - The chosen seed is: 555773
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:02 < 0:00:00 , 205 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:03:56 < 0:00:00 , 210 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:03:58 < 0:00:00 , 206 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:03:56 < 0:00:00 , 210 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:03:55 < 0:00:00 , 208 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:03:58 < 0:00:00 , 211 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:00 < 0:00:00 , 209 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:03:54 < 0:00:00 , 210 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:03:55 < 0:00:00 , 204 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:04 < 0:00:00 , 206 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,-0.1,0.1,False,False.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,-0.1,0.1,False,False.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,-0.1,0.1,False,False.mp4/rl-video-episode-0.mp4
+[2023-06-28 06:21:46,696][HYDRA] 	#11 : env=acrobot name=acrobot kp=1 kd=0.1 ki=-0.1 d_tau=0.1
+[2023-06-28 06:21:46,868][root][INFO] - The chosen seed is: 555773
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:13 < 0:00:00 , 201 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:08 < 0:00:00 , 196 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:09 < 0:00:00 , 196 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:08 < 0:00:00 , 196 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:11 < 0:00:00 , 199 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:14 < 0:00:00 , 199 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:08 < 0:00:00 , 196 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:12 < 0:00:00 , 199 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:10 < 0:00:00 , 196 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:08 < 0:00:00 , 195 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,-0.1,0.1,False,False.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,-0.1,0.1,False,False.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,-0.1,0.1,False,False.mp4/rl-video-episode-0.mp4
+[2023-06-28 07:03:44,490][HYDRA] 	#12 : env=acrobot name=acrobot kp=1 kd=0.1 ki=0 d_tau=1
+[2023-06-28 07:03:44,683][root][INFO] - The chosen seed is: 555773
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:14 < 0:00:00 , 196 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:09 < 0:00:00 , 197 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:11 < 0:00:00 , 198 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:12 < 0:00:00 , 199 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:10 < 0:00:00 , 196 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:10 < 0:00:00 , 200 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:11 < 0:00:00 , 193 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:13 < 0:00:00 , 198 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:10 < 0:00:00 , 199 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:12 < 0:00:00 , 178 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,0,0.1,False,False.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,0,0.1,False,False.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,0,0.1,False,False.mp4/rl-video-episode-0.mp4
+[2023-06-28 07:45:54,858][HYDRA] 	#13 : env=acrobot name=acrobot kp=1 kd=0.1 ki=0 d_tau=0.5
+[2023-06-28 07:45:55,034][root][INFO] - The chosen seed is: 555773
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:08 < 0:00:00 , 198 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:06 < 0:00:00 , 198 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:14 < 0:00:00 , 201 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:08 < 0:00:00 , 198 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:08 < 0:00:00 , 198 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:09 < 0:00:00 , 193 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:10 < 0:00:00 , 196 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:08 < 0:00:00 , 197 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:06 < 0:00:00 , 196 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:09 < 0:00:00 , 197 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,0,0.1,False,False.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,0,0.1,False,False.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,0,0.1,False,False.mp4/rl-video-episode-0.mp4
+[2023-06-28 08:27:37,995][HYDRA] 	#14 : env=acrobot name=acrobot kp=1 kd=0.1 ki=0 d_tau=0.1
+[2023-06-28 08:27:38,546][root][INFO] - The chosen seed is: 555773
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:15 < 0:00:00 , 199 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:07 < 0:00:00 , 198 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:10 < 0:00:00 , 201 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:11 < 0:00:00 , 198 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:08 < 0:00:00 , 198 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:09 < 0:00:00 , 199 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:07 < 0:00:00 , 200 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:05 < 0:00:00 , 198 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:07 < 0:00:00 , 195 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:06 < 0:00:00 , 196 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,0,0.1,False,False.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,0,0.1,False,False.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,0,0.1,False,False.mp4/rl-video-episode-0.mp4
+[2023-06-28 09:09:21,774][HYDRA] 	#15 : env=acrobot name=acrobot kp=1 kd=0.1 ki=0.1 d_tau=1
+[2023-06-28 09:09:21,961][root][INFO] - The chosen seed is: 555773
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:15 < 0:00:00 , 198 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:08 < 0:00:00 , 197 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:07 < 0:00:00 , 198 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:15 < 0:00:00 , 151 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:09 < 0:00:00 , 197 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:06 < 0:00:00 , 202 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:06 < 0:00:00 , 199 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:07 < 0:00:00 , 195 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:14 < 0:00:00 , 200 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:07 < 0:00:00 , 199 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,0.1,0.1,False,False.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,0.1,0.1,False,False.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,0.1,0.1,False,False.mp4/rl-video-episode-0.mp4
+[2023-06-28 09:51:13,743][HYDRA] 	#16 : env=acrobot name=acrobot kp=1 kd=0.1 ki=0.1 d_tau=0.5
+[2023-06-28 09:51:13,985][root][INFO] - The chosen seed is: 555773
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:09 < 0:00:00 , 193 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:07 < 0:00:00 , 198 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:08 < 0:00:00 , 198 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:09 < 0:00:00 , 197 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:06 < 0:00:00 , 198 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:07 < 0:00:00 , 199 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:05 < 0:00:00 , 200 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:10 < 0:00:00 , 198 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:12 < 0:00:00 , 197 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:07 < 0:00:00 , 198 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,0.1,0.1,False,False.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,0.1,0.1,False,False.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,0.1,0.1,False,False.mp4/rl-video-episode-0.mp4
+[2023-06-28 10:32:49,598][HYDRA] 	#17 : env=acrobot name=acrobot kp=1 kd=0.1 ki=0.1 d_tau=0.1
+[2023-06-28 10:32:49,950][root][INFO] - The chosen seed is: 555773
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:15 < 0:00:00 , 155 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:08 < 0:00:00 , 197 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:07 < 0:00:00 , 199 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:08 < 0:00:00 , 194 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:08 < 0:00:00 , 196 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:08 < 0:00:00 , 197 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:09 < 0:00:00 , 197 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:15 < 0:00:00 , 199 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:10 < 0:00:00 , 200 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:07 < 0:00:00 , 200 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,0.1,0.1,False,False.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,0.1,0.1,False,False.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,0.1,0.1,False,False.mp4/rl-video-episode-0.mp4
+[2023-06-28 11:14:40,604][HYDRA] 	#18 : env=acrobot name=acrobot kp=1 kd=0.2 ki=-0.1 d_tau=1
+[2023-06-28 11:14:40,852][root][INFO] - The chosen seed is: 555773
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:08 < 0:00:00 , 199 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:05 < 0:00:00 , 197 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:09 < 0:00:00 , 196 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:18 < 0:00:00 , 196 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:06 < 0:00:00 , 199 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:11 < 0:00:00 , 196 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:10 < 0:00:00 , 197 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:14 < 0:00:00 , 194 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:08 < 0:00:00 , 197 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:06 < 0:00:00 , 198 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,-0.1,0.2,False,False.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,-0.1,0.2,False,False.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,-0.1,0.2,False,False.mp4/rl-video-episode-0.mp4
+[2023-06-28 11:56:34,337][HYDRA] 	#19 : env=acrobot name=acrobot kp=1 kd=0.2 ki=-0.1 d_tau=0.5
+[2023-06-28 11:56:34,526][root][INFO] - The chosen seed is: 555773
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:04 < 0:00:00 , 199 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:05 < 0:00:00 , 199 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:07 < 0:00:00 , 198 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:07 < 0:00:00 , 190 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:07 < 0:00:00 , 199 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:10 < 0:00:00 , 198 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:08 < 0:00:00 , 199 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:06 < 0:00:00 , 198 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:11 < 0:00:00 , 200 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:05 < 0:00:00 , 200 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,-0.1,0.2,False,False.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,-0.1,0.2,False,False.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,-0.1,0.2,False,False.mp4/rl-video-episode-0.mp4
+[2023-06-28 12:38:00,876][HYDRA] 	#20 : env=acrobot name=acrobot kp=1 kd=0.2 ki=-0.1 d_tau=0.1
+[2023-06-28 12:38:01,278][root][INFO] - The chosen seed is: 555773
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:10 < 0:00:00 , 193 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:10 < 0:00:00 , 198 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:13 < 0:00:00 , 197 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:09 < 0:00:00 , 198 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:19 < 0:00:00 , 197 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:08 < 0:00:00 , 200 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:06 < 0:00:00 , 199 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:12 < 0:00:00 , 199 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:08 < 0:00:00 , 195 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:08 < 0:00:00 , 198 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,-0.1,0.2,False,False.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,-0.1,0.2,False,False.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,-0.1,0.2,False,False.mp4/rl-video-episode-0.mp4
+[2023-06-28 13:20:03,399][HYDRA] 	#21 : env=acrobot name=acrobot kp=1 kd=0.2 ki=0 d_tau=1
+[2023-06-28 13:20:03,580][root][INFO] - The chosen seed is: 555773
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:14 < 0:00:00 , 198 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:08 < 0:00:00 , 196 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:07 < 0:00:00 , 198 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:06 < 0:00:00 , 200 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:06 < 0:00:00 , 198 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:08 < 0:00:00 , 197 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:03:57 < 0:00:00 , 207 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:05 < 0:00:00 , 209 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:03:55 < 0:00:00 , 209 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:03:59 < 0:00:00 , 208 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,0,0.2,False,False.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,0,0.2,False,False.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,0,0.2,False,False.mp4/rl-video-episode-0.mp4
+[2023-06-28 14:01:03,032][HYDRA] 	#22 : env=acrobot name=acrobot kp=1 kd=0.2 ki=0 d_tau=0.5
+[2023-06-28 14:01:03,206][root][INFO] - The chosen seed is: 555773
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:03:53 < 0:00:00 , 211 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:03:53 < 0:00:00 , 209 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:03:55 < 0:00:00 , 207 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:03:55 < 0:00:00 , 206 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:03:55 < 0:00:00 , 210 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:03:54 < 0:00:00 , 207 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:03:53 < 0:00:00 , 209 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:03:55 < 0:00:00 , 206 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:03:54 < 0:00:00 , 207 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:03:54 < 0:00:00 , 208 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,0,0.2,False,False.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,0,0.2,False,False.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,0,0.2,False,False.mp4/rl-video-episode-0.mp4
+[2023-06-28 14:40:20,878][HYDRA] 	#23 : env=acrobot name=acrobot kp=1 kd=0.2 ki=0 d_tau=0.1
+[2023-06-28 14:40:21,237][root][INFO] - The chosen seed is: 555773
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:03:56 < 0:00:00 , 208 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:03:56 < 0:00:00 , 207 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:03:55 < 0:00:00 , 210 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:03:56 < 0:00:00 , 209 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:03:57 < 0:00:00 , 208 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:03:55 < 0:00:00 , 208 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:03:57 < 0:00:00 , 206 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:04 < 0:00:00 , 207 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:03:55 < 0:00:00 , 207 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:00 < 0:00:00 , 185 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,0,0.2,False,False.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,0,0.2,False,False.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,0,0.2,False,False.mp4/rl-video-episode-0.mp4
+[2023-06-28 15:20:09,777][HYDRA] 	#24 : env=acrobot name=acrobot kp=1 kd=0.2 ki=0.1 d_tau=1
+[2023-06-28 15:20:10,101][root][INFO] - The chosen seed is: 555773
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:03:58 < 0:00:00 , 210 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:03:58 < 0:00:00 , 207 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:03:56 < 0:00:00 , 209 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:03:56 < 0:00:00 , 209 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:03:55 < 0:00:00 , 208 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:01 < 0:00:00 , 207 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:03:57 < 0:00:00 , 207 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:03:56 < 0:00:00 , 204 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:09 < 0:00:00 , 207 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:03:59 < 0:00:00 , 208 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,0.1,0.2,False,False.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,0.1,0.2,False,False.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,0.1,0.2,False,False.mp4/rl-video-episode-0.mp4
+[2023-06-28 16:00:10,773][HYDRA] 	#25 : env=acrobot name=acrobot kp=1 kd=0.2 ki=0.1 d_tau=0.5
+[2023-06-28 16:00:11,293][root][INFO] - The chosen seed is: 555773
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:03:56 < 0:00:00 , 207 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:03:58 < 0:00:00 , 203 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:06 < 0:00:00 , 207 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:03:57 < 0:00:00 , 208 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:03:54 < 0:00:00 , 207 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:03 < 0:00:00 , 211 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:03:59 < 0:00:00 , 208 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:00 < 0:00:00 , 207 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:03:58 < 0:00:00 , 207 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:03:58 < 0:00:00 , 206 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,0.1,0.2,False,False.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,0.1,0.2,False,False.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,0.1,0.2,False,False.mp4/rl-video-episode-0.mp4
+[2023-06-28 16:40:19,212][HYDRA] 	#26 : env=acrobot name=acrobot kp=1 kd=0.2 ki=0.1 d_tau=0.1
+[2023-06-28 16:40:19,389][root][INFO] - The chosen seed is: 555773
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:03:56 < 0:00:00 , 206 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:03:59 < 0:00:00 , 208 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:03:58 < 0:00:00 , 208 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:02 < 0:00:00 , 185 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:03:57 < 0:00:00 , 208 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:03:58 < 0:00:00 , 206 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:00 < 0:00:00 , 204 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:03:58 < 0:00:00 , 207 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:02 < 0:00:00 , 194 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:03 < 0:00:00 , 208 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,0.1,0.2,False,False.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,0.1,0.2,False,False.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1,0.1,0.2,False,False.mp4/rl-video-episode-0.mp4
+[2023-06-28 17:20:29,267][HYDRA] 	#27 : env=acrobot name=acrobot kp=1.1 kd=0 ki=-0.1 d_tau=1
+[2023-06-28 17:20:29,873][root][INFO] - The chosen seed is: 555773
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:04 < 0:00:00 , 202 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:05 < 0:00:00 , 198 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:03 < 0:00:00 , 198 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:05 < 0:00:00 , 200 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:02 < 0:00:00 , 202 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:02 < 0:00:00 , 198 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:08 < 0:00:00 , 190 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:05 < 0:00:00 , 195 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:02 < 0:00:00 , 197 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:07 < 0:00:00 , 198 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1.1,-0.1,0,False,False.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1.1,-0.1,0,False,False.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1.1,-0.1,0,False,False.mp4/rl-video-episode-0.mp4
+[2023-06-28 18:01:20,361][HYDRA] 	#28 : env=acrobot name=acrobot kp=1.1 kd=0 ki=-0.1 d_tau=0.5
+[2023-06-28 18:01:20,529][root][INFO] - The chosen seed is: 555773
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:06 < 0:00:00 , 198 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:07 < 0:00:00 , 196 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:06 < 0:00:00 , 196 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:07 < 0:00:00 , 198 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:02 < 0:00:00 , 205 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:04 < 0:00:00 , 198 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:07 < 0:00:00 , 195 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:10 < 0:00:00 , 196 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:03 < 0:00:00 , 198 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:14 < 0:00:00 , 204 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1.1,-0.1,0,False,False.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1.1,-0.1,0,False,False.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1.1,-0.1,0,False,False.mp4/rl-video-episode-0.mp4
+[2023-06-28 18:42:33,351][HYDRA] 	#29 : env=acrobot name=acrobot kp=1.1 kd=0 ki=-0.1 d_tau=0.1
+[2023-06-28 18:42:33,506][root][INFO] - The chosen seed is: 555773
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:04 < 0:00:00 , 204 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:03:56 < 0:00:00 , 201 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:03:55 < 0:00:00 , 208 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:03:57 < 0:00:00 , 204 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:03:56 < 0:00:00 , 212 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:08 < 0:00:00 , 192 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:16 < 0:00:00 , 192 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:21 < 0:00:00 , 188 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:08 < 0:00:00 , 195 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:14 < 0:00:00 , 186 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1.1,-0.1,0,False,False.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1.1,-0.1,0,False,False.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1.1,-0.1,0,False,False.mp4/rl-video-episode-0.mp4
+[2023-06-28 19:23:35,089][HYDRA] 	#30 : env=acrobot name=acrobot kp=1.1 kd=0 ki=0 d_tau=1
+[2023-06-28 19:23:35,249][root][INFO] - The chosen seed is: 555773
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:16 < 0:00:00 , 192 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:18 < 0:00:00 , 175 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:19 < 0:00:00 , 192 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:10 < 0:00:00 , 194 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:14 < 0:00:00 , 190 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:13 < 0:00:00 , 190 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:21 < 0:00:00 , 180 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:21 < 0:00:00 , 190 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:13 < 0:00:00 , 188 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:10 < 0:00:00 , 188 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1.1,0,0,False,False.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1.1,0,0,False,False.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1.1,0,0,False,False.mp4/rl-video-episode-0.mp4
+[2023-06-28 20:06:16,753][HYDRA] 	#31 : env=acrobot name=acrobot kp=1.1 kd=0 ki=0 d_tau=0.5
+[2023-06-28 20:06:16,909][root][INFO] - The chosen seed is: 555773
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:16 < 0:00:00 , 187 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:20 < 0:00:00 , 187 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:15 < 0:00:00 , 187 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:13 < 0:00:00 , 191 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:27 < 0:00:00 , 183 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:28 < 0:00:00 , 182 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:28 < 0:00:00 , 177 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:27 < 0:00:00 , 183 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:24 < 0:00:00 , 188 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:24 < 0:00:00 , 186 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1.1,0,0,False,False.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1.1,0,0,False,False.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1.1,0,0,False,False.mp4/rl-video-episode-0.mp4
+[2023-06-28 20:50:05,805][HYDRA] 	#32 : env=acrobot name=acrobot kp=1.1 kd=0 ki=0 d_tau=0.1
+[2023-06-28 20:50:05,974][root][INFO] - The chosen seed is: 555773
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:27 < 0:00:00 , 182 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:17 < 0:00:00 , 189 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:23 < 0:00:00 , 192 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:11 < 0:00:00 , 202 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:27 < 0:00:00 , 179 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:30 < 0:00:00 , 177 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:24 < 0:00:00 , 180 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:25 < 0:00:00 , 184 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:23 < 0:00:00 , 183 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:22 < 0:00:00 , 183 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1.1,0,0,False,False.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1.1,0,0,False,False.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1.1,0,0,False,False.mp4/rl-video-episode-0.mp4
+[2023-06-28 21:34:02,651][HYDRA] 	#33 : env=acrobot name=acrobot kp=1.1 kd=0 ki=0.1 d_tau=1
+[2023-06-28 21:34:03,113][root][INFO] - The chosen seed is: 555773
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:20 < 0:00:00 , 190 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:19 < 0:00:00 , 192 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:23 < 0:00:00 , 187 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:25 < 0:00:00 , 188 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:31 < 0:00:00 , 191 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:21 < 0:00:00 , 189 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:22 < 0:00:00 , 194 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:24 < 0:00:00 , 186 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:22 < 0:00:00 , 185 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:20 < 0:00:00 , 192 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1.1,0.1,0,False,False.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1.1,0.1,0,False,False.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1.1,0.1,0,False,False.mp4/rl-video-episode-0.mp4
+[2023-06-28 22:18:08,205][HYDRA] 	#34 : env=acrobot name=acrobot kp=1.1 kd=0 ki=0.1 d_tau=0.5
+[2023-06-28 22:18:08,382][root][INFO] - The chosen seed is: 555773
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:14 < 0:00:00 , 197 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:10 < 0:00:00 , 190 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:35 < 0:00:00 , 186 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:23 < 0:00:00 , 190 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:22 < 0:00:00 , 160 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:10 < 0:00:00 , 200 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:16 < 0:00:00 , 195 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:13 < 0:00:00 , 196 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:14 < 0:00:00 , 197 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:12 < 0:00:00 , 200 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1.1,0.1,0,False,False.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1.1,0.1,0,False,False.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1.1,0.1,0,False,False.mp4/rl-video-episode-0.mp4
+[2023-06-28 23:01:15,285][HYDRA] 	#35 : env=acrobot name=acrobot kp=1.1 kd=0 ki=0.1 d_tau=0.1
+[2023-06-28 23:01:15,460][root][INFO] - The chosen seed is: 555773
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:12 < 0:00:00 , 195 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:12 < 0:00:00 , 199 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:15 < 0:00:00 , 186 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:15 < 0:00:00 , 197 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:27 < 0:00:00 , 198 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:14 < 0:00:00 , 180 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:13 < 0:00:00 , 198 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:14 < 0:00:00 , 194 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:12 < 0:00:00 , 196 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:16 < 0:00:00 , 200 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1.1,0.1,0,False,False.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1.1,0.1,0,False,False.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1.1,0.1,0,False,False.mp4/rl-video-episode-0.mp4
+[2023-06-28 23:44:02,124][HYDRA] 	#36 : env=acrobot name=acrobot kp=1.1 kd=0.1 ki=-0.1 d_tau=1
+[2023-06-28 23:44:02,302][root][INFO] - The chosen seed is: 555773
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:08 < 0:00:00 , 196 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:07 < 0:00:00 , 199 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:07 < 0:00:00 , 199 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:07 < 0:00:00 , 200 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:08 < 0:00:00 , 193 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:08 < 0:00:00 , 197 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:08 < 0:00:00 , 198 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:11 < 0:00:00 , 194 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:06 < 0:00:00 , 195 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:11 < 0:00:00 , 199 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1.1,-0.1,0.1,False,False.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1.1,-0.1,0.1,False,False.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1.1,-0.1,0.1,False,False.mp4/rl-video-episode-0.mp4
+[2023-06-29 00:25:39,347][HYDRA] 	#37 : env=acrobot name=acrobot kp=1.1 kd=0.1 ki=-0.1 d_tau=0.5
+[2023-06-29 00:25:39,528][root][INFO] - The chosen seed is: 555773
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:08 < 0:00:00 , 197 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:15 < 0:00:00 , 188 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:15 < 0:00:00 , 197 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:12 < 0:00:00 , 195 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:13 < 0:00:00 , 197 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:10 < 0:00:00 , 198 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:10 < 0:00:00 , 199 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:11 < 0:00:00 , 188 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:21 < 0:00:00 , 193 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:12 < 0:00:00 , 199 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1.1,-0.1,0.1,False,False.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1.1,-0.1,0.1,False,False.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1.1,-0.1,0.1,False,False.mp4/rl-video-episode-0.mp4
+[2023-06-29 01:08:04,323][HYDRA] 	#38 : env=acrobot name=acrobot kp=1.1 kd=0.1 ki=-0.1 d_tau=0.1
+[2023-06-29 01:08:04,511][root][INFO] - The chosen seed is: 555773
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:19 < 0:00:00 , 200 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:17 < 0:00:00 , 196 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:12 < 0:00:00 , 197 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:16 < 0:00:00 , 195 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:12 < 0:00:00 , 193 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:16 < 0:00:00 , 189 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:07 < 0:00:00 , 194 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:11 < 0:00:00 , 200 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:09 < 0:00:00 , 190 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:06 < 0:00:00 , 202 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1.1,-0.1,0.1,False,False.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1.1,-0.1,0.1,False,False.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1.1,-0.1,0.1,False,False.mp4/rl-video-episode-0.mp4
+[2023-06-29 01:50:26,111][HYDRA] 	#39 : env=acrobot name=acrobot kp=1.1 kd=0.1 ki=0 d_tau=1
+[2023-06-29 01:50:26,345][root][INFO] - The chosen seed is: 555773
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:13 < 0:00:00 , 198 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:14 < 0:00:00 , 195 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:17 < 0:00:00 , 192 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:11 < 0:00:00 , 201 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:14 < 0:00:00 , 193 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:10 < 0:00:00 , 200 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:12 < 0:00:00 , 194 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:11 < 0:00:00 , 197 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:11 < 0:00:00 , 195 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:11 < 0:00:00 , 198 it/s ]
+Moviepy - Building video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1.1,0,0.1,False,False.mp4/rl-video-episode-0.mp4.
+Moviepy - Writing video /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1.1,0,0.1,False,False.mp4/rl-video-episode-0.mp4
+
+Moviepy - Done !
+Moviepy - video ready /ssd003/home/bedaywim/PID-Accelerated-TD-Learning/outputs/DQNExperiment/acrobot/2023-06-27/22-45-12/episode1.1,0,0.1,False,False.mp4/rl-video-episode-0.mp4
+[2023-06-29 02:32:46,778][HYDRA] 	#40 : env=acrobot name=acrobot kp=1.1 kd=0.1 ki=0 d_tau=0.5
+[2023-06-29 02:32:46,959][root][INFO] - The chosen seed is: 555773
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:14 < 0:00:00 , 196 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:11 < 0:00:00 , 198 it/s ]
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━ 50,000/50,000  [ 0:04:08 < 0:00:00 , 198 it/s ]
