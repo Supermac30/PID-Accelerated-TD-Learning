@@ -80,6 +80,7 @@ class PID_DQN(OffPolicyAlgorithm):
         policy: Union[str, Type[DQNPolicy]],
         env: Union[GymEnv, str],
         should_stop: bool = False,
+        diagonal_adaptation: bool = False,
         learning_rate: Union[float, Schedule] = 1e-4,
         buffer_size: int = 1_000_000,  # 1e6
         learning_starts: int = 50000,
@@ -165,6 +166,7 @@ class PID_DQN(OffPolicyAlgorithm):
         self.previous_p_update, self.p_update = None, None
         self.previous_i_update, self.i_update = None, None
         self.previous_d_update, self.d_update = None, None
+        self.diagonal_adaptation = diagonal_adaptation
 
     def _setup_model(self) -> None:
         super()._setup_model()
@@ -236,7 +238,6 @@ class PID_DQN(OffPolicyAlgorithm):
                 target_current_q_values = self.q_net_target(replay_data.observations)
                 target_current_q_values = th.gather(target_current_q_values, dim=1, index=replay_data.actions.long())
 
-
                 if self.tabular_d:
                     d_values = replay_data.ds
                     new_ds = (1 - self.d_tau) * d_values + self.d_tau * target_current_q_values
@@ -261,7 +262,12 @@ class PID_DQN(OffPolicyAlgorithm):
                     self.replay_buffer.update_ds(replay_data.indices, new_ds)
 
                 if self.update_gains:
-                    self.adapt_gains()
+                    if self.diagonal_adaptation:
+                        # TODO: Find the new gains using the ones in replay_data, and update them
+                        pass
+                    else:
+                        self.adapt_gains()
+
                 
             # Get current Q-values estimates
             current_q_values = self.q_net(replay_data.observations)

@@ -15,12 +15,12 @@ conda activate myenv
 
 cd /h/bedaywim/PID-Accelerated-TD-Learning
 
-python3 -m Experiments.DQNExperiments.DQNExperiment \
-    env=cartpole name=cartpole \
-    hydra.mode=MULTIRUN \
-    kd=0,0.1,0.2,0.3,0.4,0.5 \
-    d_tau=1 \
-    tabular_d=True,False
+# python3 -m Experiments.DQNExperiments.DQNExperiment \
+#    env=cartpole name=cartpole \
+#    hydra.mode=MULTIRUN \
+#    kd=0,0.1,0.2,0.3,0.4,0.5 \
+#    d_tau=0.9 \
+#    tabular_d=True,False
 
 # python3 -m Experiments.DQNExperiments.DQNExperiment \
 #    env=mountaincar name=mountaincar \
@@ -30,13 +30,13 @@ python3 -m Experiments.DQNExperiments.DQNExperiment \
 #    epsilon=0.25 \
 #    d_tau=0.001
 
-# python3 -m Experiments.DQNExperiments.DQNExperiment \
-#    env=lunarlander name=lunarlander \
-#    hydra.mode=MULTIRUN \
-#    adapt_gains=True \
-#    meta_lr=1e-2,1e-3,1e-4 \
-#    epsilon=0.25,1e-1,1e-2 \
-#    d_tau=1e-1,1e-2,1e-3
+python3 -m Experiments.DQNExperiments.DQNExperiment \
+   env=mountaincar name=mountaincar \
+   hydra.mode=MULTIRUN \
+   adapt_gains=True \
+   meta_lr=1e-2,1e-3 \
+   epsilon=5,2,1,0.25 \
+   d_tau=1e-1,1e-2,1e-3
 
 # python3 -m Experiments.DQNExperiments.DQNExperiment \
 #    env=acrobot name=acrobot \

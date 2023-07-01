@@ -70,7 +70,6 @@ class AbstractAdaptiveAgent(Agent):
                 self.update_value()
                 self.gain_updater.intermediate_update()
 
-
             # Keep a record
             try:
                 gain_history[k][0] = self.kp
@@ -131,13 +130,6 @@ class AdaptiveSamplerAgent(AbstractAdaptiveAgent):
         self.previous_z[state], self.z[state] = self.z[state][0], (1 - update_I_rate) * self.z[state][0] + update_I_rate * new_z
         self.previous_Vp[state], self.Vp[state] = self.Vp[state][0], (1 - update_D_rate) * self.Vp[state][0] + update_D_rate * new_Vp
         
-
-
-        #self.z[current_state] = (1 - update_I_rate) * self.z[current_state][0] + update_I_rate * (self.beta * self.z[current_state][0] + self.alpha * BR)
-        #update = self.kp * BR + self.ki * self.z[current_state] + self.kd * (self.V[current_state] - self.Vp[current_state])
-        #self.Vp[current_state] = (1 - update_D_rate) * self.Vp[current_state][0] + update_D_rate * self.V[current_state][0]
-        #self.V[current_state] = self.V[current_state][0] + lr * update
-
     def BR(self):
         """Return the empirical bellman residual"""
         return self.reward + self.gamma * self.V[self.next_state][0] - self.V[self.current_state][0]
@@ -255,12 +247,16 @@ class AbstractGainUpdater():
 
 
 class SemiGradientUpdater(AbstractGainUpdater):
-    def __init__(self, lambd=0, epsilon=0.1):
+    def __init__(self, lambd=0, epsilon=0.1, update_alpha=True):
         super().__init__(lambd, epsilon)
 
         self.d_update = 0
         self.i_update = 0
         self.p_update = 0
+        self.theta_alpha_update = 0
+        self.theta_beta_update = 0
+
+        self.update_alpha = update_alpha
 
         self.running_BR = 0
         self.previous_average_BR = float("inf")
@@ -298,6 +294,8 @@ class SemiGradientUpdater(AbstractGainUpdater):
         self.p_update += lr * next_BR * BR / (self.epsilon + self.running_BR[current_state])
         self.d_update += lr * next_BR * (V[current_state] - Vp[current_state]) / (self.epsilon + self.running_BR[current_state])
         self.i_update += lr * next_BR * (beta * z[current_state][0] + alpha * BR) / (self.epsilon + self.running_BR[current_state])
+        self.theta_alpha_update += lr * next_BR * (self.ki * BR) / (self.epsilon + self.running_BR[current_state])
+        self.theta_beta_update += lr * next_BR * (self.ki * z[current_state][0]) / (self.epsilon + self.running_BR[current_state])
 
         if self.plot_state == current_state:
             self.BR_plot.append(BR)
@@ -313,9 +311,18 @@ class SemiGradientUpdater(AbstractGainUpdater):
             self.kd = self.kd * (1 - self.lambd) + self.meta_lr * self.d_update / self.agent.update_frequency
             self.ki = self.ki * (1 - self.lambd) + self.meta_lr * self.i_update / self.agent.update_frequency
 
+            self.theta_alpha = self.theta_alpha * (1 - self.lambda) + self.meta_lr * self.theta_alpha_update
+            self.theta_beta = (self.theta_beta - 1) * (1 - self.lambda) + self.meta_lr * self.theta_beta_update
+
+            if self.update_alpha:
+                self.alpha = 1 / (1 + math.exp(-self.theta_alpha))
+                self.beta = 1 / (1 + math.exp(-self.theta_beta))
+
             self.d_update = 0
             self.i_update = 0
             self.p_update = 0
+            self.theta_alpha_update = 0
+            self.theta_beta_update = 0
 
     def plot(self):
         # Plot BR_plot and i_update_plot on separate sub-plots

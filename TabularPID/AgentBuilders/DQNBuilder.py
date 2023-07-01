@@ -8,8 +8,10 @@ from stable_baselines3.common.utils import get_latest_run_id
 
 def build_PID_DQN(kp, ki, kd, alpha, beta, env_name, gamma, optimizer, replay_memory_size, batch_size,
                   learning_rate, tau, initial_eps, exploration_fraction, minimum_eps,
-                  gradient_steps, train_freq, target_update_interval, d_tau, inner_size, slow_motion, learning_starts, tabular_d=False,
-                  tensorboard_log=None, seed=42, adapt_gains=False, meta_lr=0.1, epsilon=0.1, log_name="", name_append="", should_stop=False):
+                  gradient_steps, train_freq, target_update_interval, d_tau, inner_size,
+                  slow_motion, learning_starts, tabular_d=False, tensorboard_log=None, seed=42,
+                  adapt_gains=False, meta_lr=0.1, epsilon=0.1, log_name="",
+                  name_append="", should_stop=False, diagonal_adaptation=False):
     """Build the PID DQN agent
     """
     env, is_atari, stopping_criterion = create_environment(env_name, slow_motion=slow_motion)
@@ -43,7 +45,8 @@ def build_PID_DQN(kp, ki, kd, alpha, beta, env_name, gamma, optimizer, replay_me
         policy_kwargs=dict(net_arch=[inner_size, inner_size],
                            optimizer_class=optimizer_class),
         seed=seed,
-        should_stop=should_stop
+        should_stop=should_stop,
+        diagonal_adaptation=diagonal_adaptation
     )
 
     if log_name == "":

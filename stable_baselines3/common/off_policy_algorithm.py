@@ -559,7 +559,7 @@ class OffPolicyAlgorithm(BaseAlgorithm):
             # Rescale and perform action
             new_obs, rewards, dones, infos = env.step(actions)
 
-            self.num_timesteps += env.num_envs
+            self.num_timesteps += env.num_envs  # MARK: Removed this line to use number of epsiodes instead of number of steps
             num_collected_steps += 1
 
             # Give access to local variables
@@ -596,6 +596,8 @@ class OffPolicyAlgorithm(BaseAlgorithm):
                     if log_interval is not None and self._episode_num % log_interval == 0:
                         self._dump_logs()
         callback.on_rollout_end()
+
+        # self.num_timesteps += num_collected_episodes * env.num_envs  # MARK: Changed this line to use number of episodes instead of steps
 
         return RolloutReturn(num_collected_steps * env.num_envs, num_collected_episodes, continue_training)
 

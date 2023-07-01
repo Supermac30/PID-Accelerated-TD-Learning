@@ -14,6 +14,7 @@ epsilon: 1e-1
 meta_lr: 1e-2
 
 slow_motion: 1
+diagonal_adaptation: False
 
 normalize: False
 should_stop: False  # Whether we early stop the training once some amount of reward is reached

@@ -13,5 +13,5 @@ mountaincar:
   tau: 1
   inner_size: 256
   learning_starts: 1000
-  num_iterations: 120000
+  num_iterations: 600 # Steps: 120000
   gamma: 0.98

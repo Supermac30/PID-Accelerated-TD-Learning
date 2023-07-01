@@ -6,6 +6,7 @@ git add Experiments/optimal_learning_rates.pickle
 git add makefile
 git add commit.bash
 git add config
+git add models
 git add slurm/dqn.sh
 git add TabularPID/*.py
 git add TabularPID/*/*.py
