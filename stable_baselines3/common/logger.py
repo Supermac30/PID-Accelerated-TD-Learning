@@ -11,6 +11,7 @@ from typing import Any, Dict, List, Mapping, Optional, Sequence, TextIO, Tuple, 
 import numpy as np
 import pandas
 import torch as th
+import wandb
 from matplotlib import pyplot as plt
 
 try:
@@ -404,6 +405,7 @@ class TensorBoardOutputFormat(KVWriter):
                 continue
 
             if isinstance(value, np.ScalarType):
+                wandb.log({key: value}, step=step)
                 if isinstance(value, str):
                     # str is considered a np.ScalarType
                     self.writer.add_text(key, value, step)

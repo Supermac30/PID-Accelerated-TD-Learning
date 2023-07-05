@@ -213,6 +213,7 @@ class ReplayBuffer(BaseBuffer):
         self.dones = np.zeros((self.buffer_size, self.n_envs), dtype=np.float32)
         self.zs = np.zeros((self.buffer_size, self.n_envs), dtype=np.float32)
         self.ds = np.zeros((self.buffer_size, self.n_envs), dtype=np.float32)
+        self.BRs = np.zeros((self.buffer_size, self.n_envs), dtype=np.float32)
         self.kp = np.zeros((self.buffer_size, self.n_envs), dtype=np.float32)
         self.ki = np.zeros((self.buffer_size, self.n_envs), dtype=np.float32)
         self.kd = np.zeros((self.buffer_size, self.n_envs), dtype=np.float32)
@@ -266,6 +267,10 @@ class ReplayBuffer(BaseBuffer):
         self.dones[self.pos] = np.array(done).copy()
         self.zs[self.pos] = np.array(0)
         self.ds[self.pos] = np.array(0)
+        self.kp[self.pos] = np.array(0)
+        self.ki[self.pos] = np.array(0)
+        self.kd[self.pos] = np.array(0)
+        self.BRs[self.pos] = np.array(0)
 
         if self.handle_timeout_termination:
             self.timeouts[self.pos] = np.array([info.get("TimeLimit.truncated", False) for info in infos])
@@ -319,29 +324,25 @@ class ReplayBuffer(BaseBuffer):
             self.kp[batch_inds, env_indices].reshape(-1, 1),
             self.ki[batch_inds, env_indices].reshape(-1, 1),
             self.kd[batch_inds, env_indices].reshape(-1, 1),
+            self.BRs[batch_inds, env_indices].reshape(-1, 1),
             (batch_inds, env_indices)
         )
         return ReplayBufferSamples(*tuple(map(self.to_torch, data)))
     
-    def update_zs(self, indices, zs):
+    def update(self, indices, zs=None, ds=None, BRs=None, kp=None, ki=None, kd=None):
         """Replace the zs of the buffer at batch_inds with zs"""
-        self.zs[indices[0].cpu().numpy(), indices[1].cpu().numpy()] = zs.cpu().numpy().squeeze()
-
-    def update_ds(self, indices, ds):
-        """Replace the ds of the buffer at batch_inds with zs"""
-        self.ds[indices[0].cpu().numpy(), indices[1].cpu().numpy()] = ds.cpu().numpy().squeeze()
-    
-    def update_kp(self, indices, kp):
-        """Replace the kp of the buffer at batch_inds with zs"""
-        self.kp[indices[0].cpu().numpy(), indices[1].cpu().numpy()] = kp.cpu().numpy().squeeze()
-
-    def update_ki(self, indices, ki):
-        """Replace the ki of the buffer at batch_inds with zs"""
-        self.ki[indices[0].cpu().numpy(), indices[1].cpu().numpy()] = ki.cpu().numpy().squeeze()
-
-    def update_kd(self, indices, kd):
-        """Replace the kd of the buffer at batch_inds with zs"""
-        self.kd[indices[0].cpu().numpy(), indices[1].cpu().numpy()] = kd.cpu().numpy().squeeze()
+        if zs is not None:
+            self.zs[indices[0].cpu().numpy(), indices[1].cpu().numpy()] = zs.cpu().numpy().squeeze()
+        if ds is not None:
+            self.ds[indices[0].cpu().numpy(), indices[1].cpu().numpy()] = ds.cpu().numpy().squeeze()
+        if BRs is not None:
+            self.BRs[indices[0].cpu().numpy(), indices[1].cpu().numpy()] = BRs.cpu().numpy().squeeze()
+        if kp is not None:
+            self.kp[indices[0].cpu().numpy(), indices[1].cpu().numpy()] = kp.cpu().numpy().squeeze()
+        if ki is not None:
+            self.ki[indices[0].cpu().numpy(), indices[1].cpu().numpy()] = ki.cpu().numpy().squeeze()
+        if kd is not None:
+            self.kd[indices[0].cpu().numpy(), indices[1].cpu().numpy()] = kd.cpu().numpy().squeeze()
 
 
 class RolloutBuffer(BaseBuffer):

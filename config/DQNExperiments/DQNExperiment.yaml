@@ -9,12 +9,13 @@ tabular_d: False
 d_tau: 1e-3
 
 # Gain adaptation parameters
+gain_adapter: NoGainAdapter  # Options: NoGainAdapter, SingleGainAdapter, DiagonalGainAdapter, NetworkGainAdapter
 adapt_gains: False
 epsilon: 1e-1
 meta_lr: 1e-2
+use_previous_BRs: False
 
 slow_motion: 1
-diagonal_adaptation: False
 
 normalize: False
 should_stop: False  # Whether we early stop the training once some amount of reward is reached

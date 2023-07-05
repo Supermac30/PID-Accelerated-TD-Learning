@@ -30,13 +30,13 @@ cd /h/bedaywim/PID-Accelerated-TD-Learning
 #    epsilon=0.25 \
 #    d_tau=0.001
 
-python3 -m Experiments.DQNExperiments.DQNExperiment \
-   env=mountaincar name=mountaincar \
-   hydra.mode=MULTIRUN \
-   adapt_gains=True \
-   meta_lr=1e-2,1e-3 \
-   epsilon=5,2,1,0.25 \
-   d_tau=1e-1,1e-2,1e-3
+# python3 -m Experiments.DQNExperiments.DQNExperiment \
+#    env=mountaincar name=mountaincar \
+#    hydra.mode=MULTIRUN \
+#    adapt_gains=True \
+#    meta_lr=1e-2,1e-3 \
+#    epsilon=5,2,1,0.25 \
+#    d_tau=1e-1,1e-2,1e-3
 
 # python3 -m Experiments.DQNExperiments.DQNExperiment \
 #    env=acrobot name=acrobot \
@@ -45,3 +45,11 @@ python3 -m Experiments.DQNExperiments.DQNExperiment \
 #    kd=0,0.1,0.2 \
 #    ki=-0.1,0,0.1 \
 #    d_tau=1,0.5,0.1
+
+python3 -m Experiments.DQNExperiments.DQNExperiment \
+   env=acrobot name=acrobot \
+   hydra.mode=MULTIRUN \
+   gain_adapter=SingleGainAdapter,DiagonalGainAdapter \
+   meta_lr=1e-2,1e-3 \
+   epsilon=5,2,1,0.25 \
+   d_tau=1e-1,1e-2,1e-3

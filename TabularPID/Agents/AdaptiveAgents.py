@@ -246,6 +246,13 @@ class AbstractGainUpdater():
         return None
 
 
+class NoGainUpdater(AbstractGainUpdater):
+    def __init__(self, lambd=0, epsilon=0.1):
+        super().__init__(lambd, epsilon)
+
+    def calculate_updated_values(self, intermediate=False):
+        pass
+
 class SemiGradientUpdater(AbstractGainUpdater):
     def __init__(self, lambd=0, epsilon=0.1, update_alpha=True):
         super().__init__(lambd, epsilon)

@@ -57,6 +57,10 @@ class ReplayBufferSamples(NamedTuple):
     rewards: th.Tensor
     zs: th.Tensor
     ds: th.Tensor
+    kp: th.Tensor
+    ki: th.Tensor
+    kd: th.Tensor
+    previous_BR: th.Tensor
     indices: th.Tensor
 
 

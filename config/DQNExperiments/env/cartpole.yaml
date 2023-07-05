@@ -13,5 +13,5 @@ cartpole:
   tau: 1
   inner_size: 256
   learning_starts: 1000
-  num_iterations: 475 # Steps: 50000
+  num_iterations: 50000
   gamma: 0.99

@@ -1,9 +1,8 @@
 import warnings
-from typing import Any, Dict, List, Optional, Tuple, Type, TypeVar, Union
+from typing import Any, ClassVar, Dict, List, Optional, Tuple, Type, TypeVar, Union
 
 import numpy as np
 import torch as th
-from gymnasium.wrappers import RecordVideo
 from gymnasium import spaces
 from torch.nn import functional as F
 
@@ -12,12 +11,12 @@ from stable_baselines3.common.off_policy_algorithm import OffPolicyAlgorithm
 from stable_baselines3.common.policies import BasePolicy
 from stable_baselines3.common.type_aliases import GymEnv, MaybeCallback, Schedule
 from stable_baselines3.common.utils import get_linear_fn, get_parameters_by_name, polyak_update
-from TabularPID.Agents.DQN.DQN_policy import CnnPolicy, DQNPolicy, MlpPolicy, MultiInputPolicy, QNetwork
+from stable_baselines3.dqn.policies import CnnPolicy, DQNPolicy, MlpPolicy, MultiInputPolicy, QNetwork
 
-SelfDQN = TypeVar("SelfDQN", bound="PID_DQN")
+SelfDQN = TypeVar("SelfDQN", bound="DQN")
 
 
-class PID_DQN(OffPolicyAlgorithm):
+class DQN(OffPolicyAlgorithm):
     """
     Deep Q-Network (DQN)
 
@@ -63,7 +62,7 @@ class PID_DQN(OffPolicyAlgorithm):
     :param _init_setup_model: Whether or not to build the network at the creation of the instance
     """
 
-    policy_aliases: Dict[str, Type[BasePolicy]] = {
+    policy_aliases: ClassVar[Dict[str, Type[BasePolicy]]] = {
         "MlpPolicy": MlpPolicy,
         "CnnPolicy": CnnPolicy,
         "MultiInputPolicy": MultiInputPolicy,
@@ -75,11 +74,9 @@ class PID_DQN(OffPolicyAlgorithm):
     policy: DQNPolicy
 
     def __init__(
-        self, d_tau, stopping_criterion, tabular_d,
-        gain_adapter,
+        self,
         policy: Union[str, Type[DQNPolicy]],
         env: Union[GymEnv, str],
-        should_stop: bool = False,
         learning_rate: Union[float, Schedule] = 1e-4,
         buffer_size: int = 1_000_000,  # 1e6
         learning_starts: int = 50000,
@@ -128,15 +125,7 @@ class PID_DQN(OffPolicyAlgorithm):
             optimize_memory_usage=optimize_memory_usage,
             supported_action_spaces=(spaces.Discrete,),
             support_multi_env=True,
-            stopping_criterion=stopping_criterion,
-            should_stop=should_stop,
         )
-        # The stable baselines wrapped env don't play nice with the RecordVideo Wrapper
-        # The simplest solution is to reserve an unwrapped instance for video recording, instead of modifying the API
-        # Our additions atop stable baselines:
-        self.visualization_env = env
-        self.d_tau = d_tau
-        self.tabular_d = tabular_d
 
         self.exploration_initial_eps = exploration_initial_eps
         self.exploration_final_eps = exploration_final_eps
@@ -150,13 +139,6 @@ class PID_DQN(OffPolicyAlgorithm):
 
         if _init_setup_model:
             self._setup_model()
-
-        # Gain adaptation Code
-        self.gain_adapter = gain_adapter
-        self.BRs = None
-        self.previous_p_update, self.p_update = None, None
-        self.previous_i_update, self.i_update = None, None
-        self.previous_d_update, self.d_update = None, None
 
     def _setup_model(self) -> None:
         super()._setup_model()
@@ -182,7 +164,6 @@ class PID_DQN(OffPolicyAlgorithm):
     def _create_aliases(self) -> None:
         self.q_net = self.policy.q_net
         self.q_net_target = self.policy.q_net_target
-        self.d_net = self.policy.d_net
 
     def _on_step(self) -> None:
         """
@@ -193,10 +174,6 @@ class PID_DQN(OffPolicyAlgorithm):
         # Account for multiple environments
         # each call to step() corresponds to n_envs transitions
         if self._n_calls % max(self.target_update_interval // self.n_envs, 1) == 0:
-            # Update the D network
-            polyak_update(self.q_net_target.parameters(), self.d_net.parameters(), self.d_tau)
-
-            # Update the target network
             polyak_update(self.q_net.parameters(), self.q_net_target.parameters(), self.tau)
             # Copy running stats, see GH issue #996
             polyak_update(self.batch_norm_stats, self.batch_norm_stats_target, 1.0)
@@ -225,29 +202,6 @@ class PID_DQN(OffPolicyAlgorithm):
                 # 1-step TD target
                 target_q_values = replay_data.rewards + (1 - replay_data.dones) * self.gamma * next_q_values
 
-                target_current_q_values = self.q_net_target(replay_data.observations)
-                target_current_q_values = th.gather(target_current_q_values, dim=1, index=replay_data.actions.long())
-
-                if self.tabular_d:
-                    d_values = replay_data.ds
-                    new_ds = (1 - self.d_tau) * d_values + self.d_tau * target_current_q_values
-                else:
-                    d_values = self.d_net(replay_data.observations)
-                    d_values = th.gather(d_values, dim=1, index=replay_data.actions.long())
-                    new_ds = None
-
-                kp, ki, kd, alpha, beta = self.gain_adapter.get_gains(
-                    self, replay_data.observations, replay_data.actions, replay_data
-                )
-                self.BRs = target_q_values - target_current_q_values
-                new_zs = beta * replay_data.zs + alpha * self.BRs
-
-                self.previous_p_update, self.p_update = self.p_update, self.BRs
-                self.previous_d_update, self.d_update = self.d_update, target_current_q_values - d_values
-                self.previous_i_update, self.i_update = self.i_update, new_zs
-
-                target = target_current_q_values + kp * self.p_update + ki * self.i_update + kd * self.d_update
-
             # Get current Q-values estimates
             current_q_values = self.q_net(replay_data.observations)
 
@@ -255,7 +209,7 @@ class PID_DQN(OffPolicyAlgorithm):
             current_q_values = th.gather(current_q_values, dim=1, index=replay_data.actions.long())
 
             # Compute Huber loss (less sensitive to outliers)
-            loss = F.smooth_l1_loss(current_q_values, target)
+            loss = F.smooth_l1_loss(current_q_values, target_q_values)
             losses.append(loss.item())
 
             # Optimize the policy
@@ -264,9 +218,6 @@ class PID_DQN(OffPolicyAlgorithm):
             # Clip gradient norm
             th.nn.utils.clip_grad_norm_(self.policy.parameters(), self.max_grad_norm)
             self.policy.optimizer.step()
-
-            self.gain_adapter.adapt_gains(self, loss, replay_data)
-            self.replay_buffer.update(replay_data.indices, zs=new_zs, ds=new_ds, BRs=self.BRs)
 
         # Increase update counter
         self._n_updates += gradient_steps
@@ -329,24 +280,3 @@ class PID_DQN(OffPolicyAlgorithm):
         state_dicts = ["policy", "policy.optimizer"]
 
         return state_dicts, []
-
-    def visualize_episode(self, file_name="episode", max_length=10000):
-        """Render the environment until the episode is done.
-
-        Args:
-            file_name (str, optional): The name of the file. Defaults to "episode".
-        """
-        env = RecordVideo(self.visualization_env, file_name + f"{self.kp},{self.ki},{self.kd},{self.update_gains},{self.tabular_d}.mp4")
-
-        state = env.reset()[0]
-        done = False
-        k = 0
-
-        while not done and k < max_length:
-            # Take an action
-            action = self.predict(state, deterministic=True)[0]
-            # Take the action
-            state, _, done, _, _ = env.step(action)
-            k += 1
-
-        env.close()

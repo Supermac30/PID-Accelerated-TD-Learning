@@ -72,6 +72,8 @@ def build_adaptive_agent(agent_name, env_name, env, policy, meta_lr, lambd, dela
 
     if agent_name == "planner":
         return build_planner(*params)
+    elif agent_name == "no gain adapter":
+        return build_no_gain_adapter(*params)
     elif agent_name == "log space planner":
         return build_log_space_planner(*params)
     elif agent_name == "true cost":
@@ -110,9 +112,24 @@ def build_adaptive_agent(agent_name, env_name, env, policy, meta_lr, lambd, dela
         return build_true_semi_gradient_updater(*params)
 
 
+    elif agent_name == "no gain Q adapter":
+        return build_no_gain_Q_adapter(*params)
     elif agent_name == "semi gradient Q updater":
         return build_semi_gradient_Q_updater(*params)
     return None
+
+
+def build_no_gain_Q_adapter(env, policy, meta_lr, lambd, learning_rates, gamma, delay, kp, kd, ki, alpha, beta, epsilon):
+    gain_updater = AdaptiveQAgents.NoGainUpdater()
+    return AdaptiveQAgents.AdaptiveSamplerAgent(
+        gain_updater,
+        learning_rates,
+        meta_lr,
+        env,
+        gamma,
+        delay,
+        kp, kd, ki, alpha, beta
+    )
 
 
 def build_semi_gradient_Q_updater(env, policy, meta_lr, lambd, learning_rates, gamma, delay, kp, kd, ki, alpha, beta, epsilon):
@@ -122,6 +139,20 @@ def build_semi_gradient_Q_updater(env, policy, meta_lr, lambd, learning_rates, g
         learning_rates,
         meta_lr,
         env,
+        gamma,
+        delay,
+        kp, kd, ki, alpha, beta
+    )
+
+
+def build_no_gain_adapter(env, policy, meta_lr, lambd, learning_rates, gamma, delay, kp, kd, ki, alpha, beta, epsilon):
+    gain_updater = NoGainUpdater()
+    return AdaptiveSamplerAgent(
+        gain_updater,
+        learning_rates,
+        meta_lr,
+        env,
+        policy,
         gamma,
         delay,
         kp, kd, ki, alpha, beta

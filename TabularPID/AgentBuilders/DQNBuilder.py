@@ -3,15 +3,15 @@ import os
 
 from TabularPID.MDPs.GymWrapper import create_environment
 from TabularPID.Agents.DQN.DQN import PID_DQN
+from TabularPID.Agents.DQN.DQN_gain_adapter import NoGainAdapter, SingleGainAdapter, DiagonalGainAdapter, NetworkGainAdapter
 from stable_baselines3.common.logger import configure
 from stable_baselines3.common.utils import get_latest_run_id
 
-def build_PID_DQN(kp, ki, kd, alpha, beta, env_name, gamma, optimizer, replay_memory_size, batch_size,
+def build_PID_DQN(gain_adapter, env_name, gamma, optimizer, replay_memory_size, batch_size,
                   learning_rate, tau, initial_eps, exploration_fraction, minimum_eps,
                   gradient_steps, train_freq, target_update_interval, d_tau, inner_size,
                   slow_motion, learning_starts, tabular_d=False, tensorboard_log=None, seed=42,
-                  adapt_gains=False, meta_lr=0.1, epsilon=0.1, log_name="",
-                  name_append="", should_stop=False, diagonal_adaptation=False):
+                  log_name="", name_append="", should_stop=False):
     """Build the PID DQN agent
     """
     env, is_atari, stopping_criterion = create_environment(env_name, slow_motion=slow_motion)
@@ -25,7 +25,7 @@ def build_PID_DQN(kp, ki, kd, alpha, beta, env_name, gamma, optimizer, replay_me
         optimize_memory_usage = False
 
     dqn = PID_DQN(
-        kp, ki, kd, alpha, beta, d_tau, adapt_gains, meta_lr, epsilon, stopping_criterion, tabular_d,
+        d_tau, stopping_criterion, tabular_d, gain_adapter,
         policy=policy_type,
         env=env,
         learning_rate=learning_rate,
@@ -46,7 +46,6 @@ def build_PID_DQN(kp, ki, kd, alpha, beta, env_name, gamma, optimizer, replay_me
                            optimizer_class=optimizer_class),
         seed=seed,
         should_stop=should_stop,
-        diagonal_adaptation=diagonal_adaptation
     )
 
     if log_name == "":
@@ -62,6 +61,21 @@ def build_PID_DQN(kp, ki, kd, alpha, beta, env_name, gamma, optimizer, replay_me
     )
 
     return dqn
+
+
+def build_gain_adapter(adapter_type, kp, ki, kd, alpha, beta, meta_lr, epsilon, use_previous_BRs, batch_size):
+    if adapter_type == "NoGainAdapter":
+        gain_adapter = NoGainAdapter
+    elif adapter_type == "SingleGainAdapter":
+        gain_adapter = SingleGainAdapter
+    elif adapter_type == "DiagonalGainAdapter":
+        gain_adapter = DiagonalGainAdapter
+    elif adapter_type == "NetworkGainAdapter":
+        gain_adapter = NetworkGainAdapter
+    else:
+        raise NotImplementedError
+
+    return gain_adapter(kp, ki, kd, alpha, beta, meta_lr, epsilon, use_previous_BRs, batch_size=batch_size)
 
 def create_optimizer(optimizer):
     if optimizer == 'Adam':

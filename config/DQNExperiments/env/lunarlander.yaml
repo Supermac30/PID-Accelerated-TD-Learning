@@ -13,5 +13,5 @@ lunarlander:
   tau: 1
   inner_size: 256
   learning_starts: 0
-  num_iterations: 200 # Steps: 100000
+  num_iterations: 100000
   gamma: 0.99
