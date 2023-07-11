@@ -11,7 +11,7 @@ def build_PID_DQN(gain_adapter, env_name, gamma, optimizer, replay_memory_size, 
                   learning_rate, tau, initial_eps, exploration_fraction, minimum_eps,
                   gradient_steps, train_freq, target_update_interval, d_tau, inner_size,
                   slow_motion, learning_starts, tabular_d=False, tensorboard_log=None, seed=42,
-                  log_name="", name_append="", should_stop=False):
+                  log_name="", name_append="", should_stop=False, device="cuda"):
     """Build the PID DQN agent
     """
     env, is_atari, stopping_criterion = create_environment(env_name, slow_motion=slow_motion)
@@ -46,7 +46,10 @@ def build_PID_DQN(gain_adapter, env_name, gamma, optimizer, replay_memory_size, 
                            optimizer_class=optimizer_class),
         seed=seed,
         should_stop=should_stop,
+        device=device
     )
+
+    gain_adapter.set_model(dqn)
 
     if log_name == "":
         latest_run_id = get_latest_run_id("tensorboard", "run")
@@ -63,7 +66,7 @@ def build_PID_DQN(gain_adapter, env_name, gamma, optimizer, replay_memory_size, 
     return dqn
 
 
-def build_gain_adapter(adapter_type, kp, ki, kd, alpha, beta, meta_lr, epsilon, use_previous_BRs, batch_size):
+def build_gain_adapter(adapter_type, kp, ki, kd, alpha, beta, meta_lr, epsilon, use_previous_BRs):
     if adapter_type == "NoGainAdapter":
         gain_adapter = NoGainAdapter
     elif adapter_type == "SingleGainAdapter":
@@ -75,7 +78,7 @@ def build_gain_adapter(adapter_type, kp, ki, kd, alpha, beta, meta_lr, epsilon, 
     else:
         raise NotImplementedError
 
-    return gain_adapter(kp, ki, kd, alpha, beta, meta_lr, epsilon, use_previous_BRs, batch_size=batch_size)
+    return gain_adapter(kp, ki, kd, alpha, beta, meta_lr, epsilon, use_previous_BRs)
 
 def create_optimizer(optimizer):
     if optimizer == 'Adam':

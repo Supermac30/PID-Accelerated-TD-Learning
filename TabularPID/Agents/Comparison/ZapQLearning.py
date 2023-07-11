@@ -1,12 +1,19 @@
 from TabularPID.Agents.Agents import Agent
 import numpy as np
 
+def unit_mat(a, b):
+    """Create a matrix with a one at (a, b) and zeros everywhere else
+    """
+    matrix = np.zeros((a, b))
+    matrix[a, b] = 1
+    return matrix
+
 class ZapQLearning(Agent):
-    def __init__(self, learning_rate, environment, policy, gamma, follow_trajectory=True):
+    def __init__(self, gamma_lr, alpha_lr, environment, policy, gamma, follow_trajectory=True):
         super().__init__(environment, policy, gamma, follow_trajectory)
-        self.learning_rate = learning_rate
-        self.previous_Q = np.zeros((self.num_states, self.num_actions))
-        self.current_Q = np.zeros((self.num_states, self.num_actions))
+        self.gamma_lr = gamma_lr
+        self.alpha_lr = alpha_lr
+        self.Q = np.zeros((self.num_states, self.num_actions))
 
     def estimate_value_function(self, follow_trajectory=True, num_iterations=1000, test_function=None, reset=True, reset_environment=True, stop_if_diverging=True):
         """Estimate the value function of the current policy using the TIDBD algorithm
@@ -21,21 +28,25 @@ class ZapQLearning(Agent):
         # A vector storing the number of times we have seen a state.
         frequency = np.zeros((self.num_states, 1))
 
+        rolling_A = 0
+
         for k in range(num_iterations):
             current_state, action, next_state, reward = self.take_action(follow_trajectory)
             frequency[current_state] += 1
 
-            previous_bellman = reward + self.gamma * max(self.previous_Q[next_state])
-            current_bellman = reward + self.gamma * max(self.current_Q[next_state])
+            best_action = np.argmax(self.Q[next_state])
+            BR = reward + self.gamma * self.Q[next_state, best_action] - self.Q[current_state, action]
 
-            learning_rate = self.learning_rate(frequency[current_state])
+            gamma_lr = self.gamma_lr(frequency[current_state])
+            alpha_lr = self.alpha_lr(frequency[current_state])
 
-            self.previous_Q = self.current_Q.copy()
-            self.current_Q[current_state, action] = (1 - learning_rate) * self.current_Q[current_state, action] + learning_rate * previous_bellman
-            self.current_Q[current_state, action] += (1 - learning_rate) * (current_bellman - previous_bellman)
+            A = unit_mat(current_state, action) @ (self.gamma * unit_mat(next_state, best_action) - unit_mat(current_state, action)).T
+            rolling_A = rolling_A + gamma_lr * (A - rolling_A)
+            
+            self.Q -= alpha_lr * np.linalg.inv(rolling_A) * BR
 
             if test_function is not None:
-                history[k] = test_function(self.current_Q, None, current_bellman - self.current_Q[current_state, action])
+                history[k] = test_function(self.current_Q, None, BR)
                 if stop_if_diverging and history[k] > 10 * history[0]:
                     # If we are too large, stop learning
                     history[k:] = float('inf')

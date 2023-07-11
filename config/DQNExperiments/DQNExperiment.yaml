@@ -13,17 +13,19 @@ gain_adapter: NoGainAdapter  # Options: NoGainAdapter, SingleGainAdapter, Diagon
 adapt_gains: False
 epsilon: 1e-1
 meta_lr: 1e-2
-use_previous_BRs: False
+use_previous_BRs: True
 
 slow_motion: 1
 
 normalize: False
 should_stop: False  # Whether we early stop the training once some amount of reward is reached
-num_runs: 10
+num_runs: 3
 
 log_interval: 1  # The number of episodes before reward is logged to the console
 progress_bar: True
 tensorboard_log: tensorboard
+
+experiment_name: DQNExperiment
 
 name: cartpole
 defaults:

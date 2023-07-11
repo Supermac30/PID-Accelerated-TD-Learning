@@ -240,8 +240,8 @@ def find_Qstar(env, gamma):
     return oracle.value_iteration(num_iterations=100000)
 
 
-def save_array(nparr, name, graph=None, normalize=False):
-    """Save nparr in a file with name name. If graph is not None, this is plotted on graph.
+def save_array(nparr, name, normalize=False):
+    """Save nparr in a file with name name.
     Creates the npy and txt files if they don't exist to store the numpy arrays.
     """
     if normalize:
@@ -255,9 +255,6 @@ def save_array(nparr, name, graph=None, normalize=False):
 
     np.save("npy/" + name + ".npy", nparr)
     np.savetxt("txt/" + name + ".txt", nparr)
-
-    if graph is not None:
-        graph.plot(nparr, label=name)
 
 
 def plot_comparison(fig, ax1, ax2, title1, title2, ylabel, show_fig=True, fig_name="plot", is_log=False):

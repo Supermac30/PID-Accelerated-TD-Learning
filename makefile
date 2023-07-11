@@ -12,6 +12,8 @@ Q:
 	python3 -m Experiments.QExperiments.PIDQLearning
 true_Q:
 	python3 -m Experiments.VIExperiments.VIQControl
+VI:
+	python3 -m Experiments.VIExperiments.VIPolicyEvaluation
 
 DQN_cartpole:
 	python3 -m Experiments.DQNExperiments.DQNExperiment env=cartpole name=cartpole

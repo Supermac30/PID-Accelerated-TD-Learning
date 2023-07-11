@@ -3,27 +3,32 @@ import torch.nn as nn
 
 
 class GainAdapter():
-    def __init__(self, meta_lr, epsilon, use_previous_BRs=False, batch_size=32, device="cuda"):
-        self.device = device
+    def __init__(self, meta_lr, epsilon, use_previous_BRs=True):
         self.running_BRs = 0
 
         self.epsilon = epsilon
         self.meta_lr = meta_lr
         self.use_previous_BRs = use_previous_BRs
-        self.batch_size = batch_size
+    
+        self.adapts_single_gains = False
+    
+    def set_model(self, model):
+        self.model = model
+        self.device = model.device
+        self.batch_size = model.batch_size
 
-    def get_gains(self, model, states, actions, replay_sample):
+    def get_gains(self, states, actions, replay_sample):
         raise NotImplementedError
     
-    def adapt_gains(self, model, loss, replay_sample):
+    def adapt_gains(self, loss, replay_sample):
         """Update the gains"""
         raise NotImplementedError
 
 
 class NoGainAdapter(GainAdapter):
     """Doesn't adapt the gains at all."""
-    def __init__(self, kp, ki, kd, alpha, beta, meta_lr, epsilon, use_previous_BRs=False, batch_size=32):
-        super().__init__(meta_lr, epsilon, use_previous_BRs, batch_size)
+    def __init__(self, kp, ki, kd, alpha, beta, meta_lr, epsilon, use_previous_BRs=True):
+        super().__init__(meta_lr, epsilon, use_previous_BRs)
 
         self.kp = kp
         self.ki = ki
@@ -31,12 +36,14 @@ class NoGainAdapter(GainAdapter):
         self.alpha = alpha
         self.beta = beta
 
-    def get_gains(self, model, states, actions, replay_sample):
+        self.adapts_single_gains = True
+
+    def get_gains(self, states, actions, replay_sample):
         return th.full((self.batch_size, 1), self.kp, device=self.device), th.full((self.batch_size, 1), self.ki, device=self.device), \
             th.full((self.batch_size, 1), self.kd, device=self.device), th.full((self.batch_size, 1), self.alpha, device=self.device), \
             th.full((self.batch_size, 1), self.beta, device=self.device)
     
-    def adapt_gains(self, model, loss, replay_sample):
+    def adapt_gains(self, replay_sample):
         """Update the gains"""
         return
 
@@ -45,8 +52,8 @@ class SingleGainAdapter(GainAdapter):
     """The regular gain adaptation algorithm for PID-DQN.
     Maintains a single gain for all states and actions, and updates it using the
     """
-    def __init__(self, kp, ki, kd, alpha, beta, meta_lr, epsilon, use_previous_BRs=False, batch_size=32):
-        super().__init__(meta_lr, epsilon, use_previous_BRs, batch_size)
+    def __init__(self, kp, ki, kd, alpha, beta, meta_lr, epsilon, use_previous_BRs=True):
+        super().__init__(meta_lr, epsilon, use_previous_BRs)
         
         self.kp = kp
         self.ki = ki
@@ -54,29 +61,31 @@ class SingleGainAdapter(GainAdapter):
         self.alpha = alpha
         self.beta = beta
 
-    def get_gains(self, model, states, actions, replay_sample):
+        self.adapts_single_gains = True
+
+    def get_gains(self, states, actions, replay_sample):
         return th.full((self.batch_size, 1), self.kp, device=self.device), th.full((self.batch_size, 1), self.ki, device=self.device), \
             th.full((self.batch_size, 1), self.kd, device=self.device), th.full((self.batch_size, 1), self.alpha, device=self.device), \
             th.full((self.batch_size, 1), self.beta, device=self.device)
     
-    def adapt_gains(self, model, loss, replay_sample):
+    def adapt_gains(self, replay_sample):
         """Update the gains"""
         if self.use_previous_BRs:
-            BRs = replay_sample.previous_BRs
+            BRs = replay_sample.BRs
         else:
-            BRs = model.BRs
+            BRs = self.model.BRs
         self.running_BRs = 0.5 * self.running_BRs + 0.5 * BRs.T @ BRs
-        learning_rate = self.meta_lr * model.learning_rate / self.batch_size
+        learning_rate = self.meta_lr * self.model.learning_rate / self.batch_size
 
-        self.kp += learning_rate * (BRs.T @ model.p_update / (self.epsilon + self.running_BRs)).item()
-        self.ki += learning_rate * (BRs.T @ model.i_update / (self.epsilon + self.running_BRs)).item()
-        self.kd += learning_rate * (BRs.T @ model.d_update / (self.epsilon + self.running_BRs)).item()
+        self.kp += learning_rate * (BRs.T @ self.model.p_update / (self.epsilon + self.running_BRs)).item()
+        self.ki += learning_rate * (BRs.T @ self.model.i_update / (self.epsilon + self.running_BRs)).item()
+        self.kd += learning_rate * (BRs.T @ self.model.d_update / (self.epsilon + self.running_BRs)).item()
 
 
 class DiagonalGainAdapter(GainAdapter):
     """The diagonal gain adaptation algorithm for PID-DQN"""
-    def __init__(self, kp, ki, kd, alpha, beta, meta_lr, epsilon, use_previous_BRs=False, batch_size=32):
-        super().__init__(meta_lr, epsilon, use_previous_BRs, batch_size)
+    def __init__(self, kp, ki, kd, alpha, beta, meta_lr, epsilon, use_previous_BRs=True):
+        super().__init__(meta_lr, epsilon, use_previous_BRs)
 
         self.initial_kp = kp
         self.initial_ki = ki
@@ -84,31 +93,35 @@ class DiagonalGainAdapter(GainAdapter):
         self.initial_alpha = alpha
         self.initial_beta = beta
 
-    def get_gains(self, model, states, actions, replay_sample):
-        return th.from_numpy(replay_sample.kps), th.from_numpy(replay_sample.kis), \
-            th.from_numpy(replay_sample.kds), th.from_numpy(replay_sample.alphas), \
-            th.from_numpy(replay_sample.betas)
+    def get_gains(self, states, actions, replay_sample):
+        # Replace all gains equal to -1 with the initial gains
+        replay_sample.kp[replay_sample.kp == -1] = self.initial_kp
+        replay_sample.ki[replay_sample.ki == -1] = self.initial_ki
+        replay_sample.kd[replay_sample.kd == -1] = self.initial_kd
+        return replay_sample.kp, replay_sample.ki, replay_sample.kd, \
+            th.full((self.batch_size, 1), self.initial_alpha, device=self.device), \
+            th.full((self.batch_size, 1), self.initial_beta, device=self.device)
     
-    def update_gains(self, model, loss, replay_sample):
-        """Update the gains"""
+    def adapt_gains(self, replay_sample):
+        """Update the gains. Only works if get_gains was called before"""
         if self.use_previous_BRs:
-            BRs = replay_sample.previous_BRs
+            BRs = replay_sample.BRs
         else:
-            BRs = model.BRs
+            BRs = self.model.BRs
         self.running_BRs = 0.5 * self.running_BRs + 0.5 * BRs.T @ BRs
-        learning_rate = self.meta_lr * model.learning_rate / self.batch_size
+        learning_rate = self.meta_lr * self.model.learning_rate / self.batch_size
 
-        new_kps = replay_sample.kps + learning_rate * (BRs.T @ model.p_update / (self.epsilon + self.running_BRs))
-        new_kis = replay_sample.kis + learning_rate * (BRs.T @ model.i_update / (self.epsilon + self.running_BRs))
-        new_kds = replay_sample.kds + learning_rate * (BRs.T @ model.d_update / (self.epsilon + self.running_BRs))
+        new_kps = replay_sample.kp + learning_rate * (BRs.T @ self.model.p_update / (self.epsilon + self.running_BRs))
+        new_kis = replay_sample.ki + learning_rate * (BRs.T @ self.model.i_update / (self.epsilon + self.running_BRs))
+        new_kds = replay_sample.kd + learning_rate * (BRs.T @ self.model.d_update / (self.epsilon + self.running_BRs))
 
-        model.replay_buffer.update(replay_sample.indices, kps=new_kps, kis=new_kis, kds=new_kds)
+        self.model.replay_buffer.update(replay_sample.indices, kp=new_kps, ki=new_kis, kd=new_kds)
 
 
-class GainAdapter(nn.Module):
-    def __init__(self, input_dim, range_min, range_max):
-        super(GainAdapter, self).__init__()
-        self.linear = nn.Linear(input_dim, 1)
+class GainAdaptingNetwork(nn.Module):
+    def __init__(self, input_dim, range_min, range_max, device):
+        super(GainAdaptingNetwork, self).__init__()
+        self.linear = nn.Linear(input_dim, 1, device=device)
         self.range_min = range_min
         self.range_max = range_max
     
@@ -119,15 +132,21 @@ class GainAdapter(nn.Module):
 
 
 class NetworkGainAdapter(GainAdapter):
-    def __init__(self, kp, ki, kd, alpha, beta, meta_lr, epsilon, use_previous_BRs=False, state_dim=4, action_dim=1, batch_size=32):
-        super().__init__(kp, ki, kd, alpha, beta, meta_lr, epsilon, use_previous_BRs, batch_size)
+    def __init__(self, kp, ki, kd, alpha, beta, meta_lr, epsilon, use_previous_BRs=True):
+        super().__init__(meta_lr, epsilon, use_previous_BRs)
+
+    def set_model(self, model):
+        super().set_model(model)
+        state_dim = self.model.env.observation_space.shape[0]
+
         # Create a logistic regression model for each gain that takes in the state and
         # action as input, and outputs the gains in some range (chosen by heuristic).
-        self.kp_model = GainAdapter(state_dim + action_dim, 0.5, 1.5)
-        self.ki_model = GainAdapter(state_dim + action_dim, -1, 1)
-        self.kd_model = GainAdapter(state_dim + action_dim, -1, 1)
-        self.alpha_model = GainAdapter(state_dim + action_dim, 0, 1)
-        self.beta_model = GainAdapter(state_dim + action_dim, 0, 1)
+
+        self.kp_model = GainAdaptingNetwork(state_dim + 1, 0.5, 1.5, device=self.device)
+        self.ki_model = GainAdaptingNetwork(state_dim + 1, -1, 1, device=self.device)
+        self.kd_model = GainAdaptingNetwork(state_dim + 1, -1, 1, device=self.device)
+        self.alpha_model = GainAdaptingNetwork(state_dim + 1, 0, 1, device=self.device)
+        self.beta_model = GainAdaptingNetwork(state_dim + 1, 0, 1, device=self.device)
 
         self.kp_optimizer = th.optim.Adam(self.kp_model.parameters(), lr=0.001)
         self.ki_optimizer = th.optim.Adam(self.ki_model.parameters(), lr=0.001)
@@ -135,23 +154,35 @@ class NetworkGainAdapter(GainAdapter):
         self.alpha_optimizer = th.optim.Adam(self.alpha_model.parameters(), lr=0.001)
         self.beta_optimizer = th.optim.Adam(self.beta_model.parameters(), lr=0.001)
 
-    def get_gains(self, model, states, actions, replay_sample):
+    def get_gains(self, states, actions, replay_sample):
         """Run a single gradient step to update the gains"""
-        kps = self.kp_model(th.cat((states, actions), dim=1))
-        kis = self.ki_model(th.cat((states, actions), dim=1))
-        kds = self.kd_model(th.cat((states, actions), dim=1))
-        alpha = self.alpha_model(th.cat((states, actions), dim=1))
-        beta = self.beta_model(th.cat((states, actions), dim=1))
-        
-        return kps, kis, kds, alpha, beta
+        # Concatenate the states and actions and make them use the same device
+        x = th.cat((states, actions), dim=1)
+        kps = self.kp_model(x)
+        kis = self.ki_model(x)
+        kds = self.kd_model(x)
+        alphas = self.alpha_model(x)
+        betas = self.beta_model(x)
 
-    def update_gains(self, model, loss, replay_sample):
         self.kp_optimizer.zero_grad()
         self.ki_optimizer.zero_grad()
         self.kd_optimizer.zero_grad()
         self.alpha_optimizer.zero_grad()
         self.beta_optimizer.zero_grad()
-        loss.backward()
+        
+        return kps, kis, kds, alphas, betas
+
+    def adapt_gains(self, replay_sample):
+        """
+        Update the gains. Only works if get_gains was called before.
+        Assumes that loss.backwards was called before.
+        """
+        # Clip norms
+        th.nn.utils.clip_grad_norm_(self.kp_model.parameters(), 10)
+        th.nn.utils.clip_grad_norm_(self.ki_model.parameters(), 10)
+        th.nn.utils.clip_grad_norm_(self.kd_model.parameters(), 10)
+        th.nn.utils.clip_grad_norm_(self.alpha_model.parameters(), 10)
+        th.nn.utils.clip_grad_norm_(self.beta_model.parameters(), 10)
 
         # Update the gains
         self.kp_optimizer.step()

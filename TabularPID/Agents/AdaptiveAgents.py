@@ -318,8 +318,8 @@ class SemiGradientUpdater(AbstractGainUpdater):
             self.kd = self.kd * (1 - self.lambd) + self.meta_lr * self.d_update / self.agent.update_frequency
             self.ki = self.ki * (1 - self.lambd) + self.meta_lr * self.i_update / self.agent.update_frequency
 
-            self.theta_alpha = self.theta_alpha * (1 - self.lambda) + self.meta_lr * self.theta_alpha_update
-            self.theta_beta = (self.theta_beta - 1) * (1 - self.lambda) + self.meta_lr * self.theta_beta_update
+            self.theta_alpha = self.theta_alpha * (1 - self.lambd) + self.meta_lr * self.theta_alpha_update
+            self.theta_beta = (self.theta_beta - 1) * (1 - self.lambd) + self.meta_lr * self.theta_beta_update
 
             if self.update_alpha:
                 self.alpha = 1 / (1 + math.exp(-self.theta_alpha))

@@ -267,9 +267,9 @@ class ReplayBuffer(BaseBuffer):
         self.dones[self.pos] = np.array(done).copy()
         self.zs[self.pos] = np.array(0)
         self.ds[self.pos] = np.array(0)
-        self.kp[self.pos] = np.array(0)
-        self.ki[self.pos] = np.array(0)
-        self.kd[self.pos] = np.array(0)
+        self.kp[self.pos] = np.array(-1)
+        self.ki[self.pos] = np.array(-1)
+        self.kd[self.pos] = np.array(-1)
         self.BRs[self.pos] = np.array(0)
 
         if self.handle_timeout_termination:

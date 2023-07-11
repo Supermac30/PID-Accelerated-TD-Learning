@@ -13,6 +13,7 @@ from TabularPID.AgentBuilders.DQNBuilder import build_PID_DQN, build_gain_adapte
 from stable_baselines3.dqn.dqn import DQN
 from stable_baselines3.common.callbacks import BaseCallback
 from stable_baselines3.common import evaluation
+from stable_baselines3.common.utils import set_random_seed
 
 # Warning: Change this when running on a different machine
 base_directory = "/h/bedaywim/PID-Accelerated-TD-Learning"
@@ -27,10 +28,10 @@ def control_experiment(cfg):
     logging.info(f"The chosen seed is: {seed}")
 
     # Create a prg with this seed
-    prg = np.random.RandomState(seed)
+    seed_prg = np.random.RandomState(seed)
 
     log_name = f"{cfg['kp']} {cfg['ki']} {cfg['kd']}{'*' if cfg['tabular_d'] else ''} {cfg['alpha']} {cfg['beta']} {cfg['d_tau']}" \
-          + (f" {cfg['epsilon']} {cfg['meta_lr']}" if cfg['adapt_gains'] else "")
+          + f" {cfg['gain_adapter']} {cfg['epsilon']} {cfg['meta_lr']}"
 
     env_cfg = next(iter(cfg['env'].values()))
     # Adaptation configs for logging
@@ -45,8 +46,11 @@ def control_experiment(cfg):
         gain_adapter = build_gain_adapter(
             cfg['gain_adapter'], cfg['kp'], cfg['ki'], cfg['kd'],
             cfg['alpha'], cfg['beta'], cfg['meta_lr'], cfg['epsilon'],
-            cfg['use_previous_BRs'], batch_size=env_cfg['batch_size'],
+            cfg['use_previous_BRs']
         )
+
+        run_seed = seed_prg.randint(0, 2**32)
+        set_random_seed(run_seed)
 
         agent = build_PID_DQN(
             gain_adapter, env_cfg['env'], env_cfg['gamma'], env_cfg['optimizer'],
@@ -55,17 +59,21 @@ def control_experiment(cfg):
             env_cfg['minimum_eps'], env_cfg['gradient_steps'], env_cfg['train_freq'],
             env_cfg['target_update_interval'], cfg['d_tau'], env_cfg['inner_size'],
             cfg['slow_motion'], env_cfg['learning_starts'], tabular_d=cfg['tabular_d'],
-            tensorboard_log=cfg['tensorboard_log'], seed=prg.randint(0, 2**32),
+            tensorboard_log=cfg['tensorboard_log'], seed=run_seed,
             log_name=log_name, name_append=f"run {i}", should_stop=cfg['should_stop']
         )
-        wandb.tensorboard.patch(root_logdir=f"runs/{agent.tensorboard_log}")
+
         run = wandb.init(
-            project="PID Accelerated VI",
+            project="PID Accelerated RL",
             config=log_cfg,
-            sync_tensorboard=True,
             save_code=True,
-            group=log_name,
+            group=f"{cfg['experiment_name']}-{str(seed)}",
+            job_type=log_name,
+            reinit=True,
+            name=str(run_seed),
+            sync_tensorboard=True
         )
+        wandb.tensorboard.patch(tensorboard_x=True)
 
         agent = agent.learn(
             total_timesteps=env_cfg['num_iterations'],
@@ -102,14 +110,15 @@ class CustomEvalCallback(BaseCallback):
     def _on_step(self) -> bool:
         if self.num_timesteps % 250 != 0:
             return True
-        
-        mean, std = evaluation.evaluate_policy(self.model, self.model.get_env(), n_eval_episodes=1, render=True)
+
+        mean, std = evaluation.evaluate_policy(self.model, self.model.get_env(), n_eval_episodes=10)
         self.logger.record("eval/mean_reward", mean)
         self.logger.record("eval/std_reward", std)
 
-        self.logger.record("eval/k_p", self.model.gain_adapter.kp)
-        self.logger.record("eval/k_i", self.model.gain_adapter.ki)
-        self.logger.record("eval/k_d", self.model.gain_adapter.kd)
+        if self.model.gain_adapter.adapts_single_gains:
+            self.logger.record("eval/k_p", self.model.gain_adapter.kp)
+            self.logger.record("eval/k_i", self.model.gain_adapter.ki)
+            self.logger.record("eval/k_d", self.model.gain_adapter.kd)
 
         # Sample 20 points from the replay buffer
         states, actions, *_ = self.model.replay_buffer.sample(20)

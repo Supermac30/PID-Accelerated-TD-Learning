@@ -43,68 +43,69 @@ def adaptive_agent_experiment(cfg):
     average_history /= cfg['repeat']
     save_array(average_history, f"TD Agent", ax0, normalize=cfg['normalize'])
 
-    for agent_name, meta_lr, delay, lambd, alpha, beta, epsilon in zip(cfg['agent_name'], cfg['meta_lr'], cfg['delay'], cfg['lambda'], cfg['alphas'], cfg['betas'], cfg['epsilon']):
-        if cfg['compute_optimal']:
-            get_optimal_adaptive_rates(agent_name, cfg['env'], meta_lr, cfg['gamma'], lambd, delay, alpha, beta, recompute=cfg['recompute_optimal'], epsilon=epsilon)
-        agent, _, _ = build_adaptive_agent_and_env(
-            agent_name,
-            cfg['env'],
-            meta_lr,
-            lambd,
-            delay,
-            get_optimal=cfg['get_optimal'],
-            seed=seed,
-            gamma=cfg['gamma'],
-            kp=cfg['kp'],
-            ki=cfg['ki'],
-            kd=cfg['kd'],
-            alpha=alpha,
-            beta=beta,
-            epsilon=epsilon
+    agent_name, meta_lr, lambd, delay, alpha, beta, epsilon = cfg['agent_name'], cfg['meta_lr'], cfg['lambd'], cfg['delay'], cfg['alpha'], cfg['beta'], cfg['epsilon']
+
+    if cfg['compute_optimal']:
+        get_optimal_adaptive_rates(agent_name, cfg['env'], meta_lr, cfg['gamma'], lambd, delay, alpha, beta, recompute=cfg['recompute_optimal'], epsilon=epsilon)
+    agent, _, _ = build_adaptive_agent_and_env(
+        agent_name,
+        cfg['env'],
+        meta_lr,
+        lambd,
+        delay,
+        get_optimal=cfg['get_optimal'],
+        seed=seed,
+        gamma=cfg['gamma'],
+        kp=cfg['kp'],
+        ki=cfg['ki'],
+        kd=cfg['kd'],
+        alpha=alpha,
+        beta=beta,
+        epsilon=epsilon
+    )
+    # Run the following agent.estimate_value_function 20 times and take an average of the histories
+    average_history = np.zeros((cfg['num_iterations'],))
+    for i in range(cfg['repeat']):
+        V, gain_history, history = agent.estimate_value_function(
+            cfg['num_iterations'],
+            test_function,
+            follow_trajectory=cfg['follow_trajectory'],
+            stop_if_diverging=cfg['stop_if_diverging'],
+            reset_environment=False
         )
-        # Run the following agent.estimate_value_function 20 times and take an average of the histories
-        average_history = np.zeros((cfg['num_iterations'],))
-        for i in range(cfg['repeat']):
-            V, gain_history, history = agent.estimate_value_function(
-                cfg['num_iterations'],
-                test_function,
-                follow_trajectory=cfg['follow_trajectory'],
-                stop_if_diverging=cfg['stop_if_diverging'],
-                reset_environment=False
-            )
-            average_history += history
+        average_history += history
 
-        average_history /= cfg['repeat']
+    average_history /= cfg['repeat']
 
-        logging.info(V - V_pi)
+    logging.info(V - V_pi)
 
-        save_array(average_history, f"Adaptive Agent: {agent_name} {meta_lr} {delay} {lambd} {epsilon}", ax0, normalize=cfg['normalize'])
+    save_array(average_history, f"Adaptive Agent: {agent_name} {meta_lr} {delay} {lambd} {epsilon}", ax0, normalize=cfg['normalize'])
 
-        fig = plt.figure(figsize=(10, 4))
-        gs = fig.add_gridspec(nrows=1, ncols=3, width_ratios=[1,1,1], wspace=0.3, hspace=0.5)
-        titles = ["kp", "ki", "kd"]
+    fig = plt.figure(figsize=(10, 4))
+    gs = fig.add_gridspec(nrows=1, ncols=3, width_ratios=[1,1,1], wspace=0.3, hspace=0.5)
+    titles = ["kp", "ki", "kd"]
 
-        for i in range(3):
-            ax = fig.add_subplot(gs[0, i])
-            save_array(gain_history[:, i], titles[i], ax)
-            ax.set_xlabel('Iteration')
-            ax.set_ylabel(titles[i])
-            ax.legend()
+    for i in range(3):
+        ax = fig.add_subplot(gs[0, i])
+        save_array(gain_history[:, i], titles[i], ax)
+        ax.set_xlabel('Iteration')
+        ax.set_ylabel(titles[i])
+        ax.legend()
 
-        plt.suptitle(f"Adaptive Agent: {agent_name}, {cfg['env']}, meta_lr={meta_lr}, epsilon={epsilon}")
+    plt.suptitle(f"Adaptive Agent: {agent_name}, {cfg['env']}, meta_lr={meta_lr}, epsilon={epsilon}")
 
-        # Set square aspect ratio for each subplot
-        for ax in fig.axes:
-            ax.set_box_aspect(1)
+    # Set square aspect ratio for each subplot
+    for ax in fig.axes:
+        ax.set_box_aspect(1)
 
-        # Center the subplots in a single row and move up to remove whitespace
-        gs.tight_layout(fig, rect=[0.05, 0.08, 0.95, 0.95])
+    # Center the subplots in a single row and move up to remove whitespace
+    gs.tight_layout(fig, rect=[0.05, 0.08, 0.95, 0.95])
 
-        plt.savefig(f"gains_plot_{agent_name}_{str(meta_lr).replace('.', '-')}_{delay}_{str(lambd).replace('.','-')}.png")
-        plt.close()
+    plt.savefig(f"gains_plot_{agent_name}_{str(meta_lr).replace('.', '-')}_{delay}_{str(lambd).replace('.','-')}.png")
+    plt.close()
 
-        if cfg['plot_updater']:
-            agent.plot()
+    if cfg['plot_updater']:
+        agent.plot()
 
     ax0.title.set_text(f"Adaptive Agent: {cfg['env']}")
     ax0.legend()

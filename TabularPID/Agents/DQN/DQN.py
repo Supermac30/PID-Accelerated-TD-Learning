@@ -237,7 +237,7 @@ class PID_DQN(OffPolicyAlgorithm):
                     new_ds = None
 
                 kp, ki, kd, alpha, beta = self.gain_adapter.get_gains(
-                    self, replay_data.observations, replay_data.actions, replay_data
+                    replay_data.observations, replay_data.actions, replay_data
                 )
                 self.BRs = target_q_values - target_current_q_values
                 new_zs = beta * replay_data.zs + alpha * self.BRs
@@ -265,7 +265,7 @@ class PID_DQN(OffPolicyAlgorithm):
             th.nn.utils.clip_grad_norm_(self.policy.parameters(), self.max_grad_norm)
             self.policy.optimizer.step()
 
-            self.gain_adapter.adapt_gains(self, loss, replay_data)
+            self.gain_adapter.adapt_gains(replay_data)
             self.replay_buffer.update(replay_data.indices, zs=new_zs, ds=new_ds, BRs=self.BRs)
 
         # Increase update counter

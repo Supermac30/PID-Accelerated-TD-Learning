@@ -38,18 +38,27 @@ cd /h/bedaywim/PID-Accelerated-TD-Learning
 #    epsilon=5,2,1,0.25 \
 #    d_tau=1e-1,1e-2,1e-3
 
-# python3 -m Experiments.DQNExperiments.DQNExperiment \
-#    env=acrobot name=acrobot \
-#    hydra.mode=MULTIRUN \
-#    kp=1,1.1,1.2 \
-#    kd=0,0.1,0.2 \
-#    ki=-0.1,0,0.1 \
-#    d_tau=1,0.5,0.1
-
 python3 -m Experiments.DQNExperiments.DQNExperiment \
-   env=acrobot name=acrobot \
+   env=cartpole name=cartpole experiment_name="Cartpole PBR Gain Sweep"\
    hydra.mode=MULTIRUN \
-   gain_adapter=SingleGainAdapter,DiagonalGainAdapter \
-   meta_lr=1e-2,1e-3 \
-   epsilon=5,2,1,0.25 \
-   d_tau=1e-1,1e-2,1e-3
+   kp=1,1.1,1.2 \
+   kd=0,0.1,0.2 \
+   ki=-0.1,0,0.1 \
+   d_tau=1,0.5,0.1
+
+# python3 -m Experiments.DQNExperiments.DQNExperiment \
+#    env=mountaincar name=mountaincar experiment_name="Mountaincar PBR Gain Adaptation Sweep"\
+#    hydra.mode=MULTIRUN \
+#    gain_adapter=SingleGainAdapter \
+#    meta_lr=1e-2,1e-3 \
+#    epsilon=5,2,1,0.25 \
+#    d_tau=1e-1,1e-2,1e-3
+
+# python3 -m Experiments.DQNExperiments.DQNExperiment \
+#    env=lunarlander name=lunarlander experiment_name="LunarLander PBR Gain Adaptation Comparer"\
+#    hydra.mode=MULTIRUN \
+#    gain_adapter=NoGainAdapter,SingleGainAdapter,DiagonalGainAdapter,NetworkGainAdapter \
+#    use_previous_BRs=True \
+#    meta_lr=1e-2 \
+#    epsilon=0.25 \
+#    d_tau=1e-2

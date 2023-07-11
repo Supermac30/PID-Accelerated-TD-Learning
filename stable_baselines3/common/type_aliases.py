@@ -60,7 +60,7 @@ class ReplayBufferSamples(NamedTuple):
     kp: th.Tensor
     ki: th.Tensor
     kd: th.Tensor
-    previous_BR: th.Tensor
+    BRs: th.Tensor
     indices: th.Tensor
 
 
