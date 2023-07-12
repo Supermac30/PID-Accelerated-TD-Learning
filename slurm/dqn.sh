@@ -15,6 +15,8 @@ conda activate myenv
 
 cd /h/bedaywim/PID-Accelerated-TD-Learning
 
+directory=outputs/dqn_experiment/$(date "+%Y.%m.%d-%H.%M.%S")
+
 # python3 -m Experiments.DQNExperiments.DQNExperiment \
 #    env=cartpole name=cartpole \
 #    hydra.mode=MULTIRUN \
@@ -41,6 +43,7 @@ cd /h/bedaywim/PID-Accelerated-TD-Learning
 python3 -m Experiments.DQNExperiments.DQNExperiment \
    env=cartpole name=cartpole experiment_name="Cartpole PBR Gain Sweep"\
    hydra.mode=MULTIRUN \
+   hydra.run.dir=$directory \
    kp=1,1.1,1.2 \
    kd=0,0.1,0.2 \
    ki=-0.1,0,0.1 \
@@ -62,3 +65,7 @@ python3 -m Experiments.DQNExperiments.DQNExperiment \
 #    meta_lr=1e-2 \
 #    epsilon=0.25 \
 #    d_tau=1e-2
+
+python3 -m Experiments.Plotting.plot_dqn_experiment \
+    hydra.run.dir=$directory \
+    hydra/job_logging=disabled

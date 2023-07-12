@@ -336,7 +336,7 @@ class PID_DQN(OffPolicyAlgorithm):
         Args:
             file_name (str, optional): The name of the file. Defaults to "episode".
         """
-        env = RecordVideo(self.visualization_env, file_name + f"{self.kp},{self.ki},{self.kd},{self.update_gains},{self.tabular_d}.mp4")
+        env = RecordVideo(self.visualization_env, file_name + ".mp4")
 
         state = env.reset()[0]
         done = False

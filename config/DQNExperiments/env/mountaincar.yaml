@@ -15,3 +15,4 @@ mountaincar:
   learning_starts: 1000
   num_iterations: 120000
   gamma: 0.98
+  target_reward: -130

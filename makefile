@@ -1,5 +1,6 @@
 adapt:
-	python3 -m Experiments.AdaptationExperiments.AdaptiveAgentExperiment
+	sbatch slurm/adapt.sh
+
 true_adapt:
 	python3 -m Experiments.AdaptationExperiments.AdaptiveAgentPAVIAExperiment
 Q_adapt:

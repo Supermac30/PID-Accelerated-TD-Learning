@@ -2,6 +2,7 @@ import numpy as np
 from collections import defaultdict
 import logging
 import matplotlib.pyplot as plt
+import math
 
 from TabularPID.Agents.Agents import Agent
 
@@ -275,6 +276,8 @@ class SemiGradientUpdater(AbstractGainUpdater):
         self.d_update = 0
         self.i_update = 0
         self.p_update = 0
+        #self.theta_alpha = 0
+        #self.theta_beta = 0
 
         self.BR_plot = [0]
         self.i_update_plot = [0]
@@ -288,7 +291,7 @@ class SemiGradientUpdater(AbstractGainUpdater):
         reward = self.agent.reward
         next_state, current_state = self.agent.next_state, self.agent.current_state
         V, Vp, z = self.agent.previous_V, self.agent.previous_Vp, self.agent.previous_z
-        next_V, next_Vp, next_z = self.agent.V, self.agent.Vp, self.agent.z
+        next_V = self.agent.V
         alpha, beta = self.alpha, self.beta
         gamma, lr = self.gamma, self.agent.lr
 
@@ -301,8 +304,8 @@ class SemiGradientUpdater(AbstractGainUpdater):
         self.p_update += lr * next_BR * BR / (self.epsilon + self.running_BR[current_state])
         self.d_update += lr * next_BR * (V[current_state] - Vp[current_state]) / (self.epsilon + self.running_BR[current_state])
         self.i_update += lr * next_BR * (beta * z[current_state][0] + alpha * BR) / (self.epsilon + self.running_BR[current_state])
-        self.theta_alpha_update += lr * next_BR * (self.ki * BR) / (self.epsilon + self.running_BR[current_state])
-        self.theta_beta_update += lr * next_BR * (self.ki * z[current_state][0]) / (self.epsilon + self.running_BR[current_state])
+        #self.theta_alpha_update += lr * next_BR * (self.ki * BR) / (self.epsilon + self.running_BR[current_state])
+        #self.theta_beta_update += lr * next_BR * (self.ki * z[current_state][0]) / (self.epsilon + self.running_BR[current_state])
 
         if self.plot_state == current_state:
             self.BR_plot.append(BR)
@@ -318,18 +321,18 @@ class SemiGradientUpdater(AbstractGainUpdater):
             self.kd = self.kd * (1 - self.lambd) + self.meta_lr * self.d_update / self.agent.update_frequency
             self.ki = self.ki * (1 - self.lambd) + self.meta_lr * self.i_update / self.agent.update_frequency
 
-            self.theta_alpha = self.theta_alpha * (1 - self.lambd) + self.meta_lr * self.theta_alpha_update
-            self.theta_beta = (self.theta_beta - 1) * (1 - self.lambd) + self.meta_lr * self.theta_beta_update
+            #self.theta_alpha = self.theta_alpha * (1 - self.lambd) + self.meta_lr * self.theta_alpha_update
+            #self.theta_beta = (self.theta_beta - 1) * (1 - self.lambd) + self.meta_lr * self.theta_beta_update
 
-            if self.update_alpha:
-                self.alpha = 1 / (1 + math.exp(-self.theta_alpha))
-                self.beta = 1 / (1 + math.exp(-self.theta_beta))
+            #if self.update_alpha:
+            #    self.alpha = 1 / (1 + math.exp(-self.theta_alpha))
+            #    self.beta = 1 / (1 + math.exp(-self.theta_beta))
 
             self.d_update = 0
             self.i_update = 0
             self.p_update = 0
-            self.theta_alpha_update = 0
-            self.theta_beta_update = 0
+            #self.theta_alpha_update = 0
+            #self.theta_beta_update = 0
 
     def plot(self):
         # Plot BR_plot and i_update_plot on separate sub-plots

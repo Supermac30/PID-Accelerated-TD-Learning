@@ -10,13 +10,13 @@ get_optimal_TD: True # Get the optimal parameters from the database
 compute_optimal_TD: True # Tune the TD agent
 recompute_optimal_TD: False
 
-agent_name: [semi gradient updater, semi gradient updater, semi gradient updater, diagonal semi gradient updater]
-meta_lr: [1e-4]
-delay: [1, 1, 1, 1]
-lambda: [0, 0, 0, 0]
-alphas: [0.01, 0.01, 0.01, 0.01]
-betas: [0.99, 0.99, 0.99, 0.99]
-epsilon: [0.1, 0.1, 0.1, 0.1]
+agent_name: semi gradient updater
+meta_lr: 1e-4
+delay: 1
+lambda: 0
+alpha: 0.01
+beta: 0.99
+epsilon: 0.1
 
 follow_trajectory: False
 log_plot: False
