@@ -38,6 +38,10 @@ exhaustive_learning_rates = [
         }
 ]
 
+def get_optimal_past_work_rates(agent_description, env_name, gamma, recompute=False, seed=-1, norm=1):
+    # TODO: Build this
+    pass
+
 def get_optimal_pid_rates(agent_description, env_name, kp, ki, kd, alpha, beta, gamma, recompute=False, seed=-1, norm=1):
     """Find the optimal rates for the choice of controller gains and environment.
     If this has been done before, get the optimal rates from the file of stored rates.

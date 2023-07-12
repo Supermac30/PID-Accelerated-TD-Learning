@@ -240,7 +240,7 @@ def find_Qstar(env, gamma):
     return oracle.value_iteration(num_iterations=100000)
 
 
-def save_array(nparr, name, normalize=False):
+def save_array(nparr, name, normalize=False, directory=""):
     """Save nparr in a file with name name.
     Creates the npy and txt files if they don't exist to store the numpy arrays.
     """
@@ -248,13 +248,13 @@ def save_array(nparr, name, normalize=False):
         # Normalize the array by the first non-zero element:
         nparr = nparr / nparr[np.nonzero(nparr)[0][0]]
 
-    if not os.path.isdir('npy'):
-        os.mkdir('npy')
-    if not os.path.isdir('txt'):
-        os.mkdir('txt')
+    if not os.path.isdir(f"{directory}/npy"):
+        os.mkdir(f"{directory}/npy")
+    if not os.path.isdir(f"{directory}/txt"):
+        os.mkdir(f"{directory}/txt")
 
-    np.save("npy/" + name + ".npy", nparr)
-    np.savetxt("txt/" + name + ".txt", nparr)
+    np.save(f"{directory}/npy/" + name + ".npy", nparr)
+    np.savetxt(f"{directory}/txt/" + name + ".txt", nparr)
 
 
 def plot_comparison(fig, ax1, ax2, title1, title2, ylabel, show_fig=True, fig_name="plot", is_log=False):

@@ -101,8 +101,8 @@ class AbstractAdaptiveAgent(Agent):
         """Return the bellman residual"""
         raise NotImplementedError
 
-    def plot(self):
-        return self.gain_updater.plot()
+    def plot(self, directory=""):
+        return self.gain_updater.plot(directory)
 
 
 
@@ -241,9 +241,8 @@ class AbstractGainUpdater():
         #self.agent.alpha = self.alpha
         #self.agent.beta = self.beta
 
-    def plot(self):
+    def plot(self, directory=""):
         """Plot any relavant information"""
-        # raise NotImplementedError
         return None
 
 
@@ -334,7 +333,7 @@ class SemiGradientUpdater(AbstractGainUpdater):
             #self.theta_alpha_update = 0
             #self.theta_beta_update = 0
 
-    def plot(self):
+    def plot(self, directory=""):
         # Plot BR_plot and i_update_plot on separate sub-plots
         fig, (ax1, ax2, ax3) = plt.subplots(3, 1)
         ax1.plot(self.BR_plot, color="red", label="BR")
@@ -349,7 +348,7 @@ class SemiGradientUpdater(AbstractGainUpdater):
         ax2.set_title("i_update")
         ax3.set_title("z")
         # Save the figure
-        fig.savefig("BR_plot.png")
+        fig.savefig(f"{directory}/BR_plot.png")
         plt.show()
 
 
@@ -463,7 +462,7 @@ class DiagonalSoftGainUpdater(AbstractGainUpdater):
         self.plot_ki.append(self.ki[self.plot_state])
         self.plot_kd.append(self.kd[self.plot_state])
     
-    def plot(self):
+    def plot(self, directory=""):
         # Plot all lines on separate subgraphs
         fig, axs = plt.subplots(4, 1, figsize=(10, 10))
         axs[0].plot(self.plot_BR)
@@ -476,7 +475,7 @@ class DiagonalSoftGainUpdater(AbstractGainUpdater):
         axs[3].set_title('kd')
 
         # Save the figure
-        fig.savefig('diagonal_soft_gain_updater.png')
+        fig.savefig(f'{directory}/diagonal_soft_gain_updater.png')
 
         # Show the plot
         plt.show()
@@ -785,7 +784,7 @@ class TrueDiagonalSemiGradient(AbstractGainUpdater):
             self.d_update_plot.append(self.d_update_plot[-1])
             self.i_update_plot.append(self.i_update_plot[-1])
 
-    def plot(self):
+    def plot(self, directory=""):
         #Create a subplot for each BR_plot, kp_plot kd_plot, ki_plot, d_update_plot, i_update_plot
         # They should be in a 3 x 2 grid, and labelled prperly, ideally all in squares
 
@@ -811,7 +810,7 @@ class TrueDiagonalSemiGradient(AbstractGainUpdater):
         fig.set_size_inches(10, 10)
 
         # Save the figure before showing it
-        plt.savefig("semi_gradient_updater.png")
+        plt.savefig(f"{directory}/semi_gradient_updater.png")
 
         plt.show()
     
@@ -903,7 +902,7 @@ class DiagonalSemiGradient(AbstractGainUpdater):
             self.d_update_plot.append(self.d_update_plot[-1])
             self.i_update_plot.append(self.i_update_plot[-1])
 
-    def plot(self):
+    def plot(self, directory):
         #Create a subplot for each BR_plot, kp_plot kd_plot, ki_plot, d_update_plot, i_update_plot
         # They should be in a 3 x 2 grid, and labelled prperly, ideally all in squares
 
@@ -929,7 +928,7 @@ class DiagonalSemiGradient(AbstractGainUpdater):
         fig.set_size_inches(10, 10)
 
         # Save the figure before showing it
-        plt.savefig("semi_gradient_updater.png")
+        plt.savefig(f"{directory}/semi_gradient_updater.png")
 
         plt.show()
 
@@ -945,7 +944,7 @@ class DiagonalSemiGradient(AbstractGainUpdater):
 
         axs.plot(self.BR_plot, label="BR")
         # Plot and save this
-        plt.savefig("semi_gradient_updater_BR.png")
+        plt.savefig(f"{directory}/semi_gradient_updater_BR.png")
         plt.show()
 
         

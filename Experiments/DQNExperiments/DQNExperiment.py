@@ -121,7 +121,5 @@ class CustomEvalCallback(BaseCallback):
             th.mean(th.linalg.vector_norm(q_values - trained_q_values)).item()
         )
 
-
-
 if __name__ == "__main__":
     control_experiment()

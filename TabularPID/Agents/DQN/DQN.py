@@ -194,7 +194,7 @@ class PID_DQN(OffPolicyAlgorithm):
         # each call to step() corresponds to n_envs transitions
         if self._n_calls % max(self.target_update_interval // self.n_envs, 1) == 0:
             # Update the D network
-            polyak_update(self.q_net_target.parameters(), self.d_net.parameters(), self.d_tau)
+            polyak_update(self.q_net_target.parameters(), self.d_net.parameters(), self.d_tau)            
 
             # Update the target network
             polyak_update(self.q_net.parameters(), self.q_net_target.parameters(), self.tau)

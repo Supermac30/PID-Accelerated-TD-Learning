@@ -32,10 +32,11 @@ kd: 0
 gamma: 0.999
 
 name: fine-tuning
+save_dir: ${oc.env:OUTPUT_DIR,./outputs}/${hydra.job.config_name}/${name}/${env}/${now:%Y-%m-%d}/${now:%H-%M-%S}
 
 seed: -1
 hydra:
   run:
     dir: ${oc.env:OUTPUT_DIR,./outputs}/${hydra.job.config_name}/${name}/${env}/${now:%Y-%m-%d}/${now:%H-%M-%S}
   job:
-    chdir: True
+    chdir: False

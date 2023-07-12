@@ -47,13 +47,9 @@ def adaptive_agent_experiment(cfg):
         average_history += history
 
     average_history /= cfg['repeat']
-    save_array(average_history, agent_description)
-    save_array(gain_history, f"gain_history: f{agent_description}")
-
-    try:
-        agent.plot()
-    except:
-        pass
+    save_array(average_history, agent_description, directory=cfg['save_dir'])
+    save_array(gain_history, f"gain_history {agent_description}", directory=cfg['save_dir'])
+    agent.plot(directory=cfg['save_dir'])
 
 
 if __name__ == '__main__':
