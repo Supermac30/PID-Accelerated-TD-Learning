@@ -1,4 +1,4 @@
-from TabularPID.Agents.Agents import Agent
+from TabularPID.Agents.Agents import Agent, learning_rate_function
 import numpy as np
 
 class TIDBD(Agent):
@@ -6,6 +6,9 @@ class TIDBD(Agent):
         super().__init__(environment, policy, gamma, follow_trajectory)
         self.V = np.zeros((self.num_states, 1))
         self.theta = theta
+
+    def set_learning_rates(self, a, b, c, d, e, f):
+        self.theta = learning_rate_function(a, b)
 
     def estimate_value_function(self, follow_trajectory=True, num_iterations=1000, test_function=None, reset=True, reset_environment=True, stop_if_diverging=True):
         """Estimate the value function of the current policy using the TIDBD algorithm

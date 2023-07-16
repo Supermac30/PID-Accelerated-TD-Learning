@@ -15,11 +15,14 @@ epsilon: 1e-1
 meta_lr: 1e-2
 use_previous_BRs: True
 
+# FQI parameters
+FQI: False
+
 slow_motion: 1
 
 normalize: False
 should_stop: False  # Whether we early stop the training once some amount of reward is reached
-num_runs: 3
+num_runs: 10
 
 log_interval: 1  # The number of episodes before reward is logged to the console
 progress_bar: True
@@ -31,6 +34,8 @@ name: cartpole
 defaults:
   - _self_
   - env: cartpole
+
+save_dir: ${oc.env:OUTPUT_DIR,./outputs}/${experiment_name}/${name}/${now:%Y-%m-%d}/${now:%H-%M-%S}
 
 seed: -1
 hydra:

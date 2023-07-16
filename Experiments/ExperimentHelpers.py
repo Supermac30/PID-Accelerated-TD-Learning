@@ -8,6 +8,14 @@ from TabularPID.MDPs.MDP import PolicyEvaluation, Control, Control_Q
 from TabularPID.MDPs.Environments import *
 from TabularPID.MDPs.Policy import Policy
 
+def normalize(arr):
+    """Normalize the array by the first value. If the array is empty, or starts with zero, return it.
+    """
+    if arr.size == 0 or arr[0] == 0:
+        return arr
+    
+    return arr / arr[0]
+
 def pick_seed(seed):
     """Return a seed if one is inputted, and -1 otherwise. Log the seed chosen."""
     if seed == -1:
@@ -112,15 +120,6 @@ def identity(seed):
     return env, Policy(1, 1, env.prg, None)
 
 
-def learning_rate_function(alpha, N):
-    """Return the learning rate function alpha(k) parameterized by alpha and N.
-    If N is infinity, return a constant function that outputs alpha.
-    """
-    if N == 'inf':
-        return lambda k: alpha
-    return lambda k: min(alpha, N/(k + 1))
-
-
 def find_optimal_learning_rates(agent, value_function_estimator, learning_rates={}, update_I_rates={}, update_D_rates={}, verbose=False):
     """Run a grid search for values of N and alpha that makes the
     value_function_estimator have the lowest possible error.
@@ -133,10 +132,9 @@ def find_optimal_learning_rates(agent, value_function_estimator, learning_rates=
     pick the learning rates that minimize the error at the end.
 
     Return the optimal parameters and the associated history.
-    """
-    # Store for later restoration to avoid spooky action at a distance
-    original_learning_rate = agent.learning_rate
 
+    WARNING: This causes spooky action at a distance, and changes the learning rates.
+    """
     minimum_params = None
     minimum_history = [float('inf')]
     minimum_index = float("inf")
@@ -172,13 +170,8 @@ def find_optimal_learning_rates(agent, value_function_estimator, learning_rates=
 
     for alpha, beta, gamma in itertools.product(learning_rates, update_I_rates, update_D_rates):
         for N, M, L in itertools.product(learning_rates[alpha], update_I_rates[beta], update_D_rates[gamma]):
-            agent.learning_rate = learning_rate_function(alpha, N)
-            agent.update_I_rate = learning_rate_function(beta, M)
-            agent.update_D_rate = learning_rate_function(gamma, L)
+            agent.set_learning_rates(alpha, N, beta, M, gamma, L)
             minimum_params, minimum_index, minimum_history = try_params((alpha, N, beta, M, gamma, L))
-
-    # Restore original learning rate
-    agent.learning_rate = original_learning_rate
 
     return minimum_index, minimum_params
 

@@ -4,7 +4,7 @@ import logging
 import matplotlib.pyplot as plt
 import math
 
-from TabularPID.Agents.Agents import Agent
+from TabularPID.Agents.Agents import Agent, learning_rate_function
 
 # TODO: Rewrite this class to use the agent class instead of rewriting the updates here.
 
@@ -104,6 +104,10 @@ class AbstractAdaptiveAgent(Agent):
     def plot(self, directory=""):
         return self.gain_updater.plot(directory)
 
+    def set_learning_rates(self, a, b, c, d, e, f):
+        self.learning_rate = learning_rate_function(a, b)
+        self.update_I_rate = learning_rate_function(c, d)
+        self.update_D_rate = learning_rate_function(e, f)
 
 
 class AdaptiveSamplerAgent(AbstractAdaptiveAgent):

@@ -13,59 +13,28 @@ source ~/.bashrc
 source ~/newgym.nv
 conda activate myenv
 
+# CHANGE THIS TO YOUR OWN PATH
 cd /h/bedaywim/PID-Accelerated-TD-Learning
 
-directory=outputs/dqn_experiment/$(date "+%Y.%m.%d-%H.%M.%S")
-
-# python3 -m Experiments.DQNExperiments.DQNExperiment \
-#    env=cartpole name=cartpole \
-#    hydra.mode=MULTIRUN \
-#    kd=0,0.1,0.2,0.3,0.4,0.5 \
-#    d_tau=0.9 \
-#    tabular_d=True,False
-
-# python3 -m Experiments.DQNExperiments.DQNExperiment \
-#    env=mountaincar name=mountaincar \
-#    hydra.mode=MULTIRUN \
-#    adapt_gains=True,False \
-#    meta_lr=0.01 \
-#    epsilon=0.25 \
-#    d_tau=0.001
-
-# python3 -m Experiments.DQNExperiments.DQNExperiment \
-#    env=mountaincar name=mountaincar \
-#    hydra.mode=MULTIRUN \
-#    adapt_gains=True \
-#    meta_lr=1e-2,1e-3 \
-#    epsilon=5,2,1,0.25 \
-#    d_tau=1e-1,1e-2,1e-3
+current_time=$(date "+%Y.%m.%d-%H.%M.%S")
+env=Cartpole-v1
+directory=outputs/dqn_experiment/${env}/$current_time
+echo "Saving to ${directory}"
+mkdir -p "$directory"
 
 python3 -m Experiments.DQNExperiments.DQNExperiment \
    env=cartpole name=cartpole experiment_name="Cartpole PBR Gain Sweep"\
    hydra.mode=MULTIRUN \
    hydra.run.dir=$directory \
+   hydra.sweep.dir=$directory \
+   save_dir=$directory \
+   seed=$RANDOM \
    kp=1,1.1,1.2 \
    kd=0,0.1,0.2 \
    ki=-0.1,0,0.1 \
-   d_tau=1,0.5,0.1
-
-# python3 -m Experiments.DQNExperiments.DQNExperiment \
-#    env=mountaincar name=mountaincar experiment_name="Mountaincar PBR Gain Adaptation Sweep"\
-#    hydra.mode=MULTIRUN \
-#    gain_adapter=SingleGainAdapter \
-#    meta_lr=1e-2,1e-3 \
-#    epsilon=5,2,1,0.25 \
-#    d_tau=1e-1,1e-2,1e-3
-
-# python3 -m Experiments.DQNExperiments.DQNExperiment \
-#    env=lunarlander name=lunarlander experiment_name="LunarLander PBR Gain Adaptation Comparer"\
-#    hydra.mode=MULTIRUN \
-#    gain_adapter=NoGainAdapter,SingleGainAdapter,DiagonalGainAdapter,NetworkGainAdapter \
-#    use_previous_BRs=True \
-#    meta_lr=1e-2 \
-#    epsilon=0.25 \
-#    d_tau=1e-2
+   d_tau=1,0.5,0.1 \
 
 python3 -m Experiments.Plotting.plot_dqn_experiment \
-    hydra.run.dir=$directory \
-    hydra/job_logging=disabled
+   hydra.run.dir=$directory \
+   save_dir=$directory \
+   hydra/job_logging=disabled

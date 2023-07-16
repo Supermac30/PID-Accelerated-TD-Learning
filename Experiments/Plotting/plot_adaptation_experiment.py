@@ -26,10 +26,7 @@ def create_plots(cfg):
                 ax.plot(gain_history[:, i])
                 ax.set_xlabel('Iteration')
                 ax.set_ylabel(titles[i])
-                ax.legend()
 
-            plt.suptitle(name)
-            
             # Set square aspect ratio for each subplot
             for ax in fig.axes:
                 ax.set_box_aspect(1)
@@ -43,7 +40,7 @@ def create_plots(cfg):
         # Otherwise, plot the file on the history plot
         else:
             history = np.load(f"{cfg['save_dir']}/npy/{file}")
-            ax0.plot(history, label=name)
+            ax0.plot(normalize(history), label=name)
 
     ax0.title.set_text(f"Adaptive Agent: {cfg['env']}")
     ax0.legend()

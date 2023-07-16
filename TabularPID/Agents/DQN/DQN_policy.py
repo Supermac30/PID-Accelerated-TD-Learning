@@ -84,6 +84,14 @@ class QNetwork(BasePolicy):
         )
         return data
 
+    def reset_parameters(self):
+        """
+        Reset the network parameters randomly.
+        """
+        self.q_net = nn.Sequential(
+            *create_mlp(self.features_dim, int(self.action_space.n), self.net_arch, self.activation_fn)
+        )
+
 
 class DQNPolicy(BasePolicy):
     """

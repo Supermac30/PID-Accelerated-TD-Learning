@@ -39,8 +39,16 @@ exhaustive_learning_rates = [
 ]
 
 def get_optimal_past_work_rates(agent_description, env_name, gamma, recompute=False, seed=-1, norm=1):
-    # TODO: Build this
-    pass
+    optimal_rates = get_stored_optimal_rate((agent_description, gamma), env_name, gamma)
+    if optimal_rates is None or recompute:
+        seed = pick_seed(seed)
+        optimal_rates = run_past_work_search(agent_description, env_name, seed, norm, gamma)
+        store_optimal_rate((agent_description, gamma), env_name, optimal_rates, gamma)
+    
+    logging.info(f"The optimal rates for {(env_name, gamma)} are: {optimal_rates}")
+
+    return optimal_rates
+
 
 def get_optimal_pid_rates(agent_description, env_name, kp, ki, kd, alpha, beta, gamma, recompute=False, seed=-1, norm=1):
     """Find the optimal rates for the choice of controller gains and environment.
@@ -133,6 +141,47 @@ def run_pid_search(agent_description, env_name, kp, ki, kd, alpha, beta, seed, n
     if rates == float("inf"):
         return default_rates
     return rates
+
+def run_past_work_search(agent_description, env_name, seed, norm, gamma):
+    """Run a grid search on learning rates for any of the past work algorithms"""
+    agent, env, policy = build_agent_and_env((agent_description), env_name, seed=seed, gamma=gamma)
+    V_pi = find_Vpi(env, policy, gamma)
+
+    dummy = {1: {float("inf")}}
+    if agent_description == "TIDBD":
+        # Taken from the TIDBD paper, 20 values between 0 and 0.2
+        learning_rates0 = {i / 100: {float("inf")} for i in range(20)}
+        learning_rates1 = dummy
+        learning_rates2 = dummy
+    elif agent_description == "speedy Q learning":
+        learning_rates0 = exhaustive_learning_rates[0]
+        learning_rates1 = dummy
+        learning_rates2 = dummy
+    elif agent_description == "zap Q learning":
+        # The paper uses polynomial learning rates
+        # TODO: Make sure that this is also fine? Code polynoimal rates as well just in case.
+        learning_rates0 = exhaustive_learning_rates[0]
+        learning_rates1 = exhaustive_learning_rates[1]
+        learning_rates2 = dummy
+    else:
+        raise ValueError(f"Unknown agent description: {agent_description}")
+    
+    _, rates = find_optimal_learning_rates(
+        agent,
+        lambda: agent.estimate_value_function(
+            num_iterations=50000,
+            test_function=build_test_function(norm, V_pi),
+            follow_trajectory=False
+        )[0],
+        learning_rates0,
+        learning_rates1,
+        learning_rates2,
+        True
+    )
+        
+    
+    return default_rates
+
 
 def run_pid_q_search(agent_description, env_name, kp, ki, kd, alpha, beta, seed, norm, gamma, decay):
     """Run a grid search on the exhaustive learning rates for the choice of controller gains"""

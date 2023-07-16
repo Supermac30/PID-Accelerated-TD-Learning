@@ -6,7 +6,7 @@ from wandb.integration.sb3 import WandbCallback
 import wandb
 
 from Experiments.ExperimentHelpers import *
-from TabularPID.AgentBuilders.DQNBuilder import build_PID_DQN, build_gain_adapter
+from TabularPID.AgentBuilders.DQNBuilder import build_PID_DQN, build_PID_FQI, build_gain_adapter
 from stable_baselines3.dqn.dqn import DQN
 from stable_baselines3.common.callbacks import BaseCallback
 from stable_baselines3.common import evaluation
@@ -18,10 +18,10 @@ base_directory = "/h/bedaywim/PID-Accelerated-TD-Learning"
 @hydra.main(version_base=None, config_path="../../config/DQNExperiments", config_name="DQNExperiment")
 def control_experiment(cfg):
     """Attempt to replicate results in figure 2 of PID Accelerated VI"""
-    logging.info(f"The chosen seed is: {seed}")
+    logging.info(f"The chosen seed is: {cfg['seed']}")
 
     # Create a prg with this seed
-    seed_prg = np.random.RandomState(seed)
+    seed_prg = np.random.RandomState(cfg['seed'])
 
     log_name = f"{cfg['kp']} {cfg['ki']} {cfg['kd']}{'*' if cfg['tabular_d'] else ''} {cfg['alpha']} {cfg['beta']} {cfg['d_tau']}" \
           + f" {cfg['gain_adapter']} {cfg['epsilon']} {cfg['meta_lr']}"
@@ -45,28 +45,38 @@ def control_experiment(cfg):
         run_seed = seed_prg.randint(0, 2**32)
         set_random_seed(run_seed)
 
-        agent = build_PID_DQN(
-            gain_adapter, env_cfg['env'], env_cfg['gamma'], env_cfg['optimizer'],
-            env_cfg['replay_memory_size'], env_cfg['batch_size'], env_cfg['learning_rate'],
-            env_cfg['tau'], env_cfg['initial_eps'], env_cfg['exploration_fraction'],
-            env_cfg['minimum_eps'], env_cfg['gradient_steps'], env_cfg['train_freq'],
-            env_cfg['target_update_interval'], cfg['d_tau'], env_cfg['inner_size'],
-            cfg['slow_motion'], env_cfg['learning_starts'], tabular_d=cfg['tabular_d'],
-            tensorboard_log=cfg['tensorboard_log'], seed=run_seed,
-            log_name=log_name, name_append=f"run {i}", should_stop=cfg['should_stop']
-        )
+        if cfg['FQI']:
+            agent = build_PID_FQI(
+                gain_adapter, env_cfg['env'], env_cfg['gamma'], env_cfg['optimizer'],
+                env_cfg['replay_memory_size'], env_cfg['batch_size'], env_cfg['learning_rate'],
+                env_cfg['initial_eps'], env_cfg['exploration_fraction'],
+                env_cfg['minimum_eps'], env_cfg['gradient_steps'], env_cfg['train_freq'],
+                env_cfg['target_update_interval'], env_cfg['inner_size'],
+                cfg['slow_motion'], env_cfg['learning_starts'], tensorboard_log=cfg['tensorboard_log'],
+                seed=run_seed, log_name=log_name, name_append=f"run {i}",
+            )
+        else:
+            agent = build_PID_DQN(
+                gain_adapter, env_cfg['env'], env_cfg['gamma'], env_cfg['optimizer'],
+                env_cfg['replay_memory_size'], env_cfg['batch_size'], env_cfg['learning_rate'],
+                env_cfg['tau'], env_cfg['initial_eps'], env_cfg['exploration_fraction'],
+                env_cfg['minimum_eps'], env_cfg['gradient_steps'], env_cfg['train_freq'],
+                env_cfg['target_update_interval'], cfg['d_tau'], env_cfg['inner_size'],
+                cfg['slow_motion'], env_cfg['learning_starts'], tabular_d=cfg['tabular_d'],
+                tensorboard_log=cfg['tensorboard_log'], seed=run_seed,
+                log_name=log_name, name_append=f"run {i}", should_stop=cfg['should_stop']
+            )
 
         run = wandb.init(
             project="PID Accelerated RL",
             config=log_cfg,
             save_code=True,
-            group=f"{cfg['experiment_name']}-{str(seed)}",
+            group=f"{cfg['experiment_name']}-{str(cfg['seed'])}",
             job_type=log_name,
             reinit=True,
             name=str(run_seed),
-            sync_tensorboard=True
+            sync_tensorboard=True,
         )
-        wandb.tensorboard.patch(tensorboard_x=True)
 
         agent = agent.learn(
             total_timesteps=env_cfg['num_iterations'],

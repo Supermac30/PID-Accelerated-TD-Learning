@@ -5,6 +5,14 @@ import numpy as np
 
 from TabularPID.MDPs.Policy import Policy
 
+def learning_rate_function(alpha, N):
+    """Return the learning rate function alpha(k) parameterized by alpha and N.
+    If N is infinity, return a constant function that outputs alpha.
+    """
+    if N == 'inf':
+        return lambda k: alpha
+    return lambda k: min(alpha, N/(k + 1))
+
 class Agent():
     """An abstract class that represents the agent interacting
     in the environment
@@ -48,6 +56,15 @@ class Agent():
             next_state, reward = self.environment.take_action(action)
 
         return state, action, next_state, reward
+
+    def set_learning_rates(self, a, b, c, d, e, f):
+        """
+        The learning rates are parameterized by six values for convenience in the grid search.
+
+        This in all cases (except in the case of TIDBD, speedy, and zap) represent
+        the learning rates of P, I, and D components respectively.
+        """
+        raise NotImplementedError
 
 
     def generate_episode(self, num_steps=1000, reset_environment=True):
@@ -183,6 +200,11 @@ class PID_TD(Agent):
             return self.V
 
         return history, self.V
+
+    def set_learning_rates(self, a, b, c, d, e, f):
+        self.learning_rate = learning_rate_function(a, b)
+        self.update_I_rate = learning_rate_function(c, d)
+        self.update_D_rate = learning_rate_function(e, f)
 
 
 class Hard_PID_TD(PID_TD):
@@ -404,6 +426,11 @@ class ControlledQLearning(Agent):
             return self.Q
 
         return history, self.Q
+    
+    def set_learning_rates(self, a, b, c, d, e, f):
+        self.learning_rate = learning_rate_function(a, b)
+        self.update_I_rate = learning_rate_function(c, d)
+        self.update_D_rate = learning_rate_function(e, f)
 
 
 

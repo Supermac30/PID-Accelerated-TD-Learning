@@ -4,7 +4,7 @@ import logging
 import matplotlib.pyplot as plt
 from TabularPID.MDPs.Policy import Policy
 
-from TabularPID.Agents.Agents import Agent
+from TabularPID.Agents.Agents import Agent, learning_rate_function
 
 class AbstractAdaptiveAgent(Agent):
     def __init__(self, gain_updater, learning_rates, meta_lr, environment, gamma, update_frequency=1, kp=1, kd=0, ki=0, alpha=0.05, beta=0.95):
@@ -105,6 +105,10 @@ class AbstractAdaptiveAgent(Agent):
     def plot(self):
         return self.gain_updater.plot()
 
+    def set_learning_rates(self, a, b, c, d, e, f):
+        self.learning_rate = learning_rate_function(a, b)
+        self.update_I_rate = learning_rate_function(c, d)
+        self.update_D_rate = learning_rate_function(e, f)
 
 
 class AdaptiveSamplerAgent(AbstractAdaptiveAgent):

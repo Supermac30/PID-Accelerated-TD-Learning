@@ -11,7 +11,6 @@ def past_work(cfg):
     agent_name = cfg['agent_name']
 
     if cfg['compute_optimal']:
-        # TODO: Build
         get_optimal_past_work_rates(agent_name, cfg['env'], cfg['gamma'], cfg['recompute_optimal'])
     agent, env, policy = build_agent_and_env((agent_name), cfg['env'], cfg['get_optimal'], seed, cfg['gamma'])
     V_pi = find_Vpi(env, policy, cfg['gamma'])
