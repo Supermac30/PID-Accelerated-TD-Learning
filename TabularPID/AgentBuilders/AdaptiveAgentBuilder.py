@@ -5,10 +5,11 @@ Possible agents include:
 - Samplers: TD Agents
 - Planners: VI Agents (For reproducing PAVIA results)
 """
-from Experiments.ExperimentHelpers import learning_rate_function, get_env_policy
+from Experiments.ExperimentHelpers import get_env_policy
 from TabularPID.OptimalRates.OptimalRateDatabase import get_stored_optimal_rate
 from TabularPID.Agents.AdaptiveAgents import *
 import TabularPID.Agents.AdaptiveQAgents as AdaptiveQAgents
+from TabularPID.Agents.Agents import learning_rate_function
 import logging
 
 default_meta_lr = 1
@@ -298,8 +299,6 @@ def build_true_soft_updates(env, policy, meta_lr, lambd, learning_rates, gamma, 
 
 
 def build_semi_gradient_updater(env, policy, meta_lr, lambd, learning_rates, gamma, delay, kp, kd, ki, alpha, beta, epsilon):
-    reward = env.build_policy_reward_vector(policy)
-    transition = env.build_policy_probability_transition_kernel(policy)
     gain_updater = SemiGradientUpdater(lambd, epsilon)
     return AdaptiveSamplerAgent(
         gain_updater,

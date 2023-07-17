@@ -1,6 +1,6 @@
 from TabularPID.OptimalRates.OptimalRateDatabase import get_stored_optimal_rate
-from Experiments.ExperimentHelpers import get_env_policy, learning_rate_function
-from TabularPID.Agents.Agents import PID_TD, FarSighted_PID_TD, Hard_PID_TD, PID_TD_with_momentum, ControlledQLearning
+from Experiments.ExperimentHelpers import get_env_policy 
+from TabularPID.Agents.Agents import PID_TD, FarSighted_PID_TD, Hard_PID_TD, PID_TD_with_momentum, ControlledQLearning, learning_rate_function
 from TabularPID.MDPs.MDP import PolicyEvaluation, Control, Control_Q
 from TabularPID.Agents.Comparison.TIDBD import TIDBD
 from TabularPID.Agents.Comparison.SpeedyQLearning import SpeedyQLearning

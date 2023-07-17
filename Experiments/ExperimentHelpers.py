@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import itertools
 import os
 import logging
+import multiprocess as mp
 
 from TabularPID.MDPs.MDP import PolicyEvaluation, Control, Control_Q
 from TabularPID.MDPs.Environments import *
@@ -135,45 +136,63 @@ def find_optimal_learning_rates(agent, value_function_estimator, learning_rates=
 
     WARNING: This causes spooky action at a distance, and changes the learning rates.
     """
-    minimum_params = None
-    minimum_history = [float('inf')]
-    minimum_index = float("inf")
-
     def try_params(params):
         """Run the current value function with the parameters set, and return
         the optimal length, optimal params, and optimal history.
         params: an object representing the parameters we initialized the value_function_estimator to
         """
-        threshold = 0.2
-        if verbose:
-            logging.info(f"trying {params}")
-        history = value_function_estimator()
-        # Find the first index in history where the error is below 0.2, using vectorization
-        indices = np.where(history / history[0] < threshold)[0]
-        if len(indices) > 0 and indices[-1] == len(history) - 1:
-            index = indices[0]
+        results = []
+        for param in params:
+            agent.set_learning_rates(*param)
+            threshold = 0.2
             if verbose:
-                logging.info(f"index: {index}, best_index: {minimum_index}")
-            if index < minimum_index:
-                return params, index, history
-        else:
-            if verbose:
-                if len(indices) == 0:
-                    logging.info(f"didn't reach threshold, final_error: {history[-1]/history[0]}, best_index: {minimum_index}")
-                else:
-                    logging.info(f"Exploded after reaching threshold, final_error: {history[-1]/history[0]}, best_index: {minimum_index}")
-            if history[-1] < minimum_history[-1]:
-                if minimum_index == float("inf"):
-                    return params, minimum_index, history
-                return minimum_params, minimum_index, minimum_history
-        return minimum_params, minimum_index, minimum_history
+                logging.info(f"trying {param}")
+            history = value_function_estimator()
+            # Find the first index in history where the error is below 0.2, using vectorization
+            indices = np.where(history / history[0] < threshold)[0]
+            if len(indices) > 0 and indices[-1] == len(history) - 1:
+                index = indices[0]
+            else:
+                index = float("inf")
 
+            results.append((param, index, history))
+            
+        return results
+
+    parameter_combinations = []
     for alpha, beta, gamma in itertools.product(learning_rates, update_I_rates, update_D_rates):
         for N, M, L in itertools.product(learning_rates[alpha], update_I_rates[beta], update_D_rates[gamma]):
-            agent.set_learning_rates(alpha, N, beta, M, gamma, L)
-            minimum_params, minimum_index, minimum_history = try_params((alpha, N, beta, M, gamma, L))
+            parameter_combinations.append((alpha, N, beta, M, gamma, L))
+    num_chunks = mp.cpu_count()
+    chunked_params = [parameter_combinations[i::num_chunks] for i in range(num_chunks)]
+    pool = mp.Pool()
+    results = pool.map(try_params, chunked_params)
+    pool.close()
+    pool.join()
 
-    return minimum_index, minimum_params
+    # Combine results to find the best parameters
+    minimum_index = float("inf")
+    minimum_history = float("inf")
+    minimum_params_index = None
+    minimum_params_history = None
+    for result in results:
+        for params, index, history in result:
+            if index < minimum_index:
+                minimum_index = index
+                minimum_params_index = params
+            if history[-1] / history[0] < minimum_history:
+                minimum_history = history[-1] / history[0]
+                minimum_params_history = params
+
+    # If we don't reach the threshold, return inf
+    if minimum_index == float("inf"):
+        logging.info("No parameters reached the threshold")
+        logging.info(f"Minimum history: {minimum_history}")
+        return float("inf"), minimum_params_history
+    
+    logging.info(f"Minimum index: {minimum_index}")
+
+    return minimum_index, minimum_params_index
 
 
 def repeat_experiment(agent, num_times, **kwargs):

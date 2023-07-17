@@ -83,7 +83,7 @@ class AbstractAdaptiveAgent(Agent):
 
             if test_function is not None:
                 history[k] = test_function(self.V, self.Vp, self.BR)
-                if stop_if_diverging and history[k] > 2 * history[0]:
+                if stop_if_diverging and history[k] > 1.25 * history[0]:
                     history[k:] = float("inf")
                     break
 
@@ -291,7 +291,7 @@ class SemiGradientUpdater(AbstractGainUpdater):
         return super().set_agent(agent)
 
     def calculate_updated_values(self, intermediate=False):
-        reward = self.agent.reward
+        reward = self.agent.reward.item()
         next_state, current_state = self.agent.next_state, self.agent.current_state
         V, Vp, z = self.agent.previous_V, self.agent.previous_Vp, self.agent.previous_z
         next_V = self.agent.V
@@ -310,6 +310,8 @@ class SemiGradientUpdater(AbstractGainUpdater):
         #self.theta_alpha_update += lr * next_BR * (self.ki * BR) / (self.epsilon + self.running_BR[current_state])
         #self.theta_beta_update += lr * next_BR * (self.ki * z[current_state][0]) / (self.epsilon + self.running_BR[current_state])
 
+        """
+        # Plot the BR at a certain state
         if self.plot_state == current_state:
             self.BR_plot.append(BR)
             self.i_update_plot.append(beta * z[self.plot_state][0] + alpha * BR)
@@ -318,6 +320,7 @@ class SemiGradientUpdater(AbstractGainUpdater):
             self.BR_plot.append(self.BR_plot[-1])
             self.i_update_plot.append(self.i_update_plot[-1])
             self.z_plot.append(self.z_plot[-1])
+        """
 
         if not intermediate:
             self.kp = 1 + (1 - self.lambd) * (self.kp - 1) + self.meta_lr * self.p_update / self.agent.update_frequency
@@ -338,6 +341,9 @@ class SemiGradientUpdater(AbstractGainUpdater):
             #self.theta_beta_update = 0
 
     def plot(self, directory=""):
+        return
+
+        # Plot the values at a certain state
         # Plot BR_plot and i_update_plot on separate sub-plots
         fig, (ax1, ax2, ax3) = plt.subplots(3, 1)
         ax1.plot(self.BR_plot, color="red", label="BR")
