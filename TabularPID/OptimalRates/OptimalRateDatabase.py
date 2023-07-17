@@ -14,7 +14,10 @@ def get_stored_optimal_rate(model, env_name, gamma):
     If the file is not found, raise a FileNotFoundException
     """
     with open(FILE_NAME, 'rb') as f:
-        optimal_rates = pickle.load(f)
+        try:
+            optimal_rates = pickle.load(f)
+        except EOFError:
+            optimal_rates = {}
     if (model, env_name, gamma) in optimal_rates:
         return optimal_rates[(model, env_name, gamma)]
     return None
@@ -29,7 +32,10 @@ def store_optimal_rate(model, env_name, optimal_rate, gamma):
     If the file is not found, raise a FileNotFoundException
     """
     with open(FILE_NAME, 'rb') as f:
-        optimal_rates = pickle.load(f)
+        try:
+            optimal_rates = pickle.load(f)
+        except EOFError:
+            optimal_rates = {}
 
     optimal_rates[(model, env_name, gamma)] = optimal_rate
 
