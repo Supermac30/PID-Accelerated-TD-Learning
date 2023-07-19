@@ -12,7 +12,7 @@ def adaptive_agent_experiment(cfg):
     seed = pick_seed(cfg['seed'])
     
     agent_name, meta_lr, lambd, delay, alpha, beta, epsilon = cfg['agent_name'], cfg['meta_lr'], cfg['lambda'], cfg['delay'], cfg['alpha'], cfg['beta'], cfg['epsilon']
-    agent_description = f"Adaptive Agent: {agent_name} {meta_lr} {delay} {lambd} {epsilon}"
+    agent_description = f"Adaptive Agent {agent_name} {meta_lr} {delay} {lambd} {epsilon}"
 
     if cfg['compute_optimal']:
         get_optimal_adaptive_rates(agent_name, cfg['env'], meta_lr, cfg['gamma'], lambd, delay, alpha, beta, recompute=cfg['recompute_optimal'], epsilon=epsilon)
@@ -36,6 +36,8 @@ def adaptive_agent_experiment(cfg):
     test_function = build_test_function(cfg['norm'], V_pi)
     # Run the following agent.estimate_value_function 20 times and take an average of the histories
     average_history = np.zeros((cfg['num_iterations'],))
+    all_histories = []
+    all_gain_histories = []
     for i in range(cfg['repeat']):
         _, gain_history, history = agent.estimate_value_function(
             cfg['num_iterations'],
@@ -44,11 +46,17 @@ def adaptive_agent_experiment(cfg):
             stop_if_diverging=cfg['stop_if_diverging'],
             reset_environment=False
         )
-        average_history += history
+        all_histories.append(history)
+        all_gain_histories.append(gain_history)
 
-    average_history /= cfg['repeat']
-    save_array(average_history, f"{agent_description}", directory=cfg['save_dir'])
-    save_array(gain_history, f"gain_history {agent_description}", directory=cfg['save_dir'])
+    average_history = np.mean(np.array(all_histories), axis=0)
+    std_deviation_history = np.std(np.array(all_histories), axis=0)
+    average_gain_history = np.mean(np.array(all_gain_histories), axis=0)
+    std_deviation_gain_history = np.std(np.array(all_gain_histories), axis=0)
+    save_array(average_history, f"{agent_description}", directory=cfg['save_dir'], subdir="mean")
+    save_array(std_deviation_history, f"{agent_description}", directory=cfg['save_dir'], subdir="std_dev")
+    save_array(average_gain_history, f"gain_history {agent_description}", directory=cfg['save_dir'], subdir="mean")
+    save_array(std_deviation_gain_history, f"gain_history {agent_description}", directory=cfg['save_dir'], subdir="std_dev")
 
     agent.plot(directory=cfg['save_dir'])
 

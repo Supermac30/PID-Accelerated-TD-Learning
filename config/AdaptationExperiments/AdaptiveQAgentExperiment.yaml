@@ -6,16 +6,14 @@ get_optimal: True # Get the optimal parameters from the database
 compute_optimal: True # Run a grid search. When recompute_optimal is false, we don't run a grid search if the optimal parameters are in the database already
 recompute_optimal: False # If compute_optimal is True, run a grid search even if the optimal parameters are in the database
 
-get_optimal_Q: True # Get the optimal parameters from the database
-compute_optimal_Q: True # Tune the TD agent
-recompute_optimal_Q: False
+agent_name: diagonal semi gradient Q updater
 
-meta_lr: [1e-4]
-delay: [1, 1, 1, 1]
-lambda: [0, 0, 0, 0]
-alphas: [0.01, 0.01, 0.01, 0.01]
-betas: [0.99, 0.99, 0.99, 0.99]
-epsilon: [0.1, 0.1, 0.1, 0.1]
+meta_lr: 1e-4
+delay: 1
+lambda: 0
+alphas: 0.01
+betas: 0.99
+epsilon: 0.1
 
 follow_trajectory: False
 log_plot: False
@@ -31,10 +29,11 @@ kd: 0
 gamma: 0.999
 
 name: fine-tuning
+save_dir: ${oc.env:OUTPUT_DIR,./outputs}/${hydra.job.config_name}/${name}/${env}/${now:%Y-%m-%d}/${now:%H-%M-%S}
 
 seed: -1
 hydra:
   run:
     dir: ${oc.env:OUTPUT_DIR,./outputs}/${hydra.job.config_name}/${name}/${env}/${now:%Y-%m-%d}/${now:%H-%M-%S}
   job:
-    chdir: True
+    chdir: False

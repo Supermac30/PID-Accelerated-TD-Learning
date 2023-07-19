@@ -64,12 +64,12 @@ class AbstractAdaptiveAgent(Agent):
 
             self.frequencies[self.current_state] += 1
             if (k + 1) % self.update_frequency == 0:
-                self.update_value()
                 self.gain_updater.calculate_updated_values()
                 self.gain_updater.update_gains()
             else:
-                self.update_value()
                 self.gain_updater.intermediate_update()
+
+            self.update_value()
 
             # Keep a record
             try:
@@ -187,8 +187,6 @@ class DiagonalAdaptiveSamplerAgent(AbstractAdaptiveAgent):
         self.previous_z[state], self.z[state] = self.z[state][0], (1 - update_I_rate) * self.z[state][0] + update_I_rate * new_z
         self.previous_Vp[state], self.Vp[state] = self.Vp[state][0], (1 - update_D_rate) * self.Vp[state][0] + update_D_rate * new_Vp
 
-        breakpoint()
-
     def BR(self):
         """Return the empirical bellman residual"""
         return self.reward + self.gamma * self.V[self.next_state][0] - self.V[self.current_state][0]
@@ -291,7 +289,7 @@ class SemiGradientUpdater(AbstractGainUpdater):
         return super().set_agent(agent)
 
     def calculate_updated_values(self, intermediate=False):
-        reward = self.agent.reward.item()
+        reward = self.agent.reward
         next_state, current_state = self.agent.next_state, self.agent.current_state
         V, Vp, z = self.agent.previous_V, self.agent.previous_Vp, self.agent.previous_z
         next_V = self.agent.V
@@ -861,7 +859,7 @@ class DiagonalSemiGradient(AbstractGainUpdater):
 
         BR = reward + gamma * V[next_state][0] - V[current_state][0]
         BR_previous = self.previous_BRs[current_state]
-        
+
         scale = 0.25
         self.running_BR[current_state] = (1 - scale) * self.running_BR[current_state] + scale * BR * BR
 
@@ -869,7 +867,7 @@ class DiagonalSemiGradient(AbstractGainUpdater):
 
         self.p_update[current_state] += lr * BR * BR_previous / normalization
         self.d_update[current_state] += lr * BR * (V_previous[current_state] - Vp_previous[current_state]) / normalization
-        self.i_update[current_state] += lr * BR * (beta * z_previous[current_state] + alpha * BR) / normalization  
+        self.i_update[current_state] += lr * BR * (beta * z_previous[current_state] + alpha * BR_previous) / normalization  
         self.alpha_update[current_state] += lr * self.ki[current_state] * BR * BR_previous / normalization
         self.beta_update[current_state] += lr * self.ki[current_state] * BR * z_previous[current_state] / normalization
 

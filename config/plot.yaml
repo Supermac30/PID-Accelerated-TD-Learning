@@ -1,0 +1,16 @@
+save_dir: ${oc.env:OUTPUT_DIR,./outputs}/${hydra.job.config_name}/${now:%Y-%m-%d}/${now:%H-%M-%S}
+normalize: True
+log_plot: False
+norm: 1
+plot_best: True
+repeat: 20
+
+env: Chain Walk
+name: TD
+
+seed: -1
+hydra:
+  run:
+    dir: ${oc.env:OUTPUT_DIR,./outputs}/${hydra.job.config_name}/${now:%Y-%m-%d}/${now:%H-%M-%S}
+  job:
+    chdir: False

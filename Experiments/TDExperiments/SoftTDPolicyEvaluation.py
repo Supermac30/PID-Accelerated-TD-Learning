@@ -15,17 +15,19 @@ def soft_policy_evaluation_experiment(cfg):
     agent, env, policy = build_agent_and_env((agent_name, kp, ki, kd, alpha, beta), cfg['env'], cfg['get_optimal'], seed, cfg['gamma'])
     V_pi = find_Vpi(env, policy, cfg['gamma'])
     test_function = build_test_function(cfg['norm'], V_pi)
-    total_history = 0
-    for _ in range(cfg['num_repeats']):
+    all_histories = []
+    for _ in range(cfg['repeat']):
         history, _ = agent.estimate_value_function(
             num_iterations=cfg['num_iterations'],
             test_function=test_function,
             follow_trajectory=cfg['follow_trajectory'],
             stop_if_diverging=cfg['stop_if_diverging']
         )
-        total_history += history
-    total_history /= cfg['num_repeats']
-    save_array(total_history, f"{agent_name} kp={kp} ki={ki} kd={kd} alpha={alpha} beta={beta}", directory=cfg['save_dir'])
+        all_histories.append(history)
+    mean_history = np.mean(np.array(all_histories), axis=0)
+    std_dev_history = np.std(np.array(all_histories), axis=0)
+    save_array(mean_history, f"{agent_name} kp={kp} ki={ki} kd={kd} alpha={alpha} beta={beta}", directory=cfg['save_dir'], subdir="mean")
+    save_array(std_dev_history, f"{agent_name} kp={kp} ki={ki} kd={kd} alpha={alpha} beta={beta}", directory=cfg['save_dir'], subdir="std_dev")
 
 if __name__ == "__main__":
     soft_policy_evaluation_experiment()

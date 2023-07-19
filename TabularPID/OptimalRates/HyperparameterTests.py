@@ -4,7 +4,7 @@ Notes about the hyperparameter tuning procedure:
 - The seed is randomly chosen, i.e. not fixed. Hopefully, the results are not dependent on this. It may be worth running this again to corroborate the results.
 - The parameters are turned with respect to minimizing the L1 norm, i.e. we take
                argmin_theta ||V_theta - V^pi||_1
-- We tune after 10000 steps of training.
+- We tune after 50000 steps of training.
 - The learning rate functions used are min(c, N/(k + 1)), with a different function on each component
 - We do not follow a trajectory, choosing instead to receive arbitrary samples from the environment.
 """
@@ -16,26 +16,26 @@ from TabularPID.AgentBuilders.AdaptiveAgentBuilder import build_adaptive_agent_a
 from TabularPID.AgentBuilders.AgentBuilder import build_agent_and_env
 from TabularPID.OptimalRates.OptimalRateDatabase import get_stored_optimal_rate, store_optimal_rate
 
-default_rates = (1, 1, 1, 1, 1, 1)
+default_rates = (0.5, 100, 1, 1, 0.1, float("inf"))
 
 exhaustive_learning_rates = [
     {
-            1: {1, 50, 100, 500, 1000},
-            0.5: {1, 10, 100, 1000},
-            0.1: {1, 10, 100, 1000},
-        },
-        {
-            1: {float("inf"), 1, 100},
-            0.5: {float("inf")},
-            0.1: {float("inf")},
-            0.01: {float("inf")}
-        },
-        {
-            1: {float("inf"), 1, 100},
-            0.5: {float("inf")},
-            0.1: {float("inf")},
-            0.01: {float("inf")}
-        }
+        1: {1, 50, 100, 500, 1000},
+        0.5: {1, 10, 100, 1000},
+        0.1: {1, 10, 100, 1000},
+    },
+    {
+        1: {float("inf"), 1, 100},
+        0.5: {float("inf")},
+        0.1: {float("inf")},
+        0.01: {float("inf")}
+    },
+    {
+        1: {float("inf"), 1, 100},
+        0.5: {float("inf")},
+        0.1: {float("inf")},
+        0.01: {float("inf")}
+    }
 ]
 
 def get_optimal_past_work_rates(agent_description, env_name, gamma, recompute=False, seed=-1, norm=1):

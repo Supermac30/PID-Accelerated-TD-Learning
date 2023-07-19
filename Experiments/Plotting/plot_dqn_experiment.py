@@ -7,7 +7,7 @@ import hydra
 from torch.utils.tensorboard import SummaryWriter
 
 
-@hydra.main(config_path="../../config/DQNExperiments", config_name="DQNExperiment")
+@hydra.main(config_path="../../config", config_name="plot")
 def graph_experiment(cfg):
     def add_arrays(array1, array2):
         if isinstance(array1, int):
@@ -99,7 +99,6 @@ def graph_experiment(cfg):
                     subdir,
                     f"train_{gain}"
                 )
-
 
             plt.suptitle(f"Adaptive Agent: {subdir}")
 

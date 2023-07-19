@@ -252,9 +252,11 @@ def find_Qstar(env, gamma):
     return oracle.value_iteration(num_iterations=100000)
 
 
-def save_array(nparr, name, normalize=False, directory=""):
+def save_array(nparr, name, normalize=False, directory="", subdir=""):
     """Save nparr in a file with name name.
     Creates the npy and txt files if they don't exist to store the numpy arrays.
+    If sub_dir is specified, we save the file in a specific subdirectory of npy,
+    creating it if it doesn't exist.
     """
     if normalize:
         # Normalize the array by the first non-zero element:
@@ -265,8 +267,17 @@ def save_array(nparr, name, normalize=False, directory=""):
     if not os.path.isdir(f"{directory}/txt"):
         os.mkdir(f"{directory}/txt")
 
-    np.save(f"{directory}/npy/" + name + ".npy", nparr)
-    np.savetxt(f"{directory}/txt/" + name + ".txt", nparr)
+    if subdir != "":
+        if not os.path.isdir(f"{directory}/npy/{subdir}"):
+            os.mkdir(f"{directory}/npy/{subdir}")
+        if not os.path.isdir(f"{directory}/txt/{subdir}"):
+            os.mkdir(f"{directory}/txt/{subdir}")
+        
+        np.save(f"{directory}/npy/{subdir}/" + name + ".npy", nparr)
+        np.savetxt(f"{directory}/txt/{subdir}/" + name + ".txt", nparr)
+    else:
+        np.save(f"{directory}/npy/" + name + ".npy", nparr)
+        np.savetxt(f"{directory}/txt/" + name + ".txt", nparr)
 
 
 def plot_comparison(fig, ax1, ax2, title1, title2, ylabel, show_fig=True, fig_name="plot", is_log=False):
