@@ -9,8 +9,10 @@ from TabularPID.Agents.Agents import Agent, learning_rate_function
 # TODO: Rewrite this class to use the agent class instead of rewriting the updates here.
 
 class AbstractAdaptiveAgent(Agent):
-    def __init__(self, gain_updater, learning_rates, meta_lr, environment, policy, gamma, update_frequency=1, kp=1, kd=0, ki=0, alpha=0.05, beta=0.95):
+    def __init__(self, gain_updater, learning_rates, meta_lr, environment, policy, gamma, update_frequency=1, kp=1, kd=0, ki=0, alpha=0.05, beta=0.95, auto_lr=False):
         super().__init__(environment, policy, gamma)
+
+        self.auto_lr = auto_lr
 
         self.meta_lr = meta_lr
         self.learning_rate = learning_rates[0]
@@ -63,13 +65,14 @@ class AbstractAdaptiveAgent(Agent):
             )
 
             self.frequencies[self.current_state] += 1
+
+            self.update_value()
             if (k + 1) % self.update_frequency == 0:
                 self.gain_updater.calculate_updated_values()
                 self.gain_updater.update_gains()
             else:
                 self.gain_updater.intermediate_update()
 
-            self.update_value()
 
             # Keep a record
             try:
@@ -116,6 +119,10 @@ class AdaptiveSamplerAgent(AbstractAdaptiveAgent):
         update_D_rate = self.update_D_rate(self.frequencies[self.current_state])
         update_I_rate = self.update_I_rate(self.frequencies[self.current_state])
 
+        if self.auto_lr:
+            update_D_rate = self.kd * self.lr
+            update_I_rate = min(self.lr, (self.alpha * self.ki * self.lr) / (2 * (1 - self.beta) + (1 - self.gamma)))
+
         self.previous_lr, self.lr = self.lr, lr
         self.previous_update_D_rate_value, self.update_D_rate_value = self.update_D_rate_value, update_D_rate
         self.previous_update_I_rate_value, self.update_I_rate_value = self.update_I_rate_value, update_I_rate
@@ -141,8 +148,8 @@ class AdaptiveSamplerAgent(AbstractAdaptiveAgent):
 
 
 class DiagonalAdaptiveSamplerAgent(AbstractAdaptiveAgent):
-    def __init__(self, gain_updater, learning_rates, meta_lr, environment, policy, gamma, update_frequency=1, kp=1, kd=0, ki=0, alpha=0.05, beta=0.95):
-        super().__init__(gain_updater, learning_rates, meta_lr, environment, policy, gamma, update_frequency, kp, kd, ki, alpha, beta)
+    def __init__(self, gain_updater, learning_rates, meta_lr, environment, policy, gamma, update_frequency=1, kp=1, kd=0, ki=0, alpha=0.05, beta=0.95, auto_lr=False):
+        super().__init__(gain_updater, learning_rates, meta_lr, environment, policy, gamma, update_frequency, kp, kd, ki, alpha, beta, auto_lr)
         
         gain_updater.set_agent(self)
     
@@ -174,6 +181,9 @@ class DiagonalAdaptiveSamplerAgent(AbstractAdaptiveAgent):
         update_I_rate = self.update_I_rate(self.frequencies[self.current_state])
 
         self.previous_lr, self.lr = self.lr, lr
+        if self.auto_lr:
+            update_D_rate = self.kd * self.lr
+            update_I_rate = min(self.lr, (self.alpha * self.ki * self.lr) / (2 * (1 - self.beta) + (1 - self.gamma)))
 
         state = self.current_state
 
@@ -207,7 +217,6 @@ class AdaptivePlannerAgent(AbstractAdaptiveAgent):
     def BR(self):
         """Return the bellman residual"""
         return self.R + self.gamma * self.transition @ self.V - self.V
-
 
 
 class AbstractGainUpdater():

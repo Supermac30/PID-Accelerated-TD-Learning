@@ -15,14 +15,14 @@ def create_plots(cfg):
     # Iterate through all of the files in the npy folder. We want to average all of the history files together,
     # and plot an average history plot and an error curve
     all_histories = []
-    for run in os.listdir(f"{cfg['save_dir']}/TD"):
+    for run in range(1, cfg['repeat'] + 1):
         # If the file starts with gain_history, plot it:
         # Take the file f"{cfg['save_dir']}/TD/{run}/npy/" and plot it on the history plot
         # I don't know what the file name is, so plot the only file in the folder
-        file = os.listdir(f"{cfg['save_dir']}/TD/{run}/npy/")[0]
+        file = os.listdir(f"{cfg['save_dir']}/TD/{run}/npy/mean")[0]
 
         # Load f"{cfg['save_dir']}/TD/{run}/npy/{file}" and plot it on the history plot
-        all_histories.append(np.load(f"{cfg['save_dir']}/TD/{run}/npy/{file}"))
+        all_histories.append(np.load(f"{cfg['save_dir']}/TD/{run}/npy/mean/{file}"))
 
     # Average all of the histories together
     average_history = np.mean(all_histories, axis=0)
@@ -33,12 +33,12 @@ def create_plots(cfg):
     ax0.fill_between(np.arange(len(average_history)), normalize(average_history - standard_deviation), normalize(average_history + standard_deviation), alpha=0.2)
 
     all_histories = []
-    for run in os.listdir(f"{cfg['save_dir']}/gain_adaptation"):
+    for run in range(1, cfg['repeat'] + 1):
         min_final_history = np.inf
         final_history = None
-        for file in os.listdir(f"{cfg['save_dir']}/gain_adaptation/{run}/npy/"):
+        for file in os.listdir(f"{cfg['save_dir']}/gain_adaptation/{run}/npy/mean"):
             if file.startswith("Adaptive Agent"):
-                history = np.load(f"{cfg['save_dir']}/gain_adaptation/{run}/npy/{file}")
+                history = np.load(f"{cfg['save_dir']}/gain_adaptation/{run}/npy/mean/{file}")
                 if history[-1] < min_final_history:
                     min_final_history = history[-1]
                     final_history = history

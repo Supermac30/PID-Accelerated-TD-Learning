@@ -75,7 +75,7 @@ def create_plots(cfg):
     ax0.title.set_text(f"{cfg['env'].title()}")
     ax0.legend()
     ax0.set_xlabel('Steps')
-    create_label(ax0, cfg['norm'], cfg['normalize'], False)
+    create_label(ax0, cfg['norm'], cfg['normalize'], cfg['is_q'])
     if cfg['log_plot']:
         ax0.set_yscale('log')
 

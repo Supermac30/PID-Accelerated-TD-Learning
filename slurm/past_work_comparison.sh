@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH -N 1
-#SBATCH --gres=gpu:0
+#SBATCH -p cpu
 #SBATCH --cpus-per-task=1
 #SBATCH --tasks-per-node=1
 #SBATCH --time=10:00:00
@@ -19,6 +19,8 @@ cd /h/bedaywim/PID-Accelerated-TD-Learning
 current_time=$(date "+%Y.%m.%d/%H.%M.%S")
 env="cliff walk"
 seed=$RANDOM
+gamma=0.999
+repeat=20
 directory=outputs/adaptation_experiment/${env}/${current_time}
 echo "Saving to ${directory}"
 mkdir -p "$directory"
@@ -28,7 +30,8 @@ python3 -m Experiments.TDExperiments.PastWorkEvaluation \
     save_dir="$directory" \
     seed=$seed \
     agent_name=TIDBD \
-    gamma=0.999 \
+    gamma=$gamma \
+    repeat=$repeat \
     env="$env"
 
 python3 -m Experiments.TDExperiments.PastWorkEvaluation \
@@ -37,13 +40,16 @@ python3 -m Experiments.TDExperiments.PastWorkEvaluation \
     seed=$seed \
     agent_name="speedy Q learning" \
     gamma=0.999 \
+    repeat=$repeat \
     env="$env"
 
 python3 -m Experiments.TDExperiments.PastWorkEvaluation \
     hydra.run.dir="${directory}/TD Agent" \
     save_dir="$directory" \
     agent_name="zap Q learning" \
-    gamma=0.999 \
+    gamma=$gamma \
+    seed=$seed \
+    repeat=$repeat \
     env="$env"
 
 python3 -m Experiments.TDExperiments.SoftTDPolicyEvaluation \
@@ -53,7 +59,8 @@ python3 -m Experiments.TDExperiments.SoftTDPolicyEvaluation \
     kp=1 \
     ki=0 \
     kd=0 \
-    gamma=0.999 \
+    gamma=$gamma \
+    repeat=$repeat \
     env="$env"
 
 python3 -m Experiments.Plotting.plot_adaptation_experiment \

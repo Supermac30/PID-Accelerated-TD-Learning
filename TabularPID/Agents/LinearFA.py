@@ -2,7 +2,6 @@
 Use linear function approximation to learn the optimal policy.
 """
 import numpy as np
-from TabularPID.MDPs.Policy import Policy
 
 class LinearFuncSpace():
     """A set of basis functions to approximate the value function.

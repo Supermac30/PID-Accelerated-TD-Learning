@@ -82,9 +82,9 @@ def build_agent(agent_name, env_name, env, policy, get_optimal, gamma):
     
     elif agent_description == "TIDBD":
         return build_TIDBD(env, policy, learning_rates, gamma)
-    elif agent_description == "Zap Q learning":
+    elif agent_description == "zap Q learning":
         return build_Zap_Q_learning(env, policy, learning_rates, gamma)
-    elif agent_description == "Speedy Q learning":
+    elif agent_description == "speedy Q learning":
         return build_Speedy_Q_learning(env, policy, learning_rates, gamma)
     return None
 
@@ -96,12 +96,18 @@ def build_TIDBD(env, policy, learning_rates, gamma):
     return TIDBD(
         env, policy, gamma, theta=learning_rates[0]
     )
+
 def build_Zap_Q_learning(env, policy, learning_rates, gamma):
     # The learning rate for the Zap Q learning agent is stored in the first two components
-    return ZapQLearning(learning_rates[0], learning_rates[1], env, policy, gamma)
+    return ZapQLearning(
+        learning_rates[0], learning_rates[1], env, policy, gamma
+    )
+
 def build_Speedy_Q_learning(env, policy, learning_rates, gamma):
     # The learning rate for the speedy Q learning agent is stored in the first component
-    return SpeedyQLearning(learning_rates[0], env, policy, gamma)
+    return SpeedyQLearning(
+        learning_rates[0], env, policy, gamma
+    )
 
 
 def build_Q_PID(env, kp, ki, kd, alpha, beta, learning_rates, gamma, decay):

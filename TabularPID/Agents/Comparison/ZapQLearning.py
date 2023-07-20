@@ -1,12 +1,7 @@
 from TabularPID.Agents.Agents import Agent, learning_rate_function
 import numpy as np
 
-def unit_mat(a, b):
-    """Create a matrix with a one at (a, b) and zeros everywhere else
-    """
-    matrix = np.zeros((a, b))
-    matrix[a, b] = 1
-    return matrix
+
 
 class ZapQLearning(Agent):
     def __init__(self, gamma_lr, alpha_lr, environment, policy, gamma, follow_trajectory=True):
@@ -14,6 +9,13 @@ class ZapQLearning(Agent):
         self.gamma_lr = gamma_lr
         self.alpha_lr = alpha_lr
         self.Q = np.zeros((self.num_states, self.num_actions))
+
+    def unit_mat(a, b):
+        """Create a matrix with a one at (a, b) and zeros everywhere else
+        """
+        matrix = np.zeros((self.num_states, self.num_actions))
+        matrix[a, b] = 1
+        return matrix
 
     def set_learning_rates(self, a, b, c, d, e, f):
         self.gamma_lr = learning_rate_function(a, b)
@@ -44,7 +46,7 @@ class ZapQLearning(Agent):
             gamma_lr = self.gamma_lr(frequency[current_state])
             alpha_lr = self.alpha_lr(frequency[current_state])
 
-            A = unit_mat(current_state, action) @ (self.gamma * unit_mat(next_state, best_action) - unit_mat(current_state, action)).T
+            A = self.unit_mat(current_state, action) @ (self.gamma * self.unit_mat(next_state, best_action) - self.unit_mat(current_state, action)).T
             rolling_A = rolling_A + gamma_lr * (A - rolling_A)
             
             self.Q -= alpha_lr * np.linalg.inv(rolling_A) * BR

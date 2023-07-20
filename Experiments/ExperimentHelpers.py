@@ -134,20 +134,21 @@ def find_optimal_learning_rates(agent, value_function_estimator, learning_rates=
 
     Return the optimal parameters and the associated history.
 
-    WARNING: This causes spooky action at a distance, and changes the learning rates.
+    WARNING: This causes spooky action at a distance, changing the learning rates.
     """
     def try_params(params):
         """Run the current value function with the parameters set, and return
         the optimal length, optimal params, and optimal history.
         params: an object representing the parameters we initialized the value_function_estimator to
         """
+        agent.reset(reset_environment=True)
         results = []
         for param in params:
             agent.set_learning_rates(*param)
             threshold = 0.2
             if verbose:
                 logging.info(f"trying {param}")
-            history = value_function_estimator()
+            history = repeat_experiment(value_function_estimator, 3)
             # Find the first index in history where the error is below 0.2, using vectorization
             indices = np.where(history / history[0] < threshold)[0]
             if len(indices) > 0 and indices[-1] == len(history) - 1:
@@ -195,14 +196,14 @@ def find_optimal_learning_rates(agent, value_function_estimator, learning_rates=
     return minimum_index, minimum_params_index
 
 
-def repeat_experiment(agent, num_times, **kwargs):
+def repeat_experiment(value_function, num_times):
     """Run the experiment num_times times and return the average history.
     Take as input the parameters to the estimate_value_function function.
     """
     average_history = 0
 
     for _ in range(num_times):
-        history = agent.estimate_value_function(kwargs)
+        history = value_function()
         average_history += np.array(history)
 
     average_history /= num_times

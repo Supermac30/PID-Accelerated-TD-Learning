@@ -20,9 +20,10 @@ default_rates = (0.5, 100, 1, 1, 0.1, float("inf"))
 
 exhaustive_learning_rates = [
     {
-        1: {1, 50, 100, 500, 1000},
-        0.5: {1, 10, 100, 1000},
-        0.1: {1, 10, 100, 1000},
+        1: {1, 100, 1000},
+        0.5: {1, 10, 50, 100, 500, 1000},
+        0.1: {1, 10, 50, 100, 500, 1000},
+        0.01: {1, 10, 50, 100, 500, 1000}
     },
     {
         1: {float("inf"), 1, 100},
@@ -103,7 +104,7 @@ def get_optimal_adaptive_rates(agent_name, env_name, meta_lr, gamma, lambd, dela
         optimal_rates = run_adaptive_search(agent_name, env_name, seed, norm, gamma, lambd, delay, meta_lr, alpha, beta, epsilon, is_q)
         store_optimal_rate((agent_name, meta_lr, lambd, delay, alpha, beta, epsilon), env_name, optimal_rates, gamma)
 
-    logging.info(f"The optimal rates for {(env_name, agent_name, lambd, delay, alpha, beta, epsilon)} are: {optimal_rates}")
+    logging.info(f"The optimal rates for {(env_name, agent_name, meta_lr, epsilon)} are: {optimal_rates}")
 
     return optimal_rates
 
@@ -131,7 +132,8 @@ def run_pid_search(agent_description, env_name, kp, ki, kd, alpha, beta, seed, n
         lambda: agent.estimate_value_function(
             num_iterations=50000,
             test_function=build_test_function(norm, V_pi),
-            follow_trajectory=False
+            follow_trajectory=False,
+            reset_environment=False
         )[0],
         learning_rates,
         update_I_rates,
@@ -144,20 +146,20 @@ def run_pid_search(agent_description, env_name, kp, ki, kd, alpha, beta, seed, n
 
 def run_past_work_search(agent_description, env_name, seed, norm, gamma):
     """Run a grid search on learning rates for any of the past work algorithms"""
-    agent, env, policy = build_agent_and_env((agent_description), env_name, seed=seed, gamma=gamma)
+    agent, env, policy = build_agent_and_env(agent_description, env_name, seed=seed, gamma=gamma)
     V_pi = find_Vpi(env, policy, gamma)
 
     dummy = {1: {float("inf")}}
-    if agent_description == "TIDBD":
+    if agent_description[0] == "TIDBD":
         # Taken from the TIDBD paper, 20 values between 0 and 0.2
         learning_rates0 = {i / 100: {float("inf")} for i in range(20)}
         learning_rates1 = dummy
         learning_rates2 = dummy
-    elif agent_description == "speedy Q learning":
+    elif agent_description[0] == "speedy Q learning":
         learning_rates0 = exhaustive_learning_rates[0]
         learning_rates1 = dummy
         learning_rates2 = dummy
-    elif agent_description == "zap Q learning":
+    elif agent_description[0] == "zap Q learning":
         # The paper uses polynomial learning rates
         # TODO: Make sure that this is also fine? Code polynoimal rates as well just in case.
         learning_rates0 = exhaustive_learning_rates[0]
@@ -165,21 +167,21 @@ def run_past_work_search(agent_description, env_name, seed, norm, gamma):
         learning_rates2 = dummy
     else:
         raise ValueError(f"Unknown agent description: {agent_description}")
-    
+
     _, rates = find_optimal_learning_rates(
         agent,
         lambda: agent.estimate_value_function(
             num_iterations=50000,
             test_function=build_test_function(norm, V_pi),
-            follow_trajectory=False
+            follow_trajectory=False,
+            reset_environment=False
         )[0],
         learning_rates0,
         learning_rates1,
         learning_rates2,
         True
     )
-        
-    
+
     return default_rates
 
 
@@ -207,7 +209,8 @@ def run_pid_q_search(agent_description, env_name, kp, ki, kd, alpha, beta, seed,
         lambda: agent.estimate_value_function(
             num_iterations=50000,
             test_function=build_test_function(norm, Q_star),
-            follow_trajectory=False
+            follow_trajectory=False,
+            reset_environment=False
         )[0],
         learning_rates,
         update_I_rates,
@@ -236,7 +239,8 @@ def run_adaptive_search(agent_name, env_name, seed, norm, gamma, lambd, delay, m
         lambda: agent.estimate_value_function(
             num_iterations=50000,
             test_function=build_test_function(norm, goal),
-            follow_trajectory=False
+            follow_trajectory=False,
+            reset_environment=False
         )[2],
         learning_rates,
         update_I_rates,
@@ -246,11 +250,3 @@ def run_adaptive_search(agent_name, env_name, seed, norm, gamma, lambd, delay, m
     if rates == float("inf"):
         return default_rates
     return rates
-
-if __name__ == '__main__':
-    logging.basicConfig()
-    logging.root.setLevel(logging.NOTSET)
-
-    for name in {"chain walk", "cliff walk"}:
-        for gamma in {0.99, 0.999, 0.9999}:
-            get_optimal_pid_rates("TD", name, 1, 0, 0, 0.05, 0.95, gamma, recompute=True)

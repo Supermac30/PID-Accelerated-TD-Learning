@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH -N 1
-#SBATCH --gres=gpu:1
-#SBATCH --cpus-per-task=16
+#SBATCH -p cpu
+#SBATCH --cpus-per-task=32
 #SBATCH --tasks-per-node=1
 #SBATCH --time=10:00:00
 #SBATCH --mem=1GB
@@ -32,11 +32,12 @@ python3 -m Experiments.AdaptationExperiments.AdaptiveQAgentExperiment --multirun
     hydra.sweep.dir="$directory" \
     seed=$seed \
     save_dir="$directory" \
-    meta_lr=1e-1,1e-2,1e-3 \
+    meta_lr=1e-4 \
     epsilon=1e-1 \
     env="$env" \
     gamma=$gamma \
     repeat=$repeat \
+    recompute_optimal=True \
     num_iterations=$num_iterations \
     agent_name="diagonal semi gradient Q updater"
 
@@ -58,4 +59,5 @@ python3 -m Experiments.Plotting.plot_adaptation_experiment \
     repeat=$repeat \
     env="$env" \
     name="Q Learning" \
+    is_q=True \
     plot_best=True \

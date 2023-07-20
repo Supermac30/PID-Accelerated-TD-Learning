@@ -59,6 +59,8 @@ def adaptive_agent_experiment(cfg):
     save_array(std_dev_history, f"{agent_description}", directory=cfg['save_dir'], subdir="std_dev")
     save_array(std_dev_gain_history, f"gain_history {agent_description}", directory=cfg['save_dir'], subdir="std_dev")
 
+    agent.plot(cfg['save_dir'])
+
 
 if __name__ == '__main__':
     adaptive_agent_experiment()

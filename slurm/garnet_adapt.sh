@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH -N 1
-#SBATCH --gres=gpu:1
+#SBATCH -p cpu
 #SBATCH --cpus-per-task=32
 #SBATCH --tasks-per-node=1
 #SBATCH --time=30:00:00
@@ -18,11 +18,11 @@ cd /h/bedaywim/PID-Accelerated-TD-Learning
 
 current_time=$(date "+%Y.%m.%d/%H.%M.%S")
 save_dir=$1
-directory=$save_dir/${current_time}
-echo "Saving to ${directory}"
+directory=$save_dir/$current_time
+echo "Saving to $directory"
 mkdir -p "$directory"
 
-for run in {$2..$3}
+for run in $(seq $2 $3)
 do
     mkdir -p "$save_dir/gain_adaptation/$run"
     mkdir -p "$save_dir/TD/$run"
@@ -30,41 +30,20 @@ do
 	seed=$RANDOM
 	garnet_seed=$RANDOM
 
-    python3 -m Experiments.AdaptationExperiments.AdaptiveAgentExperiment \
-        hydra.run.dir="${directory}/Adaptive Agent" \
+    python3 -m Experiments.AdaptationExperiments.AdaptiveAgentExperiment --multirun \
+        hydra.run.dir="$directory/Adaptive Agent" \
         hydra.sweep.dir="$directory" \
         seed=$seed \
         save_dir="$save_dir/gain_adaptation/$run" \
-        meta_lr=1e-1 \
-        epsilon=1e-2 \
+        meta_lr=1e-1,1e-2,1e-3 \
+        epsilon=1e-1,1e-2,1e-3 \
         env="garnet $garnet_seed 50" \
         gamma=0.999 \
-        num_iterations=100000
-
-    python3 -m Experiments.AdaptationExperiments.AdaptiveAgentExperiment \
-        hydra.run.dir="${directory}/Adaptive Agent" \
-        hydra.sweep.dir="$directory" \
-        seed=$seed \
-        save_dir="$save_dir/gain_adaptation/$run" \
-        meta_lr=1e-2 \
-        epsilon=1e-2 \
-        env="garnet $garnet_seed 50" \
-        gamma=0.999 \
-        num_iterations=100000
-
-    python3 -m Experiments.AdaptationExperiments.AdaptiveAgentExperiment \
-        hydra.run.dir="${directory}/Adaptive Agent" \
-        hydra.sweep.dir="$directory" \
-        seed=$seed \
-        save_dir="$save_dir/gain_adaptation/$run" \
-        meta_lr=1e-3 \
-        epsilon=1e-2 \
-        env="garnet $garnet_seed 50" \
-        gamma=0.999 \
+        agent_name="diagonal semi gradient updater" \
         num_iterations=100000
 
 	python3 -m Experiments.TDExperiments.SoftTDPolicyEvaluation \
-        hydra.run.dir="${directory}/TD Agent" \
+        hydra.run.dir="$directory/TD Agent" \
         save_dir="$save_dir/TD/$run" \
         seed=$seed \
         kp=1 \

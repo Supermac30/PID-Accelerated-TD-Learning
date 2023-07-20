@@ -24,11 +24,12 @@ class TIDBD(Agent):
         H = np.zeros((self.num_states, 1))
 
         for k in range(num_iterations):
+            theta = self.theta(k)
             current_state, _, next_state, reward = self.take_action(follow_trajectory)
 
             BR = reward + self.gamma * self.V[next_state] - self.V[current_state]
 
-            betas[current_state] += self.theta * BR * H[current_state]
+            betas[current_state] += theta * BR * H[current_state]
             learning_rate = np.exp(betas[current_state])
             self.V[current_state] = self.V[current_state][0] + learning_rate * BR
             H[current_state] = H[current_state][0] * max(0, 1 - learning_rate) + learning_rate * BR

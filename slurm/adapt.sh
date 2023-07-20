@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH -N 1
-#SBATCH --gres=gpu:1
+#SBATCH -p cpu
 #SBATCH --cpus-per-task=16
 #SBATCH --tasks-per-node=1
 #SBATCH --time=10:00:00
@@ -24,27 +24,25 @@ gamma=0.999
 repeat=20
 seed=$RANDOM
 num_iterations=30000
-directory=outputs/adaptation_experiment/${env}/${current_time}
+directory=outputs/adaptation_experiment/$env/$current_time
 echo "Saving to ${directory}"
 mkdir -p "$directory"
 
 python3 -m Experiments.AdaptationExperiments.AdaptiveAgentExperiment --multirun \
     hydra.mode=MULTIRUN \
-    hydra.run.dir="${directory}/Adaptive Agent" \
+    hydra.run.dir="$directory/Adaptive Agent" \
     hydra.sweep.dir="$directory" \
     seed=$seed \
     save_dir="$directory" \
-    meta_lr=1e-5 \
-    epsilon=0.25 \
+    meta_lr=1e-3,5e-4,1e-4 \
+    epsilon=0.5 \
     env="$env" \
     gamma=$gamma \
     repeat=$repeat \
-    num_iterations=$num_iterations \
-    get_optimal=False \
-    compute_optimal=False
+    num_iterations=$num_iterations
 
 python3 -m Experiments.TDExperiments.SoftTDPolicyEvaluation \
-    hydra.run.dir="${directory}/TD Agent" \
+    hydra.run.dir="$directory/TD Agent" \
     save_dir="$directory" \
     seed=$seed \
     kp=1 \
@@ -61,4 +59,4 @@ python3 -m Experiments.Plotting.plot_adaptation_experiment \
     plot_best=True \
     repeat=$repeat \
     name="TD" \
-    env="$env" \
+    env="$env"
