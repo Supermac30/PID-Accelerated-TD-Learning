@@ -21,7 +21,7 @@ class Agent():
     self.policy: A matrix of size self.environment.num_states x self.environment.num_actions,
     where the sum of each row is one. An off-policy agent can safely ignore this.
     """
-    def __init__(self, environment, policy, gamma, follow_trajectory=True):
+    def __init__(self, environment, policy, gamma):
         self.gamma = gamma
         self.environment = environment
         self.num_actions = environment.num_actions

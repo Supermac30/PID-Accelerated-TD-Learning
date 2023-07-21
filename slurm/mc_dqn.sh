@@ -5,7 +5,7 @@
 #SBATCH --tasks-per-node=1
 #SBATCH --time=30:00:00
 #SBATCH --mem=8GB
-#SBATCH --job-name=fqi
+#SBATCH --job-name=mc_dqn
 #SBATCH --output=slurm/logs/%x_%j.out
 #SBATCH --error=slurm/errors/%x_%j.err
 
@@ -18,21 +18,17 @@ cd /h/bedaywim/PID-Accelerated-TD-Learning
 
 current_time=$(date "+%Y.%m.%d-%H.%M.%S")
 env=Cartpole-v1
-directory=outputs/dqn_experiment/${env}/$current_time
+directory=models/$env
 echo "Saving to ${directory}"
 mkdir -p "$directory"
 
-python3 -m Experiments.DQNExperiments.DQNExperiment \
-   env=cartpole name=cartpole experiment_name="FQI Cartpole PBR Gain Sweep"\
+python3 -m Experiments.DQNExperiments.BuildMCNetwork \
+   env=cartpole name=cartpole experiment_name="Build Cartpole MC Network"\
    hydra.mode=MULTIRUN \
    hydra.run.dir=$directory \
    hydra.sweep.dir=$directory \
    save_dir=$directory \
-   seed=$RANDOM \
-   FQI=True \
-   kp=1 \
-   kd=0 \
-   ki=0 \
+   seed=$RANDOM
 
 python3 -m Experiments.Plotting.plot_dqn_experiment \
    hydra.run.dir=$directory \

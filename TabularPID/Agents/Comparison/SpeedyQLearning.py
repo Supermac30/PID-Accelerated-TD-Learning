@@ -2,8 +2,8 @@ from TabularPID.Agents.Agents import Agent, learning_rate_function
 import numpy as np
 
 class SpeedyQLearning(Agent):
-    def __init__(self, learning_rate, environment, policy, gamma, follow_trajectory=True):
-        super().__init__(environment, policy, gamma, follow_trajectory)
+    def __init__(self, learning_rate, environment, policy, gamma):
+        super().__init__(environment, policy, gamma)
         self.learning_rate = learning_rate
         self.previous_Q = np.zeros((self.num_states, self.num_actions))
         self.current_Q = np.zeros((self.num_states, self.num_actions))

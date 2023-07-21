@@ -2,8 +2,8 @@ from TabularPID.Agents.Agents import Agent, learning_rate_function
 import numpy as np
 
 class TIDBD(Agent):
-    def __init__(self, environment, policy, gamma, follow_trajectory=True, theta=0.1):
-        super().__init__(environment, policy, gamma, follow_trajectory)
+    def __init__(self, environment, policy, gamma, theta):
+        super().__init__(environment, policy, gamma)
         self.V = np.zeros((self.num_states, 1))
         self.theta = theta
 

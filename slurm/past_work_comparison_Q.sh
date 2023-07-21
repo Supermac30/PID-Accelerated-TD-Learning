@@ -26,22 +26,32 @@ echo "Saving to ${directory}"
 mkdir -p "$directory"
 
 python3 -m Experiments.TDExperiments.PastWorkEvaluation \
-    hydra.run.dir="${directory}/TD Agent" \
+    hydra.run.dir="${directory}/Speedy Agent" \
     save_dir="$directory" \
     seed=$seed \
-    agent_name=TIDBD \
-    gamma=$gamma \
+    agent_name="speedy Q learning" \
+    gamma=0.999 \
     repeat=$repeat \
     recompute_optimal=True \
     env="$env"
 
-python3 -m Experiments.AdaptationExperiments.AdaptiveAgentExperiment \
-    hydra.run.dir="${directory}/TD Agent" \
+python3 -m Experiments.TDExperiments.PastWorkEvaluation \
+    hydra.run.dir="${directory}/Zip Agent" \
+    save_dir="$directory" \
+    agent_name="zap Q learning" \
+    gamma=$gamma \
+    seed=$seed \
+    repeat=$repeat \
+    recompute_optimal=True \
+    env="$env"
+
+python3 -m Experiments.AdaptationExperiments.AdaptiveQAgentExperiment \
+    hydra.run.dir="${directory}/PID Agent" \
     save_dir="$directory" \
     seed=$seed \
     meta_lr=0.1 \
     epsilon=0.1 \
-    agent_name="diagonal semi gradient updater" \
+    agent_name="diagonal semi gradient Q updater" \
     gamma=$gamma \
     repeat=$repeat \
     recompute_optimal=True \
@@ -52,3 +62,4 @@ python3 -m Experiments.Plotting.plot_adaptation_experiment \
     save_dir="$directory" \
     env="$env" \
     hydra/job_logging=disabled
+

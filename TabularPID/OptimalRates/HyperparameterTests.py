@@ -133,33 +133,34 @@ def run_pid_search(agent_description, env_name, kp, ki, kd, alpha, beta, seed, n
             num_iterations=50000,
             test_function=build_test_function(norm, V_pi),
             follow_trajectory=False,
-            reset_environment=False
+            reset_environment=False,
+            stop_if_diverging=True
         )[0],
         learning_rates,
         update_I_rates,
         update_D_rates,
         True
     )
-    if rates == float("inf"):
+    if rates is None:
         return default_rates
     return rates
 
 def run_past_work_search(agent_description, env_name, seed, norm, gamma):
     """Run a grid search on learning rates for any of the past work algorithms"""
-    agent, env, policy = build_agent_and_env(agent_description, env_name, seed=seed, gamma=gamma)
+    agent, env, policy = build_agent_and_env((agent_description, 1, 0, 0, 0, 0), env_name, seed=seed, gamma=gamma)
     V_pi = find_Vpi(env, policy, gamma)
 
     dummy = {1: {float("inf")}}
-    if agent_description[0] == "TIDBD":
-        # Taken from the TIDBD paper, 20 values between 0 and 0.2
-        learning_rates0 = {i / 100: {float("inf")} for i in range(20)}
+    if agent_description == "TIDBD":
+        # Taken from the TIDBD paper, 200 values between 0 and 0.2
+        learning_rates0 = {i / 1000: {float("inf")} for i in range(200)}
         learning_rates1 = dummy
         learning_rates2 = dummy
-    elif agent_description[0] == "speedy Q learning":
+    elif agent_description == "speedy Q learning":
         learning_rates0 = exhaustive_learning_rates[0]
         learning_rates1 = dummy
         learning_rates2 = dummy
-    elif agent_description[0] == "zap Q learning":
+    elif agent_description == "zap Q learning":
         # The paper uses polynomial learning rates
         # TODO: Make sure that this is also fine? Code polynoimal rates as well just in case.
         learning_rates0 = exhaustive_learning_rates[0]
@@ -174,15 +175,20 @@ def run_past_work_search(agent_description, env_name, seed, norm, gamma):
             num_iterations=50000,
             test_function=build_test_function(norm, V_pi),
             follow_trajectory=False,
-            reset_environment=False
+            reset_environment=False,
+            stop_if_diverging=True
         )[0],
         learning_rates0,
         learning_rates1,
         learning_rates2,
         True
     )
+    breakpoint()
 
-    return default_rates
+    if rates is None:
+        return default_rates
+
+    return rates
 
 
 def run_pid_q_search(agent_description, env_name, kp, ki, kd, alpha, beta, seed, norm, gamma, decay):
@@ -210,14 +216,15 @@ def run_pid_q_search(agent_description, env_name, kp, ki, kd, alpha, beta, seed,
             num_iterations=50000,
             test_function=build_test_function(norm, Q_star),
             follow_trajectory=False,
-            reset_environment=False
+            reset_environment=False,
+            stop_if_diverging=True
         )[0],
         learning_rates,
         update_I_rates,
         update_D_rates,
         True
     )
-    if rates == float("inf"):
+    if rates is None:
         return default_rates
     return rates
 
@@ -240,13 +247,14 @@ def run_adaptive_search(agent_name, env_name, seed, norm, gamma, lambd, delay, m
             num_iterations=50000,
             test_function=build_test_function(norm, goal),
             follow_trajectory=False,
-            reset_environment=False
+            reset_environment=False,
+            stop_if_diverging=True
         )[2],
         learning_rates,
         update_I_rates,
         update_D_rates,
         True
     )
-    if rates == float("inf"):
+    if rates is None:
         return default_rates
     return rates

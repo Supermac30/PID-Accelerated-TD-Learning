@@ -189,9 +189,12 @@ def find_optimal_learning_rates(agent, value_function_estimator, learning_rates=
     if minimum_index == float("inf"):
         logging.info("No parameters reached the threshold")
         logging.info(f"Minimum history: {minimum_history}")
-        return float("inf"), minimum_params_history
+
+        logging.info(f"The best parameters are {minimum_params_history}")
+        return minimum_index, minimum_params_history
     
     logging.info(f"Minimum index: {minimum_index}")
+    logging.info(f"The best parameters are {minimum_params_index}")
 
     return minimum_index, minimum_params_index
 

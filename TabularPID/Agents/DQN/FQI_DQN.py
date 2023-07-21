@@ -193,7 +193,7 @@ class PID_FQI(OffPolicyAlgorithm):
         if self._n_calls % max(self.target_update_interval // self.n_envs, 1) == 0:
             # Update the D network
             self.d_net.load_state_dict(self.q_net_target.state_dict())
-            
+
             # Set the target network equal to the Q network manually
             self.q_net_target.load_state_dict(self.q_net.state_dict())
 

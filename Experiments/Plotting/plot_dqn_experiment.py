@@ -7,7 +7,7 @@ import hydra
 from torch.utils.tensorboard import SummaryWriter
 
 
-@hydra.main(config_path="../../config", config_name="plot")
+@hydra.main(version_base=None, config_path="../../config", config_name="plot")
 def graph_experiment(cfg):
     def add_arrays(array1, array2):
         if isinstance(array1, int):

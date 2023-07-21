@@ -265,6 +265,7 @@ class MC_DQN(OffPolicyAlgorithm):
         total_timesteps, callback = self._setup_learn(
             total_timesteps, callback, reset_num_timesteps, tb_log_name, progress_bar
         )
+        self.replay_buffer.reset()
 
         callback.on_training_start(locals(), globals())
 

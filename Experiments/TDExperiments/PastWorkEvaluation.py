@@ -11,10 +11,14 @@ def past_work(cfg):
     agent_name = cfg['agent_name']
 
     if cfg['compute_optimal']:
-        get_optimal_past_work_rates((agent_name, 1, 0, 0, 0, 0), cfg['env'], cfg['gamma'], cfg['recompute_optimal'])
+        get_optimal_past_work_rates(agent_name, cfg['env'], cfg['gamma'], cfg['recompute_optimal'])
     agent, env, policy = build_agent_and_env((agent_name, 1, 0, 0, 0, 0), cfg['env'], cfg['get_optimal'], seed, cfg['gamma'])
-    V_pi = find_Vpi(env, policy, cfg['gamma'])
-    test_function = build_test_function(cfg['norm'], V_pi)
+    if cfg['is_q']:
+        Q_star = find_Qstar(env, policy, cfg['gamma'])
+        test_function = build_test_function(cfg['norm'], Q_star)
+    else:
+        V_pi = find_Vpi(env, policy, cfg['gamma'])
+        test_function = build_test_function(cfg['norm'], V_pi)
     all_histories = []
     for _ in range(cfg['repeat']):
         history, _ = agent.estimate_value_function(

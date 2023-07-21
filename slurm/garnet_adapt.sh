@@ -18,6 +18,7 @@ cd /h/bedaywim/PID-Accelerated-TD-Learning
 
 current_time=$(date "+%Y.%m.%d/%H.%M.%S")
 save_dir=$1
+num_iterations=500000
 directory=$save_dir/$current_time
 echo "Saving to $directory"
 mkdir -p "$directory"
@@ -40,7 +41,7 @@ do
         env="garnet $garnet_seed 50" \
         gamma=0.999 \
         agent_name="diagonal semi gradient updater" \
-        num_iterations=100000
+        num_iterations=$num_iterations
 
 	python3 -m Experiments.TDExperiments.SoftTDPolicyEvaluation \
         hydra.run.dir="$directory/TD Agent" \
@@ -51,5 +52,5 @@ do
         kd=0 \
         gamma=0.999 \
         env="garnet $garnet_seed 50" \
-        num_iterations=100000
+        num_iterations=$num_iterations
 done

@@ -2,15 +2,14 @@ from TabularPID.Agents.Agents import Agent, learning_rate_function
 import numpy as np
 
 
-
 class ZapQLearning(Agent):
-    def __init__(self, gamma_lr, alpha_lr, environment, policy, gamma, follow_trajectory=True):
-        super().__init__(environment, policy, gamma, follow_trajectory)
+    def __init__(self, gamma_lr, alpha_lr, environment, policy, gamma):
+        super().__init__(environment, policy, gamma)
         self.gamma_lr = gamma_lr
         self.alpha_lr = alpha_lr
         self.Q = np.zeros((self.num_states, self.num_actions))
 
-    def unit_mat(a, b):
+    def unit_mat(self, a, b):
         """Create a matrix with a one at (a, b) and zeros everywhere else
         """
         matrix = np.zeros((self.num_states, self.num_actions))
@@ -34,7 +33,8 @@ class ZapQLearning(Agent):
         # A vector storing the number of times we have seen a state.
         frequency = np.zeros((self.num_states, 1))
 
-        rolling_A = 0
+        # The matrix A, initialized randomly to avoid singularities
+        rolling_A = np.random.rand(self.num_states, self.num_states)
 
         for k in range(num_iterations):
             current_state, action, next_state, reward = self.take_action(follow_trajectory)
@@ -49,7 +49,7 @@ class ZapQLearning(Agent):
             A = self.unit_mat(current_state, action) @ (self.gamma * self.unit_mat(next_state, best_action) - self.unit_mat(current_state, action)).T
             rolling_A = rolling_A + gamma_lr * (A - rolling_A)
             
-            self.Q -= alpha_lr * np.linalg.inv(rolling_A) * BR
+            self.Q -= alpha_lr * np.linalg.inv(rolling_A) @ BR
 
             if test_function is not None:
                 history[k] = test_function(self.current_Q, None, BR)
