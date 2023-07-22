@@ -37,8 +37,8 @@ python3 -m Experiments.AdaptationExperiments.AdaptiveQAgentExperiment --multirun
     env="$env" \
     gamma=$gamma \
     repeat=$repeat \
-    recompute_optimal=True \
     num_iterations=$num_iterations \
+    recompute_optimal=True \
     agent_name="diagonal semi gradient Q updater"
 
 python3 -m Experiments.QExperiments.PIDQLearning \
@@ -58,6 +58,5 @@ python3 -m Experiments.Plotting.plot_adaptation_experiment \
     save_dir="$directory" \
     repeat=$repeat \
     env="$env" \
-    name="Q Learning" \
     is_q=True \
     plot_best=True \

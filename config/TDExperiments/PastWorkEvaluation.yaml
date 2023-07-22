@@ -20,6 +20,8 @@ stop_if_diverging: False
 log_plot: False
 normalize: True
 
+is_q: False
+
 save_dir: ${oc.env:OUTPUT_DIR,./outputs}/${hydra.job.config_name}/${now:%Y-%m-%d}/${now:%H-%M-%S}
 
 seed: 2388

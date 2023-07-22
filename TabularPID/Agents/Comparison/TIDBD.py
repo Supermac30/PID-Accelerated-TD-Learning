@@ -19,7 +19,7 @@ class TIDBD(Agent):
 
         # The history of test_function
         history = np.zeros(num_iterations)
-        
+
         betas = np.zeros((self.num_states, 1))
         H = np.zeros((self.num_states, 1))
 
@@ -36,7 +36,7 @@ class TIDBD(Agent):
 
             if test_function is not None:
                 history[k] = test_function(self.V, None, BR)
-                if stop_if_diverging and history[k] > 10 * history[0]:
+                if stop_if_diverging and (history[k] > 10 * history[0] or np.isnan(history[k])):
                     # If we are too large, stop learning
                     history[k:] = float('inf')
                     break

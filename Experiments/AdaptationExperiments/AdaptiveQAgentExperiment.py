@@ -3,7 +3,7 @@ import hydra
 import logging
 
 from TabularPID.AgentBuilders.AdaptiveAgentBuilder import build_adaptive_agent_and_env
-from TabularPID.OptimalRates.HyperparameterTests import get_optimal_pid_q_rates, get_optimal_adaptive_rates
+from TabularPID.OptimalRates.HyperparameterTests import get_optimal_adaptive_rates
 from Experiments.ExperimentHelpers import *
 
 @hydra.main(version_base=None, config_path="../../config/AdaptationExperiments", config_name="AdaptiveQAgentExperiment")

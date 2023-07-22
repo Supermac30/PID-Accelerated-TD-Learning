@@ -5,7 +5,7 @@
 #SBATCH --tasks-per-node=1
 #SBATCH --time=10:00:00
 #SBATCH --mem=1GB
-#SBATCH --job-name=past_work_comparison
+#SBATCH --job-name=past_work_comparison_Q
 #SBATCH --output=slurm/logs/%x_%j.out
 #SBATCH --error=slurm/errors/%x_%j.err
 
@@ -21,7 +21,7 @@ env="cliff walk"
 seed=$RANDOM
 gamma=0.999
 repeat=20
-directory=outputs/past_work_comparison/${env}/${current_time}
+directory=outputs/past_work_comparison_Q/${env}/${current_time}
 echo "Saving to ${directory}"
 mkdir -p "$directory"
 
@@ -32,8 +32,8 @@ python3 -m Experiments.TDExperiments.PastWorkEvaluation \
     agent_name="speedy Q learning" \
     gamma=0.999 \
     repeat=$repeat \
-    recompute_optimal=True \
-    env="$env"
+    env="$env" \
+    is_q=True
 
 python3 -m Experiments.TDExperiments.PastWorkEvaluation \
     hydra.run.dir="${directory}/Zip Agent" \
@@ -42,8 +42,8 @@ python3 -m Experiments.TDExperiments.PastWorkEvaluation \
     gamma=$gamma \
     seed=$seed \
     repeat=$repeat \
-    recompute_optimal=True \
-    env="$env"
+    env="$env" \
+    is_q=True
 
 python3 -m Experiments.AdaptationExperiments.AdaptiveQAgentExperiment \
     hydra.run.dir="${directory}/PID Agent" \
@@ -54,12 +54,11 @@ python3 -m Experiments.AdaptationExperiments.AdaptiveQAgentExperiment \
     agent_name="diagonal semi gradient Q updater" \
     gamma=$gamma \
     repeat=$repeat \
-    recompute_optimal=True \
     env="$env"
 
 python3 -m Experiments.Plotting.plot_adaptation_experiment \
     hydra.run.dir="$directory" \
     save_dir="$directory" \
     env="$env" \
+    is_q=True \
     hydra/job_logging=disabled
-

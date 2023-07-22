@@ -60,8 +60,19 @@ def create_plots(cfg):
                 std_dev /= history[0]
                 ax0.plot(normalize(history), label=name)
                 ax0.fill_between(np.arange(len(history)), normalize(history) - (std_dev / runs), normalize(history) + (std_dev / runs), alpha=0.2)
-        
         else:
+            if file.startswith("TIDBD"):
+                name = "TIDBD"
+            elif file.startswith("TD"):
+                name = "TD"
+            elif file.startswith("speedy Q learning"):
+                name = "Speedy Q Learning"
+            elif file.startswith("zap Q learning"):
+                name = "Zap Q Learning"
+            elif file.startswith("Q-learner"):
+                name = "Q Learning"
+            else:
+                name = cfg['default_name']
             std_dev /= history[0]
             ax0.plot(normalize(history), label=f"{cfg['name']}")
             ax0.fill_between(np.arange(len(history)), normalize(history) - (std_dev / runs), normalize(history) + (std_dev / runs), alpha=0.2)

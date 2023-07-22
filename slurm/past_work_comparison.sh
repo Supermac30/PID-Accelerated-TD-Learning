@@ -32,8 +32,9 @@ python3 -m Experiments.TDExperiments.PastWorkEvaluation \
     agent_name=TIDBD \
     gamma=$gamma \
     repeat=$repeat \
+    env="$env" \
     recompute_optimal=True \
-    env="$env"
+    is_q=False
 
 python3 -m Experiments.AdaptationExperiments.AdaptiveAgentExperiment \
     hydra.run.dir="${directory}/TD Agent" \
@@ -44,7 +45,6 @@ python3 -m Experiments.AdaptationExperiments.AdaptiveAgentExperiment \
     agent_name="diagonal semi gradient updater" \
     gamma=$gamma \
     repeat=$repeat \
-    recompute_optimal=True \
     env="$env"
 
 python3 -m Experiments.Plotting.plot_adaptation_experiment \

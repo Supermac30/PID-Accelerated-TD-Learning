@@ -184,9 +184,22 @@ class DiagonalAdaptiveSamplerAgent(AbstractAdaptiveAgent):
         new_z = self.beta * self.z[state][action] + self.alpha * BR
         new_Qp = self.Q[state][action]
 
+        # Try modifying this to copy previous_Q into Q, instead of doing it delayed state wise
+        # This fits the math better, and might fix the problems we are having
+
+        self.previous_previous_Q = self.previous_Q.copy()
+        self.previous_Q = self.Q.copy()
+        self.Q[state][action] = (1 - lr) * self.Q[state][action] + lr * new_Q
+        self.previous_z = self.z.copy()
+        self.z[state][action] = (1 - update_I_rate) * self.z[state][action] + update_I_rate * new_z
+        self.previous_Qp = self.Qp.copy()
+        self.Qp[state][action] = (1 - update_D_rate) * self.Qp[state][action] + update_D_rate * new_Qp
+
+        """
         self.previous_previous_Q[state][action], self.previous_Q[state][action], self.Q[state][action] = self.previous_Q[state][action], self.Q[state][action], (1 - lr) * self.Q[state][action] + lr * new_Q
         self.previous_z[state][action], self.z[state][action] = self.z[state][action], (1 - update_I_rate) * self.z[state][action] + update_I_rate * new_z
         self.previous_Qp[state][action], self.Qp[state][action] = self.Qp[state][action], (1 - update_D_rate) * self.Qp[state][action] + update_D_rate * new_Qp
+        """
 
     def BR(self):
         """Return the empirical bellman residual"""

@@ -1,4 +1,3 @@
-import matplotlib.pyplot as plt
 import hydra
 
 from Experiments.ExperimentHelpers import *

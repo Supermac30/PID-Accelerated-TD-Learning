@@ -103,7 +103,7 @@ class MonteCarloPE(Agent):
         G = 0
 
         trajectory = self.generate_episode(num_iterations=num_iterations)
-        for state, action, reward, first_time_seen in trajectory[::-1]:
+        for state, _, reward, first_time_seen in trajectory[::-1]:
             G = self.gamma * G + reward
             if first_time_seen:
                 V[state] = G

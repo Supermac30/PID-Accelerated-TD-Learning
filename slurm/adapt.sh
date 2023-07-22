@@ -58,5 +58,4 @@ python3 -m Experiments.Plotting.plot_adaptation_experiment \
     save_dir="$directory" \
     plot_best=True \
     repeat=$repeat \
-    name="TD" \
     env="$env"

@@ -20,10 +20,10 @@ default_rates = (0.5, 100, 1, 1, 0.1, float("inf"))
 
 exhaustive_learning_rates = [
     {
-        1: {1, 100, 1000},
-        0.5: {1, 10, 50, 100, 500, 1000},
-        0.1: {1, 10, 50, 100, 500, 1000},
-        0.01: {1, 10, 50, 100, 500, 1000}
+        1: {10, 100, 1000, 10000},
+        0.5: {1, 10, 50, 100, 500, 1000, 10000},
+        0.1: {1, 10, 50, 100, 500, 1000, 10000},
+        0.01: {1, 10, 50, 100, 500, 1000, 10000}
     },
     {
         1: {float("inf"), 1, 100},
@@ -34,17 +34,19 @@ exhaustive_learning_rates = [
     {
         1: {float("inf"), 1, 100},
         0.5: {float("inf")},
+        0.25: {float("inf")},
         0.1: {float("inf")},
         0.01: {float("inf")}
     }
 ]
+
 
 def get_optimal_past_work_rates(agent_description, env_name, gamma, recompute=False, seed=-1, norm=1):
     optimal_rates = get_stored_optimal_rate((agent_description, gamma), env_name, gamma)
     if optimal_rates is None or recompute:
         seed = pick_seed(seed)
         optimal_rates = run_past_work_search(agent_description, env_name, seed, norm, gamma)
-        store_optimal_rate((agent_description, gamma), env_name, optimal_rates, gamma)
+        store_optimal_rate((agent_description, 1, 0, 0, 0, 0), env_name, optimal_rates, gamma)
     
     logging.info(f"The optimal rates for {(env_name, gamma)} are: {optimal_rates}")
 
@@ -183,7 +185,6 @@ def run_past_work_search(agent_description, env_name, seed, norm, gamma):
         learning_rates2,
         True
     )
-    breakpoint()
 
     if rates is None:
         return default_rates

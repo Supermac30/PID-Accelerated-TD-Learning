@@ -6,7 +6,7 @@ plot_best: True
 repeat: 20
 
 env: Chain Walk
-name: TD
+default_name: Not Specified
 is_q: False
 
 seed: -1
