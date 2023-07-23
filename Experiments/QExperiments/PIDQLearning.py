@@ -8,10 +8,10 @@ from TabularPID.OptimalRates.HyperparameterTests import get_optimal_pid_q_rates
 def soft_policy_evaluation_experiment(cfg):
     """Experiments with policy evaluation and TD"""
     seed = pick_seed(cfg['seed'])
-    agent_name, kp, ki, kd, alpha, beta, decay = cfg['agent_name'], cfg['kp'], cfg['ki'], cfg['kd'], cfg['alpha'], cfg['beta'], cfg['decay']
+    agent_name, kp, ki, kd, alpha, beta = cfg['agent_name'], cfg['kp'], cfg['ki'], cfg['kd'], cfg['alpha'], cfg['beta']
     if cfg['compute_optimal']:
-        get_optimal_pid_q_rates(agent_name, cfg['env'], kp, ki, kd, alpha, beta, cfg['gamma'], cfg['recompute_optimal'], decay=decay)
-    agent, env, _ = build_agent_and_env((agent_name, kp, ki, kd, alpha, beta, decay), cfg['env'], cfg['get_optimal'], seed, cfg['gamma'])
+        get_optimal_pid_q_rates(agent_name, cfg['env'], kp, ki, kd, alpha, beta, cfg['gamma'], cfg['recompute_optimal'])
+    agent, env, _ = build_agent_and_env((agent_name, kp, ki, kd, alpha, beta), cfg['env'], cfg['get_optimal'], seed, cfg['gamma'])
     Q_star = find_Qstar(env, cfg['gamma'])
     test_function = build_test_function(cfg['norm'], Q_star)
     

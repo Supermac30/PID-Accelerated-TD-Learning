@@ -138,9 +138,22 @@ class AdaptiveSamplerAgent(AbstractAdaptiveAgent):
         new_z = self.beta * self.z[state][0] + self.alpha * BR
         new_Vp = self.V[state][0]
 
+
+        """
+        self.previous_previous_V = self.previous_V.copy()
+        self.previous_V = self.V.copy()
+        self.previous_z = self.z.copy()
+        self.previous_Vp = self.Vp.copy()
+
+        self.V[state] = (1 - lr) * self.V[state][0] + lr * new_V
+        self.z[state] = (1 - update_I_rate) * self.z[state][0] + update_I_rate * new_z
+        self.Vp[state] = (1 - update_D_rate) * self.Vp[state][0] + update_D_rate * new_Vp
+
+        """
         self.previous_previous_V[state], self.previous_V[state], self.V[state] = self.previous_V[state][0], self.V[state][0], (1 - lr) * self.V[state][0] + lr * new_V
         self.previous_z[state], self.z[state] = self.z[state][0], (1 - update_I_rate) * self.z[state][0] + update_I_rate * new_z
         self.previous_Vp[state], self.Vp[state] = self.Vp[state][0], (1 - update_D_rate) * self.Vp[state][0] + update_D_rate * new_Vp
+        
         
     def BR(self):
         """Return the empirical bellman residual"""

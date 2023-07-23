@@ -73,7 +73,8 @@ def get_optimal_pid_rates(agent_description, env_name, kp, ki, kd, alpha, beta, 
 
     return optimal_rates
 
-def get_optimal_pid_q_rates(agent_name, env_name, kp, ki, kd, alpha, beta, gamma, recompute=False, seed=-1, norm="fro", decay=1):
+
+def get_optimal_pid_q_rates(agent_name, env_name, kp, ki, kd, alpha, beta, gamma, recompute=False, seed=-1, norm="fro"):
     """Find the optimal rates for the choice of controller gains and environment.
     If this has been done before, get the optimal rates from the file of stored rates.
 
@@ -83,15 +84,16 @@ def get_optimal_pid_q_rates(agent_name, env_name, kp, ki, kd, alpha, beta, gamma
     if ki == 0:
         alpha = 0.05
         beta = 0.95
-    optimal_rates = get_stored_optimal_rate((agent_name, kp, ki, kd, alpha, beta, decay), env_name, gamma)
+    optimal_rates = get_stored_optimal_rate((agent_name, kp, ki, kd, alpha, beta), env_name, gamma)
     if optimal_rates is None or recompute:
         seed = pick_seed(seed)
-        optimal_rates = run_pid_q_search(agent_name, env_name, kp, ki, kd, alpha, beta, seed, norm, gamma, decay)
-        store_optimal_rate((agent_name, kp, ki, kd, alpha, beta, decay), env_name, optimal_rates, gamma)
+        optimal_rates = run_pid_q_search(agent_name, env_name, kp, ki, kd, alpha, beta, seed, norm, gamma)
+        store_optimal_rate((agent_name, kp, ki, kd, alpha, beta), env_name, optimal_rates, gamma)
 
-    logging.info(f"The optimal rates for {(agent_name, decay, env_name, kp, ki, kd, decay)} are: {optimal_rates}")
+    logging.info(f"The optimal rates for {(agent_name, env_name, kp, ki, kd)} are: {optimal_rates}")
 
     return optimal_rates
+
 
 def get_optimal_adaptive_rates(agent_name, env_name, meta_lr, gamma, lambd, delay, alpha, beta, recompute=False, seed=-1, norm=1, epsilon=0.01, is_q=False):
     """Find the optimal rates for the choice of adaptive agent and environment.
@@ -109,6 +111,7 @@ def get_optimal_adaptive_rates(agent_name, env_name, meta_lr, gamma, lambd, dela
     logging.info(f"The optimal rates for {(env_name, agent_name, meta_lr, epsilon)} are: {optimal_rates}")
 
     return optimal_rates
+
 
 def run_pid_search(agent_description, env_name, kp, ki, kd, alpha, beta, seed, norm, gamma):
     """Run a grid search on the exhaustive learning rates for the choice of controller gains"""
@@ -146,6 +149,7 @@ def run_pid_search(agent_description, env_name, kp, ki, kd, alpha, beta, seed, n
     if rates is None:
         return default_rates
     return rates
+
 
 def run_past_work_search(agent_description, env_name, seed, norm, gamma):
     """Run a grid search on learning rates for any of the past work algorithms"""
@@ -228,6 +232,7 @@ def run_pid_q_search(agent_description, env_name, kp, ki, kd, alpha, beta, seed,
     if rates is None:
         return default_rates
     return rates
+
 
 def run_adaptive_search(agent_name, env_name, seed, norm, gamma, lambd, delay, meta_lr, alpha, beta, epsilon, is_q):
     """Run a grid search on the exhaustive learning rates for the choice of adaptive agent"""

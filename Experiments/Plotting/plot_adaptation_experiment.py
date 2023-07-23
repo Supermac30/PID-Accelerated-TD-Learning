@@ -69,18 +69,18 @@ def create_plots(cfg):
                 name = "Speedy Q Learning"
             elif file.startswith("zap Q learning"):
                 name = "Zap Q Learning"
-            elif file.startswith("Q-learner"):
+            elif file.startswith("Q learning"):
                 name = "Q Learning"
             else:
                 name = cfg['default_name']
             std_dev /= history[0]
-            ax0.plot(normalize(history), label=f"{cfg['name']}")
+            ax0.plot(normalize(history), label=f"{name}")
             ax0.fill_between(np.arange(len(history)), normalize(history) - (std_dev / runs), normalize(history) + (std_dev / runs), alpha=0.2)
 
     if cfg['plot_best']:
         logging.info(f"Best final history: {min_history_file}")
         min_std_dev /= min_history[0]
-        ax0.plot(normalize(min_history), label=f"PID {cfg['name']} + Gain Adaptation")
+        ax0.plot(normalize(min_history), label=f"PID {'Q learning' if cfg['is_q'] else 'TD'} + Gain Adaptation")
         ax0.fill_between(np.arange(len(min_history)), normalize(min_history) - (min_std_dev / runs), normalize(min_history) + (min_std_dev / runs), alpha=0.2)
 
     ax0.title.set_text(f"{cfg['env'].title()}")

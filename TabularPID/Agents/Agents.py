@@ -46,7 +46,7 @@ class Agent():
             action = self.policy.get_action(state, epsilon=0)
             next_state, reward = self.environment.take_action(action)
         else:
-            state, action = self.policy.get_uniformly_random_sample(1)
+            state, action = self.policy.get_uniformly_random_sample(0)
             self.environment.current_state = state
             next_state, reward = self.environment.take_action(action)
 
@@ -346,7 +346,7 @@ class FarSighted_PID_TD(PID_TD):
         return history, self.V
 
 class ControlledQLearning(Agent):
-    def __init__(self, environment, gamma, kp, ki, kd, alpha, beta, learning_rate, decay):
+    def __init__(self, environment, gamma, kp, ki, kd, alpha, beta, learning_rate):
         """
         kp, ki, kd are floats that are the coefficients of the PID controller
         alpha, beta are floats that are the coefficients of the PID controller
@@ -366,7 +366,6 @@ class ControlledQLearning(Agent):
         self.kd = kd
         self.alpha = alpha
         self.beta = beta
-        self.decay = decay
         self.reset()
 
     def reset(self, reset_environment=True):
@@ -377,7 +376,6 @@ class ControlledQLearning(Agent):
         self.Q = np.zeros((self.num_states, self.num_actions))
         self.Qp = np.zeros((self.num_states, self.num_actions))
         self.z = np.zeros((self.num_states, self.num_actions))
-        self.epsilon = 1
         self.policy = Policy(self.num_actions, self.num_states, self.environment.prg, None)
 
     def estimate_value_function(self, num_iterations=1000, test_function=None, stop_if_diverging=True, follow_trajectory=False, reset_environment=True):
@@ -392,7 +390,6 @@ class ControlledQLearning(Agent):
         history = np.zeros(num_iterations)
 
         for k in range(num_iterations):
-            self.epsilon *= self.decay
             self.policy.set_policy_from_Q(self.Q, self.epsilon)
             current_state, action, next_state, reward = self.take_action(follow_trajectory)
 

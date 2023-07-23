@@ -38,8 +38,8 @@ python3 -m Experiments.AdaptationExperiments.AdaptiveQAgentExperiment --multirun
     gamma=$gamma \
     repeat=$repeat \
     num_iterations=$num_iterations \
-    recompute_optimal=True \
-    agent_name="diagonal semi gradient Q updater"
+    agent_name="diagonal semi gradient Q updater" \
+    recompute_optimal=True
 
 python3 -m Experiments.QExperiments.PIDQLearning \
     hydra.run.dir="$directory/TD Agent" \

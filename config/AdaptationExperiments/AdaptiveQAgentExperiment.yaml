@@ -9,7 +9,6 @@ recompute_optimal: False # If compute_optimal is True, run a grid search even if
 agent_name: diagonal semi gradient Q updater
 
 meta_lr: 1e-4
-delay: 1
 lambda: 0
 alphas: 0.01
 betas: 0.99
