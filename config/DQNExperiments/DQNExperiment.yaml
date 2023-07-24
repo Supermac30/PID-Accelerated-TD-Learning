@@ -30,6 +30,8 @@ tensorboard_log: tensorboard
 
 experiment_name: DQNExperiment
 
+dump_buffer: False
+
 name: cartpole
 defaults:
   - _self_

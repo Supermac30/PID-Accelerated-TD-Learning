@@ -9,12 +9,7 @@
 #SBATCH --output=slurm/logs/%x_%j.out
 #SBATCH --error=slurm/errors/%x_%j.err
 
-source ~/.bashrc
-source ~/newgym.nv
-conda activate myenv
-
-# CHANGE THIS TO YOUR OWN PATH
-cd /h/bedaywim/PID-Accelerated-TD-Learning
+source slurm/setup.sh
 
 current_time=$(date "+%Y.%m.%d-%H.%M.%S")
 env=Cartpole-v1
@@ -23,7 +18,7 @@ echo "Saving to ${directory}"
 mkdir -p "$directory"
 
 python3 -m Experiments.DQNExperiments.DQNExperiment \
-   env=cartpole name=cartpole experiment_name="Cartpole PBR Gain Sweep"\
+   env=$env name=$env experiment_name="$env PBR Gain Sweep"\
    hydra.mode=MULTIRUN \
    hydra.run.dir=$directory \
    hydra.sweep.dir=$directory \

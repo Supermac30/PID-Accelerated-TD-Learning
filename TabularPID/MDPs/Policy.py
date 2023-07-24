@@ -24,27 +24,16 @@ class Policy():
         """Get the policy"""
         return self.policy
 
-    def set_policy_from_Q(self, Q, epsilon):
-        """Set the policy from a Q function, setting a probability of epsilon picking an action that isn't optimal"""
-        self.policy = np.zeros((self.num_states, self.num_actions))
-        self.policy = np.where(
-            np.arange(self.num_actions) == np.argmax(Q, axis=1)[:, None],
-            1 - (1 - epsilon) * (self.num_actions - 1),
-            1 - epsilon,
-        )
+    def set_policy_from_Q(self, Q):
+        """Set the policy from a Q function"""
+        self.policy = np.eye(self.num_actions)[np.argmax(Q, axis=1)]
 
-    def get_action(self, state, epsilon=0):
-        """Get an action from the policy, with a probability of epsilon of choosing a random action"""
-        if self.prg.random() < epsilon:
-            return self.prg.randint(self.num_actions)
-
+    def get_action(self, state):
+        """Get an action from the policy"""
         return self.prg.choice(self.num_actions, p=self.policy[state])
 
-    def get_uniformly_random_sample(self, epsilon):
-        """Get a uniformly random sample from the policy, with a probability of epsilon of choosing a random action"""
-        if self.prg.random() < epsilon:
-            return self.prg.choice(self.num_states), self.prg.choice(self.num_actions)
-
+    def get_on_policy_sample(self):
+        """Get a uniformly random sample from the policy"""
         state = self.prg.choice(self.num_states)
         action = self.prg.choice(self.num_actions, p=self.policy[state])
         return state, action

@@ -46,7 +46,7 @@ class Agent():
             action = self.policy.get_action(state, epsilon=0)
             next_state, reward = self.environment.take_action(action)
         else:
-            state, action = self.policy.get_uniformly_random_sample(0)
+            state, action = self.policy.get_on_policy_sample()
             self.environment.current_state = state
             next_state, reward = self.environment.take_action(action)
 
@@ -390,7 +390,7 @@ class ControlledQLearning(Agent):
         history = np.zeros(num_iterations)
 
         for k in range(num_iterations):
-            self.policy.set_policy_from_Q(self.Q, self.epsilon)
+            self.policy.set_policy_from_Q(self.Q)
             current_state, action, next_state, reward = self.take_action(follow_trajectory)
 
             frequency[current_state] += 1

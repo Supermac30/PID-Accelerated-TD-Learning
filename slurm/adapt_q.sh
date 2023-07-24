@@ -9,13 +9,7 @@
 #SBATCH --output=slurm/logs/%x_%j.out
 #SBATCH --error=slurm/errors/%x_%j.err
 
-source ~/.bashrc
-source ~/newgym.nv
-conda activate myenv
-
-# CHANGE THIS TO YOUR OWN PATH
-cd /h/bedaywim/PID-Accelerated-TD-Learning
-
+source slurm/setup.sh
 current_time=$(date "+%Y.%m.%d/%H.%M.%S")
 env="cliff walk"
 gamma=0.999
@@ -32,14 +26,13 @@ python3 -m Experiments.AdaptationExperiments.AdaptiveQAgentExperiment --multirun
     hydra.sweep.dir="$directory" \
     seed=$seed \
     save_dir="$directory" \
-    meta_lr=1e-4 \
-    epsilon=1e-1 \
+    meta_lr=1e-2,1e-3,5e-3 \
+    epsilon=1,5,10 \
     env="$env" \
     gamma=$gamma \
     repeat=$repeat \
     num_iterations=$num_iterations \
-    agent_name="diagonal semi gradient Q updater" \
-    recompute_optimal=True
+    agent_name="diagonal semi gradient Q updater"
 
 python3 -m Experiments.QExperiments.PIDQLearning \
     hydra.run.dir="$directory/TD Agent" \
@@ -59,4 +52,4 @@ python3 -m Experiments.Plotting.plot_adaptation_experiment \
     repeat=$repeat \
     env="$env" \
     is_q=True \
-    plot_best=True \
+    plot_best=True

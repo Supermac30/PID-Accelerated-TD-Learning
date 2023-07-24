@@ -12,7 +12,7 @@ def build_PID_DQN(gain_adapter, env_name, gamma, optimizer, replay_memory_size, 
                   learning_rate, tau, initial_eps, exploration_fraction, minimum_eps,
                   gradient_steps, train_freq, target_update_interval, d_tau, inner_size,
                   slow_motion, learning_starts, tabular_d=False, tensorboard_log=None, seed=42,
-                  log_name="", name_append="", should_stop=False, device="cuda"):
+                  log_name="", name_append="", should_stop=False, device="cuda", dump_buffer=False):
     """Build the PID DQN agent
     """
     env, is_atari, stopping_criterion = create_environment(env_name, slow_motion=slow_motion)
@@ -47,7 +47,8 @@ def build_PID_DQN(gain_adapter, env_name, gamma, optimizer, replay_memory_size, 
                            optimizer_class=optimizer_class),
         seed=seed,
         should_stop=should_stop,
-        device=device
+        device=device,
+        dump_buffer=dump_buffer
     )
 
     gain_adapter.set_model(dqn)

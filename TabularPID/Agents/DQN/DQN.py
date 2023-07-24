@@ -103,6 +103,7 @@ class PID_DQN(OffPolicyAlgorithm):
         seed: Optional[int] = None,
         device: Union[th.device, str] = "auto",
         _init_setup_model: bool = True,
+        dump_buffer: bool = False
     ) -> None:
         super().__init__(
             policy,
@@ -129,7 +130,7 @@ class PID_DQN(OffPolicyAlgorithm):
             supported_action_spaces=(spaces.Discrete,),
             support_multi_env=True,
             stopping_criterion=stopping_criterion,
-            should_stop=should_stop,
+            should_stop=should_stop
         )
         # The stable baselines wrapped env don't play nice with the RecordVideo Wrapper
         # The simplest solution is to reserve an unwrapped instance for video recording, instead of modifying the API
@@ -137,6 +138,7 @@ class PID_DQN(OffPolicyAlgorithm):
         self.visualization_env = env
         self.d_tau = d_tau
         self.tabular_d = tabular_d
+        self.dump_buffer = dump_buffer
 
         self.exploration_initial_eps = exploration_initial_eps
         self.exploration_final_eps = exploration_final_eps
@@ -313,7 +315,7 @@ class PID_DQN(OffPolicyAlgorithm):
         reset_num_timesteps: bool = True,
         progress_bar: bool = False,
     ) -> SelfDQN:
-        return super().learn(
+        outputs = super().learn(
             total_timesteps=total_timesteps,
             callback=callback,
             log_interval=log_interval,
@@ -321,6 +323,17 @@ class PID_DQN(OffPolicyAlgorithm):
             reset_num_timesteps=reset_num_timesteps,
             progress_bar=progress_bar,
         )
+
+        if self.dump_buffer:
+            # Get all the state action pairs from the replay buffer
+            replay_data = self.replay_buffer.sample(self.replay_buffer.size(), env=self._vec_normalize_env)  # type: ignore[union-attr]
+            states = replay_data.observations
+            actions = replay_data.actions
+
+            # Dump them into a file called models/${env}/buffer.npy
+            np.save(f"models/{self.env.unwrapped.spec.id}/buffer.npy", np.concatenate((states, actions), axis=1))
+
+        return outputs
 
     def _excluded_save_params(self) -> List[str]:
         return [*super()._excluded_save_params(), "q_net", "q_net_target"]

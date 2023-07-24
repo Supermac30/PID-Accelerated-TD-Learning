@@ -196,9 +196,9 @@ def run_past_work_search(agent_description, env_name, seed, norm, gamma):
     return rates
 
 
-def run_pid_q_search(agent_description, env_name, kp, ki, kd, alpha, beta, seed, norm, gamma, decay):
+def run_pid_q_search(agent_description, env_name, kp, ki, kd, alpha, beta, seed, norm, gamma):
     """Run a grid search on the exhaustive learning rates for the choice of controller gains"""
-    agent, env, _ = build_agent_and_env((agent_description, kp, ki, kd, alpha, beta, decay), env_name, seed=seed, gamma=gamma)
+    agent, env, _ = build_agent_and_env((agent_description, kp, ki, kd, alpha, beta), env_name, seed=seed, gamma=gamma)
     Q_star = find_Qstar(env, gamma)
 
     # Don't search over the learning rates for the components that are 0

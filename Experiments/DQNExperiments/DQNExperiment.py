@@ -53,7 +53,7 @@ def control_experiment(cfg):
                 env_cfg['minimum_eps'], env_cfg['gradient_steps'], env_cfg['train_freq'],
                 env_cfg['target_update_interval'], env_cfg['inner_size'],
                 cfg['slow_motion'], env_cfg['learning_starts'], tensorboard_log=cfg['tensorboard_log'],
-                seed=run_seed, log_name=log_name, name_append=f"run {i}",
+                seed=run_seed, log_name=log_name, name_append=f"run {i}",dump_buffer=cfg['dump_buffer'],
             )
         else:
             agent = build_PID_DQN(
@@ -64,7 +64,8 @@ def control_experiment(cfg):
                 env_cfg['target_update_interval'], cfg['d_tau'], env_cfg['inner_size'],
                 cfg['slow_motion'], env_cfg['learning_starts'], tabular_d=cfg['tabular_d'],
                 tensorboard_log=cfg['tensorboard_log'], seed=run_seed,
-                log_name=log_name, name_append=f"run {i}", should_stop=cfg['should_stop']
+                log_name=log_name, name_append=f"run {i}", should_stop=cfg['should_stop'],
+                dump_buffer=cfg['dump_buffer']
             )
 
         run = wandb.init(

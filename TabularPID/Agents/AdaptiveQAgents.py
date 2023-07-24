@@ -55,7 +55,7 @@ class AbstractAdaptiveAgent(Agent):
         gain_history = np.zeros((num_iterations, 5))
 
         for k in range(num_iterations):
-            self.policy.set_policy_from_Q(self.Q, 1)
+            self.policy.set_policy_from_Q(self.Q)
             self.previous_previous_state, self.previous_state, self.previous_reward = self.previous_state, self.current_state, self.reward
             self.current_state, self.action, self.next_state, self.reward = self.take_action(follow_trajectory)
 

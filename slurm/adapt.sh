@@ -11,12 +11,7 @@
 
 ulimit -n 2048
 
-source ~/.bashrc
-source ~/newgym.nv
-conda activate myenv
-
-# CHANGE THIS TO YOUR OWN PATH
-cd /h/bedaywim/PID-Accelerated-TD-Learning
+source slurm/setup.sh
 
 current_time=$(date "+%Y.%m.%d/%H.%M.%S")
 env="cliff walk"

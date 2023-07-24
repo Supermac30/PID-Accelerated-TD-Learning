@@ -9,12 +9,7 @@
 #SBATCH --output=slurm/logs/%x_%j.out
 #SBATCH --error=slurm/errors/%x_%j.err
 
-source ~/.bashrc
-source ~/newgym.nv
-conda activate myenv
-
-# CHANGE THIS TO YOUR OWN PATH
-cd /h/bedaywim/PID-Accelerated-TD-Learning
+source slurm/setup.sh
 
 current_time=$(date "+%Y.%m.%d/%H.%M.%S")
 env="cliff walk"

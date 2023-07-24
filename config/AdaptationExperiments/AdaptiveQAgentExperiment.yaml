@@ -10,6 +10,7 @@ agent_name: diagonal semi gradient Q updater
 
 meta_lr: 1e-4
 lambda: 0
+delay: 1
 alphas: 0.01
 betas: 0.99
 epsilon: 0.1
