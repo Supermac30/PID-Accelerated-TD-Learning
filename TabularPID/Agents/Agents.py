@@ -43,12 +43,12 @@ class Agent():
         """
         if follow_trajectory:
             state = self.environment.current_state
-            action = self.policy.get_action(state, epsilon=0)
-            next_state, reward = self.environment.take_action(action)
+            action = self.policy.get_action(state)
         else:
             state, action = self.policy.get_on_policy_sample()
             self.environment.current_state = state
-            next_state, reward = self.environment.take_action(action)
+
+        next_state, reward = self.environment.take_action(action)
 
         return state, action, next_state, reward
 

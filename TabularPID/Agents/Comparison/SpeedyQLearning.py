@@ -25,6 +25,7 @@ class SpeedyQLearning(Agent):
         frequency = np.zeros((self.num_states, 1))
 
         for k in range(num_iterations):
+            self.policy.set_policy_from_Q(self.current_Q)
             current_state, action, next_state, reward = self.take_action(follow_trajectory)
             frequency[current_state] += 1
 

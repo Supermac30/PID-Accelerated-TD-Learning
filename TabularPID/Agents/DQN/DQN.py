@@ -330,8 +330,13 @@ class PID_DQN(OffPolicyAlgorithm):
             states = replay_data.observations
             actions = replay_data.actions
 
+            # Convert them into numpy arrays
+            states = states.cpu().numpy()
+            actions = actions.cpu().numpy()
+            state_action_pairs = np.concatenate((states, actions), axis=1)
+
             # Dump them into a file called models/${env}/buffer.npy
-            np.save(f"models/{self.env.unwrapped.spec.id}/buffer.npy", np.concatenate((states, actions), axis=1))
+            np.save(f"models/{self.visualization_env.unwrapped.spec.id}/buffer.npy", state_action_pairs)
 
         return outputs
 
