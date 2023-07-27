@@ -28,7 +28,8 @@ python3 -m Experiments.TDExperiments.PastWorkEvaluation \
     gamma=0.999 \
     repeat=$repeat \
     env="$env" \
-    is_q=True
+    is_q=True \
+    recompute_optimal=True
 
 python3 -m Experiments.TDExperiments.PastWorkEvaluation \
     hydra.run.dir="${directory}/Zip Agent" \
@@ -38,7 +39,8 @@ python3 -m Experiments.TDExperiments.PastWorkEvaluation \
     seed=$seed \
     repeat=$repeat \
     env="$env" \
-    is_q=True
+    is_q=True \
+    recompute_optimal=True
 
 python3 -m Experiments.AdaptationExperiments.AdaptiveQAgentExperiment \
     hydra.run.dir="${directory}/PID Agent" \
@@ -49,7 +51,8 @@ python3 -m Experiments.AdaptationExperiments.AdaptiveQAgentExperiment \
     agent_name="diagonal semi gradient Q updater" \
     gamma=$gamma \
     repeat=$repeat \
-    env="$env"
+    env="$env" \
+    recompute_optimal=True
 
 python3 -m Experiments.Plotting.plot_adaptation_experiment \
     hydra.run.dir="$directory" \

@@ -50,11 +50,8 @@ def train_network(states, actions, rewards, learning_rate, batch_size, epochs):
     return network
 
 
-@hydra.main(config_path='../../config/DQNExperiments', config_name='DQNExperiment')
+@hydra.main(version_base=None, config_path='../../config/DQNExperiments', config_name='DQNExperiment')
 def main(cfg):
-    """
-    Main method.
-    """
     env_name = cfg['env']
     bufferQValues = np.load(f'models/{env_name}/bufferQValues.npy')
     states, actions, rewards = bufferQValues[:, 0], bufferQValues[:, 1], bufferQValues[:, 2]

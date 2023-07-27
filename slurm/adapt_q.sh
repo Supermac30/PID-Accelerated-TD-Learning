@@ -1,9 +1,9 @@
 #!/bin/bash
 #SBATCH -N 1
 #SBATCH -p cpu
-#SBATCH --cpus-per-task=32
+#SBATCH --cpus-per-task=64
 #SBATCH --tasks-per-node=1
-#SBATCH --time=10:00:00
+#SBATCH --time=5:00:00
 #SBATCH --mem=1GB
 #SBATCH --job-name=adapt_Q
 #SBATCH --output=slurm/logs/%x_%j.out
@@ -13,7 +13,7 @@ source slurm/setup.sh
 current_time=$(date "+%Y.%m.%d/%H.%M.%S")
 env="chain walk"
 gamma=0.999
-repeat=20
+repeat=1
 seed=$RANDOM
 num_iterations=100000
 directory=outputs/q_adaptation_experiment/$env/$current_time
@@ -26,13 +26,15 @@ python3 -m Experiments.AdaptationExperiments.AdaptiveQAgentExperiment --multirun
     hydra.sweep.dir="$directory" \
     seed=$seed \
     save_dir="$directory" \
-    meta_lr=1e-2,1e-3,5e-3 \
-    epsilon=1,5,10 \
+    meta_lr=1e-4 \
+    epsilon=0.1 \
     env="$env" \
     gamma=$gamma \
     repeat=$repeat \
     num_iterations=$num_iterations \
-    agent_name="diagonal semi gradient Q updater"
+    agent_name="semi gradient Q updater" \
+    get_optimal=False \
+    compute_optimal=False
 
 python3 -m Experiments.QExperiments.PIDQLearning \
     hydra.run.dir="$directory/TD Agent" \

@@ -37,3 +37,9 @@ class Policy():
         state = self.prg.choice(self.num_states)
         action = self.prg.choice(self.num_actions, p=self.policy[state])
         return state, action
+    
+    def get_random_sample(self):
+        """Get a random state and action pair"""
+        state = self.prg.choice(self.num_states)
+        action = self.prg.choice(self.num_actions)
+        return state, action

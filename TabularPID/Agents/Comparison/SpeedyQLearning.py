@@ -25,8 +25,7 @@ class SpeedyQLearning(Agent):
         frequency = np.zeros((self.num_states, 1))
 
         for k in range(num_iterations):
-            self.policy.set_policy_from_Q(self.current_Q)
-            current_state, action, next_state, reward = self.take_action(follow_trajectory)
+            current_state, action, next_state, reward = self.take_action(follow_trajectory, is_q=True)
             frequency[current_state] += 1
 
             previous_bellman = reward + self.gamma * max(self.previous_Q[next_state])

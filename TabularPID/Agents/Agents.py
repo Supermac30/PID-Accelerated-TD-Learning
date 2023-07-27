@@ -37,7 +37,7 @@ class Agent():
         """Estimate the value function. This could be V^pi or V*"""
         raise NotImplementedError
 
-    def take_action(self, follow_trajectory):
+    def take_action(self, follow_trajectory, is_q=False):
         """Use the current policy to play an action in the environment.
         Return a 4-tuple of (current_state, action, next_state, reward).
         """
@@ -45,7 +45,10 @@ class Agent():
             state = self.environment.current_state
             action = self.policy.get_action(state)
         else:
-            state, action = self.policy.get_on_policy_sample()
+            if is_q:
+                state, action = self.policy.get_random_sample()
+            else:
+                state, action = self.policy.get_on_policy_sample()
             self.environment.current_state = state
 
         next_state, reward = self.environment.take_action(action)
@@ -390,8 +393,7 @@ class ControlledQLearning(Agent):
         history = np.zeros(num_iterations)
 
         for k in range(num_iterations):
-            self.policy.set_policy_from_Q(self.Q)
-            current_state, action, next_state, reward = self.take_action(follow_trajectory)
+            current_state, action, next_state, reward = self.take_action(follow_trajectory, is_q=True)
 
             frequency[current_state] += 1
 

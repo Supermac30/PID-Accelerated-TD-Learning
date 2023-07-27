@@ -35,7 +35,8 @@ python3 -m Experiments.AdaptationExperiments.AdaptiveAgentExperiment --multirun 
     gamma=$gamma \
     repeat=$repeat \
     num_iterations=$num_iterations \
-    agent_name="semi gradient updater" \
+    agent_name="diagonal semi gradient updater" \
+    compute_optimal=False
 
 python3 -m Experiments.TDExperiments.SoftTDPolicyEvaluation \
     hydra.run.dir="$directory/TD Agent" \

@@ -336,7 +336,8 @@ class PID_DQN(OffPolicyAlgorithm):
             state_action_pairs = np.concatenate((states, actions), axis=1)
 
             # Dump them into a file called models/${env}/buffer.npy
-            np.save(f"models/{self.visualization_env.unwrapped.spec.id}/buffer.npy", state_action_pairs)
+            # WARNING: Change this directory to your own machine
+            np.save(f"/h/bedaywim/PID-Accelerated-TD-Learning/models/{self.visualization_env.unwrapped.spec.id}/buffer.npy", state_action_pairs)
 
         return outputs
 

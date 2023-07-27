@@ -55,9 +55,8 @@ class AbstractAdaptiveAgent(Agent):
         gain_history = np.zeros((num_iterations, 5))
 
         for k in range(num_iterations):
-            self.policy.set_policy_from_Q(self.Q)
             self.previous_previous_state, self.previous_state, self.previous_reward = self.previous_state, self.current_state, self.reward
-            self.current_state, self.action, self.next_state, self.reward = self.take_action(follow_trajectory)
+            self.current_state, self.action, self.next_state, self.reward = self.take_action(follow_trajectory, is_q=True)
 
             self.replay_buffer[self.current_state].append(
                 (self.previous_reward, self.reward, self.previous_state, self.next_state, self.action)
@@ -132,9 +131,21 @@ class AdaptiveSamplerAgent(AbstractAdaptiveAgent):
         new_z = self.beta * self.z[state][action] + self.alpha * BR
         new_Qp = self.Q[state][action]
 
-        self.previous_previous_Q[state][action], self.previous_Q[state][action], self.Q[state][action] = self.previous_Q[state][action], self.Q[state][action], (1 - lr) * self.Q[state][action] + lr * new_Q
-        self.previous_z[state][action], self.z[state][action] = self.z[state][action], (1 - update_I_rate) * self.z[state][action] + update_I_rate * new_z
-        self.previous_Qp[state][action], self.Qp[state][action] = self.Qp[state][action], (1 - update_D_rate) * self.Qp[state][action] + update_D_rate * new_Qp
+        """
+        self.previous_previous_Q[state][action], self.previous_Q[state][action] = self.previous_Q[state][action], self.Q[state][action]
+        self.previous_z[state][action] = self.z[state][action]
+        self.previous_Qp[state][action] = self.Qp[state][action]
+        """
+
+        self.previous_previous_Q = self.previous_Q.copy()
+        self.previous_Q = self.Q.copy()
+        self.previous_z = self.z.copy()
+        self.previous_Qp = self.Qp.copy()
+
+        self.Q[state][action] = (1 - lr) * self.Q[state][action] + lr * new_Q
+        self.z[state][action] = (1 - update_I_rate) * self.z[state][action] + update_I_rate * new_z
+        self.Qp[state][action] = (1 - update_D_rate) * self.Qp[state][action] + update_D_rate * new_Qp
+
 
     def BR(self):
         """Return the empirical bellman residual"""
@@ -180,6 +191,9 @@ class DiagonalAdaptiveSamplerAgent(AbstractAdaptiveAgent):
         state = self.current_state
         action = self.action
 
+        # if np.random.random() < 0.01:
+        #     breakpoint()
+
         BR = self.BR()
         new_Q = self.Q[state][action] + self.kp[state][action] * BR + self.kd[state][action] * (self.Q[state][action] - self.Qp[state][action]) + self.ki[state][action] * (self.beta * self.z[state][action] + self.alpha * BR)
         new_z = self.beta * self.z[state][action] + self.alpha * BR
@@ -187,13 +201,8 @@ class DiagonalAdaptiveSamplerAgent(AbstractAdaptiveAgent):
 
         # Try modifying this to copy previous_Q into Q, instead of doing it delayed state wise
         # This fits the math better, and might fix the problems we are having
-
-        self.previous_previous_Q = self.previous_Q.copy()
-        self.previous_Q = self.Q.copy()
         self.Q[state][action] = (1 - lr) * self.Q[state][action] + lr * new_Q
-        self.previous_z = self.z.copy()
         self.z[state][action] = (1 - update_I_rate) * self.z[state][action] + update_I_rate * new_z
-        self.previous_Qp = self.Qp.copy()
         self.Qp[state][action] = (1 - update_D_rate) * self.Qp[state][action] + update_D_rate * new_Qp
 
         """
@@ -297,6 +306,8 @@ class SemiGradientUpdater(AbstractGainUpdater):
         self.i_update_plot = [0]
         self.z_plot = [0]
 
+        self.BRs = np.zeros((agent.num_states, agent.num_actions))
+
         self.plot_state = 25
 
         return super().set_agent(agent)
@@ -305,12 +316,11 @@ class SemiGradientUpdater(AbstractGainUpdater):
         reward = self.agent.reward
         next_state, current_state, action = self.agent.next_state, self.agent.current_state, self.agent.action
         Q, Qp, z = self.agent.previous_Q, self.agent.previous_Qp, self.agent.previous_z
-        next_Q = self.agent.Q
         alpha, beta = self.alpha, self.beta
         gamma, lr = self.gamma, self.agent.lr
 
-        BR = reward + gamma * np.max(Q[next_state]) - Q[current_state][action]
-        next_BR = reward + gamma * np.max(next_Q[next_state]) - next_Q[current_state][action]
+        next_BR = reward + gamma * np.max(Q[next_state]) - Q[current_state][action]
+        BR = self.BRs[current_state][action]
 
         scale = 0.5
         self.running_BR[current_state][action] = (1 - scale) * self.running_BR[current_state][action] + scale * BR * BR
@@ -336,6 +346,8 @@ class SemiGradientUpdater(AbstractGainUpdater):
             self.d_update = 0
             self.i_update = 0
             self.p_update = 0
+
+        self.BRs[current_state][action] = next_BR
 
     def plot(self, directory):
         return
@@ -386,26 +398,27 @@ class DiagonalSemiGradient(AbstractGainUpdater):
     def calculate_updated_values(self, intermediate=False):
         reward = self.agent.reward
         next_state, current_state, action = self.agent.next_state, self.agent.current_state, self.agent.action
-        Q, Qp, z = self.agent.Q, self.agent.Qp, self.agent.z
-        Q_previous, Qp_previous, z_previous = self.agent.previous_Q, self.agent.previous_Qp, self.agent.previous_z
+        Q, Qp, z = self.agent.previous_Q, self.agent.previous_Qp, self.agent.previous_z
         alpha, beta = self.alpha, self.beta
         gamma, lr = self.gamma, self.agent.lr
 
         BR = reward + gamma * np.max(Q[next_state]) - Q[current_state][action]
         BR_previous = self.previous_BRs[current_state][action]
+        self.previous_BRs[current_state][action] = BR
+
+        # if np.random.random() < 0.0001:
+        #     breakpoint()
 
         scale = 0.5
         self.running_BR[current_state][action] = (1 - scale) * self.running_BR[current_state][action] + scale * BR * BR
-
         normalization = self.epsilon + self.running_BR[current_state][action]
 
         self.p_update[current_state][action] += lr * BR * BR_previous / normalization
-        self.d_update[current_state][action] += lr * BR * (Q_previous[current_state][action] - Qp_previous[current_state][action]) / normalization
-        self.i_update[current_state][action] += lr * BR * (beta * z_previous[current_state][action] + alpha * BR_previous) / normalization  
+        self.d_update[current_state][action] += lr * BR * (Q[current_state][action] - Qp[current_state][action]) / normalization
+        self.i_update[current_state][action] += lr * BR * (beta * z[current_state][action] + alpha * BR_previous) / normalization  
         self.alpha_update[current_state][action] += lr * self.ki[current_state][action] * BR * BR_previous / normalization
-        self.beta_update[current_state][action] += lr * self.ki[current_state][action] * BR * z_previous[current_state][action] / normalization
+        self.beta_update[current_state][action] += lr * self.ki[current_state][action] * BR * z[current_state][action] / normalization
 
-        self.previous_BRs[current_state][action] = BR
 
         self.frequencies[current_state][action] += 1
         if self.frequencies[current_state][action] == self.update_frequency:

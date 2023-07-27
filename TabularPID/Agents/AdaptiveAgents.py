@@ -139,7 +139,6 @@ class AdaptiveSamplerAgent(AbstractAdaptiveAgent):
         new_Vp = self.V[state][0]
 
 
-        """
         self.previous_previous_V = self.previous_V.copy()
         self.previous_V = self.V.copy()
         self.previous_z = self.z.copy()
@@ -153,6 +152,7 @@ class AdaptiveSamplerAgent(AbstractAdaptiveAgent):
         self.previous_previous_V[state], self.previous_V[state], self.V[state] = self.previous_V[state][0], self.V[state][0], (1 - lr) * self.V[state][0] + lr * new_V
         self.previous_z[state], self.z[state] = self.z[state][0], (1 - update_I_rate) * self.z[state][0] + update_I_rate * new_z
         self.previous_Vp[state], self.Vp[state] = self.Vp[state][0], (1 - update_D_rate) * self.Vp[state][0] + update_D_rate * new_Vp
+        """
         
         
     def BR(self):
@@ -296,6 +296,7 @@ class SemiGradientUpdater(AbstractGainUpdater):
     def set_agent(self, agent):
         self.running_BR = np.zeros((agent.num_states))
         self.previous_average_BR = float("inf")
+        self.previous_BRs = np.zeros((agent.num_states))
         self.d_update = 0
         self.i_update = 0
         self.p_update = 0
@@ -314,12 +315,12 @@ class SemiGradientUpdater(AbstractGainUpdater):
         reward = self.agent.reward
         next_state, current_state = self.agent.next_state, self.agent.current_state
         V, Vp, z = self.agent.previous_V, self.agent.previous_Vp, self.agent.previous_z
-        next_V = self.agent.V
         alpha, beta = self.alpha, self.beta
         gamma, lr = self.gamma, self.agent.lr
 
-        BR = reward + gamma * V[next_state][0] - V[current_state][0]
-        next_BR = reward + gamma * next_V[next_state][0] - next_V[current_state][0]
+        BR = self.previous_BRs[current_state]
+        next_BR = reward + gamma * V[next_state][0] - V[current_state][0]
+        self.previous_BRs[current_state] = next_BR
 
         scale = 0.5
         self.running_BR[current_state] = (1 - scale) * self.running_BR[current_state] + scale * BR * BR
@@ -886,6 +887,10 @@ class DiagonalSemiGradient(AbstractGainUpdater):
         self.running_BR[current_state] = (1 - scale) * self.running_BR[current_state] + scale * BR * BR
 
         normalization = self.epsilon + self.running_BR[current_state]
+
+        if current_state == 2:
+            if np.random.random() < 0.01:
+                breakpoint()
 
         self.p_update[current_state] += lr * BR * BR_previous / normalization
         self.d_update[current_state] += lr * BR * (V_previous[current_state] - Vp_previous[current_state]) / normalization

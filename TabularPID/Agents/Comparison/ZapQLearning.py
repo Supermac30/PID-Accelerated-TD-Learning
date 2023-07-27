@@ -37,8 +37,7 @@ class ZapQLearning(Agent):
         rolling_A = np.random.rand(self.num_states, self.num_states)
 
         for k in range(num_iterations):
-            self.policy.set_policy_from_Q(self.Q)
-            current_state, action, next_state, reward = self.take_action(follow_trajectory)
+            current_state, action, next_state, reward = self.take_action(follow_trajectory, is_q=True)
             frequency[current_state] += 1
 
             best_action = np.argmax(self.Q[next_state])

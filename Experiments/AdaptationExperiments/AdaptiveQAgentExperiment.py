@@ -10,7 +10,7 @@ from Experiments.ExperimentHelpers import *
 def adaptive_agent_experiment(cfg):
     """Visualize the behavior of adaptation without learning rates."""
     seed = pick_seed(cfg['seed'])
-    meta_lr, delay, lambd, alpha, beta, epsilon = cfg['meta_lr'], cfg['delay'], cfg['lambda'], cfg['alphas'], cfg['betas'], cfg['epsilon']
+    meta_lr, delay, lambd, alpha, beta, epsilon = cfg['meta_lr'], cfg['delay'], cfg['lambda'], cfg['alpha'], cfg['beta'], cfg['epsilon']
 
     if cfg['compute_optimal']:
         get_optimal_adaptive_rates(cfg['agent_name'], cfg['env'], meta_lr, cfg['gamma'], lambd, delay, alpha, beta, recompute=cfg['recompute_optimal'], epsilon=epsilon, norm=cfg['norm'], is_q=True)
