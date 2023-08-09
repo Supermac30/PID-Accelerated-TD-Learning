@@ -4,10 +4,14 @@ import itertools
 import os
 import logging
 import multiprocess as mp
+import gymnasium as gym
 
 from TabularPID.MDPs.MDP import PolicyEvaluation, Control, Control_Q
 from TabularPID.MDPs.Environments import *
 from TabularPID.MDPs.Policy import Policy
+from stable_baselines3.dqn.dqn import DQN
+
+base_directory = '/h/bedaywim/PID-Accelerated-TD-Learning'
 
 def normalize(arr):
     """Normalize the array by the first value. If the array is empty, or starts with zero, return it.
@@ -30,9 +34,15 @@ def build_test_function(norm, V_pi):
     """
     if norm == "inf":
         return lambda V, Vp, BR: np.max(np.abs(V - V_pi))
+    
     elif type(norm) == type("") and norm[:4] == "diff":
-        index = int(norm[5:])
-        return lambda V, Vp, BR: V[index] - V_pi[index]
+        # Check if the norm is of the form diff <num-1> <num-2> or if is of the form diff <num>
+        if len(norm.split(" ")) == 3:
+            i1, i2 = map(int, norm.split(" ")[1:])
+            return lambda Q, Qp, BR: Q[i1][i2] - V_pi[i1][i2]
+        else:
+            index = int(norm[5:])
+            return lambda V, Vp, BR: V[index] - V_pi[index]
     
     elif norm == 2:
         return lambda V, Vp, BR: (V - V_pi).T @ (V - V_pi)
@@ -63,6 +73,8 @@ def get_env_policy(name, seed):
         return chain_walk_random(50, 2, seed)
     elif name == "cliff walk":
         return cliff_walk(seed)
+    elif name == "cliff walk optimal":
+        return cliff_walk_optimal(seed)
     elif name == "identity":
         return identity(seed)
     elif name[:6] == "normal":
@@ -70,8 +82,20 @@ def get_env_policy(name, seed):
         return normal_env(variance, seed)
     elif name == "bernoulli":
         return bernoulli_env(seed)
+    elif name in {"CartPole-v1", "Acrobot-v1", "MountainCar-v0", "LunarLander-v2"}:
+        return gym.make(name), optimal_gym_policy(name)
     else:
         raise Exception("Environment not indexed")
+
+def get_model(env_name):
+    """Return the model with the same env_name from the models directory"""
+    # The model is in a directory that starts with the same name as the environment
+    model_dir = next(iter(filter(lambda x: x.startswith(env_name), os.listdir(f"{base_directory}/models"))))
+    return DQN.load(f"{base_directory}/models/{model_dir}/{model_dir}.zip")
+
+def optimal_gym_policy(name):
+    model = get_model(name)
+    return lambda state: np.argmax(model.predict(state.reshape(1, -1))[0])
 
 def bernoulli_env(seed):
     env = BernoulliApproximation(seed)
@@ -86,6 +110,20 @@ def cliff_walk(seed):
     env = CliffWalk(0.9, seed)
     return env, Policy(env.num_actions, env.num_states, env.prg, None)
 
+def cliff_walk_optimal(seed):
+    """Return the CliffWalk Environment with the optimal policy"""
+    env = CliffWalk(0.9, seed)
+    policy = np.zeros((env.num_states, env.num_actions))
+
+    for i in range(env.num_states):
+        if i in {0, 12, 24}:
+            policy[i, 2] = 1
+        elif i in range(6, 12) or i in range(18, 23) or i in range(30, 35):
+            policy[i, 1] = 1
+        else:
+            policy[i, 0] = 1
+
+    return env, Policy(env.num_actions, env.num_states, env.prg, policy)
 
 def garnet_problem(num_states, num_actions, bP, bR, seed):
     """Return the Garnet Environment with the policy that chooses the first move at each iteration"""
@@ -121,7 +159,7 @@ def identity(seed):
     return env, Policy(1, 1, env.prg, None)
 
 
-def find_optimal_learning_rates(agent, value_function_estimator, learning_rates={}, update_I_rates={}, update_D_rates={}, verbose=False):
+def find_optimal_learning_rates(agent, value_function_estimator, learning_rates={}, update_I_rates={}, update_D_rates={}, verbose=False, repeat=3):
     """Run a grid search for values of N and alpha that makes the
     value_function_estimator have the lowest possible error.
 
@@ -148,10 +186,11 @@ def find_optimal_learning_rates(agent, value_function_estimator, learning_rates=
             threshold = 0.2
             if verbose:
                 logging.info(f"trying {param}")
-            history = repeat_experiment(value_function_estimator, 3)
+            history = repeat_experiment(value_function_estimator, repeat)
             # Find the first index in history where the error is below 0.2, using vectorization
             indices = np.where(history / history[0] < threshold)[0]
-            if len(indices) > 0 and indices[-1] == len(history) - 1:
+            # Check if we go below 0.2, and if so, check if we stay below 0.2 at the end
+            if len(indices) > 0 and history[-1] / history[0] < threshold:
                 index = indices[0]
             else:
                 index = float("inf")
@@ -202,6 +241,8 @@ def find_optimal_learning_rates(agent, value_function_estimator, learning_rates=
 def repeat_experiment(value_function, num_times):
     """Run the experiment num_times times and return the average history.
     Take as input the parameters to the estimate_value_function function.
+
+    Outputs must be of the same size.
     """
     average_history = 0
 

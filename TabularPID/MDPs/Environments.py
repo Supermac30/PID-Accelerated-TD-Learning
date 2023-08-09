@@ -1,6 +1,4 @@
 import numpy as np
-import logging
-
 
 class InvalidAction(Exception):
     """Raised when the agent tries to take an invalid action"""

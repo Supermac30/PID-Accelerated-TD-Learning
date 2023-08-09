@@ -21,6 +21,8 @@ stop_if_diverging: False
 normalize: True
 repeat: 1
 
+search_steps: 1000
+
 kp: 1
 ki: 0
 kd: 0

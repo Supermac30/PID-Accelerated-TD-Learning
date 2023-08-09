@@ -17,5 +17,5 @@ save_dir=outputs/averaged_garnet_results
 python3 -m Experiments.Plotting.average_garnet_plot \
     hydra.run.dir="$1" \
     save_dir="$1" \
-    repeat=100 \
+    repeat=20 \
     hydra/job_logging=disabled

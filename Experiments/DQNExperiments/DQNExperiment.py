@@ -7,10 +7,11 @@ import wandb
 
 from Experiments.ExperimentHelpers import *
 from TabularPID.AgentBuilders.DQNBuilder import build_PID_DQN, build_PID_FQI, build_gain_adapter
-from stable_baselines3.dqn.dqn import DQN
 from stable_baselines3.common.callbacks import BaseCallback
 from stable_baselines3.common import evaluation
 from stable_baselines3.common.utils import set_random_seed
+
+from Experiments.ExperimentHelpers import get_model
 
 # Warning: Change this when running on a different machine
 base_directory = "/h/bedaywim/PID-Accelerated-TD-Learning"
@@ -93,12 +94,6 @@ def control_experiment(cfg):
 
     agent.visualize_episode()
 
-
-def get_model(env_name):
-    """Return the model with the same env_name from the models directory"""
-    # The model is in a directory that starts with the same name as the environment
-    model_dir = next(iter(filter(lambda x: x.startswith(env_name), os.listdir(f"{base_directory}/models"))))
-    return DQN.load(f"{base_directory}/models/{model_dir}/{model_dir}.zip")
 
 
 class CustomEvalCallback(BaseCallback):

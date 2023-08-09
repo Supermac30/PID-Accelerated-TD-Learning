@@ -14,6 +14,7 @@ get_optimal: True # Get the optimal parameters from the database
 compute_optimal: True # Run a grid search. When recompute_optimal is false, we don't run a grid search if the optimal parameters are in the database already
 recompute_optimal: False # If compute_optimal is True, run a grid search even if the optimal parameters are in the database
 repeat: 3
+search_steps: 10000
 
 follow_trajectory: False
 stop_if_diverging: False

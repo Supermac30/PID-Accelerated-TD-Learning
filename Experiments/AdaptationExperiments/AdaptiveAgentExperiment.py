@@ -15,7 +15,7 @@ def adaptive_agent_experiment(cfg):
     agent_description = f"Adaptive Agent {agent_name} {meta_lr} {delay} {lambd} {epsilon}"
 
     if cfg['compute_optimal']:
-        get_optimal_adaptive_rates(agent_name, cfg['env'], meta_lr, cfg['gamma'], lambd, delay, alpha, beta, recompute=cfg['recompute_optimal'], epsilon=epsilon)
+        get_optimal_adaptive_rates(agent_name, cfg['env'], meta_lr, cfg['gamma'], lambd, delay, alpha, beta, recompute=cfg['recompute_optimal'], epsilon=epsilon, search_steps=cfg['search_steps'])
     agent, env, policy = build_adaptive_agent_and_env(
         agent_name,
         cfg['env'],

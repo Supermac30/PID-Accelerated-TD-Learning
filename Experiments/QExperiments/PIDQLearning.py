@@ -17,13 +17,19 @@ def soft_policy_evaluation_experiment(cfg):
     
     all_histories = []
     for _ in range(cfg['repeat']):
-        history, _ = agent.estimate_value_function(
+        history, Q = agent.estimate_value_function(
             num_iterations=cfg['num_iterations'],
             test_function=test_function,
             follow_trajectory=cfg['follow_trajectory'],
-            reset_environment=False
+            reset_environment=False,
+            stop_if_diverging=cfg['stop_if_diverging'],
         )
         all_histories.append(history)
+
+    logging.info(f"Final difference is: Q_star - Q = {Q_star - Q}")
+    logging.info(f"Q_star is: {Q_star}")
+    logging.info(f"Final Q is: {Q}")
+
     mean_history = np.mean(np.array(all_histories), axis=0)
     std_dev_history = np.std(np.array(all_histories), axis=0)
     save_array(mean_history, f"{agent_name} kp={kp} ki={ki} kd={kd} alpha={alpha} beta={beta}", directory=cfg['save_dir'], subdir="mean")

@@ -123,11 +123,17 @@ class MDP_Q:
 
         self.reset()
 
-    def reset(self):
+    def reset(self, large_random_init=True):
         """Reset the MDP to its initial state."""
-        self.Q = np.zeros((self.num_states, self.num_actions))
-        self.Qp = np.zeros((self.num_states, self.num_actions))
+        if large_random_init:
+            self.Q = 100000 * np.random.rand(self.num_states, self.num_actions)
+            self.Qp = 100000 * np.random.rand(self.num_states, self.num_actions)
+        else:
+            self.Q = np.zeros((self.num_states, self.num_actions))
+            self.Qp = np.zeros((self.num_states, self.num_actions))
         self.z = np.zeros((self.num_states, self.num_actions))
+
+
 
     def value_iteration(self, num_iterations=500, test_function=None):
         """Compute the value function via VI using the added controllers.

@@ -8,6 +8,7 @@ repeat: 20
 env: Chain Walk
 default_name: Not Specified
 is_q: False
+is_double_q: False
 
 seed: -1
 hydra:

@@ -1,6 +1,7 @@
 from TabularPID.OptimalRates.OptimalRateDatabase import get_stored_optimal_rate
 from Experiments.ExperimentHelpers import get_env_policy 
-from TabularPID.Agents.Agents import PID_TD, FarSighted_PID_TD, Hard_PID_TD, PID_TD_with_momentum, ControlledQLearning, learning_rate_function
+from TabularPID.Agents.Agents import PID_TD, FarSighted_PID_TD, Hard_PID_TD, PID_TD_with_momentum, ControlledQLearning, learning_rate_function, ControlledDoubleQLearning
+from TabularPID.Agents.LinearFA import LinearTD, FourierBasis, PolynomialBasis
 from TabularPID.MDPs.MDP import PolicyEvaluation, Control, Control_Q
 from TabularPID.Agents.Comparison.TIDBD import TIDBD
 from TabularPID.Agents.Comparison.SpeedyQLearning import SpeedyQLearning
@@ -14,7 +15,7 @@ Types of agents:
 - TD (kp, kd, ki): The agent that uses PID to learn the optimal policy with TD
 """
 
-default_optimal_rates = (0.5, 100, 1, 100, 1, 100)
+default_optimal_rates = (1, 50, 0.2, float("inf"), 1, float("inf"))
 
 def build_agent_and_env(agent_name, env_name, get_optimal=False, seed=42, gamma=0.99):
     """Return both the agent and the environment & policy given their names.
@@ -78,6 +79,13 @@ def build_agent(agent_name, env_name, env, policy, get_optimal, gamma):
         return build_momentum_TD_PID(env, policy, kp, ki, kd, alpha, beta, learning_rates, gamma)
     elif agent_description == "Q learning":
         return build_Q_PID(env, kp, ki, kd, alpha, beta, learning_rates, gamma)
+    elif agent_description == "double Q learning":
+        return build_double_Q_PID(env, kp, ki, kd, alpha, beta, learning_rates, gamma)
+    
+    elif agent_description == "linear TD polynomial":
+        return build_linear_TD_polynomial_basis(env, policy, kp, ki, kd, alpha, beta, learning_rates, gamma)
+    elif agent_description == "linear TD fourier":
+        return build_linear_TD_fourier_basis(env, policy, kp, ki, kd, alpha, beta, learning_rates, gamma)
     
     elif agent_description == "TIDBD":
         return build_TIDBD(env, policy, learning_rates, gamma)
@@ -87,7 +95,34 @@ def build_agent(agent_name, env_name, env, policy, get_optimal, gamma):
         return build_Speedy_Q_learning(env, policy, learning_rates, gamma)
     return None
 
-# Build the agents for comparison
+def build_linear_TD_polynomial_basis(env, policy, kp, ki, kd, alpha, beta, learning_rates, gamma):
+    """Build the linear TD agent with polynomial basis.
+    """
+    basis = PolynomialBasis(env, 3)
+    return LinearTD(
+        env, policy, gamma, basis,
+        kp, ki, kd, alpha, beta,
+        *learning_rates
+    )
+
+def build_linear_TD_fourier_basis(env, policy, kp, ki, kd, alpha, beta, learning_rates, gamma):
+    """Build the linear TD agent with Fourier basis.
+    """
+    basis = FourierBasis(env, 3)
+    return LinearTD(
+        env, policy, gamma, basis,
+        kp, ki, kd, alpha, beta,
+        *learning_rates
+    )
+
+def build_double_Q_PID(env, kp, ki, kd, alpha, beta, learning_rates, gamma):
+    """Build the double Q learning agent.
+    """
+    return ControlledDoubleQLearning(
+        env, gamma, kp, ki, kd, alpha, beta, learning_rates
+    )
+
+
 def build_TIDBD(env, policy, learning_rates, gamma):
     """Build the TIDBD agent.
     """

@@ -9,11 +9,12 @@ from Experiments.ExperimentHelpers import get_env_policy
 from TabularPID.OptimalRates.OptimalRateDatabase import get_stored_optimal_rate
 from TabularPID.Agents.AdaptiveAgents import *
 import TabularPID.Agents.AdaptiveQAgents as AdaptiveQAgents
+import TabularPID.Agents.AdaptiveDoubleQAgents as AdaptiveDoubleQAgents
 from TabularPID.Agents.Agents import learning_rate_function
 import logging
 
 default_meta_lr = 1
-default_learning_rates = (1, 20, 0.5, float("inf"), 0.1, float("inf"))  #  (0.1, 10, 1, float("inf"), 0.01, float("inf"))
+default_learning_rates =  (1, 100, 1, float("inf"), 0.01, float("inf"))  #  (0.1, 10, 1, float("inf"), 0.01, float("inf"))
 
 def build_adaptive_agent_and_env(agent_name, env_name, meta_lr, lambd, delay, get_optimal=False, seed=42, gamma=0.99, kp=1, kd=0, ki=0, alpha=0.05, beta=0.95, epsilon=0.1):
     """Return the adaptive agent and the environment & policy given its name. The names include:
@@ -119,7 +120,23 @@ def build_adaptive_agent(agent_name, env_name, env, policy, meta_lr, lambd, dela
         return build_semi_gradient_Q_updater(*params)
     elif agent_name == "diagonal semi gradient Q updater":
         return build_diagonal_semi_gradient_Q_updater(*params)
+
+    elif agent_name == "semi gradient double Q updater":
+        return build_semi_gradient_double_Q_updater(*params)
     return None
+
+
+def build_semi_gradient_double_Q_updater(env, policy, meta_lr, lambd, learning_rates, gamma, delay, kp, kd, ki, alpha, beta, epsilon):
+    gain_updater = AdaptiveDoubleQAgents.SemiGradientUpdater(lambd, epsilon)
+    return AdaptiveDoubleQAgents.AdaptiveSamplerAgent(
+        gain_updater,
+        learning_rates,
+        meta_lr,
+        env,
+        gamma,
+        delay,
+        kp, kd, ki, alpha, beta
+    )
 
 
 def build_diagonal_semi_gradient_Q_updater(env, policy, meta_lr, lambd, learning_rates, gamma, delay, kp, kd, ki, alpha, beta, epsilon):

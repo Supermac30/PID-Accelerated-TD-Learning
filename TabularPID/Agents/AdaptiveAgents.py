@@ -134,10 +134,14 @@ class AdaptiveSamplerAgent(AbstractAdaptiveAgent):
 
         #Update the value function using the floats kp, ki, kd
         BR = self.BR()
-        new_V = self.V[state][0] + self.kp * BR + self.kd * (self.V[state][0] - self.Vp[state][0]) + self.ki * (self.beta * self.z[state][0] + self.alpha * BR)
+        self.previous_BR = BR
+        self.p_update = BR
+        self.d_update = self.V[state][0] - self.Vp[state][0]
+        self.i_update = self.beta * self.z[state][0] + self.alpha * BR
+
+        new_V = self.V[state][0] + self.kp * self.p_update + self.kd * self.d_update + self.ki * self.i_update
         new_z = self.beta * self.z[state][0] + self.alpha * BR
         new_Vp = self.V[state][0]
-
 
         self.previous_previous_V = self.previous_V.copy()
         self.previous_V = self.V.copy()
@@ -147,17 +151,10 @@ class AdaptiveSamplerAgent(AbstractAdaptiveAgent):
         self.V[state] = (1 - lr) * self.V[state][0] + lr * new_V
         self.z[state] = (1 - update_I_rate) * self.z[state][0] + update_I_rate * new_z
         self.Vp[state] = (1 - update_D_rate) * self.Vp[state][0] + update_D_rate * new_Vp
-
-        """
-        self.previous_previous_V[state], self.previous_V[state], self.V[state] = self.previous_V[state][0], self.V[state][0], (1 - lr) * self.V[state][0] + lr * new_V
-        self.previous_z[state], self.z[state] = self.z[state][0], (1 - update_I_rate) * self.z[state][0] + update_I_rate * new_z
-        self.previous_Vp[state], self.Vp[state] = self.Vp[state][0], (1 - update_D_rate) * self.Vp[state][0] + update_D_rate * new_Vp
-        """
-        
         
     def BR(self):
         """Return the empirical bellman residual"""
-        return self.reward + self.gamma * self.V[self.next_state][0] - self.V[self.current_state][0]
+        return self.reward[0] + self.gamma * self.V[self.next_state][0] - self.V[self.current_state][0]
 
 
 class DiagonalAdaptiveSamplerAgent(AbstractAdaptiveAgent):
@@ -201,8 +198,13 @@ class DiagonalAdaptiveSamplerAgent(AbstractAdaptiveAgent):
         state = self.current_state
 
         BR = self.BR()
+        self.previous_BR = BR
 
-        new_V = self.V[state][0] + self.kp[state] * BR + self.kd[state] * (self.V[state][0] - self.Vp[state][0]) + self.ki[state] * (self.beta[state] * self.z[state][0] + self.alpha[state] * BR)
+        self.p_update = BR
+        self.i_update = self.beta[state] * self.z[state][0] + self.alpha[state] * BR
+        self.d_update = self.Vp[state][0] - self.V[state][0]
+
+        new_V = self.V[state][0] + self.kp[state] * self.p_update + self.ki[state] * self.i_update + self.kd[state] * self.d_update
         new_z = self.beta[state] * self.z[state][0] + self.alpha[state] * BR
         new_Vp = self.V[state][0]
 
@@ -212,7 +214,7 @@ class DiagonalAdaptiveSamplerAgent(AbstractAdaptiveAgent):
 
     def BR(self):
         """Return the empirical bellman residual"""
-        return self.reward + self.gamma * self.V[self.next_state][0] - self.V[self.current_state][0]
+        return self.reward[0] + self.gamma * self.V[self.next_state][0] - self.V[self.current_state][0]
 
 
 class AdaptivePlannerAgent(AbstractAdaptiveAgent):
@@ -233,8 +235,9 @@ class AdaptivePlannerAgent(AbstractAdaptiveAgent):
 
 
 class AbstractGainUpdater():
-    def __init__(self, lambd, epsilon=0.1):
+    def __init__(self, lambd, epsilon=0.1, scale=0.1):
         self.agent = None
+        self.scale = scale
         self.epsilon = epsilon
         self.lambd = lambd
 
@@ -277,9 +280,10 @@ class NoGainUpdater(AbstractGainUpdater):
     def calculate_updated_values(self, intermediate=False):
         pass
 
+
 class SemiGradientUpdater(AbstractGainUpdater):
-    def __init__(self, lambd=0, epsilon=0.1, update_alpha=True):
-        super().__init__(lambd, epsilon)
+    def __init__(self, lambd=0, epsilon=0.1, update_alpha=True, scale=0.1):
+        super().__init__(lambd, epsilon, scale)
 
         self.d_update = 0
         self.i_update = 0
@@ -291,7 +295,6 @@ class SemiGradientUpdater(AbstractGainUpdater):
 
         self.running_BR = 0
         self.previous_average_BR = float("inf")
-
 
     def set_agent(self, agent):
         self.running_BR = np.zeros((agent.num_states))
@@ -312,54 +315,27 @@ class SemiGradientUpdater(AbstractGainUpdater):
         return super().set_agent(agent)
 
     def calculate_updated_values(self, intermediate=False):
-        reward = self.agent.reward
-        next_state, current_state = self.agent.next_state, self.agent.current_state
-        V, Vp, z = self.agent.previous_V, self.agent.previous_Vp, self.agent.previous_z
-        alpha, beta = self.alpha, self.beta
-        gamma, lr = self.gamma, self.agent.lr
+        current_state = self.agent.current_state
+        lr = self.agent.lr
 
-        BR = self.previous_BRs[current_state]
-        next_BR = reward + gamma * V[next_state][0] - V[current_state][0]
+        BR = self.agent.previous_BR
+        next_BR = self.agent.BR()
         self.previous_BRs[current_state] = next_BR
 
-        scale = 0.5
-        self.running_BR[current_state] = (1 - scale) * self.running_BR[current_state] + scale * BR * BR
+        self.running_BR[current_state] = (1 - self.scale) * self.running_BR[current_state] + self.scale * BR * BR
 
-        self.p_update += lr * next_BR * BR / (self.epsilon + self.running_BR[current_state])
-        self.d_update += lr * next_BR * (V[current_state] - Vp[current_state]) / (self.epsilon + self.running_BR[current_state])
-        self.i_update += lr * next_BR * (beta * z[current_state][0] + alpha * BR) / (self.epsilon + self.running_BR[current_state])
-        #self.theta_alpha_update += lr * next_BR * (self.ki * BR) / (self.epsilon + self.running_BR[current_state])
-        #self.theta_beta_update += lr * next_BR * (self.ki * z[current_state][0]) / (self.epsilon + self.running_BR[current_state])
-
-        """
-        # Plot the BR at a certain state
-        if self.plot_state == current_state:
-            self.BR_plot.append(BR)
-            self.i_update_plot.append(beta * z[self.plot_state][0] + alpha * BR)
-            self.z_plot.append(z[self.plot_state][0])
-        else:
-            self.BR_plot.append(self.BR_plot[-1])
-            self.i_update_plot.append(self.i_update_plot[-1])
-            self.z_plot.append(self.z_plot[-1])
-        """
+        self.p_update += lr * next_BR * self.agent.p_update / (self.epsilon + self.running_BR[current_state])
+        self.d_update += lr * next_BR * self.agent.d_update / (self.epsilon + self.running_BR[current_state])
+        self.i_update += lr * next_BR * self.agent.i_update / (self.epsilon + self.running_BR[current_state])
 
         if not intermediate:
             self.kp = 1 + (1 - self.lambd) * (self.kp - 1) + self.meta_lr * self.p_update / self.agent.update_frequency
             self.kd = self.kd * (1 - self.lambd) + self.meta_lr * self.d_update / self.agent.update_frequency
             self.ki = self.ki * (1 - self.lambd) + self.meta_lr * self.i_update / self.agent.update_frequency
 
-            #self.theta_alpha = self.theta_alpha * (1 - self.lambd) + self.meta_lr * self.theta_alpha_update
-            #self.theta_beta = (self.theta_beta - 1) * (1 - self.lambd) + self.meta_lr * self.theta_beta_update
-
-            #if self.update_alpha:
-            #    self.alpha = 1 / (1 + math.exp(-self.theta_alpha))
-            #    self.beta = 1 / (1 + math.exp(-self.theta_beta))
-
             self.d_update = 0
             self.i_update = 0
             self.p_update = 0
-            #self.theta_alpha_update = 0
-            #self.theta_beta_update = 0
 
     def plot(self, directory=""):
         return
@@ -385,6 +361,126 @@ class SemiGradientUpdater(AbstractGainUpdater):
 
 
 
+class DiagonalSemiGradient(AbstractGainUpdater):
+    def __init__(self, lambd=0, epsilon=0.1, scale=0.1):
+        super().__init__(lambd, epsilon, scale)
+
+    def set_agent(self, agent):
+        super().set_agent(agent)
+        self.previous_BRs = np.zeros((agent.num_states))
+        self.running_BR = np.zeros((agent.num_states))
+        self.p_update = np.zeros((agent.num_states))
+        self.i_update = np.zeros((agent.num_states))
+        self.d_update = np.zeros((agent.num_states))
+        self.alpha_update = np.zeros((agent.num_states))
+        self.beta_update = np.zeros((agent.num_states))
+
+        self.update_frequency = self.agent.update_frequency
+        self.frequencies = np.zeros((agent.num_states))
+
+        self.running_agent_p_update = np.zeros((agent.num_states))
+        self.running_agent_i_update = np.zeros((agent.num_states))
+        self.running_agent_d_update = np.zeros((agent.num_states))
+
+        self.plot_state = 25
+        self.BR_plot = [0]
+        self.kp_plot = [1]
+        self.kd_plot = [0]
+        self.ki_plot = [0]
+        self.d_update_plot = [0]
+        self.i_update_plot = [0]
+
+
+    def calculate_updated_values(self, intermediate=False):
+        current_state = self.agent.current_state
+        lr = self.agent.lr
+
+        next_BR = self.agent.BR()
+        BR = self.agent.previous_BR
+
+        self.running_BR[current_state] = (1 - self.scale) * self.running_BR[current_state] + self.scale * BR * BR
+
+        normalization = self.epsilon + self.running_BR[current_state]
+
+        self.running_agent_p_update[current_state] = (1 - self.scale) * self.running_agent_p_update[current_state] + self.scale * self.agent.p_update
+        self.running_agent_i_update[current_state] = (1 - self.scale) * self.running_agent_i_update[current_state] + self.scale * self.agent.i_update
+        self.running_agent_d_update[current_state] = (1 - self.scale) * self.running_agent_d_update[current_state] + self.scale * self.agent.d_update
+
+        self.p_update[current_state] += lr * next_BR * self.running_agent_p_update[current_state] / normalization
+        self.i_update[current_state] += lr * next_BR * self.running_agent_i_update[current_state] / normalization
+        self.d_update[current_state] += lr * next_BR * self.running_agent_d_update[current_state] / normalization
+
+        # Plot relevant info for debugging
+        if current_state == self.plot_state:
+            self.BR_plot.append(BR)
+        else:
+            self.BR_plot.append(self.BR_plot[-1])
+        self.kp_plot.append(self.kp[self.plot_state])
+        self.kd_plot.append(self.kd[self.plot_state])
+        self.ki_plot.append(self.ki[self.plot_state])
+        self.d_update_plot.append(self.running_agent_d_update[self.plot_state])
+        self.i_update_plot.append(self.running_agent_i_update[self.plot_state])
+ 
+        self.frequencies[current_state] += 1
+        if self.frequencies[current_state] == self.update_frequency:
+            self.kp[current_state] = 1 + (1 - self.lambd) * (self.kp[current_state] - 1)
+            self.kd[current_state] *= 1 - self.lambd
+            self.ki[current_state] *= 1 - self.lambd
+
+            self.kp[current_state] += self.meta_lr * self.p_update[current_state] / self.update_frequency
+            self.kd[current_state] += self.meta_lr * self.d_update[current_state] / self.update_frequency
+            self.ki[current_state] += self.meta_lr * self.i_update[current_state] / self.update_frequency
+
+            self.p_update[current_state] = 0
+            self.d_update[current_state] = 0
+            self.i_update[current_state] = 0
+
+            self.frequencies[current_state] = 0
+
+    def plot(self, directory):
+        #Create a subplot for each BR_plot, kp_plot kd_plot, ki_plot, d_update_plot, i_update_plot
+        # They should be in a 3 x 2 grid, and labelled prperly, ideally all in squares
+
+        fig, axs = plt.subplots(3, 2)
+        fig.suptitle('Diagonal Semi-Gradient Updater')
+
+        axs[0, 0].plot(self.BR_plot, label="BR")
+        axs[0, 0].legend()
+        axs[0, 1].plot(self.kp_plot, label="kp")
+        axs[0, 1].legend()
+        axs[1, 0].plot(self.kd_plot, label="kd")
+        axs[1, 0].legend()
+        axs[1, 1].plot(self.ki_plot, label="ki")
+        axs[1, 1].legend()
+        axs[2, 0].plot(self.d_update_plot, label="d_update")
+        axs[2, 0].legend()
+        axs[2, 1].plot(self.i_update_plot, label="i_update")
+        axs[2, 1].legend()
+        # Add more space between the plots
+        plt.subplots_adjust(hspace=0.5)  
+
+        # Make the figure larger
+        fig.set_size_inches(10, 10)
+
+        # Save the figure before showing it
+        plt.savefig(f"{directory}/semi_gradient_updater.png")
+
+        plt.show()
+
+        # Create a new plot just with the BR_plot, with a different name
+        fig, axs = plt.subplots(1, 1)
+
+        # Title it
+        fig.suptitle('Chain Walk BR on State 25')
+
+        # Set the axes
+        axs.set_xlabel("Iterations")
+        axs.set_ylabel("Bellman Residual")
+
+        axs.plot(self.BR_plot, label="BR")
+        # Plot and save this
+        plt.savefig(f"{directory}/semi_gradient_updater_BR.png")
+        plt.show()
 
 
 
@@ -846,141 +942,7 @@ class TrueDiagonalSemiGradient(AbstractGainUpdater):
         plt.show()
     
 
-class DiagonalSemiGradient(AbstractGainUpdater):
-    def __init__(self, lambd=0, epsilon=0.1):
-        super().__init__(lambd, epsilon)
 
-    def set_agent(self, agent):
-        super().set_agent(agent)
-        self.previous_BRs = np.zeros((agent.num_states))
-        self.running_BR = np.zeros((agent.num_states))
-        self.p_update = np.zeros((agent.num_states))
-        self.i_update = np.zeros((agent.num_states))
-        self.d_update = np.zeros((agent.num_states))
-        self.alpha_update = np.zeros((agent.num_states))
-        self.beta_update = np.zeros((agent.num_states))
-
-        self.update_frequency = self.agent.update_frequency
-        self.frequencies = np.zeros((agent.num_states))
-
-        self.plot_state = 25
-        self.BR_plot = [0]
-        self.kp_plot = [1]
-        self.kd_plot = [0]
-        self.ki_plot = [0]
-        self.d_update_plot = [0]
-        self.i_update_plot = [0]
-
-
-    def calculate_updated_values(self, intermediate=False):
-        reward = self.agent.reward
-        next_state, current_state = self.agent.next_state, self.agent.current_state
-        V, Vp, z = self.agent.V, self.agent.Vp, self.agent.z
-        V_previous, Vp_previous, z_previous = self.agent.previous_V, self.agent.previous_Vp, self.agent.previous_z
-        alpha, beta = self.alpha[current_state], self.beta[current_state]
-        gamma, lr = self.gamma, self.agent.lr
-
-        BR = reward + gamma * V[next_state][0] - V[current_state][0]
-        BR_previous = self.previous_BRs[current_state]
-
-        scale = 0.25
-        self.running_BR[current_state] = (1 - scale) * self.running_BR[current_state] + scale * BR * BR
-
-        normalization = self.epsilon + self.running_BR[current_state]
-
-        if current_state == 2:
-            if np.random.random() < 0.01:
-                breakpoint()
-
-        self.p_update[current_state] += lr * BR * BR_previous / normalization
-        self.d_update[current_state] += lr * BR * (V_previous[current_state] - Vp_previous[current_state]) / normalization
-        self.i_update[current_state] += lr * BR * (beta * z_previous[current_state] + alpha * BR_previous) / normalization  
-        self.alpha_update[current_state] += lr * self.ki[current_state] * BR * BR_previous / normalization
-        self.beta_update[current_state] += lr * self.ki[current_state] * BR * z_previous[current_state] / normalization
-
-        self.previous_BRs[current_state] = BR
-
-        self.frequencies[current_state] += 1
-        if self.frequencies[current_state] == self.update_frequency:
-            self.kp[current_state] = 1 + (1 - self.lambd) * (self.kp[current_state] - 1)
-            self.kd[current_state] *= 1 - self.lambd
-            self.ki[current_state] *= 1 - self.lambd
-            #self.alpha[current_state] *= 1 - self.lambd
-            #self.beta[current_state] = 1 + (1 - self.lambd) * (self.beta[current_state] - 1)
-
-            self.kp[current_state] += self.meta_lr * self.p_update[current_state] / self.update_frequency
-            self.kd[current_state] += self.meta_lr * self.d_update[current_state] / self.update_frequency
-            self.ki[current_state] += self.meta_lr * self.i_update[current_state] / self.update_frequency
-            #self.alpha[current_state] += self.meta_lr * self.alpha_update[current_state] / self.update_frequency
-            #self.beta[current_state] += self.meta_lr * self.beta_update[current_state] / self.update_frequency
-
-            self.p_update[current_state] = 0
-            self.d_update[current_state] = 0
-            self.i_update[current_state] = 0
-            self.alpha_update[current_state] = 0
-            self.beta_update[current_state] = 0
-
-            self.frequencies[current_state] = 0
-
-        if self.agent.current_state == self.plot_state:
-            self.BR_plot.append(self.previous_BRs[current_state])
-            self.kp_plot.append(self.kp[current_state])
-            self.kd_plot.append(self.kd[current_state])
-            self.ki_plot.append(self.ki[current_state])
-            self.d_update_plot.append(V[current_state][0] - Vp[current_state][0])
-            self.i_update_plot.append(z[current_state][0])
-        else:
-            self.BR_plot.append(self.BR_plot[-1])
-            self.kp_plot.append(self.kp_plot[-1])
-            self.kd_plot.append(self.kd_plot[-1])
-            self.ki_plot.append(self.ki_plot[-1])
-            self.d_update_plot.append(self.d_update_plot[-1])
-            self.i_update_plot.append(self.i_update_plot[-1])
-
-    def plot(self, directory):
-        #Create a subplot for each BR_plot, kp_plot kd_plot, ki_plot, d_update_plot, i_update_plot
-        # They should be in a 3 x 2 grid, and labelled prperly, ideally all in squares
-
-        fig, axs = plt.subplots(3, 2)
-        fig.suptitle('Diagonal Semi-Gradient Updater')
-
-        axs[0, 0].plot(self.BR_plot, label="BR")
-        axs[0, 0].legend()
-        axs[0, 1].plot(self.kp_plot, label="kp")
-        axs[0, 1].legend()
-        axs[1, 0].plot(self.kd_plot, label="kd")
-        axs[1, 0].legend()
-        axs[1, 1].plot(self.ki_plot, label="ki")
-        axs[1, 1].legend()
-        axs[2, 0].plot(self.d_update_plot, label="d_update")
-        axs[2, 0].legend()
-        axs[2, 1].plot(self.i_update_plot, label="i_update")
-        axs[2, 1].legend()
-        # Add more space between the plots
-        plt.subplots_adjust(hspace=0.5)  
-
-        # Make the figure larger
-        fig.set_size_inches(10, 10)
-
-        # Save the figure before showing it
-        plt.savefig(f"{directory}/semi_gradient_updater.png")
-
-        plt.show()
-
-        # Create a new plot just with the BR_plot, with a different name
-        fig, axs = plt.subplots(1, 1)
-
-        # Title it
-        fig.suptitle('Chain Walk BR on State 25')
-
-        # Set the axes
-        axs.set_xlabel("Iterations")
-        axs.set_ylabel("Bellman Residual")
-
-        axs.plot(self.BR_plot, label="BR")
-        # Plot and save this
-        plt.savefig(f"{directory}/semi_gradient_updater_BR.png")
-        plt.show()
 
         
 

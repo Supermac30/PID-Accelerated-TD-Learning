@@ -1,9 +1,9 @@
 #!/bin/bash
 #SBATCH -N 1
 #SBATCH -p cpu
-#SBATCH --cpus-per-task=32
+#SBATCH --cpus-per-task=64
 #SBATCH --tasks-per-node=1
-#SBATCH --time=30:00:00
+#SBATCH --time=100:00:00
 #SBATCH --mem=8GB
 #SBATCH --job-name=garnet_adapt
 #SBATCH --output=slurm/logs/%x_%j.out
@@ -32,10 +32,10 @@ do
         seed=$seed \
         save_dir="$save_dir/gain_adaptation/$run" \
         meta_lr=1e-1,1e-2,1e-3 \
-        epsilon=1e-1,1e-2,1e-3 \
+        epsilon=1e-1,1e-2\
         env="garnet $garnet_seed 50" \
         gamma=0.999 \
-        agent_name="diagonal semi gradient updater" \
+        agent_name="semi gradient updater" \
         num_iterations=$num_iterations
 
 	python3 -m Experiments.TDExperiments.SoftTDPolicyEvaluation \

@@ -44,7 +44,7 @@ hydra:
   run:
     dir: ${oc.env:OUTPUT_DIR,./outputs}/DQNExperiment/${name}/${now:%Y-%m-%d}/${now:%H-%M-%S}
   job:
-    chdir: True
+    chdir: False
 
   sweep:
     dir: outputs/DQNExperiment/${name}/${now:%Y-%m-%d}/${now:%H-%M-%S}

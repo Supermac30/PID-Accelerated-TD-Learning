@@ -403,7 +403,7 @@ class ControlledQLearning(Agent):
 
             # Update the value function using the floats kp, ki, kd
             BR = reward + self.gamma * np.max(self.Q[next_state]) - self.Q[current_state][action]
-            z_update = (self.beta * self.z[current_state][action] + self.alpha * BR)
+            z_update = self.beta * self.z[current_state][action] + self.alpha * BR
             self.z[current_state][action] = (1 - update_I_rate) * self.z[current_state][action] + update_I_rate * z_update
             update = self.kp * BR + self.ki * z_update + self.kd * (self.Q[current_state][action] - self.Qp[current_state][action])
             self.Qp[current_state][action] = (1 - update_D_rate) * self.Qp[current_state][action] + update_D_rate * self.Q[current_state][action]
@@ -426,6 +426,104 @@ class ControlledQLearning(Agent):
         self.update_I_rate = learning_rate_function(c, d)
         self.update_D_rate = learning_rate_function(e, f)
 
+
+class ControlledDoubleQLearning(Agent):
+    def __init__(self, environment, gamma, kp, ki, kd, alpha, beta, learning_rate):
+        """
+        kp, ki, kd are floats that are the coefficients of the PID controller
+        alpha, beta are floats that are the coefficients of the PID controller
+        learning_rate is a float or a tuple of floats (learning_rate, update_I_rate, update_D_rate)
+        decay is the float that we multiply the exploration rate by at each iteration.
+        """
+        super().__init__(environment, None, gamma)
+        if type(learning_rate) == type(()):
+            self.learning_rate = learning_rate[0]
+            self.update_I_rate = learning_rate[1]
+            self.update_D_rate = learning_rate[2]
+        else:
+            self.learning_rate = learning_rate
+            self.update_D_rate = self.update_I_rate = lambda _: 1  # Hard updates
+        self.kp = kp
+        self.ki = ki
+        self.kd = kd
+        self.alpha = alpha
+        self.beta = beta
+        self.reset()
+
+    def reset(self, reset_environment=True):
+        """Reset parameters to be able to run a new test."""
+        if reset_environment:
+            self.environment.reset()
+
+        self.Q_A = np.zeros((self.num_states, self.num_actions))
+        self.Qp_A = np.zeros((self.num_states, self.num_actions))
+        self.z_A = np.zeros((self.num_states, self.num_actions))
+        self.Q_B = np.zeros((self.num_states, self.num_actions))
+        self.Qp_B = np.zeros((self.num_states, self.num_actions))
+        self.z_B = np.zeros((self.num_states, self.num_actions))
+
+        self.policy = Policy(self.num_actions, self.num_states, self.environment.prg, None)
+
+    def estimate_value_function(self, num_iterations=1000, test_function=None, stop_if_diverging=True, follow_trajectory=False, reset_environment=True):
+        """Use the Q-learning algorithm to estimate the value function.
+        That is, create a matrix of size num_states by num_actions, Q, and update it according to the Q-learning update rule.
+        """
+        self.reset(reset_environment)
+        # A vector storing the number of times we have seen a state.
+        frequency_A = np.zeros((self.num_states, 1))
+        frequency_B = np.zeros((self.num_states, 1))
+
+
+        # The history of test_function
+        history = np.zeros(num_iterations)
+
+        for k in range(num_iterations):
+            current_state, action, next_state, reward = self.take_action(follow_trajectory, is_q=True)
+
+            if np.random.rand() < 0.5:
+                frequency_A[current_state] += 1
+                learning_rate = self.learning_rate(frequency_A[current_state])
+                update_D_rate = self.update_D_rate(frequency_A[current_state])
+                update_I_rate = self.update_I_rate(frequency_A[current_state])
+                # Update the value function using the floats kp, ki, kd
+                best_action = np.argmax(self.Q_A[next_state])
+                BR = reward + self.gamma * self.Q_B[next_state][best_action] - self.Q_A[current_state][action]
+                z_update = self.beta * self.z_A[current_state][action] + self.alpha * BR
+                self.z_A[current_state][action] = (1 - update_I_rate) * self.z_A[current_state][action] + update_I_rate * z_update
+                update = self.kp * BR + self.ki * z_update + self.kd * (self.Q_A[current_state][action] - self.Qp_A[current_state][action])
+                self.Qp_A[current_state][action] = (1 - update_D_rate) * self.Qp_A[current_state][action] + update_D_rate * self.Q_A[current_state][action]
+                self.Q_A[current_state][action] += learning_rate * update
+            else:
+                frequency_B[current_state] += 1
+                learning_rate = self.learning_rate(frequency_B[current_state])
+                update_D_rate = self.update_D_rate(frequency_B[current_state])
+                update_I_rate = self.update_I_rate(frequency_B[current_state])
+                # Update the value function using the floats kp, ki, kd
+                best_action = np.argmax(self.Q_B[next_state])
+                BR = reward + self.gamma * self.Q_A[next_state][best_action] - self.Q_B[current_state][action]
+                z_update = self.beta * self.z_B[current_state][action] + self.alpha * BR
+                self.z_B[current_state][action] = (1 - update_I_rate) * self.z_B[current_state][action] + update_I_rate * z_update
+                update = self.kp * BR + self.ki * z_update + self.kd * (self.Q_B[current_state][action] - self.Qp_B[current_state][action])
+                self.Qp_B[current_state][action] = (1 - update_D_rate) * self.Qp_B[current_state][action] + update_D_rate * self.Q_B[current_state][action]
+                self.Q_B[current_state][action] += learning_rate * update
+
+            if test_function is not None:
+                history[k] = test_function(self.Q_A, self.Qp_A, BR)
+                if stop_if_diverging and history[k] > 2 * history[0]:
+                    # If we are too large, stop learning
+                    history[k:] = float('inf')
+                    break
+
+        if test_function is None:
+            return self.Q_A
+        return history, self.Q_A
+
+    def set_learning_rates(self, a, b, c, d, e, f):
+        self.learning_rate = learning_rate_function(a, b)
+        self.update_I_rate = learning_rate_function(c, d)
+        self.update_D_rate = learning_rate_function(e, f)
+
+    
 
 
 class ControlledSARSA(Agent):

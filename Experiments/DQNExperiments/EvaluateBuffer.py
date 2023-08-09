@@ -12,7 +12,7 @@ import numpy as np
 import hydra
 import logging
 
-from Experiments.DQNExperiments.DQNExperiment import get_model
+from Experiments.ExperimentHelpers import get_model
 
 
 base_directory = "/h/bedaywim/PID-Accelerated-TD-Learning"

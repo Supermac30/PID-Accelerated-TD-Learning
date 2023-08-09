@@ -35,7 +35,7 @@ def adaptive_agent_experiment(cfg):
     # Run the following agent.estimate_value_function 20 times and take an average of the histories
     all_histories = []
     all_gain_histories = []
-    for i in range(cfg['repeat']):
+    for _ in range(cfg['repeat']):
         Q, gain_history, history = agent.estimate_value_function(
             cfg['num_iterations'],
             test_function,
