@@ -114,6 +114,59 @@ def get_optimal_adaptive_rates(agent_name, env_name, meta_lr, gamma, lambd, dela
     return optimal_rates
 
 
+def get_optimal_linear_FA_rates(agent_name, env_name, kp, ki, kd, alpha, beta, gamma, order, recompute=False, seed=-1, norm=1, search_steps=10000):
+    """Find the optimal rates for the choice of adaptive agent and environment.
+    If this has been done before, get the optimal rates from the file of stored rates.
+
+    If recompute is True, recompute the learning rates even if it is in the file of stored rates.
+    """
+    optimal_rates = get_stored_optimal_rate((agent_name, kp, ki, kd, alpha, beta, order), env_name, gamma)
+
+    if optimal_rates is None or recompute:
+        seed = pick_seed(seed)
+        optimal_rates = run_linear_FA_search(agent_name, env_name, kp, ki, kd, alpha, beta, seed, gamma, order, search_steps)
+        store_optimal_rate((agent_name, kp, ki, kd, alpha, beta, order), env_name, optimal_rates, gamma)
+
+    logging.info(f"The optimal rates for {(agent_name, kp, ki, kd, alpha, beta, order)} are: {optimal_rates}")
+
+    return optimal_rates
+
+
+def run_linear_FA_search(agent_name, env_name, kp, ki, kd, alpha, beta, seed, gamma, order, search_steps=10000):
+    """Run a grid search on the exhaustive learning rates for the choice of controller gains"""
+    agent, _, _ = build_agent_and_env((agent_name, kp, ki, kd, alpha, beta, order), env_name, seed=seed, gamma=gamma)
+
+    # Don't search over the learning rates for the components that are 0
+    if kp == 0:
+        learning_rates = {1: {float("inf")}}
+    else:
+        learning_rates = exhaustive_learning_rates[0]
+    if ki == 0:
+        update_I_rates = {1: {float("inf")}}
+    else:
+        update_I_rates = exhaustive_learning_rates[1]
+    if kd == 0:
+        update_D_rates = {1: {float("inf")}}
+    else:
+        update_D_rates = exhaustive_learning_rates[2]
+
+    _, rates = find_optimal_learning_rates(
+        agent,
+        lambda: agent.estimate_value_function(
+            num_iterations=search_steps,
+            reset_environment=False,
+            stop_if_diverging=True
+        )[0],
+        learning_rates,
+        update_I_rates,
+        update_D_rates,
+        True
+    )
+    if rates is None:
+        return default_rates
+    return rates
+
+
 def run_pid_search(agent_description, env_name, kp, ki, kd, alpha, beta, seed, norm, gamma, search_steps=10000):
     """Run a grid search on the exhaustive learning rates for the choice of controller gains"""
     agent, env, policy = build_agent_and_env((agent_description, kp, ki, kd, alpha, beta), env_name, seed=seed, gamma=gamma)

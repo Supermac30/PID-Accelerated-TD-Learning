@@ -165,7 +165,7 @@ class PID_TD(Agent):
             self.reset(reset_environment)
 
         # A vector storing the number of times we have seen a state.
-        frequency = np.zeros((self.num_states, 1))
+        frequency = np.zeros((self.num_states))
 
         # The history of test_function
         history = np.zeros(num_iterations)
@@ -203,6 +203,11 @@ class PID_TD(Agent):
         self.learning_rate = learning_rate_function(a, b)
         self.update_I_rate = learning_rate_function(c, d)
         self.update_D_rate = learning_rate_function(e, f)
+    
+    def randomly_query_agent(self):
+        """Returns a random state and the value of the state"""
+        state = np.random.randint(self.num_states)
+        return state, self.V[state][0]
 
 
 class Hard_PID_TD(PID_TD):

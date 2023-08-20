@@ -9,21 +9,24 @@ from TabularPID.OptimalRates.HyperparameterTests import get_optimal_linear_FA_ra
 def soft_policy_evaluation_experiment(cfg):
     """Experiments with policy evaluation and TD"""
     seed = pick_seed(cfg['seed'])
-    agent_name, kp, ki, kd, alpha, beta = cfg['agent_name'], cfg['kp'], cfg['ki'], cfg['kd'], cfg['alpha'], cfg['beta']
+    name = f"linear TD {cfg['type']}"
+    kp, ki, kd, alpha, beta = cfg['kp'], cfg['ki'], cfg['kd'], cfg['alpha'], cfg['beta']
+    order = cfg['order']
 
     if cfg['compute_optimal']:
-        get_optimal_linear_FA_rates(agent_name, cfg['env'], kp, ki, kd, alpha, beta, cfg['gamma'], cfg['recompute_optimal'])
-    agent, _, _ = build_agent_and_env((f"{cfg['type']} linear TD", kp, ki, kd, alpha, beta), cfg['env'], cfg['get_optimal'], seed, cfg['gamma'], gym_env=True)
-    total_history = 0
-    for _ in range(cfg['num_repeats']):
+        get_optimal_linear_FA_rates(name, cfg['env'], kp, ki, kd, alpha, beta, cfg['gamma'], cfg['order'], cfg['recompute_optimal'], search_steps=cfg['search_steps'])
+    agent, _, _ = build_agent_and_env((name, kp, ki, kd, alpha, beta, order), cfg['env'], cfg['get_optimal'], seed, cfg['gamma'])
+    histories = []
+    for _ in range(cfg['repeat']):
         history, _ = agent.estimate_value_function(
             num_iterations=cfg['num_iterations'],
-            stop_if_diverging=cfg['stop_if_diverging']
+            stop_if_diverging=cfg['stop_if_diverging'],
+            
         )
-        total_history += history
-    total_history /= cfg['num_repeats']
-    save_array(total_history, f"{agent_name} kp={kp} ki={ki} kd={kd} alpha={alpha} beta={beta}", ax, normalize=cfg['normalize'])
-    
+        histories.append(history)
+    save_array(np.mean(histories, axis=0), f"{name} kp={kp} ki={ki} kd={kd} alpha={alpha} beta={beta}", directory=cfg['save_dir'], subdir="mean")
+    save_array(np.std(histories, axis=0), f"{name} kp={kp} ki={ki} kd={kd} alpha={alpha} beta={beta}", directory=cfg['save_dir'], subdir="std_dev")
+
 
 if __name__ == "__main__":
     soft_policy_evaluation_experiment()

@@ -1,29 +1,32 @@
-kp: [1, 1, 1, 1, 1, 1]
-kd: [0, 0]
-ki: [0, -0.4, 0, 0]
-alpha: [0.05, 0.05, 0.05, 0.05, 0.05, 0.05]
-beta: [0.95, 0.95, 0.95, 0.95, 0.95, 0.95]
+kp: 1
+kd: 0
+ki: 0
+alpha: 0.05
+beta: 0.95
 gamma: 0.99
 
-type: [polynomial, polynomial, polynomial, polynomial, polynomial, polynomial]
+type: polynomial
 
-env: CartPole-v1  # Possible environments include: CartPole-v1, MountainCar-v0, Acrobot-v1, LunarLander-v2, LunarLanderContinuous-v2, Pendulum-v0, MountainCarContinuous-v0, BipedalWalker-v3, BipedalWalkerHardcore-v3, LunarLanderContinuous-v2, LunarLander-v2, MountainCar-v0, Pendulum-v0, Acrobot-v1, CartPole-v1, MountainCarContinuous-v0, BipedalWalker-v3, BipedalWalkerHardcore-v3
-slow_motion: 1
+env: CartPole-v1
 num_iterations: 30000
 norm: 1
 get_optimal: False # Get the optimal parameters from the database
 compute_optimal: False # Run a grid search. When recompute_optimal is false, we don't run a grid search if the optimal parameters are in the database already
 recompute_optimal: False # If compute_optimal is True, run a grid search even if the optimal parameters are in the database
-num_repeats: 3
+repeat: 3
+order: 10
 
 follow_trajectory: False
 stop_if_diverging: False
 log_plot: False
 normalize: True
+search_steps: 1000
+
+save_dir: ${oc.env:OUTPUT_DIR,./outputs}/${hydra.job.config_name}/${now:%Y-%m-%d}/${now:%H-%M-%S}
 
 seed: 2388
 hydra:
   run:
     dir: ${oc.env:OUTPUT_DIR,./outputs}/${hydra.job.config_name}/${now:%Y-%m-%d}/${now:%H-%M-%S}
   job:
-    chdir: True
+    chdir: False

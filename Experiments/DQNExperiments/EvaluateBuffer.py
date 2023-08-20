@@ -12,10 +12,8 @@ import numpy as np
 import hydra
 import logging
 
+import globals
 from Experiments.ExperimentHelpers import get_model
-
-
-base_directory = "/h/bedaywim/PID-Accelerated-TD-Learning"
 
 def run_simulation(model, env, state, action, gamma, seed):
     """
@@ -44,7 +42,7 @@ def main(cfg):
     env_name = env_cfg['env']
     env = gym.make(env_name)
     model = get_model(env_name)
-    buffer = np.load(f'{base_directory}/models/{env_name}/buffer.npy')
+    buffer = np.load(f'{globals.base_directory}/models/{env_name}/buffer.npy')
     bufferQValues = np.zeros(len(buffer))
 
     seed_generator = np.random.default_rng(cfg['seed'])
@@ -52,8 +50,8 @@ def main(cfg):
     for i in range(len(buffer)):
         state, action = buffer[i][:-1], buffer[i][-1]
         bufferQValues[i] = run_simulation(model, env, state, action, env_cfg['gamma'], seed_generator.integers(0, 2**32 - 1))
-    np.save(f'{base_directory}/models/{env_name}/bufferQValues.npy', bufferQValues)
-    logging.info(f'Saved buffer Q values to {base_directory}/models/{env_name}/bufferQValues.npy')
+    np.save(f'{globals.base_directory}/models/{env_name}/bufferQValues.npy', bufferQValues)
+    logging.info(f'Saved buffer Q values to {globals.base_directory}/models/{env_name}/bufferQValues.npy')
 
 
 if __name__ == '__main__':

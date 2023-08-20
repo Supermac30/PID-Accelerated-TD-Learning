@@ -1,7 +1,9 @@
 import torch as th
 import os
 
+import globals
 from TabularPID.MDPs.GymWrapper import create_environment
+from stable_baselines3.dqn import DQN as unmodified_DQN
 from TabularPID.Agents.DQN.DQN import PID_DQN
 from TabularPID.Agents.DQN.FQI_DQN import PID_FQI
 from TabularPID.Agents.DQN.DQN_gain_adapter import NoGainAdapter, SingleGainAdapter, DiagonalGainAdapter, NetworkGainAdapter
@@ -126,6 +128,11 @@ def build_PID_FQI(gain_adapter, env_name, gamma, optimizer, replay_memory_size, 
 
     return dqn
 
+def get_model(env_name):
+    """Return the model with the same env_name from the models directory"""
+    # The model is in a directory that starts with the same name as the environment
+    model_dir = next(iter(filter(lambda x: x.startswith(env_name), os.listdir(f"{globals.base_directory}/models"))))
+    return unmodified_DQN.load(f"{globals.base_directory}/models/{model_dir}/{model_dir}.zip")
 
 def build_gain_adapter(adapter_type, kp, ki, kd, alpha, beta, meta_lr, epsilon, use_previous_BRs):
     if adapter_type == "NoGainAdapter":

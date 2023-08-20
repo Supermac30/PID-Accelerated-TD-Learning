@@ -5,7 +5,7 @@ Possible agents include:
 - Samplers: TD Agents
 - Planners: VI Agents (For reproducing PAVIA results)
 """
-from Experiments.ExperimentHelpers import get_env_policy
+from TabularPID.AgentBuilders.EnvBuilder import get_env_policy
 from TabularPID.OptimalRates.OptimalRateDatabase import get_stored_optimal_rate
 from TabularPID.Agents.AdaptiveAgents import *
 import TabularPID.Agents.AdaptiveQAgents as AdaptiveQAgents

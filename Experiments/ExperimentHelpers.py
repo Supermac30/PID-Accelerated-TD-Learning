@@ -4,14 +4,9 @@ import itertools
 import os
 import logging
 import multiprocess as mp
-import gymnasium as gym
+from pathlib import Path
 
-from TabularPID.MDPs.MDP import PolicyEvaluation, Control, Control_Q
-from TabularPID.MDPs.Environments import *
-from TabularPID.MDPs.Policy import Policy
-from stable_baselines3.dqn.dqn import DQN
-
-base_directory = '/h/bedaywim/PID-Accelerated-TD-Learning'
+from TabularPID.EmpericalTester import get_optimal_Q, get_optimal_TD
 
 def normalize(arr):
     """Normalize the array by the first value. If the array is empty, or starts with zero, return it.
@@ -49,114 +44,7 @@ def build_test_function(norm, V_pi):
     elif norm == 1:
         return lambda V, Vp, BR: np.sum(np.abs(V - V_pi))
     else:
-        # How do we fix this bug?
-        #TypeError: array type float128 is unsupported in linalg
-        
         return lambda V, Vp, BR: np.linalg.norm(V - V_pi, ord=norm)
-
-def get_env_policy(name, seed):
-    """Return an environment, policy tuple given its string name as input. A seed is inputted as well
-    for reproducibility.
-    The environments are as follows:
-        - "garnet": The garnet problem with the default settings in PAVIA
-        - "chain walk": The chain walk problem with 50 states, and a policy that always moves left
-        - "chain walk random": The chain walk problem with 50 states, and a policy that takes random choices
-        - "cliff walk": The Cliff walk problem as implemented in OS-Dyna
-    """
-    if name[:6] == "garnet":
-        # The name is of the form garnet <seed> <num_states>
-        seed, num_states = map(int, name[7:].split(" "))
-        return garnet_problem(num_states, 3, 5, 10, seed)
-    elif name == "chain walk":
-        return chain_walk_left(50, 2, seed)
-    elif name == "chain walk random":
-        return chain_walk_random(50, 2, seed)
-    elif name == "cliff walk":
-        return cliff_walk(seed)
-    elif name == "cliff walk optimal":
-        return cliff_walk_optimal(seed)
-    elif name == "identity":
-        return identity(seed)
-    elif name[:6] == "normal":
-        variance = float(name[7:])
-        return normal_env(variance, seed)
-    elif name == "bernoulli":
-        return bernoulli_env(seed)
-    elif name in {"CartPole-v1", "Acrobot-v1", "MountainCar-v0", "LunarLander-v2"}:
-        return gym.make(name), optimal_gym_policy(name)
-    else:
-        raise Exception("Environment not indexed")
-
-def get_model(env_name):
-    """Return the model with the same env_name from the models directory"""
-    # The model is in a directory that starts with the same name as the environment
-    model_dir = next(iter(filter(lambda x: x.startswith(env_name), os.listdir(f"{base_directory}/models"))))
-    return DQN.load(f"{base_directory}/models/{model_dir}/{model_dir}.zip")
-
-def optimal_gym_policy(name):
-    model = get_model(name)
-    return lambda state: np.argmax(model.predict(state.reshape(1, -1))[0])
-
-def bernoulli_env(seed):
-    env = BernoulliApproximation(seed)
-    return env, Policy(env.num_actions, env.num_states, env.prg, None)
-
-def normal_env(variance, seed):
-    env = NormalApproximation(variance, seed)
-    return env, Policy(env.num_actions, env.num_states, env.prg, None)
-
-def cliff_walk(seed):
-    """Return the CliffWalk Environment with the policy that moves randomly"""
-    env = CliffWalk(0.9, seed)
-    return env, Policy(env.num_actions, env.num_states, env.prg, None)
-
-def cliff_walk_optimal(seed):
-    """Return the CliffWalk Environment with the optimal policy"""
-    env = CliffWalk(0.9, seed)
-    policy = np.zeros((env.num_states, env.num_actions))
-
-    for i in range(env.num_states):
-        if i in {0, 12, 24}:
-            policy[i, 2] = 1
-        elif i in range(6, 12) or i in range(18, 23) or i in range(30, 35):
-            policy[i, 1] = 1
-        else:
-            policy[i, 0] = 1
-
-    return env, Policy(env.num_actions, env.num_states, env.prg, policy)
-
-def garnet_problem(num_states, num_actions, bP, bR, seed):
-    """Return the Garnet Environment with the policy that chooses the first move at each iteration"""
-    env = Garnet(
-        num_states, num_actions, bP, bR, seed
-    )
-    return env, Policy(num_actions, num_states, env.prg, None)
-
-
-def PAVIA_garnet_settings(seed):
-    """Return Garnet used in the experiments of PAVIA."""
-    return garnet_problem(50, 1, 3, 5, seed)
-
-
-def chain_walk_random(num_states, num_actions, seed):
-    """Return the chain walk environment with the policy that takes random moves."""
-    env = ChainWalk(num_states, seed)
-    return env, Policy(num_actions, num_states, env.prg, None)
-
-
-def chain_walk_left(num_states, num_actions, seed):
-    """Return the chain walk environment with the policy that always moves left."""
-    env = ChainWalk(num_states, seed)
-    policy = np.zeros((num_states, num_actions))
-    for i in range(num_states):
-        policy[i,0] = 1
-        policy[i,1] = 0
-    return env, Policy(num_actions, num_states, env.prg, policy)
-
-def identity(seed):
-    """Return the identity environment the policy that picks the only available action."""
-    env = IdentityEnv(1, seed)
-    return env, Policy(1, 1, env.prg, None)
 
 
 def find_optimal_learning_rates(agent, value_function_estimator, learning_rates={}, update_I_rates={}, update_D_rates={}, verbose=False, repeat=3):
@@ -254,47 +142,20 @@ def repeat_experiment(value_function, num_times):
 
     return average_history
 
-
 def find_Vpi(env, policy, gamma):
     """Find a good approximation of the value function of policy in an environment.
     """
-    oracle = PolicyEvaluation(
-        env.num_states,
-        env.num_actions,
-        env.build_policy_reward_vector(policy),
-        env.build_policy_probability_transition_kernel(policy),
-        1,0,0,0,0,
-        gamma
-    )
-    return oracle.value_iteration(num_iterations=10000)
-
+    return get_optimal_TD(env, policy, gamma).V
 
 def find_Vstar(env, gamma):
     """Find a good approximation of the value function of the optimal policy in an environment.
     """
-    oracle = Control(
-        env.num_states,
-        env.num_actions,
-        env.build_reward_matrix(),
-        env.build_probability_transition_kernel(),
-        1,0,0,0,0,
-        gamma
-    )
-    return oracle.value_iteration(num_iterations=10000)
-
+    return get_optimal_Q(env, gamma).Q.max(axis=1)
 
 def find_Qstar(env, gamma):
     """Find a good approximation of the value function of the optimal policy in an environment.
     """
-    oracle = Control_Q(
-        env.num_states,
-        env.num_actions,
-        env.build_reward_matrix(),
-        env.build_probability_transition_kernel(),
-        1,0,0,0,0,
-        gamma
-    )
-    return oracle.value_iteration(num_iterations=100000)
+    return get_optimal_Q(env, gamma).Q
 
 
 def save_array(nparr, name, normalize=False, directory="", subdir=""):
@@ -308,15 +169,15 @@ def save_array(nparr, name, normalize=False, directory="", subdir=""):
         nparr = nparr / nparr[np.nonzero(nparr)[0][0]]
 
     if not os.path.isdir(f"{directory}/npy"):
-        os.mkdir(f"{directory}/npy")
+        Path(f"{directory}/npy").mkdir(parents=True, exist_ok=True)
     if not os.path.isdir(f"{directory}/txt"):
-        os.mkdir(f"{directory}/txt")
+        Path(f"{directory}/txt").mkdir(parents=True, exist_ok=True)
 
     if subdir != "":
         if not os.path.isdir(f"{directory}/npy/{subdir}"):
-            os.mkdir(f"{directory}/npy/{subdir}")
+            Path(f"{directory}/npy/{subdir}").mkdir(parents=True, exist_ok=True)
         if not os.path.isdir(f"{directory}/txt/{subdir}"):
-            os.mkdir(f"{directory}/txt/{subdir}")
+            Path(f"{directory}/txt/{subdir}").mkdir(parents=True, exist_ok=True)
         
         np.save(f"{directory}/npy/{subdir}/" + name + ".npy", nparr)
         np.savetxt(f"{directory}/txt/{subdir}/" + name + ".txt", nparr)

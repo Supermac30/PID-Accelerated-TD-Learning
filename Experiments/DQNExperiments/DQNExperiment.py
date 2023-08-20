@@ -10,11 +10,7 @@ from TabularPID.AgentBuilders.DQNBuilder import build_PID_DQN, build_PID_FQI, bu
 from stable_baselines3.common.callbacks import BaseCallback
 from stable_baselines3.common import evaluation
 from stable_baselines3.common.utils import set_random_seed
-
 from Experiments.ExperimentHelpers import get_model
-
-# Warning: Change this when running on a different machine
-base_directory = "/h/bedaywim/PID-Accelerated-TD-Learning"
 
 @hydra.main(version_base=None, config_path="../../config/DQNExperiments", config_name="DQNExperiment")
 def control_experiment(cfg):

@@ -21,8 +21,18 @@ class Environment:
         self.start_state = start_state
         self.current_state = start_state
 
-        self.seed = seed
+        # A duck typing hack to make code compatible with gymnasium with the least amount of refactoring required
+        self.observation_space = type(
+            'observation_space', 
+            (object,), 
+            {
+                'shape': (1,),
+                'high': (num_states,),
+                'low': (0,)
+            }
+        )
 
+        self.seed = seed
         self.prg = np.random.default_rng(self.seed)
 
     def reset(self):
@@ -33,6 +43,8 @@ class Environment:
         """
         self.current_state = self.start_state
         self.prg = np.random.default_rng(self.seed)
+        
+        return self.current_state
 
     def take_action(self, action):
         """Take action action, updating the current state, and returning a reward

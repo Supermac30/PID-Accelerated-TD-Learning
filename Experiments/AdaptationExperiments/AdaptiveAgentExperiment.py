@@ -38,7 +38,7 @@ def adaptive_agent_experiment(cfg):
     average_history = np.zeros((cfg['num_iterations'],))
     all_histories = []
     all_gain_histories = []
-    for i in range(cfg['repeat']):
+    for _ in range(cfg['repeat']):
         _, gain_history, history = agent.estimate_value_function(
             cfg['num_iterations'],
             test_function,
