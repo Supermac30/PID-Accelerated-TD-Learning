@@ -70,7 +70,6 @@ def build_PID_DQN(gain_adapter, env_name, gamma, optimizer, replay_memory_size, 
 
     return dqn
 
-
 def build_PID_FQI(gain_adapter, env_name, gamma, optimizer, replay_memory_size, batch_size,
                   learning_rate, initial_eps, exploration_fraction, minimum_eps,
                   gradient_steps, train_freq, target_update_interval, inner_size,

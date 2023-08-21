@@ -1,5 +1,6 @@
 #!/bin/bash
 
+git add globals.py
 git add Experiments/*.py
 git add Experiments/*/*.py
 git add Experiments/optimal_learning_rates.pickle
