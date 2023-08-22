@@ -13,8 +13,8 @@ class LinearFuncSpace():
     def __init__(self, env, order):
         self.env = env
 
-        # Check if env is discrete
-        self.scaling_factor = self.env.observation_space.high - self.env.observation_space.low
+        self.variance = self.env.observation_space.high - self.env.observation_space.low
+        self.mean = (self.env.observation_space.high + self.env.observation_space.low) / 2
     
         self.order = order
         self.dim = self.env.observation_space.shape[0]
@@ -22,7 +22,7 @@ class LinearFuncSpace():
     def value(self, state):
         """Return the value of the basis functions at the given state, normalizing the input
         """
-        return self.base_value(state * self.scaling_factor)
+        return self.base_value((state - self.mean) / self.variance)
     
     def base_value(self, state):
         """Return the value of the basis functions at the given state.
