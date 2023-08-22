@@ -1,5 +1,4 @@
 import numpy as np
-import matplotlib.pyplot as plt
 import itertools
 import os
 import logging
@@ -7,6 +6,7 @@ import multiprocess as mp
 from pathlib import Path
 
 from TabularPID.EmpericalTester import get_optimal_Q, get_optimal_TD
+
 
 def normalize(arr):
     """Normalize the array by the first value. If the array is empty, or starts with zero, return it.
@@ -16,12 +16,14 @@ def normalize(arr):
     
     return arr / arr[0]
 
+
 def pick_seed(seed):
     """Return a seed if one is inputted, and -1 otherwise. Log the seed chosen."""
     if seed == -1:
         seed = np.random.randint(0, 1000000)
     logging.info("Seed chosen is %d", seed)
     return seed
+
 
 def build_test_function(norm, V_pi):
     """Return the function that tests how far away our current estimate is from V_pi
@@ -142,6 +144,7 @@ def repeat_experiment(value_function, num_times):
 
     return average_history
 
+
 def find_Vpi(env, policy, gamma):
     """Find a good approximation of the value function of policy in an environment.
     """
@@ -185,27 +188,6 @@ def save_array(nparr, name, normalize=False, directory="", subdir=""):
         np.save(f"{directory}/npy/" + name + ".npy", nparr)
         np.savetxt(f"{directory}/txt/" + name + ".txt", nparr)
 
-
-def plot_comparison(fig, ax1, ax2, title1, title2, ylabel, show_fig=True, fig_name="plot", is_log=False):
-    """Configure and plot a comparison between the learning
-    of two algorithms given pyplot objects"""
-    plt.subplots_adjust(hspace=0.7)
-    fig.set_figheight(10)
-    fig.set_figwidth(10)
-
-    ax1.set_title(title1)
-    ax2.set_title(title2)
-
-    if is_log:
-        ax1.set_yaxis('log')
-
-    ax1.legend()
-    ax2.legend()
-    ax1.set(xlabel='Iteration', ylabel=ylabel)
-    ax2.set(xlabel='Iteration', ylabel=ylabel)
-
-    fig.savefig(fig_name)
-    if show_fig: plt.show()
 
 def create_label(ax, norm, normalize, is_q, is_v_star=False):
     if is_q:

@@ -68,7 +68,7 @@ class MDP:
         """
         raise NotImplementedError
     
-    def randomly_query_agent(self, state):
+    def randomly_query_agent(self):
         """Query the agent for the value at a random state, and return the state and value."""
         state = np.random.randint(0, self.num_states)
         return state, self.V[state]

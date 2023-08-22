@@ -16,7 +16,8 @@ from TabularPID.AgentBuilders.DQNBuilder import get_model
 def build_emperical_TD_tester(env, policy, gamma):
     env = deepcopy(env)
 
-    if type(env) == Environment:
+    # check if env inherits from Environment
+    if isinstance(env, Environment):
         return get_optimal_TD(env, policy, gamma)
     else:
         return GymTester(env, gamma)

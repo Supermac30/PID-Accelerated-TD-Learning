@@ -28,7 +28,8 @@ class Environment:
             {
                 'shape': (1,),
                 'high': (num_states,),
-                'low': (0,)
+                'low': (0,),
+                'n': num_states
             }
         )
 

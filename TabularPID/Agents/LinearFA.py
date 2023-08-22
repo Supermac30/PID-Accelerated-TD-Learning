@@ -10,7 +10,21 @@ from TabularPID.Agents.Agents import learning_rate_function
 class LinearFuncSpace():
     """A set of basis functions to approximate the value function.
     """
+    def __init__(self, env, order):
+        self.env = env
+
+        # Check if env is discrete
+        self.scaling_factor = self.env.observation_space.high - self.env.observation_space.low
+    
+        self.order = order
+        self.dim = self.env.observation_space.shape[0]
+
     def value(self, state):
+        """Return the value of the basis functions at the given state, normalizing the input
+        """
+        return self.base_value(state * self.scaling_factor)
+    
+    def base_value(self, state):
         """Return the value of the basis functions at the given state.
         """
         raise NotImplementedError
@@ -19,12 +33,10 @@ class FourierBasis(LinearFuncSpace):
     """A set of Fourier basis functions.
     """
     def __init__(self, env, order):
-        self.env = env
-        self.order = order
-        self.dim = self.env.observation_space.shape[0]
+        super().__init__(env, order)
         self.num_features = (self.order + 1) ** self.dim
 
-    def value(self, state):
+    def base_value(self, state):
         """Return the value of the basis functions at the given state.
         """
         all_arrays = list(itertools.product(range(self.order + 1), repeat=self.dim))
@@ -32,32 +44,19 @@ class FourierBasis(LinearFuncSpace):
         if hasattr(state, '__iter__'):
             return np.cos(np.pi * np.array(list(np.array(arr).T @ state for arr in all_arrays))).reshape(-1, 1)
             
-        return np.cos(np.pi * np.array(list(np.array(arr).T @ np.array((state,)) for arr in all_arrays))).reshape(-1, 1)
+        return np.cos(
+            np.pi * np.array(list(np.array(arr).T @ np.array((state,)) for arr in all_arrays))
+        ).reshape(-1, 1)
         
-
-class RBF(LinearFuncSpace):
-    """A set of radial basis functions.
-    """
-    def __init__(self, env, num_features, sigma):
-        self.env = env
-        self.num_features = num_features
-        self.sigma = sigma
-        self.centers = np.random.uniform(low=self.env.observation_space.low, high=self.env.observation_space.high, size=(self.num_features, self.env.observation_space.shape[0]))
-
-    def value(self, state):
-        """Return the value of the basis functions at the given state.
-        """
-        return np.exp(-np.linalg.norm(state - self.centers, axis=1) / (2 * self.sigma ** 2))
 
 class PolynomialBasis(LinearFuncSpace):
     """A set of polynomial basis functions.
     """
     def __init__(self, env, order):
-        self.env = env
-        self.order = order
+        super().__init__(env, order)
         self.num_features = (self.order + 1) ** self.env.observation_space.shape[0]
 
-    def value(self, state):
+    def base_value(self, state):
         """Return the value of the basis functions at the given state.
         """
         # Check if state is an iterable
@@ -134,7 +133,7 @@ class LinearTD():
                 next_state = self.env.reset()[0]
         else:
             next_state, reward = self.env.take_action(action)
-        
+
         return self.current_state, next_state, reward
 
     def reset(self, reset_environment=True):
@@ -177,9 +176,9 @@ class LinearTD():
 
             lr_V, lr_Vp, lr_z = self.lr_V(k), self.lr_Vp(k), self.lr_z(k)
 
-            self.w_V = (1 - lr_V) * self.w_V + lr_V * V_update.item() * self.basis.value(current_state)
-            self.w_Vp = (1 - lr_Vp) * self.w_Vp + lr_Vp * Vp_update.item() * self.basis.value(current_state)
-            self.w_z = (1 - lr_z) * self.w_z + lr_z * z_update.item() * self.basis.value(current_state)
+            self.w_V += lr_V * (V_update.item() - current_state_value) * self.basis.value(current_state)
+            self.w_Vp += lr_Vp * (Vp_update.item() - current_state_Vp_value) * self.basis.value(current_state)
+            self.w_z += lr_z * (z_update.item() - current_state_z_value) * self.basis.value(current_state)
 
             if self.solved_agent is not None:
                 self.history[k] = self.measure_performance()
