@@ -9,8 +9,7 @@ from Experiments.ExperimentHelpers import *
 def create_plots(cfg):
     """Plot all of the data in the npy folder from the runs of the adaptive agent."""
     # Create a figure that will be used to plot the history of each agent
-    fig0 = plt.figure()
-    ax0 = fig0.add_subplot()
+    fig0, ax0 = plt.subplots(figsize=(11, 7))
 
     # Min history
     min_final_history = np.inf
@@ -89,12 +88,18 @@ def create_plots(cfg):
         ax0.plot(normalize(min_history), label=f"PID {name} + Gain Adaptation")
         ax0.fill_between(np.arange(len(min_history)), normalize(min_history) - min_std_dev, normalize(min_history) + min_std_dev, alpha=0.2)
 
+    ax0.legend(loc='upper center', bbox_to_anchor=(0.5, -0.1), fancybox=True, shadow=True, ncol=2)
     ax0.title.set_text(f"{cfg['env'].title()}")
-    ax0.legend()
     ax0.set_xlabel('Steps')
+    ax0.set_ylim(0, 2)
+    # Place the legend outside the graph
     create_label(ax0, cfg['norm'], cfg['normalize'], cfg['is_q'])
+
     if cfg['log_plot']:
         ax0.set_yscale('log')
+
+    # Force everything to fit
+    fig0.tight_layout()
 
     fig0.savefig(f"{cfg['save_dir']}/adaptive_agent_{cfg['env']}.pdf")
     fig0.savefig(f"{cfg['save_dir']}/adaptive_agent_{cfg['env']}.png")

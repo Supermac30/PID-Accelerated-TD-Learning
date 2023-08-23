@@ -27,8 +27,8 @@ class Environment:
             (object,), 
             {
                 'shape': (1,),
-                'high': (num_states,),
-                'low': (0,),
+                'high': np.array([num_states]),
+                'low': np.array([0]),
                 'n': num_states
             }
         )
