@@ -99,6 +99,21 @@ class TileCodingBasis(LinearFuncSpace):
         return result.reshape(-1, 1)
 
 
+class TrivialBasis(LinearFuncSpace):
+    """A basis that simply returns the state in a one-hot-encoding for the purpose of debugging."""
+
+    def __init__(self, env, order):
+        super().__init__(env, order)
+        self.num_features = self.env.observation_space.n
+
+    def value(self, state):
+        if hasattr(state, '__iter__'):
+            raise Exception("TrivialBasis only works for environments with a single state variable")
+        result = np.zeros((self.env.observation_space.n,))
+        result[state] = 1.0
+        return result.reshape(-1, 1)
+
+
 class LinearTD():
     def __init__(self, env, policy, gamma, basis, kp, ki, kd, alpha, beta, lr_V, lr_z, lr_Vp, adapt_gains=False, meta_lr=0.1, epsilon=0.001, solved_agent=None):
         """
@@ -143,11 +158,12 @@ class LinearTD():
 
         self.epsilon = 1e-2
 
-        self.current_state = None
+        self.current_state = self.env.reset()
         self.solved_agent = solved_agent
     
     def take_action(self):
         action = self.policy.get_action(self.current_state)
+        current_state = self.current_state
         if self.is_gym_env:
             next_state, reward, done, _, _ = self.env.step(action.item())
             if done:
@@ -155,7 +171,8 @@ class LinearTD():
         else:
             next_state, reward = self.env.take_action(action)
 
-        return self.current_state, next_state, reward
+        self.current_state = next_state
+        return current_state, next_state, reward
 
     def reset(self, reset_environment=True):
         num_features = self.basis.num_features
@@ -180,7 +197,6 @@ class LinearTD():
 
         for k in range(num_iterations):
             current_state, next_state, reward = self.take_action()
-            self.current_state = current_state
 
             # Update the value function using the floats kp, ki, kd
             current_state_value = self.basis.value(current_state).T @ self.w_V
@@ -225,7 +241,6 @@ class LinearTD():
         distance = 0
 
         for _ in range(10):
-            breakpoint()
             state, q_value = self.solved_agent.randomly_query_agent()
             distance += abs(q_value - self.query_agent(state))
 

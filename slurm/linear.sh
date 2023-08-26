@@ -12,20 +12,20 @@
 source slurm/setup.sh
 
 current_time=$(date "+%Y.%m.%d/%H.%M.%S")
-env="Acrobot-v1"
+env="chain walk"
 gamma=0.99
 repeat=20
-order=5
-type="fourier"
+order=20
+type="trivial"  # "trivial", "fourier", "polynomial", "tile coding"
 seed=$RANDOM
-num_iterations=1000
-search_steps=1000
+num_iterations=10000
+search_steps=10000
 directory=outputs/linear_experiment/$env/$current_time
 echo "Saving to $directory"
 mkdir -p "$directory"
 
 recompute_optimal=False
-compute_optimal=False
+compute_optimal=True
 get_optimal=True
 
 python3 -m Experiments.LinearFAExperiments.linearFAExperiment --multirun \

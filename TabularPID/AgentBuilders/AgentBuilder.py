@@ -2,7 +2,7 @@ from TabularPID.OptimalRates.OptimalRateDatabase import get_stored_optimal_rate
 from TabularPID.EmpericalTester import build_emperical_TD_tester, build_emperical_Q_tester
 from TabularPID.AgentBuilders.EnvBuilder import get_env_policy
 from TabularPID.Agents.Agents import PID_TD, FarSighted_PID_TD, Hard_PID_TD, PID_TD_with_momentum, ControlledQLearning, learning_rate_function, ControlledDoubleQLearning
-from TabularPID.Agents.LinearFA import LinearTD, FourierBasis, PolynomialBasis, TileCodingBasis
+from TabularPID.Agents.LinearFA import LinearTD, FourierBasis, PolynomialBasis, TileCodingBasis, TrivialBasis
 from TabularPID.MDPs.MDP import PolicyEvaluation, Control, Control_Q
 from TabularPID.Agents.Comparison.TIDBD import TIDBD
 from TabularPID.Agents.Comparison.SpeedyQLearning import SpeedyQLearning
@@ -85,13 +85,20 @@ def build_agent(agent_name, env_name, env, policy, get_optimal, gamma):
     
     elif agent_description == "linear TD polynomial":
         order = kwargs[0]
-        return build_linear_TD_polynomial_basis(env, policy, kp, ki, kd, alpha, beta, learning_rates, gamma, order)
+        basis = PolynomialBasis(env, order)
+        return build_linear_TD(env, policy, kp, ki, kd, alpha, beta, learning_rates, gamma, order, basis)
     elif agent_description == "linear TD fourier":
         order = kwargs[0]
-        return build_linear_TD_fourier_basis(env, policy, kp, ki, kd, alpha, beta, learning_rates, gamma, order)
+        basis = FourierBasis(env, order)
+        return build_linear_TD(env, policy, kp, ki, kd, alpha, beta, learning_rates, gamma, order, basis)
     elif agent_description == "linear TD tile coding":
         order = kwargs[0]
-        return build_linear_TD_tile_coding(env, policy, kp, ki, kd, alpha, beta, learning_rates, gamma, order)
+        basis = TileCodingBasis(env, order)
+        return build_linear_TD(env, policy, kp, ki, kd, alpha, beta, learning_rates, gamma, order, basis)
+    elif agent_description == "linear TD trivial":
+        order = kwargs[0]
+        basis = TrivialBasis(env, order)
+        return build_linear_TD(env, policy, kp, ki, kd, alpha, beta, learning_rates, gamma, order, basis)
     
     elif agent_description == "TIDBD":
         return build_TIDBD(env, policy, learning_rates, gamma)
@@ -101,33 +108,9 @@ def build_agent(agent_name, env_name, env, policy, get_optimal, gamma):
         return build_Speedy_Q_learning(env, policy, learning_rates, gamma)
     return None
 
-def build_linear_TD_tile_coding(env, policy, kp, ki, kd, alpha, beta, learning_rates, gamma, order):
-    """Build the linear TD agent with tile encoding.
-    """
-    optimal_agent = build_emperical_TD_tester(env, policy, gamma)
-    basis = TileCodingBasis(env, order)
-    return LinearTD(
-        env, policy, gamma, basis,
-        kp, ki, kd, alpha, beta,
-        *learning_rates, solved_agent=optimal_agent
-    )
 
-def build_linear_TD_polynomial_basis(env, policy, kp, ki, kd, alpha, beta, learning_rates, gamma, order):
-    """Build the linear TD agent with polynomial basis.
-    """
+def build_linear_TD(env, policy, kp, ki, kd, alpha, beta, learning_rates, gamma, order, basis):
     optimal_agent = build_emperical_TD_tester(env, policy, gamma)
-    basis = PolynomialBasis(env, order)
-    return LinearTD(
-        env, policy, gamma, basis,
-        kp, ki, kd, alpha, beta,
-        *learning_rates, solved_agent=optimal_agent
-    )
-
-def build_linear_TD_fourier_basis(env, policy, kp, ki, kd, alpha, beta, learning_rates, gamma, order):
-    """Build the linear TD agent with Fourier basis.
-    """
-    optimal_agent = build_emperical_TD_tester(env, policy, gamma)
-    basis = FourierBasis(env, order)
     return LinearTD(
         env, policy, gamma, basis,
         kp, ki, kd, alpha, beta,

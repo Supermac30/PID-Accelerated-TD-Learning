@@ -95,7 +95,7 @@ def create_plots(cfg):
     ax0.legend(loc='upper center', bbox_to_anchor=(0.5, -0.1), fancybox=True, shadow=True, ncol=2)
     ax0.title.set_text(f"{cfg['env'].title()}")
     ax0.set_xlabel('Steps')
-    ax0.set_ylim(0, max(2, max_y))
+    ax0.set_ylim(0, min(2, max_y))
     # Place the legend outside the graph
     create_label(ax0, cfg['norm'], cfg['normalize'], cfg['is_q'])
 
