@@ -333,9 +333,6 @@ class PID_DQN(OffPolicyAlgorithm):
         )
 
         if self.dump_buffer:
-            # Dump them into a file called models/${env}/buffer.npy
-            # WARNING: Change this directory to your own machine
-            # save state_action_pairs as a pickle file
             pickle.dump(self.buffer, open(f"{globals.base_directory}/models/{self.visualization_env.unwrapped.spec.id}/buffer.pkl", "wb"))
 
         return outputs
