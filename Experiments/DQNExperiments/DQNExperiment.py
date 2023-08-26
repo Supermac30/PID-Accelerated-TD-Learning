@@ -6,11 +6,10 @@ from wandb.integration.sb3 import WandbCallback
 import wandb
 
 from Experiments.ExperimentHelpers import *
-from TabularPID.AgentBuilders.DQNBuilder import build_PID_DQN, build_PID_FQI, build_gain_adapter
+from TabularPID.AgentBuilders.DQNBuilder import build_PID_DQN, build_PID_FQI, build_gain_adapter, get_model
 from stable_baselines3.common.callbacks import BaseCallback
 from stable_baselines3.common import evaluation
 from stable_baselines3.common.utils import set_random_seed
-from Experiments.ExperimentHelpers import get_model
 
 @hydra.main(version_base=None, config_path="../../config/DQNExperiments", config_name="DQNExperiment")
 def control_experiment(cfg):

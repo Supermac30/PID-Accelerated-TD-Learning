@@ -36,6 +36,7 @@ class GymTesterDatabase():
     def randomly_query_agent(self):
         # Pick an entry at random from the buffer
         state, action, q_value = self.Q_values[np.random.randint(0, len(self.Q_values))]
+        breakpoint()
         return state, action, q_value
 
 class GymTester():

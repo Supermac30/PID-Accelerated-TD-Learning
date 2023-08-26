@@ -17,6 +17,8 @@ def create_plots(cfg):
     min_history_file = None
     min_std_dev = None
 
+    max_y = 1
+
     # Iterate through all of the files in the npy folder
     for file in os.listdir(f"{cfg['save_dir']}/npy/mean"):
         name = file[:-4]
@@ -55,6 +57,7 @@ def create_plots(cfg):
                     min_std_dev = std_dev
             else:
                 std_dev /= history[0]
+                max_y = max(max_y, np.max(normalize(history) + std_dev))
                 ax0.plot(normalize(history), label=name)
                 ax0.fill_between(np.arange(len(history)), normalize(history) - std_dev, normalize(history) + std_dev, alpha=0.2)
         else:
@@ -73,6 +76,7 @@ def create_plots(cfg):
 
             name = file[:-4]
             std_dev /= history[0]
+            max_y = max(max_y, np.max(normalize(history) + std_dev))
             ax0.plot(normalize(history), label=f"{name}")
             ax0.fill_between(np.arange(len(history)), normalize(history) - std_dev, normalize(history) + std_dev, alpha=0.2)
 
@@ -91,7 +95,7 @@ def create_plots(cfg):
     ax0.legend(loc='upper center', bbox_to_anchor=(0.5, -0.1), fancybox=True, shadow=True, ncol=2)
     ax0.title.set_text(f"{cfg['env'].title()}")
     ax0.set_xlabel('Steps')
-    ax0.set_ylim(0, 2)
+    ax0.set_ylim(0, max(2, max_y))
     # Place the legend outside the graph
     create_label(ax0, cfg['norm'], cfg['normalize'], cfg['is_q'])
 

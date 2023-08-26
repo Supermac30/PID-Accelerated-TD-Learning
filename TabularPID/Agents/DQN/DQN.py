@@ -1,6 +1,9 @@
 import warnings
 from typing import Any, Dict, List, Optional, Tuple, Type, TypeVar, Union
+from copy import deepcopy
+import pickle
 
+import globals
 import numpy as np
 import torch as th
 from gymnasium.wrappers import RecordVideo
@@ -23,7 +26,7 @@ class PID_DQN(OffPolicyAlgorithm):
 
     Paper: https://arxiv.org/abs/1312.5602, https://www.nature.com/articles/nature14236
     Default hyperparameters are taken from the Nature paper,
-    except for the optimizer and learning rate that were taken from Stable Baselines defaults.
+    except for the optimizer and learning rate that were taken from the Stable Baselines defaults.
 
     :param policy: The policy model to use (MlpPolicy, CnnPolicy, ...)
     :param env: The environment to learn from (if registered in Gym, can be str)
@@ -331,13 +334,14 @@ class PID_DQN(OffPolicyAlgorithm):
             actions = replay_data.actions
 
             # Convert them into numpy arrays
-            states = states.cpu().numpy()
+            states = deepcopy(self.env)
             actions = actions.cpu().numpy()
-            state_action_pairs = np.concatenate((states, actions), axis=1)
+            state_action_pairs = list(zip(states, actions))
 
             # Dump them into a file called models/${env}/buffer.npy
             # WARNING: Change this directory to your own machine
-            np.save(f"/h/bedaywim/PID-Accelerated-TD-Learning/models/{self.visualization_env.unwrapped.spec.id}/buffer.npy", state_action_pairs)
+            # save state_action_pairs as a pickle file
+            pickle.dump(state_action_pairs, open(f"{globals.base_directory}/models/{self.visualization_env.unwrapped.spec.id}/buffer.pkl", "wb"))
 
         return outputs
 

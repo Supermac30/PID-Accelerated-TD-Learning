@@ -12,20 +12,20 @@
 source slurm/setup.sh
 
 current_time=$(date "+%Y.%m.%d/%H.%M.%S")
-env="cliff walk"
+env="Acrobot-v1"
 gamma=0.99
 repeat=20
-order=50
-type="polynomial"
+order=5
+type="fourier"
 seed=$RANDOM
-num_iterations=300
-search_steps=300
+num_iterations=1000
+search_steps=1000
 directory=outputs/linear_experiment/$env/$current_time
 echo "Saving to $directory"
 mkdir -p "$directory"
 
 recompute_optimal=False
-compute_optimal=True
+compute_optimal=False
 get_optimal=True
 
 python3 -m Experiments.LinearFAExperiments.linearFAExperiment --multirun \
@@ -35,14 +35,14 @@ python3 -m Experiments.LinearFAExperiments.linearFAExperiment --multirun \
     save_dir="$directory" \
     seed=$seed \
     kp=1 \
-    ki=0,-0.1,0.1 \
-    kd=0,-0.1,0.1 \
+    ki=0 \
+    kd=0 \
     order=$order \
     gamma=$gamma \
     env="$env" \
     repeat=$repeat \
     num_iterations=$num_iterations \
-    type=$type \
+    type="$type" \
     compute_optimal=$compute_optimal \
     get_optimal=$get_optimal \
     recompute_optimal=$recompute_optimal \

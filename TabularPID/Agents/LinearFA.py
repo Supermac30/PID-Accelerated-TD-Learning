@@ -6,6 +6,7 @@ import itertools
 from functools import lru_cache
 
 from TabularPID.Agents.Agents import learning_rate_function
+from TabularPID.Agents.Tiles.tiles import tiles
 
 class LinearFuncSpace():
     """A set of basis functions to approximate the value function.
@@ -76,6 +77,26 @@ class PolynomialBasis(LinearFuncSpace):
                 for j in range(order + 1)
                 for monomial in PolynomialBasis.find_all_monomials(state[1:], order - j)
             )
+
+
+class TileCodingBasis(LinearFuncSpace):
+    """ From https://github.com/amarack/python-rl/blob/master/pyrl/basis/tilecode.py, which
+        in turn is from Rich Sutton's implementation,
+        http://incompleteideas.net/rlai.cs.ualberta.ca/RLAI/RLtoolkit/tiles.html
+    """
+
+    def __init__(self, env, order, num_tiles=100):
+        super().__init__(env, order)
+        self.num_tiles = num_tiles
+        self.num_features = self.order
+
+    def value(self, state):
+        if not hasattr(state, '__iter__'):
+            state = (state,)
+        indices = tiles(self.num_tiles, self.order, state)
+        result = np.zeros((self.order,))
+        result[indices] = 1.0
+        return result.reshape(-1, 1)
 
 
 class LinearTD():
@@ -176,9 +197,9 @@ class LinearTD():
 
             lr_V, lr_Vp, lr_z = self.lr_V(k), self.lr_Vp(k), self.lr_z(k)
 
-            self.w_V += lr_V * (V_update.item() - current_state_value) * self.basis.value(current_state)
-            self.w_Vp += lr_Vp * (Vp_update.item() - current_state_Vp_value) * self.basis.value(current_state)
-            self.w_z += lr_z * (z_update.item() - current_state_z_value) * self.basis.value(current_state)
+            self.w_V += lr_V * (V_update.item() - current_state_value.item()) * self.basis.value(current_state)
+            self.w_Vp += lr_Vp * (Vp_update.item() - current_state_Vp_value.item()) * self.basis.value(current_state)
+            self.w_z += lr_z * (z_update.item() - current_state_z_value.item()) * self.basis.value(current_state)
 
             if self.solved_agent is not None:
                 self.history[k] = self.measure_performance()
@@ -204,6 +225,7 @@ class LinearTD():
         distance = 0
 
         for _ in range(10):
+            breakpoint()
             state, q_value = self.solved_agent.randomly_query_agent()
             distance += abs(q_value - self.query_agent(state))
 
