@@ -343,6 +343,7 @@ class ReplayBuffer(BaseBuffer):
             self.ki[indices[0].cpu().numpy(), indices[1].cpu().numpy()] = ki.cpu().numpy().squeeze()
         if kd is not None:
             self.kd[indices[0].cpu().numpy(), indices[1].cpu().numpy()] = kd.cpu().numpy().squeeze()
+        
 
 
 class RolloutBuffer(BaseBuffer):

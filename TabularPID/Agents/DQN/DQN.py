@@ -142,6 +142,7 @@ class PID_DQN(OffPolicyAlgorithm):
         self.d_tau = d_tau
         self.tabular_d = tabular_d
         self.dump_buffer = dump_buffer
+        self.buffer = []  # The buffer we dump, if dump_buffer is True
 
         self.exploration_initial_eps = exploration_initial_eps
         self.exploration_final_eps = exploration_final_eps
@@ -279,6 +280,10 @@ class PID_DQN(OffPolicyAlgorithm):
         self.logger.record("train/n_updates", self._n_updates, exclude="tensorboard")
         self.logger.record("train/loss", np.mean(losses))
 
+        if self.dump_buffer:
+            # Add a deep copy of the gym environment and the action taken to the buffer
+            self.buffer.append((deepcopy(self.env), replay_data.actions[0].item()))
+
     def predict(
         self,
         observation: Union[np.ndarray, Dict[str, np.ndarray]],
@@ -333,8 +338,7 @@ class PID_DQN(OffPolicyAlgorithm):
             states = replay_data.observations
             actions = replay_data.actions
 
-            # Convert them into numpy arrays
-            states = deepcopy(self.env)
+            # Convert the actions into numpy arrays
             actions = actions.cpu().numpy()
             state_action_pairs = list(zip(states, actions))
 
