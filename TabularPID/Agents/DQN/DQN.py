@@ -333,19 +333,10 @@ class PID_DQN(OffPolicyAlgorithm):
         )
 
         if self.dump_buffer:
-            # Get all the state action pairs from the replay buffer
-            replay_data = self.replay_buffer.sample(self.replay_buffer.size(), env=self._vec_normalize_env)  # type: ignore[union-attr]
-            states = replay_data.observations
-            actions = replay_data.actions
-
-            # Convert the actions into numpy arrays
-            actions = actions.cpu().numpy()
-            state_action_pairs = list(zip(states, actions))
-
             # Dump them into a file called models/${env}/buffer.npy
             # WARNING: Change this directory to your own machine
             # save state_action_pairs as a pickle file
-            pickle.dump(state_action_pairs, open(f"{globals.base_directory}/models/{self.visualization_env.unwrapped.spec.id}/buffer.pkl", "wb"))
+            pickle.dump(self.buffer, open(f"{globals.base_directory}/models/{self.visualization_env.unwrapped.spec.id}/buffer.pkl", "wb"))
 
         return outputs
 
