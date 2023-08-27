@@ -141,15 +141,15 @@ def run_linear_FA_search(agent_name, env_name, kp, ki, kd, alpha, beta, seed, ga
 
     # Don't search over the learning rates for the components that are 0
     if kp == 0:
-        learning_rates = {1: {float("inf")}}
+        learning_rates = {0: {float("inf")}}
     else:
         learning_rates = exhaustive_learning_rates[0]
     if ki == 0:
-        update_I_rates = {1: {float("inf")}}
+        update_I_rates = {0: {float("inf")}}
     else:
         update_I_rates = exhaustive_learning_rates[1]
     if kd == 0:
-        update_D_rates = {1: {float("inf")}}
+        update_D_rates = {0: {float("inf")}}
     else:
         update_D_rates = exhaustive_learning_rates[2]
 
@@ -177,15 +177,15 @@ def run_pid_search(agent_description, env_name, kp, ki, kd, alpha, beta, seed, n
 
     # Don't search over the learning rates for the components that are 0
     if kp == 0:
-        learning_rates = {1: {float("inf")}}
+        learning_rates = {0: {float("inf")}}
     else:
         learning_rates = exhaustive_learning_rates[0]
     if ki == 0:
-        update_I_rates = {1: {float("inf")}}
+        update_I_rates = {0: {float("inf")}}
     else:
         update_I_rates = exhaustive_learning_rates[1]
     if kd == 0:
-        update_D_rates = {1: {float("inf")}}
+        update_D_rates = {0: {float("inf")}}
     else:
         update_D_rates = exhaustive_learning_rates[2]
 
@@ -260,15 +260,15 @@ def run_pid_q_search(agent_description, env_name, kp, ki, kd, alpha, beta, seed,
 
     # Don't search over the learning rates for the components that are 0
     if kp == 0:
-        learning_rates = {1: {float("inf")}}
+        learning_rates = {0: {float("inf")}}
     else:
         learning_rates = exhaustive_learning_rates[0]
     if ki == 0:
-        update_I_rates = {1: {float("inf")}}
+        update_I_rates = {0: {float("inf")}}
     else:
         update_I_rates = exhaustive_learning_rates[1]
     if kd == 0:
-        update_D_rates = {1: {float("inf")}}
+        update_D_rates = {0: {float("inf")}}
     else:
         update_D_rates = exhaustive_learning_rates[2]
 

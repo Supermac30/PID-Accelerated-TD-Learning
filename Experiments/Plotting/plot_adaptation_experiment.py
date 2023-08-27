@@ -89,6 +89,7 @@ def create_plots(cfg):
         else:
             name = "TD"
         min_std_dev /= min_history[0]
+        max_y = max(max_y, np.max(normalize(min_history) + min_std_dev))
         ax0.plot(normalize(min_history), label=f"PID {name} + Gain Adaptation")
         ax0.fill_between(np.arange(len(min_history)), normalize(min_history) - min_std_dev, normalize(min_history) + min_std_dev, alpha=0.2)
 

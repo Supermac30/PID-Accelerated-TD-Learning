@@ -17,6 +17,10 @@ directory=outputs/dqn_experiment/${env}/$current_time
 echo "Saving to ${directory}"
 mkdir -p "$directory"
 
+gain_adapter=SingleGainAdapter  # Options: NoGainAdapter, SingleGainAdapter, DiagonalGainAdapter, NetworkGainAdapter
+use_previous_BRs=True
+
+
 python3 -m Experiments.DQNExperiments.DQNExperiment \
    env=$env name=$env experiment_name="$env PBR Gain Sweep"\
    hydra.mode=MULTIRUN \
@@ -24,11 +28,12 @@ python3 -m Experiments.DQNExperiments.DQNExperiment \
    hydra.sweep.dir=$directory \
    save_dir=$directory \
    seed=$RANDOM \
-   kp=1 \
-   kd=0,0.1,0.2 \
-   ki=-0.1,0,0.1 \
+   gain_adapter=$gain_adapter \
+   adapt_gains=True \
+   use_previous_BRs=$use_previous_BRs \
    d_tau=1,0.5,0.1 \
-
+   epsilon=0,0.1,1 \
+   meta_lr=0.5,0.1,0.01
 
 python3 -m Experiments.Plotting.plot_dqn_experiment \
    hydra.run.dir=$directory \

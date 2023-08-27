@@ -89,8 +89,9 @@ class Monitor(gym.Wrapper[ObsType, ActType, ObsType, ActType]):
         :param action: the action
         :return: observation, reward, terminated, truncated, information
         """
-        if self.needs_reset:
-            raise RuntimeError("Tried to step environment that needs reset")
+        # Removed check for convenience when evaluating from a certain state
+        #if self.needs_reset:
+        #    raise RuntimeError("Tried to step environment that needs reset")
         observation, reward, terminated, truncated, info = self.env.step(action)
         self.rewards.append(float(reward))
         if terminated or truncated:

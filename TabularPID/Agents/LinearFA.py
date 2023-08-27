@@ -14,7 +14,7 @@ class LinearFuncSpace():
     def __init__(self, env, order):
         self.env = env
 
-        self.variance = self.env.observation_space.high - self.env.observation_space.low
+        self.range = self.env.observation_space.high - self.env.observation_space.low
         self.mean = (self.env.observation_space.high + self.env.observation_space.low) / 2
     
         self.order = order
@@ -23,7 +23,7 @@ class LinearFuncSpace():
     def value(self, state):
         """Return the value of the basis functions at the given state, normalizing the input
         """
-        return self.base_value((state - self.mean) / self.variance)
+        return self.base_value(2 * ((state - self.mean) / self.range))
     
     def base_value(self, state):
         """Return the value of the basis functions at the given state.
@@ -37,18 +37,30 @@ class FourierBasis(LinearFuncSpace):
         super().__init__(env, order)
         self.num_features = (self.order + 1) ** self.dim
 
+        # For the Fourier basis with only cosines, we only project the input to [0, 1] instead of [-1, 1].
+        self.mean = 0
+        self.range *= 2
+
     def base_value(self, state):
         """Return the value of the basis functions at the given state.
         """
         all_arrays = list(itertools.product(range(self.order + 1), repeat=self.dim))
-        
+
         if hasattr(state, '__iter__'):
-            return np.cos(np.pi * np.array(list(np.array(arr).T @ state for arr in all_arrays))).reshape(-1, 1)
-            
+            return np.cos(
+                np.pi * np.array(list(
+                    np.array(arr).T @ state
+                    for arr in all_arrays
+                ))
+            ).reshape(-1, 1)
+
         return np.cos(
-            np.pi * np.array(list(np.array(arr).T @ np.array((state,)) for arr in all_arrays))
+            np.pi * np.array(list(
+                np.array(arr).T @ np.array((state,))
+                for arr in all_arrays
+            ))
         ).reshape(-1, 1)
-        
+
 
 class PolynomialBasis(LinearFuncSpace):
     """A set of polynomial basis functions.
@@ -203,6 +215,10 @@ class LinearTD():
             next_state_value = self.basis.value(next_state).T @ self.w_V
             current_state_Vp_value = self.basis.value(current_state).T @ self.w_Vp
             current_state_z_value = self.basis.value(current_state).T @ self.w_z
+
+            # if current_state_value is nan, breakpoint
+            if np.isnan(current_state_value):
+                breakpoint()
 
             self.BR = reward + self.gamma * next_state_value - current_state_value
             V_update = current_state_value + self.kp * self.BR \

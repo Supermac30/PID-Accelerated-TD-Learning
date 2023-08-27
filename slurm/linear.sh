@@ -12,11 +12,11 @@
 source slurm/setup.sh
 
 current_time=$(date "+%Y.%m.%d/%H.%M.%S")
-env="chain walk"
+env="MountainCar-v0"
 gamma=0.99
 repeat=20
 order=20
-type="trivial"  # "trivial", "fourier", "polynomial", "tile coding"
+type="fourier"  # "trivial", "fourier", "polynomial", "tile coding"
 seed=$RANDOM
 num_iterations=10000
 search_steps=10000
@@ -24,7 +24,7 @@ directory=outputs/linear_experiment/$env/$current_time
 echo "Saving to $directory"
 mkdir -p "$directory"
 
-recompute_optimal=False
+recompute_optimal=True
 compute_optimal=True
 get_optimal=True
 
@@ -35,8 +35,8 @@ python3 -m Experiments.LinearFAExperiments.linearFAExperiment --multirun \
     save_dir="$directory" \
     seed=$seed \
     kp=1 \
-    ki=0 \
-    kd=0 \
+    ki=0,-0.1,0.1 \
+    kd=0,-0.1,0.1 \
     order=$order \
     gamma=$gamma \
     env="$env" \
