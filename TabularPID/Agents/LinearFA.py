@@ -216,10 +216,6 @@ class LinearTD():
             current_state_Vp_value = self.basis.value(current_state).T @ self.w_Vp
             current_state_z_value = self.basis.value(current_state).T @ self.w_z
 
-            # if current_state_value is nan, breakpoint
-            if np.isnan(current_state_value):
-                breakpoint()
-
             self.BR = reward + self.gamma * next_state_value - current_state_value
             V_update = current_state_value + self.kp * self.BR \
                 + self.kd * (current_state_Vp_value - current_state_value) \

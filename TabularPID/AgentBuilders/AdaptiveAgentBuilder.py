@@ -8,6 +8,8 @@ Possible agents include:
 from TabularPID.AgentBuilders.EnvBuilder import get_env_policy
 from TabularPID.OptimalRates.OptimalRateDatabase import get_stored_optimal_rate
 from TabularPID.Agents.AdaptiveAgents import *
+from TabularPID.AgentBuilders.AgentBuilder import build_linear_TD
+from TabularPID.Agents.LinearFA import FourierBasis, PolynomialBasis, TileCodingBasis, TrivialBasis
 import TabularPID.Agents.AdaptiveQAgents as AdaptiveQAgents
 import TabularPID.Agents.AdaptiveDoubleQAgents as AdaptiveDoubleQAgents
 from TabularPID.Agents.Agents import learning_rate_function
@@ -48,7 +50,7 @@ def build_adaptive_agent_and_env(agent_name, env_name, meta_lr, lambd, delay, ge
     agent = build_adaptive_agent(agent_name, env_name, env, policy, meta_lr, lambd, delay, get_optimal, gamma, kp, kd, ki, alpha, beta, epsilon)
     return agent, env, policy
 
-def build_adaptive_agent(agent_name, env_name, env, policy, meta_lr, lambd, delay, get_optimal, gamma, kp, kd, ki, alpha, beta, epsilon):
+def build_adaptive_agent(agent_name, env_name, env, policy, meta_lr, lambd, delay, get_optimal, gamma, kp, kd, ki, alpha, beta, epsilon, order=20):
     """Return the adaptive agent given its name.
 
     get_optimal: Try to find the optimal learning rate and set it
@@ -113,7 +115,6 @@ def build_adaptive_agent(agent_name, env_name, env, policy, meta_lr, lambd, dela
     elif agent_name == "true semi gradient updater":
         return build_true_semi_gradient_updater(*params)
 
-
     elif agent_name == "no gain Q adapter":
         return build_no_gain_Q_adapter(*params)
     elif agent_name == "semi gradient Q updater":
@@ -123,6 +124,22 @@ def build_adaptive_agent(agent_name, env_name, env, policy, meta_lr, lambd, dela
 
     elif agent_name == "semi gradient double Q updater":
         return build_semi_gradient_double_Q_updater(*params)
+    
+    elif agent_name.startwith("linear TD"):
+        learning_rates = (learning_rate, update_I_rate, update_D_rate)
+        if agent_name == "linear TD polynomial":
+            basis = PolynomialBasis(env, order)
+            return build_linear_TD(env, policy, kp, ki, kd, alpha, beta, learning_rates, gamma, basis, adapt_gains=True, meta_lr=meta_lr, epsilon=epsilon)
+        elif agent_name == "linear TD fourier":
+            basis = FourierBasis(env, order)
+            return build_linear_TD(env, policy, kp, ki, kd, alpha, beta, learning_rates, gamma, basis, adapt_gains=True, meta_lr=meta_lr, epsilon=epsilon)
+        elif agent_name == "linear TD tile coding":
+            basis = TileCodingBasis(env, order)
+            return build_linear_TD(env, policy, kp, ki, kd, alpha, beta, learning_rates, gamma, basis, adapt_gains=True, meta_lr=meta_lr, epsilon=epsilon)
+        elif agent_name == "linear TD trivial":
+            basis = TrivialBasis(env, order)
+            return build_linear_TD(env, policy, kp, ki, kd, alpha, beta, learning_rates, gamma, basis, adapt_gains=True, meta_lr=meta_lr, epsilon=epsilon)
+        
     return None
 
 

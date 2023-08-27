@@ -1,14 +1,16 @@
-kp: [1]
-kd: [0.05]
-ki: [0]
-alpha: [0.05]
-beta: [0.95]
-delays: [1, 5, 10]
+kp: 1
+kd: 0
+ki: 0
+alpha: 0.05
+beta: 0.95
+delays: 1
 
 num_iterations: 10000
 norm: 1
 env: chain walk
 gamma: 0.99
+
+repeat: 1
 
 follow_trajectory: False
 get_optimal: False

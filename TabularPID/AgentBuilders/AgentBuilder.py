@@ -83,23 +83,22 @@ def build_agent(agent_name, env_name, env, policy, get_optimal, gamma):
     elif agent_description == "double Q learning":
         return build_double_Q_PID(env, kp, ki, kd, alpha, beta, learning_rates, gamma)
     
-    elif agent_description == "linear TD polynomial":
+    # If agent_description starts with linear TD, but could have more after
+    elif agent_description.startswith("linear TD"):
         order = kwargs[0]
-        basis = PolynomialBasis(env, order)
-        return build_linear_TD(env, policy, kp, ki, kd, alpha, beta, learning_rates, gamma, order, basis)
-    elif agent_description == "linear TD fourier":
-        order = kwargs[0]
-        basis = FourierBasis(env, order)
-        return build_linear_TD(env, policy, kp, ki, kd, alpha, beta, learning_rates, gamma, order, basis)
-    elif agent_description == "linear TD tile coding":
-        order = kwargs[0]
-        basis = TileCodingBasis(env, order)
-        return build_linear_TD(env, policy, kp, ki, kd, alpha, beta, learning_rates, gamma, order, basis)
-    elif agent_description == "linear TD trivial":
-        order = kwargs[0]
-        basis = TrivialBasis(env, order)
-        return build_linear_TD(env, policy, kp, ki, kd, alpha, beta, learning_rates, gamma, order, basis)
-    
+        if agent_description == "linear TD polynomial":
+            basis = PolynomialBasis(env, order)
+            return build_linear_TD(env, policy, kp, ki, kd, alpha, beta, learning_rates, gamma, basis)
+        elif agent_description == "linear TD fourier":
+            basis = FourierBasis(env, order)
+            return build_linear_TD(env, policy, kp, ki, kd, alpha, beta, learning_rates, gamma, basis)
+        elif agent_description == "linear TD tile coding":
+            basis = TileCodingBasis(env, order)
+            return build_linear_TD(env, policy, kp, ki, kd, alpha, beta, learning_rates, gamma, basis)
+        elif agent_description == "linear TD trivial":
+            basis = TrivialBasis(env, order)
+            return build_linear_TD(env, policy, kp, ki, kd, alpha, beta, learning_rates, gamma, basis)
+        
     elif agent_description == "TIDBD":
         return build_TIDBD(env, policy, learning_rates, gamma)
     elif agent_description == "zap Q learning":
@@ -109,12 +108,13 @@ def build_agent(agent_name, env_name, env, policy, get_optimal, gamma):
     return None
 
 
-def build_linear_TD(env, policy, kp, ki, kd, alpha, beta, learning_rates, gamma, order, basis):
+def build_linear_TD(env, policy, kp, ki, kd, alpha, beta, learning_rates, gamma, basis, adapt_gains=False, meta_lr=0, epsilon=1):
     optimal_agent = build_emperical_TD_tester(env, policy, gamma)
     return LinearTD(
         env, policy, gamma, basis,
         kp, ki, kd, alpha, beta,
-        *learning_rates, solved_agent=optimal_agent
+        *learning_rates, adapt_gains=adapt_gains,
+        meta_lr=meta_lr, epsilon=epsilon, solved_agent=optimal_agent
     )
 
 def build_double_Q_PID(env, kp, ki, kd, alpha, beta, learning_rates, gamma):
