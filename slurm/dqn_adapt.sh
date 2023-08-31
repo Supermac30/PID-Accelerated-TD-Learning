@@ -12,7 +12,7 @@
 source slurm/setup.sh
 
 current_time=$(date "+%Y.%m.%d-%H.%M.%S")
-env=Cartpole-v1
+env=Acrobot-v1
 directory=outputs/dqn_adapt_experiment/${env}/$current_time
 echo "Saving to ${directory}"
 mkdir -p "$directory"

@@ -18,7 +18,7 @@ import logging
 default_meta_lr = 1
 default_learning_rates =  (1, 100, 1, float("inf"), 0.01, float("inf"))  #  (0.1, 10, 1, float("inf"), 0.01, float("inf"))
 
-def build_adaptive_agent_and_env(agent_name, env_name, meta_lr, lambd, delay, get_optimal=False, seed=42, gamma=0.99, kp=1, kd=0, ki=0, alpha=0.05, beta=0.95, epsilon=0.1):
+def build_adaptive_agent_and_env(agent_name, env_name, meta_lr, lambd, delay, get_optimal=False, seed=42, gamma=0.99, kp=1, kd=0, ki=0, alpha=0.05, beta=0.95, epsilon=0.1, order=None):
     """Return the adaptive agent and the environment & policy given its name. The names include:
     - planner: The original PAVIA gain adaptation algorithm
     - log space planner: The original PAVIA gain adaptation algorithm, but in the log space
@@ -47,10 +47,10 @@ def build_adaptive_agent_and_env(agent_name, env_name, meta_lr, lambd, delay, ge
     Return None if the names are not in the list of possible names.
     """
     env, policy = get_env_policy(env_name, seed)
-    agent = build_adaptive_agent(agent_name, env_name, env, policy, meta_lr, lambd, delay, get_optimal, gamma, kp, kd, ki, alpha, beta, epsilon)
+    agent = build_adaptive_agent(agent_name, env_name, env, policy, meta_lr, lambd, delay, get_optimal, gamma, kp, kd, ki, alpha, beta, epsilon, order)
     return agent, env, policy
 
-def build_adaptive_agent(agent_name, env_name, env, policy, meta_lr, lambd, delay, get_optimal, gamma, kp, kd, ki, alpha, beta, epsilon, order=20):
+def build_adaptive_agent(agent_name, env_name, env, policy, meta_lr, lambd, delay, get_optimal, gamma, kp, kd, ki, alpha, beta, epsilon, order=None):
     """Return the adaptive agent given its name.
 
     get_optimal: Try to find the optimal learning rate and set it
@@ -60,7 +60,11 @@ def build_adaptive_agent(agent_name, env_name, env, policy, meta_lr, lambd, dela
     Return None if the names are not in the list of possible names.
     """
     if get_optimal:
-        optimal_rates = get_stored_optimal_rate((agent_name, meta_lr, lambd, delay, alpha, beta, epsilon), env_name, gamma)
+        if order is None:
+            description = (agent_name, meta_lr, lambd, delay, alpha, beta, epsilon)
+        else:
+            description = (agent_name, meta_lr, lambd, delay, alpha, beta, epsilon, order)
+        optimal_rates = get_stored_optimal_rate(description, env_name, gamma)
     if not get_optimal or optimal_rates is None:
         optimal_rates = default_learning_rates
 
@@ -127,18 +131,19 @@ def build_adaptive_agent(agent_name, env_name, env, policy, meta_lr, lambd, dela
     
     elif agent_name.startwith("linear TD"):
         learning_rates = (learning_rate, update_I_rate, update_D_rate)
-        if agent_name == "linear TD polynomial":
+        is_q = (agent_name[-1] == "Q")
+        if agent_name.startswith("linear TD polynomial"):
             basis = PolynomialBasis(env, order)
-            return build_linear_TD(env, policy, kp, ki, kd, alpha, beta, learning_rates, gamma, basis, adapt_gains=True, meta_lr=meta_lr, epsilon=epsilon)
-        elif agent_name == "linear TD fourier":
+            return build_linear_TD(env, policy, kp, ki, kd, alpha, beta, learning_rates, gamma, basis, is_q, adapt_gains=True, meta_lr=meta_lr, epsilon=epsilon)
+        elif agent_name.startswith("linear TD fourier"):
             basis = FourierBasis(env, order)
-            return build_linear_TD(env, policy, kp, ki, kd, alpha, beta, learning_rates, gamma, basis, adapt_gains=True, meta_lr=meta_lr, epsilon=epsilon)
-        elif agent_name == "linear TD tile coding":
+            return build_linear_TD(env, policy, kp, ki, kd, alpha, beta, learning_rates, gamma, basis, is_q, adapt_gains=True, meta_lr=meta_lr, epsilon=epsilon)
+        elif agent_name.startswith("linear TD tile coding"):
             basis = TileCodingBasis(env, order)
-            return build_linear_TD(env, policy, kp, ki, kd, alpha, beta, learning_rates, gamma, basis, adapt_gains=True, meta_lr=meta_lr, epsilon=epsilon)
-        elif agent_name == "linear TD trivial":
+            return build_linear_TD(env, policy, kp, ki, kd, alpha, beta, learning_rates, gamma, basis, is_q, adapt_gains=True, meta_lr=meta_lr, epsilon=epsilon)
+        elif agent_name.startwith("linear TD trivial"):
             basis = TrivialBasis(env, order)
-            return build_linear_TD(env, policy, kp, ki, kd, alpha, beta, learning_rates, gamma, basis, adapt_gains=True, meta_lr=meta_lr, epsilon=epsilon)
+            return build_linear_TD(env, policy, kp, ki, kd, alpha, beta, learning_rates, gamma, basis, is_q, adapt_gains=True, meta_lr=meta_lr, epsilon=epsilon)
         
     return None
 
