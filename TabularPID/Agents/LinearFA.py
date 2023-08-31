@@ -11,14 +11,14 @@ from TabularPID.Agents.Tiles.tiles import tiles
 class LinearFuncSpace():
     """A set of basis functions to approximate the value function.
     """
-    def __init__(self, env, order):
+    def __init__(self, env, order, is_q=False):
         self.env = env
 
         self.range = self.env.observation_space.high - self.env.observation_space.low
         self.mean = (self.env.observation_space.high + self.env.observation_space.low) / 2
     
         self.order = order
-        self.dim = self.env.observation_space.shape[0]
+        self.dim = self.env.observation_space.shape[0] + (1 if is_q else 0)
 
     def value(self, state):
         """Return the value of the basis functions at the given state, normalizing the input
@@ -33,8 +33,8 @@ class LinearFuncSpace():
 class FourierBasis(LinearFuncSpace):
     """A set of Fourier basis functions.
     """
-    def __init__(self, env, order):
-        super().__init__(env, order)
+    def __init__(self, env, order, is_q=False):
+        super().__init__(env, order, is_q)
         self.num_features = (self.order + 1) ** self.dim
 
         # For the Fourier basis with only cosines, we only project the input to [0, 1] instead of [-1, 1].
@@ -65,8 +65,8 @@ class FourierBasis(LinearFuncSpace):
 class PolynomialBasis(LinearFuncSpace):
     """A set of polynomial basis functions.
     """
-    def __init__(self, env, order):
-        super().__init__(env, order)
+    def __init__(self, env, order, is_q=False):
+        super().__init__(env, order, is_q)
         self.num_features = (self.order + 1) ** self.env.observation_space.shape[0]
 
     def base_value(self, state):
@@ -97,8 +97,8 @@ class TileCodingBasis(LinearFuncSpace):
         http://incompleteideas.net/rlai.cs.ualberta.ca/RLAI/RLtoolkit/tiles.html
     """
 
-    def __init__(self, env, order, num_tiles=100):
-        super().__init__(env, order)
+    def __init__(self, env, order, num_tiles=100, is_q=False):
+        super().__init__(env, order, is_q)
         self.num_tiles = num_tiles
         self.num_features = self.order
 
@@ -114,8 +114,8 @@ class TileCodingBasis(LinearFuncSpace):
 class TrivialBasis(LinearFuncSpace):
     """A basis that simply returns the state in a one-hot-encoding for the purpose of debugging."""
 
-    def __init__(self, env, order):
-        super().__init__(env, order)
+    def __init__(self, env, order, is_q=False):
+        super().__init__(env, order, is_q)
         self.num_features = self.env.observation_space.n
 
     def value(self, state):
@@ -205,7 +205,7 @@ class LinearTD():
 
         # The history of the gains
         self.gain_history = [[] for _ in range(5)]
-        self.history = np.zeros((num_iterations))
+        self.history = []
 
         for k in range(num_iterations):
             current_state, next_state, reward = self.take_action()
@@ -230,7 +230,8 @@ class LinearTD():
             self.w_z += lr_z * (z_update.item() - current_state_z_value.item()) * self.basis.value(current_state)
 
             if self.solved_agent is not None:
-                self.history[k] = self.measure_performance()
+                if k % (num_iterations // 100) == 0:
+                    self.history.append(self.solved_agent.measure_performance(self.query_agent))
                 if stop_if_diverging and self.history[k] > 2 * self.history[0]:
                     # If we are too large, stop learning
                     self.history[k:] = float('inf')
@@ -243,21 +244,12 @@ class LinearTD():
         if self.solved_agent is None:
             return self.w_V
 
+        self.history = np.array(self.history)
+
         if adapt_gains:
             self.history = self.history, self.gain_history
+
         return self.history, self.w_V
-
-    def measure_performance(self):
-        """Measure the performance of the agent using the optimal agent.
-        """
-        distance = 0
-
-        for _ in range(10):
-            state, q_value = self.solved_agent.randomly_query_agent()
-            distance += abs(q_value - self.query_agent(state))
-
-        # Return the mean of these values
-        return np.mean(distance)
 
     def update_gains(self):
         """Update the gains kp, ki, and kd.

@@ -17,19 +17,35 @@ directory=outputs/dqn_experiment/${env}/$current_time
 echo "Saving to ${directory}"
 mkdir -p "$directory"
 
-num_runs=10
+is_double=True
+num_runs=5
 
-python3 -m Experiments.DQNExperiments.DQNExperiment \
-   env=$env name=$env experiment_name="$env PBR Gain Sweep"\
+
+python3 -m Experiments.DQNExperiments.DQNExperiment --multirun \
+   env=$env name=$env experiment_name="$env Double DQN Test"\
    hydra.mode=MULTIRUN \
    hydra.run.dir=$directory \
    hydra.sweep.dir=$directory \
    save_dir=$directory \
    seed=$RANDOM \
+   is_double=$is_double \
    kp=1 \
-   kd=0,0.1,0.2 \
-   ki=-0.1,0,0.1 \
+   kd=0.1,0.2 \
+   ki=0 \
    d_tau=1,0.5,0.1 \
+   num_runs=$num_runs
+
+python3 -m Experiments.DQNExperiments.DQNExperiment --multirun \
+   env=$env name=$env experiment_name="$env Double DQN Test"\
+   hydra.mode=MULTIRUN \
+   hydra.run.dir=$directory \
+   hydra.sweep.dir=$directory \
+   save_dir=$directory \
+   seed=$RANDOM \
+   is_double=$is_double \
+   kp=1 \
+   kd=0 \
+   ki=0 \
    num_runs=$num_runs
 
 

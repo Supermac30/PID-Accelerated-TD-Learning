@@ -6,6 +6,7 @@ beta: 0.95
 gamma: 0.99
 
 type: polynomial
+is_q: False
 
 env: CartPole-v1
 num_iterations: 30000

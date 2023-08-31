@@ -197,10 +197,10 @@ class AdaptiveSamplerAgent(AbstractAdaptiveAgent):
         """Return the empirical bellman residual"""
         if is_A:
             best_action = np.argmax(self.Q_A[self.next_state])
-            return self.reward[0] + self.gamma * self.Q_B[self.next_state][best_action] - self.Q_A[self.current_state][self.action]
+            return int(self.reward) + self.gamma * self.Q_B[self.next_state][best_action] - self.Q_A[self.current_state][self.action]
         else:
             best_action = np.argmax(self.Q_B[self.next_state])
-            return self.reward[0] + self.gamma * self.Q_A[self.next_state][best_action] - self.Q_B[self.current_state][self.action]
+            return int(self.reward) + self.gamma * self.Q_A[self.next_state][best_action] - self.Q_B[self.current_state][self.action]
 
 
 class DiagonalAdaptiveSamplerAgent(AbstractAdaptiveAgent):
@@ -274,7 +274,7 @@ class DiagonalAdaptiveSamplerAgent(AbstractAdaptiveAgent):
 
     def BR(self):
         """Return the empirical bellman residual"""
-        return self.reward[0] + self.gamma * np.max(self.Q[self.next_state]) - self.Q[self.current_state][self.action]
+        return int(self.reward) + self.gamma * np.max(self.Q[self.next_state]) - self.Q[self.current_state][self.action]
 
 
 class AdaptivePlannerAgent(AbstractAdaptiveAgent):
@@ -365,7 +365,8 @@ class SemiGradientUpdater(AbstractGainUpdater):
         self.previous_average_BR = float("inf")
 
     def set_agent(self, agent):
-        self.running_BR = np.zeros((agent.num_states, agent.num_actions))
+        self.running_BR_A = np.zeros((agent.num_states, agent.num_actions))
+        self.running_BR_B = np.zeros((agent.num_states, agent.num_actions))
         self.previous_average_BR = float("inf")
         self.d_update = 0
         self.i_update = 0
@@ -387,11 +388,16 @@ class SemiGradientUpdater(AbstractGainUpdater):
         next_BR = self.agent.next_BR
 
         scale = 0.5
-        self.running_BR[current_state][action] = (1 - scale) * self.running_BR[current_state][action] + scale * BR * BR
+        if self.agent.updated_A:
+            self.running_BR_A[current_state][action] = (1 - scale) * self.running_BR_A[current_state][action] + scale * BR * BR
+            normalization = self.epsilon + self.running_BR_A[current_state][action]
+        else:
+            self.running_BR_B[current_state][action] = (1 - scale) * self.running_BR_B[current_state][action] + scale * BR * BR
+            normalization = self.epsilon + self.running_BR_B[current_state][action]
 
-        self.p_update += lr * next_BR * self.agent.p_update / (self.epsilon + self.running_BR[current_state][action])
-        self.d_update += lr * next_BR * self.agent.d_update / (self.epsilon + self.running_BR[current_state][action])
-        self.i_update += lr * next_BR * self.agent.i_update / (self.epsilon + self.running_BR[current_state][action])
+        self.p_update += lr * next_BR * self.agent.p_update / normalization
+        self.d_update += lr * next_BR * self.agent.d_update / normalization
+        self.i_update += lr * next_BR * self.agent.i_update / normalization
 
         if not intermediate:
             if self.agent.updated_A:

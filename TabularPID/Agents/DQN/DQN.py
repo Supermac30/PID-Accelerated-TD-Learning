@@ -106,7 +106,8 @@ class PID_DQN(OffPolicyAlgorithm):
         seed: Optional[int] = None,
         device: Union[th.device, str] = "auto",
         _init_setup_model: bool = True,
-        dump_buffer: bool = False
+        dump_buffer: bool = False,
+        is_double=False
     ) -> None:
         super().__init__(
             policy,
@@ -143,6 +144,7 @@ class PID_DQN(OffPolicyAlgorithm):
         self.tabular_d = tabular_d
         self.dump_buffer = dump_buffer
         self.buffer = []  # The buffer we dump, if dump_buffer is True
+        self.is_double = is_double
 
         self.exploration_initial_eps = exploration_initial_eps
         self.exploration_final_eps = exploration_final_eps
@@ -222,10 +224,17 @@ class PID_DQN(OffPolicyAlgorithm):
             replay_data = self.replay_buffer.sample(batch_size, env=self._vec_normalize_env)  # type: ignore[union-attr]
 
             with th.no_grad():
-                # Compute the next Q-values using the target network
-                next_q_values = self.q_net_target(replay_data.next_observations)
-                # Follow greedy policy: use the one with the highest value
-                next_q_values, _ = next_q_values.max(dim=1)
+                if self.is_double:
+                    # Double DQN
+                    next_q_values = self.q_net(replay_data.next_observations)
+                    next_actions = th.argmax(next_q_values, dim=1)
+                    next_q_values = self.q_net_target(replay_data.next_observations)
+                    next_q_values = next_q_values[range(batch_size), next_actions]
+                else:
+                    # Compute the next Q-values using the target network
+                    next_q_values = self.q_net_target(replay_data.next_observations)
+                    # Follow greedy policy: use the one with the highest value
+                    next_q_values, _ = next_q_values.max(dim=1)
                 # Avoid potential broadcast issue
                 next_q_values = next_q_values.reshape(-1, 1)
                 # 1-step TD target

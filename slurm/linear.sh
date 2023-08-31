@@ -3,7 +3,7 @@
 #SBATCH -p cpu
 #SBATCH --cpus-per-task=64
 #SBATCH --tasks-per-node=1
-#SBATCH --time=5:00:00
+#SBATCH --time=30:00:00
 #SBATCH --mem=8GB
 #SBATCH --job-name=linear_PID
 #SBATCH --output=slurm/logs/%x_%j.out
@@ -17,9 +17,10 @@ gamma=0.99
 repeat=20
 order=20
 type="fourier"  # "trivial", "fourier", "polynomial", "tile coding"
+is_q=True
 seed=$RANDOM
-num_iterations=10000
-search_steps=10000
+num_iterations=100
+search_steps=100
 directory=outputs/linear_experiment/$env/$current_time
 echo "Saving to $directory"
 mkdir -p "$directory"
@@ -47,6 +48,7 @@ python3 -m Experiments.LinearFAExperiments.linearFAExperiment --multirun \
     get_optimal=$get_optimal \
     recompute_optimal=$recompute_optimal \
     search_steps=$search_steps \
+    is_q=$is_q
 
 python3 -m Experiments.Plotting.plot_adaptation_experiment \
     hydra.run.dir="$directory" \

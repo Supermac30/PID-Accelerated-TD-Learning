@@ -3,7 +3,7 @@
 #SBATCH -p cpu
 #SBATCH --cpus-per-task=64
 #SBATCH --tasks-per-node=1
-#SBATCH --time=5:00:00
+#SBATCH --time=30:00:00
 #SBATCH --mem=8GB
 #SBATCH --job-name=linear_PID
 #SBATCH --output=slurm/logs/%x_%j.out
@@ -34,9 +34,6 @@ python3 -m Experiments.LinearFAExperiments.linearFAExperiment --multirun \
     hydra.sweep.dir="$directory" \
     save_dir="$directory" \
     seed=$seed \
-    kp=1 \
-    ki=0,-0.1,0.1 \
-    kd=0,-0.1,0.1 \
     order=$order \
     gamma=$gamma \
     env="$env" \

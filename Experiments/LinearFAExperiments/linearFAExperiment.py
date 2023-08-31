@@ -9,6 +9,8 @@ def soft_policy_evaluation_experiment(cfg):
     """Experiments with policy evaluation and TD"""
     seed = pick_seed(cfg['seed'])
     name = f"linear TD {cfg['type']}"
+    if cfg['is_q']:
+        name += " Q"
     kp, ki, kd, alpha, beta = cfg['kp'], cfg['ki'], cfg['kd'], cfg['alpha'], cfg['beta']
     order = cfg['order']
 

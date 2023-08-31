@@ -4,6 +4,9 @@ ki: 0
 alpha: 0.05
 beta: 0.95
 
+# If Double Q learning should be used
+is_double: False
+
 # D component parameters
 tabular_d: False
 d_tau: 1e-3

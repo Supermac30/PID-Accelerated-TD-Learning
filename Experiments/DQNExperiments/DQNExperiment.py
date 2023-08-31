@@ -50,6 +50,7 @@ def control_experiment(cfg):
                 env_cfg['target_update_interval'], env_cfg['inner_size'],
                 cfg['slow_motion'], env_cfg['learning_starts'], tensorboard_log=cfg['tensorboard_log'],
                 seed=run_seed, log_name=log_name, name_append=f"run {i}",dump_buffer=cfg['dump_buffer'],
+                is_double=cfg['is_double']
             )
         else:
             agent = build_PID_DQN(
@@ -87,7 +88,7 @@ def control_experiment(cfg):
         )
         run.finish()
 
-    agent.visualize_episode()
+    # agent.visualize_episode()
 
 
 
