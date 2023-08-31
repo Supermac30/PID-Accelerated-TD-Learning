@@ -15,6 +15,7 @@ current_time=$(date "+%Y.%m.%d/%H.%M.%S")
 env="MountainCar-v0"
 gamma=0.99
 repeat=20
+is_q=True
 order=20
 type="fourier"  # "trivial", "fourier", "polynomial", "tile coding"
 seed=$RANDOM
@@ -44,6 +45,7 @@ python3 -m Experiments.LinearFAExperiments.linearFAExperiment --multirun \
     get_optimal=$get_optimal \
     recompute_optimal=$recompute_optimal \
     search_steps=$search_steps \
+    is_q=$is_q
 
 python3 -m Experiments.Plotting.plot_adaptation_experiment \
     hydra.run.dir="$directory" \

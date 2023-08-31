@@ -18,7 +18,13 @@ class LinearFuncSpace():
         self.mean = (self.env.observation_space.high + self.env.observation_space.low) / 2
     
         self.order = order
-        self.dim = self.env.observation_space.shape[0] + (1 if is_q else 0)
+        self.dim = self.env.observation_space.shape[0]
+        
+        if is_q:
+            num_actions = self.env.action_space.n
+            self.range = np.append(self.range, num_actions)
+            self.mean = np.append(self.mean, num_actions / 2)
+            self.dim += 1
 
     def value(self, state):
         """Return the value of the basis functions at the given state, normalizing the input

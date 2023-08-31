@@ -87,9 +87,6 @@ class LinearTDQ():
         for k in range(num_iterations):
             current_state, next_state, reward, action = self.take_action()
 
-            # Concatenate the current_state and next_state into a single vector
-            self.concatentated_state = np.concatenate((current_state, next_state))
-
             # Update the value function using the floats kp, ki, kd
             current_state_value = self.query_agent(current_state, action, component="Q")
             # Loop over all actions to find the next_state_value
@@ -109,9 +106,9 @@ class LinearTDQ():
 
             lr_Q, lr_Qp, lr_z = self.lr_Q(k), self.lr_Qp(k), self.lr_z(k)
 
-            self.w_Q += lr_Q * (Q_update.item() - current_state_value.item()) * self.basis.value(current_state)
-            self.w_Qp += lr_Qp * (Qp_update.item() - current_state_Qp_value.item()) * self.basis.value(current_state)
-            self.w_z += lr_z * (z_update.item() - current_state_z_value.item()) * self.basis.value(current_state)
+            self.w_Q += lr_Q * (Q_update.item() - current_state_value.item()) * self.basis_value(current_state, action)
+            self.w_Qp += lr_Qp * (Qp_update.item() - current_state_Qp_value.item()) * self.basis_value(current_state, action)
+            self.w_z += lr_z * (z_update.item() - current_state_z_value.item()) * self.basis_value(current_state, action)
 
             if self.solved_agent is not None:
                 if k % (num_iterations // 100) == 0:
@@ -158,6 +155,13 @@ class LinearTDQ():
         self.gain_history[3].append(self.alpha)
         self.gain_history[4].append(self.beta)
 
+    def basis_value(self, state, action):
+        # If action isn't already an numpy array, make it one
+        if not isinstance(action, np.ndarray):
+            action = np.array([action])
+
+        return self.basis.value(np.concatenate((state, action)))
+
     def query_agent(self, state, action, component="Q"):
         """Query the agent for the value at a state"""
         if component == "Q":
@@ -166,7 +170,8 @@ class LinearTDQ():
             vector = self.w_Qp
         elif component == "z":
             vector = self.w_z
-        return self.basis.value(np.concatenate((state, action))).T @ vector
+        
+        return self.basis_value(state, action).T @ vector
     
     def set_learning_rates(self, a, b, c, d, e, f):
         self.lr_V = learning_rate_function(a, b)

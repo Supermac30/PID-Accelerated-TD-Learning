@@ -17,7 +17,7 @@ def build_emperical_TD_tester(env, policy, gamma):
         return TrueEnvTester(env, policy, gamma)
     else:
         env = deepcopy(env)
-        return GymTesterDatabase(env, gamma)
+        return GymTester(env, gamma)
 
 def build_emperical_Q_tester(env, gamma):
     if isinstance(env, Environment):
