@@ -113,7 +113,7 @@ class LinearTDQ():
             if self.solved_agent is not None:
                 if k % (num_iterations // 100) == 0:
                     self.history.append(self.solved_agent.measure_performance(self.query_agent))
-                if stop_if_diverging and self.history[k] > 2 * self.history[0]:
+                if stop_if_diverging and self.history[-1] > 2 * self.history[0]:
                     # If we are too large, stop learning
                     self.history[k:] = float('inf')
                     break
