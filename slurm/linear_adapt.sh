@@ -5,7 +5,7 @@
 #SBATCH --tasks-per-node=1
 #SBATCH --time=30:00:00
 #SBATCH --mem=8GB
-#SBATCH --job-name=linear_PID
+#SBATCH --job-name=linear_adapt_PID
 #SBATCH --output=slurm/logs/%x_%j.out
 #SBATCH --error=slurm/errors/%x_%j.err
 

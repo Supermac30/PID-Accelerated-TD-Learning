@@ -159,6 +159,8 @@ class LinearTDQ():
         # If action isn't already an numpy array, make it one
         if not isinstance(action, np.ndarray):
             action = np.array([action])
+        if not isinstance(state, np.ndarray):
+            state = np.array([state])
 
         return self.basis.value(np.concatenate((state, action)))
 

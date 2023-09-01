@@ -32,6 +32,13 @@ class Environment:
                 'n': num_states
             }
         )
+        self.action_space = type(
+            'action_space',
+            (object,),
+            {
+                'n': num_actions
+            }
+        )
 
         self.seed = seed
         self.prg = np.random.default_rng(self.seed)
