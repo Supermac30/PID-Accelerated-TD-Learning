@@ -273,14 +273,14 @@ class LinearTD():
         self.ki += self.meta_lr * self.BR * (self.beta * z + self.alpha * self.BR) / normalizer
         self.kd += self.meta_lr * self.BR * (Vp - V) / normalizer
 
-    def update_gain_history(self):
+    def update_gain_history(self, index):
         """Update the gain history.
         """
-        self.gain_history[0].append(self.kp)
-        self.gain_history[1].append(self.ki)
-        self.gain_history[2].append(self.kd)
-        self.gain_history[3].append(self.alpha)
-        self.gain_history[4].append(self.beta)
+        self.gain_history[0][index] = self.kp
+        self.gain_history[1][index] = self.ki
+        self.gain_history[2][index] = self.kd
+        self.gain_history[3][index] = self.alpha
+        self.gain_history[4][index] = self.beta
 
     def query_agent(self, state):
         """Query the agent for the value at a state"""
