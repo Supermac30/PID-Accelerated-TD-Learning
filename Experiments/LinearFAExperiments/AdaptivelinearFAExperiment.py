@@ -11,11 +11,9 @@ def soft_policy_evaluation_experiment(cfg):
     name = f"linear TD {cfg['type']}"
     if cfg['is_q']:
         name += " Q"
-    kp, ki, kd, alpha, beta = cfg['kp'], cfg['ki'], cfg['kd'], cfg['alpha'], cfg['beta']
-    order = cfg['order']
 
     if cfg['compute_optimal']:
-        get_optimal_adaptive_linear_FA_rates(name, cfg['env'], order, cfg['meta_lr'], cfg['gamma'], cfg['lambd'], cfg['delay'], alpha, beta, recompute=cfg['recompute_optimal'], epsilon=cfg['epsilon'], search_steps=cfg['search_steps'])
+        get_optimal_adaptive_linear_FA_rates(name, cfg['env'], cfg['order'], cfg['meta_lr'], cfg['gamma'], cfg['lambd'], cfg['delay'], cfg['alpha'], cfg['beta'], recompute=cfg['recompute_optimal'], epsilon=cfg['epsilon'], search_steps=cfg['search_steps'])
     agent, _, _ = build_adaptive_agent_and_env(
         name,
         cfg['env'],
@@ -28,10 +26,10 @@ def soft_policy_evaluation_experiment(cfg):
         kp=cfg['kp'],
         ki=cfg['ki'],
         kd=cfg['kd'],
-        alpha=alpha,
-        beta=beta,
+        alpha=cfg['alpha'],
+        beta=cfg['beta'],
         epsilon=cfg['epsilon'],
-        order=order
+        order=cfg['order']
     )
     histories = []
     gain_histories = []

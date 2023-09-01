@@ -37,7 +37,6 @@ class GymTesterDatabase():
         distance between the agent's Q-values and the oracle's Q-values.
         """
         total_distance = 0
-        breakpoint()
         for entry in self.Q_values:
             state = entry[:-2]
             action = entry[-2]
