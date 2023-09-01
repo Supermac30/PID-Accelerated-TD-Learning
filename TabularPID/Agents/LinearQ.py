@@ -115,7 +115,7 @@ class LinearTDQ():
                     self.history.append(self.solved_agent.measure_performance(self.query_agent))
                 if stop_if_diverging and self.history[-1] > 2 * self.history[0]:
                     # If we are too large, stop learning
-                    self.history[k:] = float('inf')
+                    self.history[k:].append(float('inf'))
                     break
 
             if adapt_gains:
@@ -161,7 +161,7 @@ class LinearTDQ():
             action = np.array([action])
         if not isinstance(state, np.ndarray):
             state = np.array([state])
-
+ 
         return self.basis.value(np.concatenate((state, action)))
 
     def query_agent(self, state, action, component="Q"):

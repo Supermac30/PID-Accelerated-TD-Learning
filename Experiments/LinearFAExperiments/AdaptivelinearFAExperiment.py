@@ -34,15 +34,18 @@ def soft_policy_evaluation_experiment(cfg):
         order=order
     )
     histories = []
+    gain_histories = []
     for _ in range(cfg['repeat']):
-        history, _ = agent.estimate_value_function(
+        history, gain_history, _ = agent.estimate_value_function(
             num_iterations=cfg['num_iterations'],
-            stop_if_diverging=cfg['stop_if_diverging'],
-            
+            stop_if_diverging=cfg['stop_if_diverging']
         )
         histories.append(history)
-    save_array(np.mean(histories, axis=0), f"{name} kp={kp} ki={ki} kd={kd} alpha={alpha} beta={beta}", directory=cfg['save_dir'], subdir="mean")
-    save_array(np.std(histories, axis=0), f"{name} kp={kp} ki={ki} kd={kd} alpha={alpha} beta={beta}", directory=cfg['save_dir'], subdir="std_dev")
+        gain_histories.append(gain_history)
+    save_array(np.mean(histories, axis=0), f"{name}", directory=cfg['save_dir'], subdir="mean")
+    save_array(np.std(histories, axis=0), f"{name}", directory=cfg['save_dir'], subdir="std_dev")
+    save_array(np.mean(gain_histories, axis=0), f"gain_history {name}", directory=cfg['save_dir'], subdir="mean")
+    save_array(np.std(gain_histories, axis=0), f"gain_history {name}", directory=cfg['save_dir'], subdir="std_dev")
 
 
 if __name__ == "__main__":
