@@ -81,8 +81,8 @@ class LinearTDQ():
         self.reset(reset_environment)
 
         # The history of the gains
-        self.gain_history = [np.zeros(num_iterations // (num_iterations // 100)) for _ in range(5)]
-        self.history = np.zeros(num_iterations // (num_iterations // 100))
+        self.gain_history = [np.zeros(num_iterations // (num_iterations // 100) + 1) for _ in range(5)]
+        self.history = np.zeros(num_iterations // (num_iterations // 100) + 1)
         index = 0
 
         for k in range(num_iterations):
