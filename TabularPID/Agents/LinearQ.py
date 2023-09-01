@@ -81,8 +81,9 @@ class LinearTDQ():
         self.reset(reset_environment)
 
         # The history of the gains
-        self.gain_history = [[] for _ in range(5)]
-        self.history = []
+        self.gain_history = [np.zeros(num_iterations // (num_iterations // 100)) for _ in range(5)]
+        self.history = np.zeros(num_iterations // (num_iterations // 100))
+        index = 0
 
         for k in range(num_iterations):
             current_state, next_state, reward, action = self.take_action()
@@ -110,17 +111,18 @@ class LinearTDQ():
             self.w_Qp += lr_Qp * (Qp_update.item() - current_state_Qp_value.item()) * self.basis_value(current_state, action)
             self.w_z += lr_z * (z_update.item() - current_state_z_value.item()) * self.basis_value(current_state, action)
 
-            if self.solved_agent is not None:
-                if k % (num_iterations // 100) == 0:
-                    self.history.append(self.solved_agent.measure_performance(self.query_agent))
-                if stop_if_diverging and self.history[-1] > 2 * self.history[0]:
+            if self.solved_agent is not None and k % (num_iterations // 100) == 0:
+                index += 1
+                self.history[index] = self.solved_agent.measure_performance(self.query_agent)
+                if adapt_gains:
+                    self.update_gain_history(index)
+                if stop_if_diverging and self.history[index] > 2 * self.history[0]:
                     # If we are too large, stop learning
-                    self.history[k:].append(float('inf'))
+                    self.history[index:] = float('inf')
                     break
 
             if adapt_gains:
                 self.update_gains()
-                self.update_gain_history()
 
         if self.solved_agent is None:
             return self.w_Q
@@ -146,14 +148,14 @@ class LinearTDQ():
         self.ki += self.meta_lr * self.BR * (self.beta * z + self.alpha * self.BR) / normalizer
         self.kd += self.meta_lr * self.BR * (Qp - Q) / normalizer
 
-    def update_gain_history(self):
+    def update_gain_history(self, index):
         """Update the gain history.
         """
-        self.gain_history[0].append(self.kp)
-        self.gain_history[1].append(self.ki)
-        self.gain_history[2].append(self.kd)
-        self.gain_history[3].append(self.alpha)
-        self.gain_history[4].append(self.beta)
+        self.gain_history[0][index] = self.kp
+        self.gain_history[1][index] = self.ki
+        self.gain_history[2][index] = self.kd
+        self.gain_history[3][index] = self.alpha
+        self.gain_history[4][index] = self.beta
 
     def basis_value(self, state, action):
         # If action isn't already an numpy array, make it one
