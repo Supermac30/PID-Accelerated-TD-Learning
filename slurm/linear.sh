@@ -15,19 +15,19 @@ current_time=$(date "+%Y.%m.%d/%H.%M.%S")
 env="chain walk"
 gamma=0.99
 repeat=1 #20
-order=3
+order=5
 type="fourier"  # "trivial", "fourier", "polynomial", "tile coding"
 is_q=True
 seed=$RANDOM
-num_iterations=100
-search_steps=100
+num_iterations=1000
+search_steps=1000
 separation=$((num_iterations/100))
 directory=outputs/linear_experiment/$env/$current_time
 echo "Saving to $directory"
 mkdir -p "$directory"
 
-recompute_optimal=False
-compute_optimal=False
+recompute_optimal=True
+compute_optimal=True
 get_optimal=True
 
 python3 -m Experiments.LinearFAExperiments.linearFAExperiment --multirun \
