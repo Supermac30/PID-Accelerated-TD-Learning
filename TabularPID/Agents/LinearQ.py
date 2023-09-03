@@ -95,6 +95,7 @@ class LinearTDQ():
                 self.query_agent(next_state, next_action, component="Q")
                 for next_action in range(self.env.action_space.n)
             ])
+            breakpoint()
             current_state_Qp_value = self.query_agent(current_state, action, component="Qp")
             current_state_z_value = self.query_agent(current_state, action, component="z")
 

@@ -21,6 +21,7 @@ type="fourier"  # "trivial", "fourier", "polynomial", "tile coding"
 seed=$RANDOM
 num_iterations=10000
 search_steps=10000
+separation=$((num_iterations/100))
 directory=outputs/linear_adapt_experiment/$env/$current_time
 echo "Saving to $directory"
 mkdir -p "$directory"
@@ -53,4 +54,5 @@ python3 -m Experiments.Plotting.plot_adaptation_experiment \
     repeat=$repeat \
     env="$env" \
     is_q=False \
-    plot_best=False
+    plot_best=False \
+    separation=$separation

@@ -14,19 +14,20 @@ source slurm/setup.sh
 current_time=$(date "+%Y.%m.%d/%H.%M.%S")
 env="chain walk"
 gamma=0.99
-repeat=20
-order=20
+repeat=1 #20
+order=3
 type="fourier"  # "trivial", "fourier", "polynomial", "tile coding"
 is_q=True
 seed=$RANDOM
 num_iterations=100
 search_steps=100
+separation=$((num_iterations/100))
 directory=outputs/linear_experiment/$env/$current_time
 echo "Saving to $directory"
 mkdir -p "$directory"
 
-recompute_optimal=True
-compute_optimal=True
+recompute_optimal=False
+compute_optimal=False
 get_optimal=True
 
 python3 -m Experiments.LinearFAExperiments.linearFAExperiment --multirun \
@@ -56,4 +57,5 @@ python3 -m Experiments.Plotting.plot_adaptation_experiment \
     repeat=$repeat \
     env="$env" \
     is_q=False \
-    plot_best=False
+    plot_best=False \
+    separation=$separation

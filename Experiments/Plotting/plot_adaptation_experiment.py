@@ -31,8 +31,8 @@ def create_plots(cfg):
             titles = ["kp", "ki", "kd"]
             for i in range(3):
                 ax = fig.add_subplot(gs[0, i])
-                ax.plot(history[:, i])
-                ax.fill_between(np.arange(len(history[:, i])), history[:, i] - std_dev[:, i], history[:, i] + std_dev[:, i], alpha=0.2)
+                ax.plot(np.arange(0, len(history[i]), cfg['separation']), history[i])
+                ax.fill_between(np.arange(0, len(history[i]), cfg['separation']), history[i] - std_dev[i], history[i] + std_dev[i], alpha=0.2)
                 ax.set_xlabel('Steps')
                 ax.title.set_text(titles[i])
 
@@ -56,10 +56,11 @@ def create_plots(cfg):
                     min_history = history
                     min_std_dev = std_dev
             else:
-                std_dev /= history[0]
+                if history[0] != 0:
+                    std_dev /= history[0]
                 max_y = max(max_y, np.max(normalize(history) + std_dev))
-                ax0.plot(normalize(history), label=name)
-                ax0.fill_between(np.arange(len(history)), normalize(history) - std_dev, normalize(history) + std_dev, alpha=0.2)
+                ax0.plot(np.arange(0, len(history), cfg['separation']), normalize(history), label=name)
+                ax0.fill_between(np.arange(0, len(history), cfg['separation']), normalize(history) - std_dev, normalize(history) + std_dev, alpha=0.2)
         else:
             if file.startswith("TIDBD"):
                 name = "TIDBD"
@@ -75,10 +76,11 @@ def create_plots(cfg):
                 name = cfg['default_name']
 
             name = file[:-4]
-            std_dev /= history[0]
+            if history[0] != 0:
+                std_dev /= history[0]
             max_y = max(max_y, np.max(normalize(history) + std_dev))
-            ax0.plot(normalize(history), label=f"{name}")
-            ax0.fill_between(np.arange(len(history)), normalize(history) - std_dev, normalize(history) + std_dev, alpha=0.2)
+            ax0.plot(np.arange(0, len(history), cfg['separation']), normalize(history), label=name)
+            ax0.fill_between(np.arange(0, len(history), cfg['separation']), normalize(history) - std_dev, normalize(history) + std_dev, alpha=0.2)
 
     if cfg['plot_best']:
         logging.info(f"Best final history: {min_history_file}")
@@ -88,10 +90,11 @@ def create_plots(cfg):
             name = "Q Learning"
         else:
             name = "TD"
-        min_std_dev /= min_history[0]
+        if min_history[0] != 0:
+            min_std_dev /= min_history[0]
         max_y = max(max_y, np.max(normalize(min_history) + min_std_dev))
-        ax0.plot(normalize(min_history), label=f"PID {name} + Gain Adaptation")
-        ax0.fill_between(np.arange(len(min_history)), normalize(min_history) - min_std_dev, normalize(min_history) + min_std_dev, alpha=0.2)
+        ax0.plot(np.arange(0, len(history), cfg['separation']), normalize(history), label=name)
+        ax0.fill_between(np.arange(0, len(history), cfg['separation']), normalize(history) - std_dev, normalize(history) + std_dev, alpha=0.2)
 
     ax0.legend(loc='upper center', bbox_to_anchor=(0.5, -0.1), fancybox=True, shadow=True, ncol=2)
     ax0.title.set_text(f"{cfg['env'].title()}")
