@@ -14,8 +14,8 @@ source slurm/setup.sh
 current_time=$(date "+%Y.%m.%d/%H.%M.%S")
 env="chain walk"
 gamma=0.99
-repeat=1 #20
-order=5
+repeat=20
+order=3
 type="fourier"  # "trivial", "fourier", "polynomial", "tile coding"
 is_q=True
 seed=$RANDOM
