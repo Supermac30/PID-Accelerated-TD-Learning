@@ -12,13 +12,13 @@
 source slurm/setup.sh
 
 current_time=$(date "+%Y.%m.%d-%H.%M.%S")
-env=Acrobot-v1
+env=LunarLander-v2
 directory=outputs/dqn_experiment/${env}/$current_time
 echo "Saving to ${directory}"
 mkdir -p "$directory"
 
-is_double=True
-num_runs=5
+is_double=False
+num_runs=1
 
 
 # python3 -m Experiments.DQNExperiments.DQNExperiment --multirun \
@@ -36,7 +36,7 @@ num_runs=5
 #    num_runs=$num_runs
 
 python3 -m Experiments.DQNExperiments.DQNExperiment --multirun \
-   env=$env name=$env experiment_name="$env Regular Double DQN Test"\
+   env=$env name=$env experiment_name="$env Capture Runs"\
    hydra.mode=MULTIRUN \
    hydra.run.dir=$directory \
    hydra.sweep.dir=$directory \
@@ -46,7 +46,8 @@ python3 -m Experiments.DQNExperiments.DQNExperiment --multirun \
    kp=1 \
    kd=0 \
    ki=0 \
-   num_runs=$num_runs
+   num_runs=$num_runs \
+   visualize=True
 
 
 python3 -m Experiments.Plotting.plot_dqn_experiment \

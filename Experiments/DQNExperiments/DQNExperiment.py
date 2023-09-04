@@ -49,8 +49,8 @@ def control_experiment(cfg):
                 env_cfg['minimum_eps'], env_cfg['gradient_steps'], env_cfg['train_freq'],
                 env_cfg['target_update_interval'], env_cfg['inner_size'],
                 cfg['slow_motion'], env_cfg['learning_starts'], tensorboard_log=cfg['tensorboard_log'],
-                seed=run_seed, log_name=log_name, name_append=f"run {i}",dump_buffer=cfg['dump_buffer'],
-                is_double=cfg['is_double']
+                seed=run_seed, log_name=log_name, name_append=f"run {i}", dump_buffer=cfg['dump_buffer'],
+                visualize=cfg['visualize']
             )
         else:
             agent = build_PID_DQN(
@@ -62,7 +62,7 @@ def control_experiment(cfg):
                 cfg['slow_motion'], env_cfg['learning_starts'], tabular_d=cfg['tabular_d'],
                 tensorboard_log=cfg['tensorboard_log'], seed=run_seed,
                 log_name=log_name, name_append=f"run {i}", should_stop=cfg['should_stop'],
-                dump_buffer=cfg['dump_buffer']
+                dump_buffer=cfg['dump_buffer'], visualize=cfg['visualize'], is_double=cfg['is_double']
             )
 
         run = wandb.init(
@@ -73,7 +73,7 @@ def control_experiment(cfg):
             job_type=log_name,
             reinit=True,
             name=str(run_seed),
-            sync_tensorboard=True,
+            sync_tensorboard=True
         )
 
         agent = agent.learn(
@@ -83,7 +83,7 @@ def control_experiment(cfg):
             tb_log_name=log_name,
             callback=[
                 WandbCallback(verbose=2),
-                CustomEvalCallback(get_model(env_cfg['env']))
+                #CustomEvalCallback(get_model(env_cfg['env']))
             ]
         )
         run.finish()
@@ -98,7 +98,7 @@ class CustomEvalCallback(BaseCallback):
         self.trained_model = trained_model
 
     def _on_step(self) -> bool:
-        if self.num_timesteps % 250 != 0:
+        if self.num_timesteps % 1000 != 0:
             return True
 
         mean, std = evaluation.evaluate_policy(self.model, self.model.get_env(), n_eval_episodes=10)

@@ -16,7 +16,7 @@ from TabularPID.AgentBuilders.AdaptiveAgentBuilder import build_adaptive_agent_a
 from TabularPID.AgentBuilders.AgentBuilder import build_agent_and_env
 from TabularPID.OptimalRates.OptimalRateDatabase import get_stored_optimal_rate, store_optimal_rate
 
-default_rates = (0.1, 100, 1, 1, 0.5, float("inf"))
+default_rates = (0.1, 100, 0, 1, 0, float("inf"))
 
 exhaustive_learning_rates = [
     {
@@ -33,6 +33,7 @@ exhaustive_learning_rates = [
         1: {float("inf"), 100},
         0.5: {float("inf")},
         0.1: {float("inf")},
+        0: {float("inf")},
     },
     {
         1: {float("inf"), 100},
@@ -40,6 +41,7 @@ exhaustive_learning_rates = [
         0.25: {float("inf")},
         0.1: {float("inf")},
         0.01: {float("inf")},
+        0: {float("inf")},
     }
 ]
 

@@ -16,6 +16,7 @@ from stable_baselines3.common.policies import BasePolicy
 from stable_baselines3.common.type_aliases import GymEnv, MaybeCallback, Schedule
 from stable_baselines3.common.utils import get_linear_fn, get_parameters_by_name, polyak_update
 from TabularPID.Agents.DQN.DQN_policy import CnnPolicy, DQNPolicy, MlpPolicy, MultiInputPolicy, QNetwork
+from TabularPID.OptimalRates.EvaluateBuffer import run_simulation
 
 SelfDQN = TypeVar("SelfDQN", bound="PID_DQN")
 
@@ -107,7 +108,8 @@ class PID_DQN(OffPolicyAlgorithm):
         device: Union[th.device, str] = "auto",
         _init_setup_model: bool = True,
         dump_buffer: bool = False,
-        is_double=False
+        is_double=False,
+        optimal_model=None
     ) -> None:
         super().__init__(
             policy,
@@ -145,6 +147,7 @@ class PID_DQN(OffPolicyAlgorithm):
         self.dump_buffer = dump_buffer
         self.buffer = []  # The buffer we dump, if dump_buffer is True
         self.is_double = is_double
+        self.optimal_model = optimal_model
 
         self.exploration_initial_eps = exploration_initial_eps
         self.exploration_final_eps = exploration_final_eps
@@ -289,10 +292,6 @@ class PID_DQN(OffPolicyAlgorithm):
         self.logger.record("train/n_updates", self._n_updates, exclude="tensorboard")
         self.logger.record("train/loss", np.mean(losses))
 
-        if self.dump_buffer:
-            # Add a deep copy of the gym environment and the action taken to the buffer
-            self.buffer.append((deepcopy(self.env), replay_data.actions[0].item()))
-
     def predict(
         self,
         observation: Union[np.ndarray, Dict[str, np.ndarray]],
@@ -321,6 +320,12 @@ class PID_DQN(OffPolicyAlgorithm):
                 action = np.array(self.action_space.sample())
         else:
             action, state = self.policy.predict(observation, state, episode_start, deterministic)
+
+        if self.dump_buffer:
+            # calling self.monte_carlo_rollout() 1 time is enough as the environment is deterministic
+            true_q_value = self.monte_carlo_rollout(action)
+            self.buffer.append((*observation, action, true_q_value))
+        
         return action, state
 
     def learn(
@@ -374,3 +379,7 @@ class PID_DQN(OffPolicyAlgorithm):
             k += 1
 
         env.close()
+
+    def monte_carlo_rollout(self, action):
+        # TODO: Copy lunarlander by doing this: https://blog.xa0.de/post/box2d%20---%20making-b2Body-clonable-or-copyable/
+        return run_simulation(self.optimal_model, deepcopy(self.env.envs[0]), action, self.gamma, self.seed)

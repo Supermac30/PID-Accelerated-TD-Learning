@@ -28,12 +28,13 @@ should_stop: False  # Whether we early stop the training once some amount of rew
 num_runs: 10
 
 log_interval: 1  # The number of episodes before reward is logged to the console
-progress_bar: True
+progress_bar: False
 tensorboard_log: tensorboard
 
 experiment_name: DQNExperiment
 
 dump_buffer: False
+visualize: False
 
 name: cartpole
 defaults:

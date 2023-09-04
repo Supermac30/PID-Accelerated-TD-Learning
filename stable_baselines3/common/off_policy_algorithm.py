@@ -107,7 +107,7 @@ class OffPolicyAlgorithm(BaseAlgorithm):
         sde_support: bool = True,
         supported_action_spaces: Optional[Tuple[Type[spaces.Space], ...]] = None,
         stopping_criterion = None,
-        should_stop = False,
+        should_stop = False
     ):
         super().__init__(
             policy=policy,
@@ -316,6 +316,7 @@ class OffPolicyAlgorithm(BaseAlgorithm):
         callback.on_training_start(locals(), globals())
 
         while self.num_timesteps < total_timesteps and self._continue_training():
+            # Collect rollout
             rollout = self.collect_rollouts(
                 self.env,
                 train_freq=self.train_freq,

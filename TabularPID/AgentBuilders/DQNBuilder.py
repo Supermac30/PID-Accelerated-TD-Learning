@@ -2,6 +2,7 @@ import torch as th
 import os
 
 import globals
+import gymnasium as gym
 from TabularPID.MDPs.GymWrapper import create_environment
 from stable_baselines3.dqn import DQN as unmodified_DQN
 from TabularPID.Agents.DQN.DQN import PID_DQN
@@ -15,10 +16,12 @@ def build_PID_DQN(gain_adapter, env_name, gamma, optimizer, replay_memory_size, 
                   learning_rate, tau, initial_eps, exploration_fraction, minimum_eps,
                   gradient_steps, train_freq, target_update_interval, d_tau, inner_size,
                   slow_motion, learning_starts, tabular_d=False, tensorboard_log=None, seed=42,
-                  log_name="", name_append="", should_stop=False, device="cuda", dump_buffer=False, is_double=False):
+                  log_name="", name_append="", should_stop=False, device="cuda", dump_buffer=False, is_double=False, visualize=False):
     """Build the PID DQN agent
     """
     env, is_atari, stopping_criterion = create_environment(env_name, slow_motion=slow_motion)
+    if visualize:
+        env = gym.wrappers.RecordVideo(env, 'video', episode_trigger = lambda x: x % 25 == 0)
     optimizer_class = create_optimizer(optimizer)
 
     if is_atari:
@@ -52,7 +55,8 @@ def build_PID_DQN(gain_adapter, env_name, gamma, optimizer, replay_memory_size, 
         should_stop=should_stop,
         device=device,
         dump_buffer=dump_buffer,
-        is_double=is_double
+        is_double=is_double,
+        optimal_model=get_model(env_name)
     )
 
     gain_adapter.set_model(dqn)
@@ -75,10 +79,12 @@ def build_PID_FQI(gain_adapter, env_name, gamma, optimizer, replay_memory_size, 
                   learning_rate, initial_eps, exploration_fraction, minimum_eps,
                   gradient_steps, train_freq, target_update_interval, inner_size,
                   slow_motion, learning_starts, tabular_d=False, tensorboard_log=None, seed=42,
-                  log_name="", name_append="", should_stop=False, device="cuda"):
+                  log_name="", name_append="", should_stop=False, device="cuda", visualize=False):
     """Build the PID DQN agent
     """
     env, is_atari, stopping_criterion = create_environment(env_name, slow_motion=slow_motion)
+    if visualize:
+        env = gym.wrappers.RecordVideo(env, 'video', episode_trigger = lambda x: x % 25 == 0)
     optimizer_class = create_optimizer(optimizer)
 
     if is_atari:
@@ -109,7 +115,8 @@ def build_PID_FQI(gain_adapter, env_name, gamma, optimizer, replay_memory_size, 
                            optimizer_class=optimizer_class),
         seed=seed,
         should_stop=should_stop,
-        device=device
+        device=device,
+        optimal_model=get_model(env_name)
     )
     
     gain_adapter.set_model(dqn)
