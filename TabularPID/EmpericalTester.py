@@ -38,18 +38,18 @@ class GymTesterDatabase():
         """
         total_distance = 0
         for entry in self.Q_values:
-            state = entry[:-2]
-            action = entry[-2]
-            q_value = entry[-1]
+            state = entry[0]
+            action = entry[1]
+            q_value = entry[2]
             total_distance += abs(q_value - query(state, action))
         return total_distance / len(self.Q_values)
 
     def randomly_query_agent(self):
         # Pick an entry at random from the buffer
         entry = self.Q_values[np.random.randint(0, len(self.Q_values))]
-        state = entry[:-2]
-        action = entry[-2]
-        q_value = entry[-1]
+        state = entry[0]
+        action = entry[1]
+        q_value = entry[2]
         return state, action, q_value
 
 class GymTester():
