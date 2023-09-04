@@ -347,7 +347,7 @@ class PID_DQN(OffPolicyAlgorithm):
         )
 
         if self.dump_buffer:
-            pickle.dump(self.buffer, open(f"{globals.base_directory}/models/{self.visualization_env.unwrapped.spec.id}/buffer.pkl", "wb"))
+            np.save(f"{globals.base_directory}/models/{self.visualization_env.unwrapped.spec.id}/buffer.npy", self.buffer)
 
         return outputs
 

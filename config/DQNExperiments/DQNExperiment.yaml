@@ -35,6 +35,7 @@ experiment_name: DQNExperiment
 
 dump_buffer: False
 visualize: False
+eval: True
 
 name: cartpole
 defaults:

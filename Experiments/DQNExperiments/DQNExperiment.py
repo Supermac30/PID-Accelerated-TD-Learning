@@ -76,15 +76,16 @@ def control_experiment(cfg):
             sync_tensorboard=True
         )
 
+        callback= [WandbCallback(verbose=2)]
+        if cfg['eval']:
+            callback.append(CustomEvalCallback(get_model(env_cfg['env'])))
+
         agent = agent.learn(
             total_timesteps=env_cfg['num_iterations'],
             log_interval=cfg['log_interval'],
             progress_bar=cfg['progress_bar'],
             tb_log_name=log_name,
-            callback=[
-                WandbCallback(verbose=2),
-                #CustomEvalCallback(get_model(env_cfg['env']))
-            ]
+            callback=callback
         )
         run.finish()
 
