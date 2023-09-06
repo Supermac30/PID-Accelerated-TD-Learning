@@ -129,7 +129,7 @@ def build_adaptive_agent(agent_name, env_name, env, policy, meta_lr, lambd, dela
     elif agent_name == "semi gradient double Q updater":
         return build_semi_gradient_double_Q_updater(*params)
     
-    elif agent_name.startwith("linear TD"):
+    elif agent_name.startswith("linear TD"):
         learning_rates = (learning_rate, update_I_rate, update_D_rate)
         is_q = (agent_name[-1] == "Q")
         if agent_name.startswith("linear TD polynomial"):
@@ -141,7 +141,7 @@ def build_adaptive_agent(agent_name, env_name, env, policy, meta_lr, lambd, dela
         elif agent_name.startswith("linear TD tile coding"):
             basis = TileCodingBasis(env, order)
             return build_linear_TD(env, policy, kp, ki, kd, alpha, beta, learning_rates, gamma, basis, is_q, adapt_gains=True, meta_lr=meta_lr, epsilon=epsilon)
-        elif agent_name.startwith("linear TD trivial"):
+        elif agent_name.startswith("linear TD trivial"):
             basis = TrivialBasis(env, order)
             return build_linear_TD(env, policy, kp, ki, kd, alpha, beta, learning_rates, gamma, basis, is_q, adapt_gains=True, meta_lr=meta_lr, epsilon=epsilon)
         
