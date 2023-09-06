@@ -47,8 +47,8 @@ python3 -m Experiments.LinearFAExperiments.AdaptiveLinearFAExperiment --multirun
     recompute_optimal=$recompute_optimal \
     search_steps=$search_steps \
     is_q=$is_q \
-    epsilon=1,0.1,0.01 \
-    meta_lr=0.01,0.001,0.0001 \
+    epsilon=1,1e-1,1e-2 \
+    meta_lr=1e-2,1e-3,1e-4 \
 
 python3 -m Experiments.LinearFAExperiments.LinearFAExperiment --multirun \
     hydra.mode=MULTIRUN \

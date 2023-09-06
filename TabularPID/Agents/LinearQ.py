@@ -111,6 +111,7 @@ class LinearTDQ():
             z_update = self.beta * current_state_z_value + self.alpha * self.BR
 
             lr_Q, lr_Qp, lr_z = self.lr_Q(k), self.lr_Qp(k), self.lr_z(k)
+            self.learning_rate = lr_Q
 
             self.w_Q += lr_Q * (Q_update.item() - current_state_value.item()) * self.basis_value(current_state, action)
             self.w_Qp += lr_Qp * (Qp_update.item() - current_state_Qp_value.item()) * self.basis_value(current_state, action)
@@ -150,9 +151,11 @@ class LinearTDQ():
         z = self.query_agent(self.current_state, self.action, component="z")
         Qp = self.query_agent(self.current_state, self.action, component="Qp")
 
-        self.kp += self.meta_lr * self.BR * self.BR / normalizer
-        self.ki += self.meta_lr * self.BR * (self.beta * z + self.alpha * self.BR) / normalizer
-        self.kd += self.meta_lr * self.BR * (Q - Qp) / normalizer
+        l2_basis = self.basis_value(self.current_state, self.action).T @ self.basis_value(self.current_state, self.action)
+
+        self.kp += self.learning_rate * self.meta_lr * self.BR * self.BR * l2_basis / normalizer
+        self.ki += self.learning_rate * self.meta_lr * self.BR * (self.beta * z + self.alpha * self.BR) * l2_basis / normalizer
+        self.kd += self.learning_rate * self.meta_lr * self.BR * (Q - Qp) * l2_basis / normalizer
 
     def update_gain_history(self, index):
         """Update the gain history.

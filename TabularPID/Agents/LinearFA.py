@@ -236,6 +236,7 @@ class LinearTD():
             z_update = self.beta * current_state_z_value + self.alpha * self.BR
 
             lr_V, lr_Vp, lr_z = self.lr_V(k), self.lr_Vp(k), self.lr_z(k)
+            self.learning_rate = lr_V
 
             self.w_V += lr_V * (V_update.item() - current_state_value.item()) * self.basis.value(current_state)
             self.w_Vp += lr_Vp * (Vp_update.item() - current_state_Vp_value.item()) * self.basis.value(current_state)
@@ -271,13 +272,16 @@ class LinearTD():
         self.running_BR = 0.5 * self.running_BR + 0.5 * self.BR * self.BR
         normalizer = self.epsilon + self.running_BR
 
-        V = np.dot(self.basis.value(self.current_state).T, self.w_V)
-        z = np.dot(self.basis.value(self.current_state).T, self.w_z)
-        Vp = np.dot(self.basis.value(self.current_state).T, self.w_Vp)
+        current_state_value = self.basis.value(self.current_state)
+        l2_basis = np.dot(current_state_value.T, current_state_value)
 
-        self.kp += self.meta_lr * self.BR * self.BR / normalizer
-        self.ki += self.meta_lr * self.BR * (self.beta * z + self.alpha * self.BR) / normalizer
-        self.kd += self.meta_lr * self.BR * (V - Vp) / normalizer
+        V = np.dot(current_state_value.T, self.w_V)
+        z = np.dot(current_state_value.T, self.w_z)
+        Vp = np.dot(current_state_value.T, self.w_Vp)
+
+        self.kp += self.learning_rate * self.meta_lr * self.BR * self.BR * l2_basis / normalizer
+        self.ki += self.learning_rate * self.meta_lr * self.BR * (self.beta * z + self.alpha * self.BR) * l2_basis / normalizer
+        self.kd += self.learning_rate * self.meta_lr * self.BR * (V - Vp) * l2_basis / normalizer
 
     def update_gain_history(self, index):
         """Update the gain history.
