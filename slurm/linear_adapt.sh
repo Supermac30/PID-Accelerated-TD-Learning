@@ -26,7 +26,7 @@ directory=outputs/linear_adapt_experiment/$env/$current_time
 echo "Saving to $directory"
 mkdir -p "$directory"
 
-recompute_optimal=False
+recompute_optimal=True
 compute_optimal=True
 get_optimal=True
 

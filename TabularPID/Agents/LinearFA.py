@@ -178,6 +178,11 @@ class LinearTD():
 
         self.current_state = self.env.reset()
         self.solved_agent = solved_agent
+
+        # Gain adaptation params
+        self.adapt_gains = adapt_gains
+        self.meta_lr = meta_lr
+        self.epsilon = epsilon
     
     def take_action(self):
         action = self.policy.get_action(self.current_state)
@@ -206,7 +211,7 @@ class LinearTD():
 
         self.running_BR = 0
 
-    def estimate_value_function(self, num_iterations, test_function=None, reset_environment=True, stop_if_diverging=True, adapt_gains=False):
+    def estimate_value_function(self, num_iterations, test_function=None, reset_environment=True, stop_if_diverging=True):
         self.reset(reset_environment)
 
         # The history of the gains
@@ -238,7 +243,7 @@ class LinearTD():
 
             if self.solved_agent is not None and k % (num_iterations // 100) == 0:
                 self.history[index] = self.solved_agent.measure_performance(self.query_agent)
-                if adapt_gains:
+                if self.adapt_gains:
                     self.update_gain_history(index)
                 if stop_if_diverging and self.history[index] > 2 * self.history[0]:
                     # If we are too large, stop learning
@@ -247,7 +252,7 @@ class LinearTD():
 
                 index += 1
 
-            if adapt_gains:
+            if self.adapt_gains:
                 self.update_gains()
 
         if self.solved_agent is None:
@@ -255,7 +260,7 @@ class LinearTD():
 
         self.history = np.array(self.history)
 
-        if adapt_gains:
+        if self.adapt_gains:
             return self.history, self.gain_history, self.w_V
 
         return self.history, self.w_V
