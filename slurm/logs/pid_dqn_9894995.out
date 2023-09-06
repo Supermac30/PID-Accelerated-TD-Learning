@@ -1,3 +1,0 @@
-[2023-06-28 22:15:46,724][HYDRA] Launching 27 jobs locally
-[2023-06-28 22:15:46,724][HYDRA] 	#0 : env=mountaincar name=mountaincar adapt_gains=True meta_lr=0.01 epsilon=0.25 d_tau=0.1
-[2023-06-28 22:15:46,867][root][INFO] - The chosen seed is: 809391

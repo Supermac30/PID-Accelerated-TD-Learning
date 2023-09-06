@@ -1,3 +1,0 @@
-/ssd003/home/bedaywim/PID-Accelerated-TD-Learning/stable_baselines3/common/buffers.py:135: UserWarning: Creating a tensor from a list of numpy.ndarrays is extremely slow. Please consider converting the list to a single numpy.ndarray with numpy.array() before converting to a tensor. (Triggered internally at /opt/conda/conda-bld/pytorch_1682343967769/work/torch/csrc/utils/tensor_new.cpp:245.)
-  return th.tensor(array, device=self.device)
-slurmstepd: error: *** JOB 9894995 ON gpu114 CANCELLED AT 2023-06-28T22:18:27 ***
