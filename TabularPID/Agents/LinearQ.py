@@ -131,7 +131,7 @@ class LinearTDQ():
         self.history = np.array(self.history)
 
         if adapt_gains:
-            self.history = self.history, self.gain_history
+            return self.history, self.gain_history, self.w_Q
 
         return self.history, self.w_Q
 
