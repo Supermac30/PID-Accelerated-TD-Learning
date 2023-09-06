@@ -30,12 +30,35 @@ recompute_optimal=False
 compute_optimal=True
 get_optimal=True
 
-python3 -m Experiments.LinearFAExperiments.linearFAExperiment --multirun \
+python3 -m Experiments.LinearFAExperiments.AdaptiveLinearFAExperiment --multirun \
     hydra.mode=MULTIRUN \
     hydra.run.dir="$directory" \
     hydra.sweep.dir="$directory" \
     save_dir="$directory" \
     seed=$seed \
+    order=$order \
+    gamma=$gamma \
+    env="$env" \
+    repeat=$repeat \
+    num_iterations=$num_iterations \
+    type="$type" \
+    compute_optimal=$compute_optimal \
+    get_optimal=$get_optimal \
+    recompute_optimal=$recompute_optimal \
+    search_steps=$search_steps \
+    is_q=$is_q \
+    epsilon=1,0.1,0.01 \
+    meta_lr=0.5,0.1,0.01
+
+python3 -m Experiments.LinearFAExperiments.LinearFAExperiment --multirun \
+    hydra.mode=MULTIRUN \
+    hydra.run.dir="$directory" \
+    hydra.sweep.dir="$directory" \
+    save_dir="$directory" \
+    seed=$seed \
+    kp=1 \
+    ki=0 \
+    kd=0 \
     order=$order \
     gamma=$gamma \
     env="$env" \

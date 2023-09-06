@@ -17,6 +17,9 @@ recompute_optimal: False # If compute_optimal is True, run a grid search even if
 repeat: 3
 order: 10
 
+meta_lr: 0.5
+epsilon: 0.1
+
 follow_trajectory: False
 stop_if_diverging: False
 log_plot: False

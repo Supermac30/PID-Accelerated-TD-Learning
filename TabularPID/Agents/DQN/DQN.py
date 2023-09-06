@@ -286,6 +286,7 @@ class PID_DQN(OffPolicyAlgorithm):
             self.policy.optimizer.step()
 
             self.gain_adapter.adapt_gains(replay_data)
+            breakpoint()
             self.replay_buffer.update(replay_data.indices, zs=new_zs, ds=new_ds, BRs=self.BRs)
 
         # Increase update counter

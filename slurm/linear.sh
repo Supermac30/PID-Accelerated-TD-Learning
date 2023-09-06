@@ -30,7 +30,7 @@ recompute_optimal=True
 compute_optimal=True
 get_optimal=True
 
-python3 -m Experiments.LinearFAExperiments.linearFAExperiment --multirun \
+python3 -m Experiments.LinearFAExperiments.LinearFAExperiment --multirun \
     hydra.mode=MULTIRUN \
     hydra.run.dir="$directory" \
     hydra.sweep.dir="$directory" \

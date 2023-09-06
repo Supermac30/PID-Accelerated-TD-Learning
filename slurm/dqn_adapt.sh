@@ -17,7 +17,7 @@ directory=outputs/dqn_adapt_experiment/${env}/$current_time
 echo "Saving to ${directory}"
 mkdir -p "$directory"
 
-gain_adapter=SingleGainAdapter  # Options: NoGainAdapter, SingleGainAdapter, DiagonalGainAdapter, NetworkGainAdapter
+gain_adapter=DiagonalGainAdapter  # Options: NoGainAdapter, SingleGainAdapter, DiagonalGainAdapter, NetworkGainAdapter
 use_previous_BRs=True
 is_double=True
 
