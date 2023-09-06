@@ -21,8 +21,7 @@ def soft_policy_evaluation_experiment(cfg):
             num_iterations=cfg['num_iterations'],
             test_function=test_function,
             follow_trajectory=cfg['follow_trajectory'],
-            reset_environment=False,
-            stop_if_diverging=cfg['stop_if_diverging'],
+            stop_if_diverging=cfg['stop_if_diverging']
         )
         all_histories.append(history)
 

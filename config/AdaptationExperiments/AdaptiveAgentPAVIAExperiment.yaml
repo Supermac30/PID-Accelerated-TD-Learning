@@ -6,6 +6,7 @@ gamma: 0.999
 
 follow_trajectory: False
 normalize: True
+repeat: 3
 
 agent_name: planner
 log_plot: False

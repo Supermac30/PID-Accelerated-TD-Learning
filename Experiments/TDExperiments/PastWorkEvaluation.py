@@ -25,8 +25,7 @@ def past_work(cfg):
             num_iterations=cfg['num_iterations'],
             test_function=test_function,
             follow_trajectory=cfg['follow_trajectory'],
-            stop_if_diverging=cfg['stop_if_diverging'],
-            reset_environment=False
+            stop_if_diverging=cfg['stop_if_diverging']
         )
         all_histories.append(history)
     mean_history = np.mean(np.array(all_histories), axis=0)
