@@ -12,10 +12,10 @@
 source slurm/setup.sh
 
 current_time=$(date "+%Y.%m.%d/%H.%M.%S")
-env="CartPole-v1"
+env="chain walk"
 gamma=0.99
 repeat=20
-is_q=True
+is_q=False
 order=5
 type="fourier"  # "trivial", "fourier", "polynomial", "tile coding"
 seed=$RANDOM
@@ -26,8 +26,8 @@ directory=outputs/linear_adapt_experiment/$env/$current_time
 echo "Saving to $directory"
 mkdir -p "$directory"
 
-recompute_optimal=True
-compute_optimal=False
+recompute_optimal=False
+compute_optimal=True
 get_optimal=True
 
 python3 -m Experiments.LinearFAExperiments.linearFAExperiment --multirun \

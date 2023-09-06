@@ -12,14 +12,16 @@
 source slurm/setup.sh
 
 current_time=$(date "+%Y.%m.%d-%H.%M.%S")
-env=LunarLander-v2
+env=MountainCar-v0
 directory=outputs/dqn_experiment/${env}/$current_time
 echo "Saving to ${directory}"
 mkdir -p "$directory"
 
-is_double=False
-num_runs=1
+is_double=True
+num_runs=5
 
+eval=True
+visualize=False
 
 # python3 -m Experiments.DQNExperiments.DQNExperiment --multirun \
 #    env=$env name=$env experiment_name="$env Double DQN Test"\
@@ -44,10 +46,11 @@ python3 -m Experiments.DQNExperiments.DQNExperiment --multirun \
    seed=$RANDOM \
    is_double=$is_double \
    kp=1 \
-   kd=0 \
-   ki=0 \
+   kd=0,-0.1,0.1 \
+   ki=0,-0.1,0.1 \
    num_runs=$num_runs \
-   visualize=True
+   visualize=$visualize \
+   eval=$eval
 
 
 python3 -m Experiments.Plotting.plot_dqn_experiment \

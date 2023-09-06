@@ -102,6 +102,7 @@ class PID_FQI(OffPolicyAlgorithm):
         device: Union[th.device, str] = "auto",
         loss_threshold = 0.1,
         _init_setup_model: bool = True,
+        policy_evaluation=False
     ) -> None:
         super().__init__(
             policy,
@@ -135,6 +136,7 @@ class PID_FQI(OffPolicyAlgorithm):
         # Our additions atop stable baselines:
         self.visualization_env = env
         self.loss_threshold = loss_threshold
+        self.policy_evaluation = policy_evaluation
 
         self.exploration_initial_eps = exploration_initial_eps
         self.exploration_final_eps = exploration_final_eps

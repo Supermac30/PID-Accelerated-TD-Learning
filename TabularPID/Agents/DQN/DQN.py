@@ -109,7 +109,8 @@ class PID_DQN(OffPolicyAlgorithm):
         _init_setup_model: bool = True,
         dump_buffer: bool = False,
         is_double=False,
-        optimal_model=None
+        optimal_model=None,
+        policy_evaluation=False
     ) -> None:
         super().__init__(
             policy,
@@ -148,6 +149,7 @@ class PID_DQN(OffPolicyAlgorithm):
         self.buffer = []  # The buffer we dump, if dump_buffer is True
         self.is_double = is_double
         self.optimal_model = optimal_model
+        self.policy_evaluation = policy_evaluation
 
         self.exploration_initial_eps = exploration_initial_eps
         self.exploration_final_eps = exploration_final_eps
@@ -309,6 +311,8 @@ class PID_DQN(OffPolicyAlgorithm):
         :return: the model's action and the next state
             (used in recurrent policies)
         """
+        if self.policy_evaluation:
+            action = self.policy.predict(observation, state, episode_start, deterministic)[0]
         if not deterministic and np.random.rand() < self.exploration_rate:
             if self.policy.is_vectorized_observation(observation):
                 if isinstance(observation, dict):
@@ -347,7 +351,7 @@ class PID_DQN(OffPolicyAlgorithm):
         )
 
         if self.dump_buffer:
-            np.save(f"{globals.base_directory}/models/{self.visualization_env.unwrapped.spec.id}/buffer.npy", self.buffer)
+            np.save(f"{globals.base_directory}/models/{self.visualization_env.unwrapped.spec.id}/bufferQValues.npy", self.buffer)
 
         return outputs
 
