@@ -105,7 +105,7 @@ class LinearTDQ():
 
             self.BR = reward + self.gamma * next_state_value - current_state_value
             Q_update = current_state_value + self.kp * self.BR \
-                + self.kd * (current_state_Qp_value - current_state_value) \
+                + self.kd * (current_state_value - current_state_Qp_value) \
                 + self.ki * (self.beta * current_state_z_value + self.alpha * self.BR)
             Qp_update = current_state_value
             z_update = self.beta * current_state_z_value + self.alpha * self.BR
@@ -152,7 +152,7 @@ class LinearTDQ():
 
         self.kp += self.meta_lr * self.BR * self.BR / normalizer
         self.ki += self.meta_lr * self.BR * (self.beta * z + self.alpha * self.BR) / normalizer
-        self.kd += self.meta_lr * self.BR * (Qp - Q) / normalizer
+        self.kd += self.meta_lr * self.BR * (Q - Qp) / normalizer
 
     def update_gain_history(self, index):
         """Update the gain history.
