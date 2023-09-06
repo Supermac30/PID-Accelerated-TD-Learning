@@ -41,7 +41,11 @@ class Environment:
         )
 
         self.seed = seed
-        self.prg = np.random.default_rng(self.seed)
+        # We would like to use a new seed when resetting the environment,
+        # but for the sake of reproducibility, use the same sequence of random seeds.
+        # To do this, create a seed generator, and use it to generate seeds for the environment.
+        self.seed_generator = np.random.default_rng(self.seed)
+        self.prg = np.random.default_rng(self.seed_generator.integers(0, 2**32 - 1))
 
     def reset(self):
         """Reset the Environment back to the initial state.
@@ -50,7 +54,7 @@ class Environment:
         from a blank slate.
         """
         self.current_state = self.start_state
-        self.prg = np.random.default_rng(self.seed)
+        self.prg = np.random.default_rng(self.seed_generator.integers(0, 2**32 - 1))
         
         return self.current_state
 

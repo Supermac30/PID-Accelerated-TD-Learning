@@ -21,8 +21,7 @@ def soft_policy_evaluation_experiment(cfg):
     for _ in range(cfg['repeat']):
         history, _ = agent.estimate_value_function(
             num_iterations=cfg['num_iterations'],
-            stop_if_diverging=cfg['stop_if_diverging'],
-            
+            stop_if_diverging=cfg['stop_if_diverging']
         )
         histories.append(history)
     save_array(np.mean(histories, axis=0), f"{name} kp={kp} ki={ki} kd={kd} alpha={alpha} beta={beta}", directory=cfg['save_dir'], subdir="mean")
