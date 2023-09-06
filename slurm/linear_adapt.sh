@@ -26,8 +26,8 @@ directory=outputs/linear_adapt_experiment/$env/$current_time
 echo "Saving to $directory"
 mkdir -p "$directory"
 
-recompute_optimal=False
-compute_optimal=False
+recompute_optimal=True
+compute_optimal=True
 get_optimal=True
 
 python3 -m Experiments.LinearFAExperiments.AdaptiveLinearFAExperiment --multirun \
@@ -48,7 +48,7 @@ python3 -m Experiments.LinearFAExperiments.AdaptiveLinearFAExperiment --multirun
     search_steps=$search_steps \
     is_q=$is_q \
     epsilon=1,0.1,0.01 \
-    meta_lr=0.5,0.1,0.01
+    meta_lr=0.01,0.001,0.0001 \
 
 python3 -m Experiments.LinearFAExperiments.LinearFAExperiment --multirun \
     hydra.mode=MULTIRUN \

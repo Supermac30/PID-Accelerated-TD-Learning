@@ -12,12 +12,15 @@ def soft_policy_evaluation_experiment(cfg):
     if cfg['is_q']:
         name += " Q"
 
+    meta_lr = cfg['meta_lr']
+    epsilon = cfg['epsilon']
+
     if cfg['compute_optimal']:
-        get_optimal_adaptive_linear_FA_rates(name, cfg['env'], cfg['order'], cfg['meta_lr'], cfg['gamma'], cfg['lambd'], cfg['delay'], cfg['alpha'], cfg['beta'], recompute=cfg['recompute_optimal'], epsilon=cfg['epsilon'], search_steps=cfg['search_steps'])
+        get_optimal_adaptive_linear_FA_rates(name, cfg['env'], cfg['order'], meta_lr, cfg['gamma'], cfg['lambd'], cfg['delay'], cfg['alpha'], cfg['beta'], recompute=cfg['recompute_optimal'], epsilon=epsilon, search_steps=cfg['search_steps'])
     agent, _, _ = build_adaptive_agent_and_env(
         name,
         cfg['env'],
-        cfg['meta_lr'],
+        meta_lr,
         cfg['lambd'],
         cfg['delay'],
         get_optimal=cfg['get_optimal'],
@@ -28,7 +31,7 @@ def soft_policy_evaluation_experiment(cfg):
         kd=cfg['kd'],
         alpha=cfg['alpha'],
         beta=cfg['beta'],
-        epsilon=cfg['epsilon'],
+        epsilon=epsilon,
         order=cfg['order']
     )
     histories = []
@@ -40,10 +43,12 @@ def soft_policy_evaluation_experiment(cfg):
         )
         histories.append(history)
         gain_histories.append(gain_history)
-    save_array(np.mean(histories, axis=0), f"{name}", directory=cfg['save_dir'], subdir="mean")
-    save_array(np.std(histories, axis=0), f"{name}", directory=cfg['save_dir'], subdir="std_dev")
-    save_array(np.mean(gain_histories, axis=0), f"gain_history {name}", directory=cfg['save_dir'], subdir="mean")
-    save_array(np.std(gain_histories, axis=0), f"gain_history {name}", directory=cfg['save_dir'], subdir="std_dev")
+
+    description = f"{name} {meta_lr} {epsilon}"
+    save_array(np.mean(histories, axis=0), description, directory=cfg['save_dir'], subdir="mean")
+    save_array(np.std(histories, axis=0), description, directory=cfg['save_dir'], subdir="std_dev")
+    save_array(np.mean(gain_histories, axis=0), f"gain_history {description}", directory=cfg['save_dir'], subdir="mean")
+    save_array(np.std(gain_histories, axis=0), f"gain_history {description}", directory=cfg['save_dir'], subdir="std_dev")
 
 
 if __name__ == "__main__":
