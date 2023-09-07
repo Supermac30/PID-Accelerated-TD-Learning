@@ -26,8 +26,8 @@ directory=outputs/linear_experiment/$env/$current_time
 echo "Saving to $directory"
 mkdir -p "$directory"
 
-recompute_optimal=True
-compute_optimal=True
+recompute_optimal=False
+compute_optimal=False
 get_optimal=True
 
 python3 -m Experiments.LinearFAExperiments.LinearFAExperiment --multirun \

@@ -14,8 +14,14 @@ class LinearFuncSpace():
     def __init__(self, env, order, is_q=False):
         self.env = env
 
-        self.range = self.env.observation_space.high - self.env.observation_space.low
-        self.mean = (self.env.observation_space.high + self.env.observation_space.low) / 2
+        self.clip_value = 1e5
+
+        # Set observation_space_high to be self.env.observation_space where any elements larger than self.clip_value are replaced with self.clip_value
+        observation_space_high = np.array([np.sign(x) * self.clip_value if abs(x) > self.clip_value else x for x in self.env.observation_space.high])
+        observation_space_low = np.array([np.sign(x) * self.clip_value if abs(x) > self.clip_value else x for x in self.env.observation_space.low])
+
+        self.range = observation_space_high - observation_space_low
+        self.mean = (observation_space_high + observation_space_low) / 2
     
         self.order = order
         self.dim = self.env.observation_space.shape[0]
@@ -29,6 +35,9 @@ class LinearFuncSpace():
     def value(self, state):
         """Return the value of the basis functions at the given state, normalizing the input
         """
+        # Clip inputs by the clip_value
+        state = np.array([np.sign(x) * self.clip_value if abs(x) > self.clip_value else x for x in state])
+
         return self.base_value(2 * ((state - self.mean) / self.range))
     
     def base_value(self, state):
