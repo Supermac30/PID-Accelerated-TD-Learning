@@ -12,23 +12,23 @@
 source slurm/setup.sh
 
 current_time=$(date "+%Y.%m.%d/%H.%M.%S")
-env="chain walk"
+env="CartPole-v1"
 gamma=0.99
 repeat=20
 order=3
 type="fourier"  # "trivial", "fourier", "polynomial", "tile coding"
 is_q=False
 seed=$RANDOM
-num_iterations=10000
-search_steps=10000
+num_iterations=100
+search_steps=100
 separation=$((num_iterations/100))
 directory=outputs/linear_experiment/$env/$current_time
 echo "Saving to $directory"
 mkdir -p "$directory"
 
-recompute_optimal=False
-compute_optimal=False
-get_optimal=False
+recompute_optimal=True
+compute_optimal=True
+get_optimal=True
 
 python3 -m Experiments.LinearFAExperiments.LinearFAExperiment --multirun \
     hydra.mode=MULTIRUN \

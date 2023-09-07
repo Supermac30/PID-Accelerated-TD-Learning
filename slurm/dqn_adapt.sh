@@ -18,10 +18,13 @@ echo "Saving to ${directory}"
 mkdir -p "$directory"
 
 gain_adapter=SingleGainAdapter  # Options: NoGainAdapter, SingleGainAdapter, DiagonalGainAdapter, NetworkGainAdapter
+tabular_d=True
 use_previous_BRs=True
 is_double=True
 
 num_runs=5
+
+seed=$RANDOM
 
 python3 -m Experiments.DQNExperiments.DQNExperiment --multirun \
    env=$env name=$env experiment_name="$env Diagonal Adaptation Experiment"\
@@ -29,7 +32,7 @@ python3 -m Experiments.DQNExperiments.DQNExperiment --multirun \
    hydra.run.dir=$directory \
    hydra.sweep.dir=$directory \
    save_dir=$directory \
-   seed=$RANDOM \
+   seed=$seed \
    gain_adapter=$gain_adapter \
    adapt_gains=True \
    is_double=$is_double \
@@ -37,6 +40,7 @@ python3 -m Experiments.DQNExperiments.DQNExperiment --multirun \
    d_tau=1,0.5,0.1 \
    epsilon=1 \
    meta_lr=0.5,0.1,0.01 \
+   tabular_d=$tabular_d \
    num_runs=$num_runs
 
 python3 -m Experiments.DQNExperiments.DQNExperiment \
@@ -46,7 +50,7 @@ python3 -m Experiments.DQNExperiments.DQNExperiment \
    hydra.sweep.dir=$directory \
    save_dir=$directory \
    is_double=$is_double \
-   seed=$RANDOM \
+   seed=$seed \
    gain_adapter=$gain_adapter \
    adapt_gains=False \
    use_previous_BRs=$use_previous_BRs \
