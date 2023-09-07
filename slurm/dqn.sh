@@ -12,7 +12,7 @@
 source slurm/setup.sh
 
 current_time=$(date "+%Y.%m.%d-%H.%M.%S")
-env=MountainCar-v0
+env=Acrobot-v1
 directory=outputs/dqn_experiment/${env}/$current_time
 echo "Saving to ${directory}"
 mkdir -p "$directory"
@@ -27,7 +27,7 @@ visualize=False
 seed=$RANDOM
 
 python3 -m Experiments.DQNExperiments.DQNExperiment --multirun \
-   env=$env name=$env experiment_name="$env Double DQN Test"\
+   env=$env name=$env experiment_name="$env Double DQN tabular d"\
    hydra.mode=MULTIRUN \
    hydra.run.dir=$directory \
    hydra.sweep.dir=$directory \

@@ -32,14 +32,24 @@ def control_experiment(cfg):
     }.update(env_cfg)
 
     for i in range(cfg['num_runs']):
+        run_seed = seed_prg.randint(0, 2**32)
+        set_random_seed(run_seed)
+
+        run = wandb.init(
+            project="PID Accelerated RL",
+            config=log_cfg,
+            save_code=True,
+            group=f"{cfg['experiment_name']}-{str(cfg['seed'])}",
+            job_type=log_name,
+            reinit=True,
+            name=str(run_seed),
+        )
+
         gain_adapter = build_gain_adapter(
             cfg['gain_adapter'], cfg['kp'], cfg['ki'], cfg['kd'],
             cfg['alpha'], cfg['beta'], cfg['meta_lr'], cfg['epsilon'],
             cfg['use_previous_BRs']
         )
-
-        run_seed = seed_prg.randint(0, 2**32)
-        set_random_seed(run_seed)
 
         if cfg['FQI']:
             agent = build_PID_FQI(
@@ -64,17 +74,6 @@ def control_experiment(cfg):
                 log_name=log_name, name_append=f"run {i}", should_stop=cfg['should_stop'],
                 dump_buffer=cfg['dump_buffer'], visualize=cfg['visualize'], is_double=cfg['is_double']
             )
-
-        run = wandb.init(
-            project="PID Accelerated RL",
-            config=log_cfg,
-            save_code=True,
-            group=f"{cfg['experiment_name']}-{str(cfg['seed'])}",
-            job_type=log_name,
-            reinit=True,
-            name=str(run_seed),
-            sync_tensorboard=True
-        )
 
         callback= [WandbCallback(verbose=2)]
         if cfg['eval']:

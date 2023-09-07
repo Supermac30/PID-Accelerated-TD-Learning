@@ -405,12 +405,15 @@ class TensorBoardOutputFormat(KVWriter):
                 continue
 
             if isinstance(value, np.ScalarType):
-                wandb.log({key: value, "global_step": step}, commit=False)
+                wandb.log({key: value}, step=step)
+                """
                 if isinstance(value, str):
                     # str is considered a np.ScalarType
                     self.writer.add_text(key, value, step)
                 else:
                     self.writer.add_scalar(key, value, step)
+                """
+                
 
             if isinstance(value, th.Tensor):
                 self.writer.add_histogram(key, value, step)
