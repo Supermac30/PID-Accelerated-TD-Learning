@@ -31,7 +31,7 @@ seed=$RANDOM
 experiment_name="$env Policy Evaluation Experiment"
 
 python3 -m Experiments.DQNExperiments.DQNExperiment --multirun \
-   env=$env name=$env experiment_name=$experiment_name \
+   env="$env" name="$env" experiment_name="$experiment_name" \
    hydra.mode=MULTIRUN \
    hydra.run.dir=$directory \
    hydra.sweep.dir=$directory \
@@ -50,7 +50,7 @@ python3 -m Experiments.DQNExperiments.DQNExperiment --multirun \
    eval=$eval
 
 python3 -m Experiments.DQNExperiments.DQNExperiment \
-   env=$env name=$env experiment_name=$experiment_name \
+   env="$env" name="$env" experiment_name="$experiment_name" \
    hydra.mode=MULTIRUN \
    hydra.run.dir=$directory \
    hydra.sweep.dir=$directory \

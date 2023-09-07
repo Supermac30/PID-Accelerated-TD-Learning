@@ -229,9 +229,9 @@ class PID_DQN(OffPolicyAlgorithm):
 
             with th.no_grad():
                 if self.policy_evaluation:
-                    next_q_values = self.q_net_target(replay_data.next_observations)
-                    next_actions = self.optimal_model._predict(replay_data.next_observations)
-                    next_q_values = th.gather(next_q_values, dim=1, index=next_actions.long())
+                    next_q_values = self.q_net_target(replay_data.next_observations).numpy()
+                    next_actions = self.optimal_model.predict(replay_data.next_observations)[0]
+                    next_q_values = next_q_values[np.arange(len(next_q_values)), next_actions]
                 elif self.is_double:
                     # Double DQN
                     next_q_values = self.q_net(replay_data.next_observations)
@@ -316,7 +316,7 @@ class PID_DQN(OffPolicyAlgorithm):
             (used in recurrent policies)
         """
         if self.policy_evaluation:
-            action = self.optimal_model._predict(observation)
+            action = self.optimal_model.predict(observation)[0]
             return action, state
 
         if not deterministic and np.random.rand() < self.exploration_rate:
@@ -332,7 +332,7 @@ class PID_DQN(OffPolicyAlgorithm):
             action, state = self.policy.predict(observation, state, episode_start, deterministic)
 
         if self.dump_buffer:
-            # calling self.monte_carlo_rollout() 1 time is enough as the environment is deterministic
+            # Calling self.monte_carlo_rollout() 1 time to build the Q value buffer is enough as the environments we deal with are deterministic
             true_q_value = self.monte_carlo_rollout(action)
             self.buffer.append((*observation, action, true_q_value))
         

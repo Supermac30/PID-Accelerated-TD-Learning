@@ -103,6 +103,7 @@ class LinearTDQ():
             # Update the value function using the floats kp, ki, kd
             current_state_value = self.query_agent(current_state, action, component="Q")
             # Loop over all actions to find the next_state_value
+            breakpoint()
             next_state_value = np.max([
                 self.query_agent(next_state, next_action, component="Q")
                 for next_action in range(self.env.action_space.n)
