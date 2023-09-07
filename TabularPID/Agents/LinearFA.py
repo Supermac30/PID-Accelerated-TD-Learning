@@ -191,7 +191,6 @@ class LinearTD():
         action = self.policy.get_action(self.current_state)
         current_state = self.current_state
         if self.is_gym_env:
-            breakpoint()
             next_state, reward, done, _, _ = self.env.step(action.item())
             if done:
                 next_state = self.env.reset()[0]

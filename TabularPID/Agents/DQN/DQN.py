@@ -1,7 +1,6 @@
 import warnings
 from typing import Any, Dict, List, Optional, Tuple, Type, TypeVar, Union
 from copy import deepcopy
-import pickle
 
 import globals
 import numpy as np
@@ -229,7 +228,11 @@ class PID_DQN(OffPolicyAlgorithm):
             replay_data = self.replay_buffer.sample(batch_size, env=self._vec_normalize_env)  # type: ignore[union-attr]
 
             with th.no_grad():
-                if self.is_double:
+                if self.policy_evaluation:
+                    next_q_values = self.q_net_target(replay_data.next_observations)
+                    next_actions = self.optimal_model._predict(replay_data.next_observations)
+                    next_q_values = th.gather(next_q_values, dim=1, index=next_actions.long())
+                elif self.is_double:
                     # Double DQN
                     next_q_values = self.q_net(replay_data.next_observations)
                     next_actions = th.argmax(next_q_values, dim=1)
@@ -240,6 +243,7 @@ class PID_DQN(OffPolicyAlgorithm):
                     next_q_values = self.q_net_target(replay_data.next_observations)
                     # Follow greedy policy: use the one with the highest value
                     next_q_values, _ = next_q_values.max(dim=1)
+            
                 # Avoid potential broadcast issue
                 next_q_values = next_q_values.reshape(-1, 1)
                 # 1-step TD target
@@ -312,7 +316,9 @@ class PID_DQN(OffPolicyAlgorithm):
             (used in recurrent policies)
         """
         if self.policy_evaluation:
-            action = self.policy.predict(observation, state, episode_start, deterministic)[0]
+            action = self.optimal_model._predict(observation)
+            return action, state
+
         if not deterministic and np.random.rand() < self.exploration_rate:
             if self.policy.is_vectorized_observation(observation):
                 if isinstance(observation, dict):

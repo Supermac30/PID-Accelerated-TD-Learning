@@ -25,6 +25,7 @@ slow_motion: 1
 
 normalize: False
 should_stop: False  # Whether we early stop the training once some amount of reward is reached
+policy_evaluation: False  # Whether we do deep TD instead of deep Q learning
 num_runs: 10
 
 log_interval: 1  # The number of episodes before reward is logged to the console

@@ -27,7 +27,7 @@ def build_emperical_Q_tester(env, gamma, seed=42):
         return GymTesterDatabase(name, seed)
 
 class GymTesterDatabase():
-    def __init__(self, env_name, seed, num_entries=1000):
+    def __init__(self, env_name, seed, num_entries=100):
         self.Q_values = np.load(f'{globals.base_directory}/models/{env_name}/bufferQValues.npy', allow_pickle=True)
         prg = np.random.RandomState(seed)
         self.Q_values = self.Q_values[prg.choice(len(self.Q_values), num_entries)]

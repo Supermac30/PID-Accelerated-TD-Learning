@@ -60,7 +60,7 @@ def control_experiment(cfg):
                 env_cfg['target_update_interval'], env_cfg['inner_size'],
                 cfg['slow_motion'], env_cfg['learning_starts'], tensorboard_log=cfg['tensorboard_log'],
                 seed=run_seed, log_name=log_name, name_append=f"run {i}", dump_buffer=cfg['dump_buffer'],
-                visualize=cfg['visualize']
+                visualize=cfg['visualize'], is_double=cfg['is_double'], policy_evaluation=cfg['policy_evaluation']
             )
         else:
             agent = build_PID_DQN(
@@ -72,7 +72,8 @@ def control_experiment(cfg):
                 cfg['slow_motion'], env_cfg['learning_starts'], tabular_d=cfg['tabular_d'],
                 tensorboard_log=cfg['tensorboard_log'], seed=run_seed,
                 log_name=log_name, name_append=f"run {i}", should_stop=cfg['should_stop'],
-                dump_buffer=cfg['dump_buffer'], visualize=cfg['visualize'], is_double=cfg['is_double']
+                dump_buffer=cfg['dump_buffer'], visualize=cfg['visualize'], is_double=cfg['is_double'],
+                policy_evaluation=cfg['policy_evaluation']
             )
 
         callback= [WandbCallback(verbose=2)]

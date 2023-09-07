@@ -24,6 +24,9 @@ is_double=True
 
 num_runs=5
 
+policy_evaluation=False
+eval=True
+
 seed=$RANDOM
 
 python3 -m Experiments.DQNExperiments.DQNExperiment --multirun \
@@ -41,7 +44,9 @@ python3 -m Experiments.DQNExperiments.DQNExperiment --multirun \
    epsilon=1 \
    meta_lr=0.5,0.1,0.01 \
    tabular_d=$tabular_d \
-   num_runs=$num_runs
+   num_runs=$num_runs \
+   policy_evaluation=$policy_evaluation \
+   eval=$eval
 
 python3 -m Experiments.DQNExperiments.DQNExperiment \
    env=$env name=$env experiment_name="$env Adaptation Experiment"\
@@ -54,7 +59,9 @@ python3 -m Experiments.DQNExperiments.DQNExperiment \
    gain_adapter=$gain_adapter \
    adapt_gains=False \
    use_previous_BRs=$use_previous_BRs \
-   num_runs=$num_runs
+   num_runs=$num_runs \
+   policy_evaluation=$policy_evaluation \
+   eval=$eval
 
 python3 -m Experiments.Plotting.plot_dqn_experiment \
    hydra.run.dir=$directory \
