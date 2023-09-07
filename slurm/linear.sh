@@ -26,9 +26,9 @@ directory=outputs/linear_experiment/$env/$current_time
 echo "Saving to $directory"
 mkdir -p "$directory"
 
-recompute_optimal=True
-compute_optimal=True
-get_optimal=True
+recompute_optimal=False
+compute_optimal=False
+get_optimal=False
 
 python3 -m Experiments.LinearFAExperiments.LinearFAExperiment --multirun \
     hydra.mode=MULTIRUN \

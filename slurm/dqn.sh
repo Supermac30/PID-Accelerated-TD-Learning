@@ -12,7 +12,7 @@
 source slurm/setup.sh
 
 current_time=$(date "+%Y.%m.%d-%H.%M.%S")
-env=Acrobot-v1
+env=PongNoFrameskip-v4
 directory=outputs/dqn_experiment/${env}/$current_time
 echo "Saving to ${directory}"
 mkdir -p "$directory"
@@ -24,11 +24,11 @@ num_runs=5
 policy_evaluation=False
 eval=False
 
-slow_motion=0.01  # Keep at 1, or the environment will change
+slow_motion=1  # Keep at 1, or the environment will be made slower (in an ad hoc fashion for each environment)
 
 seed=$RANDOM
 
-experiment_name="$env Policy Evaluation Experiment"
+experiment_name="$env Atari Test"
 
 python3 -m Experiments.DQNExperiments.DQNExperiment --multirun \
    env="$env" name="$env" experiment_name="$experiment_name" \

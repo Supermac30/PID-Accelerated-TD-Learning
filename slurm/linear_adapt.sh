@@ -19,8 +19,8 @@ is_q=False
 order=20
 type="fourier"  # "trivial", "fourier", "polynomial", "tile coding"
 seed=$RANDOM
-num_iterations=5000
-search_steps=5000
+num_iterations=10000
+search_steps=10000
 separation=$((num_iterations/100))
 directory=outputs/linear_adapt_experiment/$env/$current_time
 echo "Saving to $directory"
@@ -47,8 +47,8 @@ python3 -m Experiments.LinearFAExperiments.AdaptiveLinearFAExperiment --multirun
     recompute_optimal=$recompute_optimal \
     search_steps=$search_steps \
     is_q=$is_q \
-    epsilon=1,1e-1,1e-2 \
-    meta_lr=1e-2,1e-3,1e-4 \
+    epsilon=1e-2,2e-2,3e-2 \
+    meta_lr=1e-2,2e-2,3e-2 \
 
 python3 -m Experiments.LinearFAExperiments.LinearFAExperiment --multirun \
     hydra.mode=MULTIRUN \
