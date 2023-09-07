@@ -168,13 +168,17 @@ class LinearTD():
         self.lr_Vp = lr_Vp
         self.lr_z = lr_z
 
+        self.starting_kp = kp
+        self.starting_ki = ki
+        self.starting_kd = kd
+        self.starting_alpha = alpha
+        self.starting_beta = beta
+
         self.kp = kp
         self.ki = ki
         self.kd = kd
         self.alpha = alpha
         self.beta = beta
-
-        self.epsilon = 1e-2
 
         self.current_state = self.env.reset()
         self.solved_agent = solved_agent
@@ -209,6 +213,12 @@ class LinearTD():
         self.w_Vp = np.zeros((num_features, 1))
         self.w_z = np.zeros((num_features, 1))
 
+        self.kp = self.starting_kp
+        self.ki = self.starting_ki
+        self.kd = self.starting_kd
+        self.alpha = self.starting_alpha
+        self.beta = self.starting_beta
+
         self.running_BR = 0
 
     def estimate_value_function(self, num_iterations, test_function=None, reset_environment=True, stop_if_diverging=True):
@@ -241,6 +251,11 @@ class LinearTD():
             self.w_V += lr_V * (V_update.item() - current_state_value.item()) * self.basis.value(current_state)
             self.w_Vp += lr_Vp * (Vp_update.item() - current_state_Vp_value.item()) * self.basis.value(current_state)
             self.w_z += lr_z * (z_update.item() - current_state_z_value.item()) * self.basis.value(current_state)
+
+
+            new_next_state_value = self.basis.value(next_state).T @ self.w_V
+            new_current_state_value = self.basis.value(current_state).T @ self.w_V
+            self.next_BR = reward + self.gamma * new_next_state_value - new_current_state_value
 
             if self.solved_agent is not None and k % (num_iterations // 100) == 0:
                 self.history[index] = self.solved_agent.measure_performance(self.query_agent)
@@ -279,9 +294,9 @@ class LinearTD():
         z = np.dot(current_state_value.T, self.w_z)
         Vp = np.dot(current_state_value.T, self.w_Vp)
 
-        self.kp += self.learning_rate * self.meta_lr * self.BR * self.BR * l2_basis / normalizer
-        self.ki += self.learning_rate * self.meta_lr * self.BR * (self.beta * z + self.alpha * self.BR) * l2_basis / normalizer
-        self.kd += self.learning_rate * self.meta_lr * self.BR * (V - Vp) * l2_basis / normalizer
+        self.kp += self.learning_rate * self.meta_lr * self.next_BR * self.BR * l2_basis / normalizer
+        self.ki += self.learning_rate * self.meta_lr * self.next_BR * (self.beta * z + self.alpha * self.BR) * l2_basis / normalizer
+        self.kd += self.learning_rate * self.meta_lr * self.next_BR * (V - Vp) * l2_basis / normalizer
 
     def update_gain_history(self, index):
         """Update the gain history.

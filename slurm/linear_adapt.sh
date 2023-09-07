@@ -16,11 +16,11 @@ env="chain walk"
 gamma=0.99
 repeat=20
 is_q=False
-order=5
+order=20
 type="fourier"  # "trivial", "fourier", "polynomial", "tile coding"
 seed=$RANDOM
-num_iterations=10000
-search_steps=10000
+num_iterations=20000
+search_steps=20000
 separation=$((num_iterations/100))
 directory=outputs/linear_adapt_experiment/$env/$current_time
 echo "Saving to $directory"

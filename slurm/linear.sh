@@ -17,7 +17,7 @@ gamma=0.99
 repeat=20
 order=3
 type="fourier"  # "trivial", "fourier", "polynomial", "tile coding"
-is_q=True
+is_q=False
 seed=$RANDOM
 num_iterations=10000
 search_steps=10000
@@ -26,9 +26,9 @@ directory=outputs/linear_experiment/$env/$current_time
 echo "Saving to $directory"
 mkdir -p "$directory"
 
-recompute_optimal=True
-compute_optimal=True
-get_optimal=True
+recompute_optimal=False
+compute_optimal=False
+get_optimal=False
 
 python3 -m Experiments.LinearFAExperiments.LinearFAExperiment --multirun \
     hydra.mode=MULTIRUN \

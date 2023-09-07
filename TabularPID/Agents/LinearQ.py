@@ -44,8 +44,6 @@ class LinearTDQ():
         self.alpha = alpha
         self.beta = beta
 
-        self.epsilon = 1e-2
-
         self.current_state = self.env.reset()
         self.solved_agent = solved_agent
 
@@ -117,6 +115,13 @@ class LinearTDQ():
             self.w_Qp += lr_Qp * (Qp_update.item() - current_state_Qp_value.item()) * self.basis_value(current_state, action)
             self.w_z += lr_z * (z_update.item() - current_state_z_value.item()) * self.basis_value(current_state, action)
 
+            new_next_state_value = np.max([
+                self.query_agent(next_state, next_action, component="Q")
+                for next_action in range(self.env.action_space.n)
+            ])
+            new_current_state_value = self.query_agent(current_state, action, component="Q")
+            self.next_BR = reward + self.gamma * new_next_state_value - new_current_state_value
+
             if self.solved_agent is not None and k % (num_iterations // 100) == 0:
                 self.history[index] = self.solved_agent.measure_performance(self.query_agent)
                 if self.adapt_gains:
@@ -153,9 +158,9 @@ class LinearTDQ():
 
         l2_basis = self.basis_value(self.current_state, self.action).T @ self.basis_value(self.current_state, self.action)
 
-        self.kp += self.learning_rate * self.meta_lr * self.BR * self.BR * l2_basis / normalizer
-        self.ki += self.learning_rate * self.meta_lr * self.BR * (self.beta * z + self.alpha * self.BR) * l2_basis / normalizer
-        self.kd += self.learning_rate * self.meta_lr * self.BR * (Q - Qp) * l2_basis / normalizer
+        self.kp += self.learning_rate * self.meta_lr * self.next_BR * self.BR * l2_basis / normalizer
+        self.ki += self.learning_rate * self.meta_lr * self.next_BR * (self.beta * z + self.alpha * self.BR) * l2_basis / normalizer
+        self.kd += self.learning_rate * self.meta_lr * self.next_BR * (Q - Qp) * l2_basis / normalizer
 
     def update_gain_history(self, index):
         """Update the gain history.
