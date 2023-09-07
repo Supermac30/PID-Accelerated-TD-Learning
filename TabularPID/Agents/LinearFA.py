@@ -35,6 +35,8 @@ class LinearFuncSpace():
     def value(self, state):
         """Return the value of the basis functions at the given state, normalizing the input
         """
+        if not hasattr(state, '__iter__'):
+            state = np.array((state,))
         # Clip inputs by the clip_value
         state = np.array([np.sign(x) * self.clip_value if abs(x) > self.clip_value else x for x in state])
 
@@ -61,17 +63,9 @@ class FourierBasis(LinearFuncSpace):
         """
         all_arrays = list(itertools.product(range(self.order + 1), repeat=self.dim))
 
-        if hasattr(state, '__iter__'):
-            return np.cos(
-                np.pi * np.array(list(
-                    np.array(arr).T @ state
-                    for arr in all_arrays
-                ))
-            ).reshape(-1, 1)
-
         return np.cos(
             np.pi * np.array(list(
-                np.array(arr).T @ np.array((state,))
+                np.array(arr).T @ state
                 for arr in all_arrays
             ))
         ).reshape(-1, 1)
@@ -88,10 +82,7 @@ class PolynomialBasis(LinearFuncSpace):
         """Return the value of the basis functions at the given state.
         """
         # Check if state is an iterable
-        if hasattr(state, '__iter__'):
-            return np.array(list(PolynomialBasis.find_all_monomials(tuple(state), self.order))).reshape(-1, 1)
-
-        return np.array(list(PolynomialBasis.find_all_monomials((state,), self.order))).reshape(-1, 1)
+        return np.array(list(PolynomialBasis.find_all_monomials(tuple(state), self.order))).reshape(-1, 1)
 
     @staticmethod
     @lru_cache(maxsize=128)
@@ -118,8 +109,6 @@ class TileCodingBasis(LinearFuncSpace):
         self.num_features = self.order
 
     def value(self, state):
-        if not hasattr(state, '__iter__'):
-            state = (state,)
         indices = tiles(self.num_tiles, self.order, state)
         result = np.zeros((self.order,))
         result[indices] = 1.0
@@ -134,7 +123,8 @@ class TrivialBasis(LinearFuncSpace):
         self.num_features = self.env.observation_space.n
 
     def value(self, state):
-        if hasattr(state, '__iter__'):
+        # if state is not a numpy array containing only one element, raise an exception
+        if state.shape != (1,):
             raise Exception("TrivialBasis only works for environments with a single state variable")
         result = np.zeros((self.env.observation_space.n,))
         result[state] = 1.0
@@ -201,6 +191,7 @@ class LinearTD():
         action = self.policy.get_action(self.current_state)
         current_state = self.current_state
         if self.is_gym_env:
+            breakpoint()
             next_state, reward, done, _, _ = self.env.step(action.item())
             if done:
                 next_state = self.env.reset()[0]
