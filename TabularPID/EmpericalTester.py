@@ -19,16 +19,18 @@ def build_emperical_TD_tester(env, policy, gamma):
         env = deepcopy(env)
         return GymTester(env, gamma)
 
-def build_emperical_Q_tester(env, gamma):
+def build_emperical_Q_tester(env, gamma, seed=42):
     if isinstance(env, Environment):
         return TrueQEnvTester(env, gamma)
     else:
         name = env.unwrapped.spec.id
-        return GymTesterDatabase(name)
+        return GymTesterDatabase(name, seed)
 
 class GymTesterDatabase():
-    def __init__(self, env_name):
-        self.Q_values = np.load(f'{globals.base_directory}/models/{env_name}/bufferQValues.npy')
+    def __init__(self, env_name, seed, num_entries=1000):
+        self.Q_values = np.load(f'{globals.base_directory}/models/{env_name}/bufferQValues.npy', allow_pickle=True)
+        prg = np.random.RandomState(seed)
+        self.Q_values = self.Q_values[prg.choice(len(self.Q_values), num_entries)]
 
     def measure_performance(self, query):
         """
@@ -64,7 +66,7 @@ class GymTester():
         distance = 0
 
         for _ in range(10):
-            state, q_value = self.solved_agent.randomly_query_agent()
+            state, q_value = self.randomly_query_agent()
             distance += abs(q_value - self.query_agent(state))
 
         # Return the mean of these values

@@ -28,9 +28,9 @@ def build_agent_and_env(agent_name, env_name, get_optimal=False, seed=42, gamma=
     Return None is the agent name is not found.
     """
     env, policy = get_env_policy(env_name, seed)
-    return build_agent(agent_name, env_name, env, policy, get_optimal, gamma), env, policy
+    return build_agent(agent_name, env_name, env, policy, get_optimal, gamma, seed), env, policy
 
-def build_agent(agent_name, env_name, env, policy, get_optimal, gamma):
+def build_agent(agent_name, env_name, env, policy, get_optimal, gamma, seed=42):
     """Return the agent given its name.
     agent_name is a tuple of the form (agent_description, kp, ki, kd, alpha, beta, *kwargs),
     where kp, kd, ki, alpha, beta are floats, and **kwargs are any special keyword arguments for the agent.
@@ -90,16 +90,16 @@ def build_agent(agent_name, env_name, env, policy, get_optimal, gamma):
         is_q = (agent_description[-1] == "Q")
         if agent_description.startswith("linear TD polynomial"):
             basis = PolynomialBasis(env, order, is_q)
-            return build_linear_TD(env, policy, kp, ki, kd, alpha, beta, learning_rates, gamma, basis, is_q)
+            return build_linear_TD(env, policy, kp, ki, kd, alpha, beta, learning_rates, gamma, basis, is_q, seed=seed)
         elif agent_description.startswith("linear TD fourier"):
             basis = FourierBasis(env, order, is_q)
-            return build_linear_TD(env, policy, kp, ki, kd, alpha, beta, learning_rates, gamma, basis, is_q)
+            return build_linear_TD(env, policy, kp, ki, kd, alpha, beta, learning_rates, gamma, basis, is_q, seed=seed)
         elif agent_description.startswith("linear TD tile coding"):
             basis = TileCodingBasis(env, order, is_q)
-            return build_linear_TD(env, policy, kp, ki, kd, alpha, beta, learning_rates, gamma, basis, is_q)
+            return build_linear_TD(env, policy, kp, ki, kd, alpha, beta, learning_rates, gamma, basis, is_q, seed=seed)
         elif agent_description.startswith("linear TD trivial"):
             basis = TrivialBasis(env, order, is_q)
-            return build_linear_TD(env, policy, kp, ki, kd, alpha, beta, learning_rates, gamma, basis, is_q)
+            return build_linear_TD(env, policy, kp, ki, kd, alpha, beta, learning_rates, gamma, basis, is_q, seed=seed)
         
     elif agent_description == "TIDBD":
         return build_TIDBD(env, policy, learning_rates, gamma)
@@ -110,9 +110,9 @@ def build_agent(agent_name, env_name, env, policy, get_optimal, gamma):
     return None
 
 
-def build_linear_TD(env, policy, kp, ki, kd, alpha, beta, learning_rates, gamma, basis, is_q, adapt_gains=False, meta_lr=0, epsilon=1):
+def build_linear_TD(env, policy, kp, ki, kd, alpha, beta, learning_rates, gamma, basis, is_q, adapt_gains=False, meta_lr=0, epsilon=1, seed=42):
     if is_q:
-        optimal_agent = build_emperical_Q_tester(env, gamma)
+        optimal_agent = build_emperical_Q_tester(env, gamma, seed=seed)
         return LinearTDQ(
             env, policy, gamma, basis,
             kp, ki, kd, alpha, beta,

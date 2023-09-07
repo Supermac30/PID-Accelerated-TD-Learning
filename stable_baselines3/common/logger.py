@@ -405,7 +405,7 @@ class TensorBoardOutputFormat(KVWriter):
                 continue
 
             if isinstance(value, np.ScalarType):
-                wandb.log({key: value}, step=step)
+                wandb.log({key: value, "global_step": step}, commit=False)
                 if isinstance(value, str):
                     # str is considered a np.ScalarType
                     self.writer.add_text(key, value, step)
