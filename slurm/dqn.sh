@@ -12,17 +12,19 @@
 source slurm/setup.sh
 
 current_time=$(date "+%Y.%m.%d-%H.%M.%S")
-env=MountainCar-v0
+env=Acrobot-v1
 directory=outputs/dqn_experiment/${env}/$current_time
 echo "Saving to ${directory}"
 mkdir -p "$directory"
 
-tabular_d=True
+tabular_d=False
 is_double=True
 num_runs=5
 
-policy_evaluation=True
-eval=True
+policy_evaluation=False
+eval=False
+
+slow_motion=0.01  # Keep at 1, or the environment will change
 
 seed=$RANDOM
 
@@ -37,13 +39,14 @@ python3 -m Experiments.DQNExperiments.DQNExperiment --multirun \
    seed=$seed \
    is_double=$is_double \
    kp=1 \
-   kd=0 \
+   kd=0.1 \
    ki=0 \
    d_tau=0 \
    tabular_d=$tabular_d \
    num_runs=$num_runs \
    policy_evaluation=$policy_evaluation \
-   eval=$eval
+   eval=$eval \
+   slow_motion=$slow_motion
 
 python3 -m Experiments.DQNExperiments.DQNExperiment --multirun \
    env="$env" name="$env" experiment_name="$experiment_name" \
@@ -59,7 +62,8 @@ python3 -m Experiments.DQNExperiments.DQNExperiment --multirun \
    num_runs=$num_runs \
    visualize=$visualize \
    policy_evaluation=$policy_evaluation \
-   eval=$eval
+   eval=$eval \
+   slow_motion=$slow_motion
 
 python3 -m Experiments.Plotting.plot_dqn_experiment \
    hydra.run.dir=$directory \
