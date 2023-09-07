@@ -25,9 +25,9 @@ exhaustive_learning_rates = [
         0.5: {10, 50, 100, 500, 1000},
         0.25: {10, 50, 100},
         0.1: {10, 50, 100},
-        0.01: {1},
-        0.001: {1},
-        0.0001: {1}
+        0.01: {10000},
+        0.001: {10000},
+        0.0001: {10000},
     },
     {
         1: {float("inf"), 100},
@@ -168,7 +168,6 @@ def run_adaptive_linear_FA_search(agent_name, env_name, meta_lr, lambd, delay, a
         agent,
         lambda: agent.estimate_value_function(
             num_iterations=search_steps,
-            reset_environment=False,
             stop_if_diverging=True
         )[0],
         learning_rates,
@@ -203,7 +202,6 @@ def run_linear_FA_search(agent_name, env_name, kp, ki, kd, alpha, beta, seed, ga
         agent,
         lambda: agent.estimate_value_function(
             num_iterations=search_steps,
-            reset_environment=False,
             stop_if_diverging=True
         )[0],
         learning_rates,
@@ -310,7 +308,6 @@ def run_search(agent, norm, goal, search_steps, learning_rates, update_I_rates, 
             num_iterations=search_steps,
             test_function=build_test_function(norm, goal),
             follow_trajectory=False,
-            reset_environment=False,
             stop_if_diverging=True,
         )[2],
         learning_rates,

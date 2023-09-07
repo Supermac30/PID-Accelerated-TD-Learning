@@ -28,9 +28,10 @@ policy_evaluation=False
 eval=True
 
 seed=$RANDOM
+experiment_name="$env Policy Evaluation Experiment"
 
 python3 -m Experiments.DQNExperiments.DQNExperiment --multirun \
-   env=$env name=$env experiment_name="$env Diagonal Adaptation Experiment"\
+   env=$env name=$env experiment_name=$experiment_name \
    hydra.mode=MULTIRUN \
    hydra.run.dir=$directory \
    hydra.sweep.dir=$directory \
@@ -49,7 +50,7 @@ python3 -m Experiments.DQNExperiments.DQNExperiment --multirun \
    eval=$eval
 
 python3 -m Experiments.DQNExperiments.DQNExperiment \
-   env=$env name=$env experiment_name="$env Adaptation Experiment"\
+   env=$env name=$env experiment_name=$experiment_name \
    hydra.mode=MULTIRUN \
    hydra.run.dir=$directory \
    hydra.sweep.dir=$directory \

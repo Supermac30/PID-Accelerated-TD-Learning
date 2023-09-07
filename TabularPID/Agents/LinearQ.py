@@ -38,6 +38,10 @@ class LinearTDQ():
         self.lr_Qp = lr_Qp
         self.lr_z = lr_z
 
+        self.default_kp = kp
+        self.default_ki = ki
+        self.default_kd = kd
+
         self.kp = kp
         self.ki = ki
         self.kd = kd
@@ -78,7 +82,12 @@ class LinearTDQ():
         self.w_Qp = np.zeros((num_features, 1))
         self.w_z = np.zeros((num_features, 1))
 
+        self.kp = self.default_kp
+        self.ki = self.default_ki
+        self.kd = self.default_kd
+
         self.running_BR = 0
+
 
     def estimate_value_function(self, num_iterations, test_function=None, reset_environment=True, stop_if_diverging=True):
         self.reset(reset_environment)

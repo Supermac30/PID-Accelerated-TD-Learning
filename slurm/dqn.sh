@@ -21,13 +21,15 @@ tabular_d=True
 is_double=True
 num_runs=5
 
-policy_evaluation=False
+policy_evaluation=True
 eval=True
 
 seed=$RANDOM
 
+experiment_name="$env Policy Evaluation Experiment"
+
 python3 -m Experiments.DQNExperiments.DQNExperiment --multirun \
-   env=$env name=$env experiment_name="$env Double DQN tabular d"\
+   env=$env name=$env experiment_name=$experiment_name \
    hydra.mode=MULTIRUN \
    hydra.run.dir=$directory \
    hydra.sweep.dir=$directory \
@@ -44,7 +46,7 @@ python3 -m Experiments.DQNExperiments.DQNExperiment --multirun \
    eval=$eval
 
 python3 -m Experiments.DQNExperiments.DQNExperiment --multirun \
-   env=$env name=$env experiment_name="$env "\
+   env=$env name=$env experiment_name=$experiment_name \
    hydra.mode=MULTIRUN \
    hydra.run.dir=$directory \
    hydra.sweep.dir=$directory \
