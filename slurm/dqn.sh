@@ -12,7 +12,7 @@
 source slurm/setup.sh
 
 current_time=$(date "+%Y.%m.%d-%H.%M.%S")
-env=PongNoFrameskip-v4
+env=CartPole-v1  # PongNoFrameskip-v4
 directory=outputs/dqn_experiment/${env}/$current_time
 echo "Saving to ${directory}"
 mkdir -p "$directory"
@@ -21,14 +21,14 @@ tabular_d=False
 is_double=True
 num_runs=5
 
-policy_evaluation=False
-eval=False
+policy_evaluation=True
+eval=True
 
 slow_motion=1  # Keep at 1, or the environment will be made slower (in an ad hoc fashion for each environment)
 
 seed=$RANDOM
 
-experiment_name="$env Atari Test"
+experiment_name="$env Policy Evlauation Experiment"
 
 python3 -m Experiments.DQNExperiments.DQNExperiment --multirun \
    env="$env" name="$env" experiment_name="$experiment_name" \

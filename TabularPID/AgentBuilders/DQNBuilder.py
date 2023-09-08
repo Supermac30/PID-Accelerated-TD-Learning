@@ -27,7 +27,7 @@ def build_PID_DQN(gain_adapter, env_name, gamma, optimizer, replay_memory_size, 
 
     if is_atari:
         policy_type = "CnnPolicy"
-        optimize_memory_usage = True
+        optimize_memory_usage = False
     else:
         policy_type = "MlpPolicy"
         optimize_memory_usage = False

@@ -229,9 +229,10 @@ class PID_DQN(OffPolicyAlgorithm):
 
             with th.no_grad():
                 if self.policy_evaluation:
-                    next_q_values = self.q_net_target(replay_data.next_observations).numpy()
-                    next_actions = self.optimal_model.predict(replay_data.next_observations)[0]
-                    next_q_values = next_q_values[np.arange(len(next_q_values)), next_actions]
+                    next_q_values = self.q_net_target(replay_data.next_observations)
+                    next_actions = th.tensor(self.optimal_model.predict(replay_data.next_observations.cpu())[0]).reshape(-1,1)
+                    next_actions = next_actions.to(next_q_values.device)
+                    next_q_values = th.gather(next_q_values, dim=1, index=next_actions)
                 elif self.is_double:
                     # Double DQN
                     next_q_values = self.q_net(replay_data.next_observations)

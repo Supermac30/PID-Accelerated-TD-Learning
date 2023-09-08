@@ -19,8 +19,8 @@ is_q=False
 order=20
 type="fourier"  # "trivial", "fourier", "polynomial", "tile coding"
 seed=$RANDOM
-num_iterations=10000
-search_steps=10000
+num_iterations=2500
+search_steps=2500
 separation=$((num_iterations/100))
 directory=outputs/linear_adapt_experiment/$env/$current_time
 echo "Saving to $directory"
