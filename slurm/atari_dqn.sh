@@ -26,16 +26,14 @@ num_runs=1
 policy_evaluation=False
 eval=False
 
-adapt_gains=True
+adapt_gains=False
 gain_adapter=SingleGainAdapter  # Options: NoGainAdapter, SingleGainAdapter, DiagonalGainAdapter, NetworkGainAdapter
-
-slow_motion=1  # Keep at 1, or the environment will be made slower (in an ad hoc fashion for each environment)
 
 seed=$RANDOM
 
 experiment_name="$env Atari DQN Experiment"
 
-if adapt_gains
+if [ "$adapt_gains" = True ];
 then
    python3 -m Experiments.DQNExperiments.DQNExperiment --multirun \
       env="$env" name="$env" experiment_name="$experiment_name" \
@@ -65,14 +63,13 @@ else
       seed=$seed \
       is_double=$is_double \
       kp=1 \
-      kd=0.01 \
+      kd=0.001 \
       ki=0 \
       d_tau=0.01 \
       tabular_d=$tabular_d \
       num_runs=$num_runs \
       policy_evaluation=$policy_evaluation \
-      eval=$eval \
-      slow_motion=$slow_motion
+      eval=$eval
 fi
 
 python3 -m Experiments.DQNExperiments.DQNExperiment --multirun \

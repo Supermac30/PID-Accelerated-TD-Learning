@@ -13,6 +13,6 @@ atari:
   tau: 1
   inner_size: 256
   learning_starts: 100000
-  num_iterations: 10000000
+  num_iterations: 4000000
   gamma: 0.99
   target_reward: 100
