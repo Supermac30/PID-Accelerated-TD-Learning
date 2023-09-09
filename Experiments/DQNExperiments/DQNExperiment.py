@@ -7,6 +7,7 @@ import wandb
 
 from Experiments.ExperimentHelpers import *
 from TabularPID.AgentBuilders.DQNBuilder import build_PID_DQN, build_PID_FQI, build_gain_adapter, get_model
+from TabularPID.EmpericalTester import build_emperical_Q_tester
 from stable_baselines3.common.callbacks import BaseCallback
 from stable_baselines3.common import evaluation
 from stable_baselines3.common.utils import set_random_seed
@@ -78,7 +79,11 @@ def control_experiment(cfg):
 
         callback= [WandbCallback(verbose=2)]
         if cfg['eval']:
-            callback.append(CustomEvalCallback(get_model(env_cfg['env'])))
+            callback.append(EvaluatePolicyCallback(build_emperical_Q_tester(env_cfg['env'], env_cfg['gamma'], run_seed)))
+        if cfg['gain_adapter'] != "NoGainAdapter":
+            callback.append(GainReporterCallback())
+        if cfg['policy_evaluation']:
+            callback.append(PolicyEvaluationCallback(get_model(env_cfg['env'])))
 
         agent = agent.learn(
             total_timesteps=env_cfg['num_iterations'],
@@ -92,24 +97,14 @@ def control_experiment(cfg):
     # agent.visualize_episode()
 
 
-
-class CustomEvalCallback(BaseCallback):
+class PolicyEvaluationCallback(BaseCallback):
     def __init__(self, trained_model, verbose=0):
-        super(CustomEvalCallback, self).__init__(verbose)
+        super(PolicyEvaluationCallback, self).__init__(verbose)
         self.trained_model = trained_model
-
+    
     def _on_step(self) -> bool:
         if self.num_timesteps % 1000 != 0:
             return True
-
-        mean, std = evaluation.evaluate_policy(self.model, self.model.get_env(), n_eval_episodes=10)
-        self.logger.record("eval/mean_reward", mean)
-        self.logger.record("eval/std_reward", std)
-
-        if self.model.gain_adapter.adapts_single_gains:
-            self.logger.record("eval/k_p", self.model.gain_adapter.kp)
-            self.logger.record("eval/k_i", self.model.gain_adapter.ki)
-            self.logger.record("eval/k_d", self.model.gain_adapter.kd)
 
         # Sample 20 points from the replay buffer
         states, actions, *_ = self.model.replay_buffer.sample(20)
@@ -121,9 +116,46 @@ class CustomEvalCallback(BaseCallback):
             trained_q_values = self.trained_model.policy.q_net(states)
             trained_q_values = th.gather(trained_q_values, dim=1, index=actions.long())
         self.logger.record(
-            "eval/distance_from_optimal_values",
+            "eval/distance_from_true_values",
             th.mean(th.linalg.vector_norm(q_values - trained_q_values)).item()
         )
+
+
+class GainReporterCallback(BaseCallback):
+    def __init__(self, verbose=0):
+        super(GainReporterCallback, self).__init__(verbose)
+    
+    def _on_step(self) -> bool:
+        if self.num_timesteps % 1000 != 0:
+            return True
+
+        self.logger.record("eval/k_p", self.model.gain_adapter.kp)
+        self.logger.record("eval/k_i", self.model.gain_adapter.ki)
+        self.logger.record("eval/k_d", self.model.gain_adapter.kd)
+
+        return True
+
+
+class EvaluatePolicyCallback(BaseCallback):
+    def __init__(self, optimal_policy, verbose=0):
+        super(EvaluatePolicyCallback, self).__init__(verbose)
+        self.optimal_policy = optimal_policy
+
+    def _on_step(self) -> bool:
+        if self.num_timesteps % 1000 != 0:
+            return True
+
+        mean, std = evaluation.evaluate_policy(self.model, self.model.get_env(), n_eval_episodes=10)
+        self.logger.record("eval/mean_reward", mean)
+        self.logger.record("eval/std_reward", std)
+
+        distance = self.optimal_policy.measure_performance(
+            lambda s, a: self.model.policy.q_net(th.tensor(s.reshape(1, -1)))[0][a].item()
+        )
+
+        self.logger.record("eval/distance_from_optimal", distance)
+
+        
 
 if __name__ == "__main__":
     control_experiment()

@@ -22,6 +22,8 @@ def build_emperical_TD_tester(env, policy, gamma):
 def build_emperical_Q_tester(env, gamma, seed=42):
     if isinstance(env, Environment):
         return TrueQEnvTester(env, gamma)
+    if isinstance(env, str):
+        return GymTesterDatabase(env, seed)
     else:
         name = env.unwrapped.spec.id
         return GymTesterDatabase(name, seed)

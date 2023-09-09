@@ -327,8 +327,9 @@ class ReplayBuffer(BaseBuffer):
             self.ki[batch_inds, env_indices].reshape(-1, 1),
             self.kd[batch_inds, env_indices].reshape(-1, 1),
             self.BRs[batch_inds, env_indices].reshape(-1, 1),
-            (batch_inds, env_indices)
+            np.array((batch_inds, env_indices))
         )
+
         return ReplayBufferSamples(*tuple(map(self.to_torch, data)))
     
     def update(self, indices, zs=None, ds=None, BRs=None, kp=None, ki=None, kd=None):

@@ -12,7 +12,7 @@
 source slurm/setup.sh
 
 current_time=$(date "+%Y.%m.%d-%H.%M.%S")
-env=CartPole-v1  # PongNoFrameskip-v4
+env=CartPole-v1
 directory=outputs/dqn_experiment/${env}/$current_time
 echo "Saving to ${directory}"
 mkdir -p "$directory"
@@ -28,7 +28,7 @@ slow_motion=1  # Keep at 1, or the environment will be made slower (in an ad hoc
 
 seed=$RANDOM
 
-experiment_name="$env Policy Evlauation Experiment"
+experiment_name="$env Policy Evaluation Experiment"
 
 python3 -m Experiments.DQNExperiments.DQNExperiment --multirun \
    env="$env" name="$env" experiment_name="$experiment_name" \
@@ -39,9 +39,9 @@ python3 -m Experiments.DQNExperiments.DQNExperiment --multirun \
    seed=$seed \
    is_double=$is_double \
    kp=1 \
-   kd=0.1 \
+   kd=0.01 \
    ki=0 \
-   d_tau=0 \
+   d_tau=0.01 \
    tabular_d=$tabular_d \
    num_runs=$num_runs \
    policy_evaluation=$policy_evaluation \
