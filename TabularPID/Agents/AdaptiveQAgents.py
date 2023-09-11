@@ -156,7 +156,7 @@ class AdaptiveSamplerAgent(AbstractAdaptiveAgent):
 
     def BR(self):
         """Return the empirical bellman residual"""
-        return self.reward[0] + self.gamma * np.max(self.Q[self.next_state]) - self.Q[self.current_state][self.action]
+        return self.reward + self.gamma * np.max(self.Q[self.next_state]) - self.Q[self.current_state][self.action]
 
 
 class DiagonalAdaptiveSamplerAgent(AbstractAdaptiveAgent):

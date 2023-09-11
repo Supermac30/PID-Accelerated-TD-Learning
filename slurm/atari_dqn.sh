@@ -28,10 +28,11 @@ eval=False
 
 adapt_gains=False
 gain_adapter=SingleGainAdapter  # Options: NoGainAdapter, SingleGainAdapter, DiagonalGainAdapter, NetworkGainAdapter
+meta_lr=1e-5
 
 seed=$RANDOM
 
-experiment_name="$env Atari DQN Experiment"
+experiment_name="$env Atari DQN ki experiment"
 
 if [ "$adapt_gains" = True ];
 then
@@ -46,9 +47,9 @@ then
       adapt_gains=True \
       is_double=$is_double \
       use_previous_BRs=$use_previous_BRs \
-      d_tau=0.01 \
-      epsilon=1 \
-      meta_lr=0.01 \
+      d_tau=0.001 \
+      epsilon=0.1 \
+      meta_lr=$meta_lr \
       tabular_d=$tabular_d \
       num_runs=$num_runs \
       policy_evaluation=$policy_evaluation \
@@ -63,9 +64,9 @@ else
       seed=$seed \
       is_double=$is_double \
       kp=1 \
-      kd=0.001 \
-      ki=0 \
-      d_tau=0.01 \
+      kd=0 \
+      ki=1 \
+      d_tau=0 \
       tabular_d=$tabular_d \
       num_runs=$num_runs \
       policy_evaluation=$policy_evaluation \

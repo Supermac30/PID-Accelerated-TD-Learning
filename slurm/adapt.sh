@@ -14,15 +14,15 @@ ulimit -n 2048
 source slurm/setup.sh
 
 current_time=$(date "+%Y.%m.%d/%H.%M.%S")
-env="garnet 443322 50"
-gamma=0.9
+env="cliff walk"
+gamma=0.999
 repeat=3
 seed=$RANDOM
-num_iterations=3000
-search_steps=3000
+num_iterations=500
+search_steps=500
 recompute_optimal=False
-compute_optimal=False  # False when we need to debug, so there is no multiprocessing
-get_optimal=False  # False when we need to debug with a specific learning rate
+compute_optimal=True  # False when we need to debug, so there is no multiprocessing
+get_optimal=True  # False when we need to debug with a specific learning rate
 
 directory=outputs/adaptation_experiment/$env/$current_time
 echo "Saving to ${directory}"
@@ -38,7 +38,7 @@ python3 -m Experiments.AdaptationExperiments.AdaptiveAgentExperiment --multirun 
     recompute_optimal=$recompute_optimal \
     compute_optimal=$compute_optimal \
     get_optimal=$get_optimal \
-    meta_lr=1e-1 \
+    meta_lr=1e-2 \
     epsilon=1 \
     env="$env" \
     gamma=$gamma \

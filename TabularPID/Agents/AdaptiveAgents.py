@@ -214,7 +214,7 @@ class DiagonalAdaptiveSamplerAgent(AbstractAdaptiveAgent):
 
     def BR(self):
         """Return the empirical bellman residual"""
-        return self.reward[0] + self.gamma * self.V[self.next_state][0] - self.V[self.current_state][0]
+        return self.reward + self.gamma * self.V[self.next_state][0] - self.V[self.current_state][0]
 
 
 class AdaptivePlannerAgent(AbstractAdaptiveAgent):
@@ -282,7 +282,7 @@ class NoGainUpdater(AbstractGainUpdater):
 
 
 class SemiGradientUpdater(AbstractGainUpdater):
-    def __init__(self, lambd=0, epsilon=0.1, update_alpha=True, scale=0.1):
+    def __init__(self, lambd=0, epsilon=0.1, update_alpha=True, scale=1):
         super().__init__(lambd, epsilon, scale)
 
         self.d_update = 0
@@ -323,10 +323,11 @@ class SemiGradientUpdater(AbstractGainUpdater):
         self.previous_BRs[current_state] = next_BR
 
         self.running_BR[current_state] = (1 - self.scale) * self.running_BR[current_state] + self.scale * BR * BR
+        normalization = self.epsilon + self.running_BR[current_state]
 
-        self.p_update += lr * next_BR * self.agent.p_update / (self.epsilon + self.running_BR[current_state])
-        self.d_update += lr * next_BR * self.agent.d_update / (self.epsilon + self.running_BR[current_state])
-        self.i_update += lr * next_BR * self.agent.i_update / (self.epsilon + self.running_BR[current_state])
+        self.p_update += lr * next_BR * self.agent.p_update / normalization
+        self.d_update += lr * next_BR * self.agent.d_update / normalization
+        self.i_update += lr * next_BR * self.agent.i_update / normalization
 
         if not intermediate:
             self.kp = 1 + (1 - self.lambd) * (self.kp - 1) + self.meta_lr * self.p_update / self.agent.update_frequency
