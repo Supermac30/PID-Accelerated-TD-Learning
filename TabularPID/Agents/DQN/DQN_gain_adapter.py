@@ -11,6 +11,7 @@ class GainAdapter():
         self.use_previous_BRs = use_previous_BRs
     
         self.adapts_single_gains = False
+        self.num_steps = 0
     
     def set_model(self, model):
         self.model = model
@@ -74,7 +75,9 @@ class SingleGainAdapter(GainAdapter):
             BRs = replay_sample.BRs
         else:
             BRs = self.model.BRs
-        self.running_BRs = 0.5 * self.running_BRs + 0.5 * BRs.T @ BRs
+        self.num_steps += 1
+        scale = 1 / self.num_steps
+        self.running_BRs = (1 - scale) * self.running_BRs + scale * BRs.T @ BRs
         learning_rate = self.meta_lr * self.model.learning_rate / self.batch_size
 
         self.kp += learning_rate * (BRs.T @ self.model.p_update / (self.epsilon + self.running_BRs)).item()
@@ -104,11 +107,13 @@ class DiagonalGainAdapter(GainAdapter):
     
     def adapt_gains(self, replay_sample):
         """Update the gains. Only works if get_gains was called before"""
+        self.num_steps += 1
         if self.use_previous_BRs:
             BRs = replay_sample.BRs
         else:
             BRs = self.model.BRs
-        self.running_BRs = 0.5 * self.running_BRs + 0.5 * BRs.T @ BRs
+        scale = 1 / self.num_steps
+        self.running_BRs = (1 - scale) * self.running_BRs + scale * BRs.T @ BRs
         learning_rate = self.meta_lr * self.model.learning_rate / self.batch_size
 
         new_kps = replay_sample.kp + learning_rate * (BRs.T @ self.model.p_update / (self.epsilon + self.running_BRs))

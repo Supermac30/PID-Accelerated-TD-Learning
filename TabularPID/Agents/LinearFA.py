@@ -219,6 +219,7 @@ class LinearTD():
         self.beta = self.starting_beta
 
         self.running_BR = 0
+        self.num_steps = 0
 
     def estimate_value_function(self, num_iterations, test_function=None, reset_environment=True, stop_if_diverging=True):
         self.reset(reset_environment)
@@ -229,6 +230,7 @@ class LinearTD():
         index = 0
 
         for k in range(num_iterations):
+            self.num_steps += 1
             current_state, next_state, reward = self.take_action()
 
             # Update the value function using the floats kp, ki, kd
@@ -283,7 +285,8 @@ class LinearTD():
     def update_gains(self):
         """Update the gains kp, ki, and kd.
         """
-        self.running_BR = 0.5 * self.running_BR + 0.5 * self.BR * self.BR
+        scale = 1 / self.num_steps
+        self.running_BR = (1 - scale) * self.running_BR + scale * self.BR * self.BR
         normalizer = self.epsilon + self.running_BR
 
         current_state_value = self.basis.value(self.current_state)

@@ -87,6 +87,7 @@ class LinearTDQ():
         self.kd = self.default_kd
 
         self.running_BR = 0
+        self.num_steps = 0
 
 
     def estimate_value_function(self, num_iterations, test_function=None, reset_environment=True, stop_if_diverging=True):
@@ -98,6 +99,7 @@ class LinearTDQ():
         index = 0
 
         for k in range(num_iterations):
+            self.num_steps += 1
             current_state, next_state, reward, action = self.take_action()
 
             # Update the value function using the floats kp, ki, kd
@@ -158,7 +160,8 @@ class LinearTDQ():
     def update_gains(self):
         """Update the gains kp, ki, and kd.
         """
-        self.running_BR = 0.5 * self.running_BR + 0.5 * self.BR * self.BR
+        scale = 1 / self.num_steps
+        self.running_BR = (1 - scale) * self.running_BR + scale * self.BR * self.BR
         normalizer = self.epsilon + self.running_BR
 
         Q = self.query_agent(self.current_state, self.action, component="Q")
