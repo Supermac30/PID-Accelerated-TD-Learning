@@ -5,9 +5,11 @@
 #SBATCH --tasks-per-node=1
 #SBATCH --time=50:00:00
 #SBATCH --mem=8GB
-#SBATCH --job-name=pid_dqn
+#SBATCH --job-name=kd_sweep
 #SBATCH --output=slurm/logs/%x_%j.out
 #SBATCH --error=slurm/errors/%x_%j.err
+#SBATCH --account=deadline
+#SBATCH --qos=deadline
 
 source slurm/setup.sh
 
@@ -19,16 +21,16 @@ mkdir -p "$directory"
 
 tabular_d=False
 is_double=True
-num_runs=5
+num_runs=20
 
-policy_evaluation=True
+policy_evaluation=False
 eval=True
 
 slow_motion=1  # Keep at 1, or the environment will be made slower (in an ad hoc fashion for each environment)
 
 seed=$RANDOM
 
-experiment_name="$env Policy Evaluation Experiment"
+experiment_name="$env kd Result"
 
 python3 -m Experiments.DQNExperiments.DQNExperiment --multirun \
    env="$env" name="$env" experiment_name="$experiment_name" \
@@ -39,9 +41,9 @@ python3 -m Experiments.DQNExperiments.DQNExperiment --multirun \
    seed=$seed \
    is_double=$is_double \
    kp=1 \
-   kd=0.01 \
+   kd=0.01,0.05,0.1 \
    ki=0 \
-   d_tau=0.01 \
+   d_tau=0.01,0.001 \
    tabular_d=$tabular_d \
    num_runs=$num_runs \
    policy_evaluation=$policy_evaluation \

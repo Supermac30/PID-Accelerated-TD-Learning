@@ -10,6 +10,7 @@ agent_name: Q learning
 
 env: chain walk
 num_iterations: 100000
+search_steps: 100000
 norm: fro
 get_optimal: True # Get the optimal parameters from the database
 compute_optimal: True # Run a grid search. When recompute_optimal is false, we don't run a grid search if the optimal parameters are in the database already

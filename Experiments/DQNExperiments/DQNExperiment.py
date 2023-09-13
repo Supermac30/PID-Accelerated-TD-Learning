@@ -79,7 +79,7 @@ def control_experiment(cfg):
 
         callback= [WandbCallback(verbose=2)]
         if cfg['eval']:
-            callback.append(EvaluatePolicyCallback(build_emperical_Q_tester(env_cfg['env'], env_cfg['gamma'], run_seed)))
+            callback.append(EvaluatePolicyCallback(env_cfg['num_iterations'], build_emperical_Q_tester(env_cfg['env'], env_cfg['gamma'], run_seed)))
         if cfg['gain_adapter'] != "NoGainAdapter":
             callback.append(GainReporterCallback())
         if cfg['policy_evaluation']:
@@ -137,21 +137,24 @@ class GainReporterCallback(BaseCallback):
 
 
 class EvaluatePolicyCallback(BaseCallback):
-    def __init__(self, optimal_policy, verbose=0):
+    def __init__(self, num_iterations, optimal_policy, verbose=0):
         super(EvaluatePolicyCallback, self).__init__(verbose)
         self.optimal_policy = optimal_policy
+        self.run_eval_every = num_iterations // 100
 
     def _on_step(self) -> bool:
-        if self.num_timesteps % 1000 != 0:
+        if self.num_timesteps % self.run_eval_every != 0:
             return True
 
         mean, std = evaluation.evaluate_policy(self.model, self.model.get_env(), n_eval_episodes=10)
         self.logger.record("eval/mean_reward", mean)
         self.logger.record("eval/std_reward", std)
 
-        distance = self.optimal_policy.measure_performance(
-            lambda s, a: self.model.policy.q_net(th.tensor(s.reshape(1, -1)))[0][a].item()
-        )
+        def evaluate(s, a):
+            state = th.tensor(s, device=self.model.device).reshape(1, -1)
+            return self.model.policy.q_net(th.tensor(state))[0][a].item()
+
+        distance = self.optimal_policy.measure_performance(evaluate)
 
         self.logger.record("eval/distance_from_optimal", distance)
 

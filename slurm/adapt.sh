@@ -18,8 +18,8 @@ env="cliff walk"
 gamma=0.999
 repeat=3
 seed=$RANDOM
-num_iterations=500
-search_steps=500
+num_iterations=10000
+search_steps=10000
 recompute_optimal=False
 compute_optimal=True  # False when we need to debug, so there is no multiprocessing
 get_optimal=True  # False when we need to debug with a specific learning rate
@@ -39,12 +39,12 @@ python3 -m Experiments.AdaptationExperiments.AdaptiveAgentExperiment --multirun 
     compute_optimal=$compute_optimal \
     get_optimal=$get_optimal \
     meta_lr=1e-2 \
-    epsilon=1 \
+    epsilon=1e-2 \
     env="$env" \
     gamma=$gamma \
     repeat=$repeat \
     num_iterations=$num_iterations \
-    agent_name="diagonal semi gradient updater" \
+    agent_name="semi gradient updater" \
 
 python3 -m Experiments.TDExperiments.SoftTDPolicyEvaluation \
     hydra.run.dir="$directory/TD Agent" \

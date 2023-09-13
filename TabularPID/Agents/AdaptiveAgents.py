@@ -154,7 +154,7 @@ class AdaptiveSamplerAgent(AbstractAdaptiveAgent):
         
     def BR(self):
         """Return the empirical bellman residual"""
-        return self.reward[0] + self.gamma * self.V[self.next_state][0] - self.V[self.current_state][0]
+        return self.reward + self.gamma * self.V[self.next_state][0] - self.V[self.current_state][0]
 
 
 class DiagonalAdaptiveSamplerAgent(AbstractAdaptiveAgent):
@@ -282,7 +282,7 @@ class NoGainUpdater(AbstractGainUpdater):
 
 
 class SemiGradientUpdater(AbstractGainUpdater):
-    def __init__(self, lambd=0, epsilon=0.1, update_alpha=True, scale=1):
+    def __init__(self, lambd=0, epsilon=0.1, update_alpha=True, scale=0):
         super().__init__(lambd, epsilon, scale)
 
         self.d_update = 0

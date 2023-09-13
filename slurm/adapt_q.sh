@@ -15,7 +15,8 @@ env="cliff walk"
 gamma=0.99
 repeat=20
 seed=$RANDOM
-num_iterations=200000
+num_iterations=10000
+search_steps=10000
 directory=outputs/q_adaptation_experiment/$env/$current_time
 echo "Saving to $directory"
 mkdir -p "$directory"
@@ -32,6 +33,7 @@ python3 -m Experiments.AdaptationExperiments.AdaptiveQAgentExperiment --multirun
     gamma=$gamma \
     repeat=$repeat \
     num_iterations=$num_iterations \
+    search_steps=$search_steps \
     agent_name="semi gradient double Q updater" \
     recompute_optimal=True
 
@@ -46,6 +48,7 @@ python3 -m Experiments.QExperiments.PIDQLearning \
     env="$env" \
     repeat=$repeat \
     num_iterations=$num_iterations \
+    search_steps=$search_steps \
     agent_name="Q learning"
 
 python3 -m Experiments.QExperiments.PIDQLearning \
@@ -59,6 +62,7 @@ python3 -m Experiments.QExperiments.PIDQLearning \
     env="$env" \
     repeat=$repeat \
     num_iterations=$num_iterations \
+    search_steps=$search_steps \
     agent_name="double Q learning"
 
 python3 -m Experiments.Plotting.plot_adaptation_experiment \

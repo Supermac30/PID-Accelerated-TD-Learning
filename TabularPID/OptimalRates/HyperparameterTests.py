@@ -46,11 +46,11 @@ exhaustive_learning_rates = [
 ]
 
 
-def get_optimal_past_work_rates(agent_description, env_name, gamma, recompute=False, seed=-1, norm=1):
+def get_optimal_past_work_rates(agent_description, env_name, gamma, recompute=False, seed=-1, norm=1, search_steps=10000):
     optimal_rates = get_stored_optimal_rate((agent_description, gamma), env_name, gamma)
     if optimal_rates is None or recompute:
         seed = pick_seed(seed)
-        optimal_rates = run_past_work_search(agent_description, env_name, seed, norm, gamma)
+        optimal_rates = run_past_work_search(agent_description, env_name, seed, norm, gamma, search_steps)
         store_optimal_rate((agent_description, 1, 0, 0, 0, 0), env_name, optimal_rates, gamma)
     
     logging.info(f"The optimal rates for {(env_name, gamma)} are: {optimal_rates}")
@@ -79,7 +79,7 @@ def get_optimal_pid_rates(agent_description, env_name, kp, ki, kd, alpha, beta, 
     return optimal_rates
 
 
-def get_optimal_pid_q_rates(agent_name, env_name, kp, ki, kd, alpha, beta, gamma, recompute=False, seed=-1, norm="fro"):
+def get_optimal_pid_q_rates(agent_name, env_name, kp, ki, kd, alpha, beta, gamma, recompute=False, seed=-1, norm="fro", search_steps=10000):
     """Find the optimal rates for the choice of controller gains and environment.
     If this has been done before, get the optimal rates from the file of stored rates.
 
@@ -93,7 +93,7 @@ def get_optimal_pid_q_rates(agent_name, env_name, kp, ki, kd, alpha, beta, gamma
     optimal_rates = get_stored_optimal_rate((agent_name, kp, ki, kd, alpha, beta), env_name, gamma)
     if optimal_rates is None or recompute:
         seed = pick_seed(seed)
-        optimal_rates = run_pid_q_search(agent_name, env_name, kp, ki, kd, alpha, beta, seed, norm, gamma)
+        optimal_rates = run_pid_q_search(agent_name, env_name, kp, ki, kd, alpha, beta, seed, norm, gamma, search_steps)
         store_optimal_rate((agent_name, kp, ki, kd, alpha, beta), env_name, optimal_rates, gamma)
 
     logging.info(f"The optimal rates for {(agent_name, env_name, kp, ki, kd)} are: {optimal_rates}")
