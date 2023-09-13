@@ -20,7 +20,7 @@ repeat=3
 seed=$RANDOM
 num_iterations=10000
 search_steps=10000
-recompute_optimal=True
+recompute_optimal=False
 compute_optimal=True  # False when we need to debug, so there is no multiprocessing
 get_optimal=True  # False when we need to debug with a specific learning rate
 

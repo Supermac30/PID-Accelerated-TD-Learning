@@ -28,13 +28,16 @@ def create_plots(cfg):
         std_dev = np.load(f"{cfg['save_dir']}/npy/std_dev/{file}")
         # If the file starts with gain_history, plot it:
         if file.startswith("gain_history"):
+            breakpoint()
             fig = plt.figure(figsize=(10, 4))
             gs = fig.add_gridspec(nrows=1, ncols=3, width_ratios=[1,1,1], wspace=0.3, hspace=0.5)
             titles = ["kp", "ki", "kd"]
             for i in range(3):
+                gain_values = history[:,i]
+                std_dev_values = std_dev[:,i]
                 ax = fig.add_subplot(gs[0, i])
-                ax.plot(x_axis(history[i]), history[i])
-                ax.fill_between(x_axis(history[i]), history[i] - std_dev[i], history[i] + std_dev[i], alpha=0.2)
+                ax.plot(x_axis(gain_values), gain_values)
+                ax.fill_between(x_axis(gain_values), gain_values - std_dev_values, gain_values + std_dev_values, alpha=0.2)
                 ax.set_xlabel('Steps')
                 ax.title.set_text(titles[i])
 
@@ -95,8 +98,8 @@ def create_plots(cfg):
         if min_history[0] != 0:
             min_std_dev /= min_history[0]
         max_y = max(max_y, np.max(normalize(min_history) + min_std_dev))
-        ax0.plot(x_axis(history), normalize(history), label=name)
-        ax0.fill_between(x_axis(history), normalize(history) - std_dev, normalize(history) + std_dev, alpha=0.2)
+        ax0.plot(x_axis(min_history), normalize(min_history), label=name)
+        ax0.fill_between(x_axis(min_history), normalize(min_history) - min_std_dev, normalize(min_history) + min_std_dev, alpha=0.2)
 
     ax0.legend(loc='upper center', bbox_to_anchor=(0.5, -0.1), fancybox=True, shadow=True, ncol=2)
     ax0.title.set_text(f"{cfg['env'].title()}")
