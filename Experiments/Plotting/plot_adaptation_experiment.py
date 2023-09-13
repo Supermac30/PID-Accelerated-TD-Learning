@@ -28,7 +28,6 @@ def create_plots(cfg):
         std_dev = np.load(f"{cfg['save_dir']}/npy/std_dev/{file}")
         # If the file starts with gain_history, plot it:
         if file.startswith("gain_history"):
-            breakpoint()
             fig = plt.figure(figsize=(10, 4))
             gs = fig.add_gridspec(nrows=1, ncols=3, width_ratios=[1,1,1], wspace=0.3, hspace=0.5)
             titles = ["kp", "ki", "kd"]
