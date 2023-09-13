@@ -8,7 +8,7 @@ from TabularPID.Agents.Agents import Agent, learning_rate_function
         
 
 class AbstractAdaptiveAgent(Agent):
-    def __init__(self, gain_updater, learning_rates, meta_lr, environment, gamma, update_frequency=1, kp=1, kd=0, ki=0, alpha=0.05, beta=0.95):
+    def __init__(self, gain_updater, learning_rates, meta_lr, environment, gamma, update_frequency=1, kp=1, kd=0, ki=0, alpha=0.05, beta=0.95, is_double=False):
         super().__init__(environment, None, gamma)
 
         self.meta_lr = meta_lr
@@ -21,6 +21,8 @@ class AbstractAdaptiveAgent(Agent):
 
         self.original_kp, self.original_ki, self.original_kd = kp, ki, kd
         self.original_alpha, self.original_beta = alpha, beta
+
+        self.is_double = is_double
 
         self.reset()
 
@@ -156,6 +158,11 @@ class AdaptiveSamplerAgent(AbstractAdaptiveAgent):
 
     def BR(self):
         """Return the empirical bellman residual"""
+        best_action = np.argmax(self.Q[self.next_state])
+        if self.is_double:
+            next_Q_value = self.Qp[self.next_state][best_action]
+        else:
+            next_Q_value = self.Q[self.next_state][best_action]
         return self.reward + self.gamma * np.max(self.Q[self.next_state]) - self.Q[self.current_state][self.action]
 
 
@@ -230,7 +237,12 @@ class DiagonalAdaptiveSamplerAgent(AbstractAdaptiveAgent):
 
     def BR(self):
         """Return the empirical bellman residual"""
-        return self.reward[0] + self.gamma * np.max(self.Q[self.next_state]) - self.Q[self.current_state][self.action]
+        best_action = np.argmax(self.Q[self.next_state])
+        if self.is_double:
+            next_Q_value = self.Qp[self.next_state][best_action]
+        else:
+            next_Q_value = self.Q[self.next_state][best_action]
+        return self.reward + self.gamma * next_Q_value - self.Q[self.current_state][self.action]
 
 
 class AdaptivePlannerAgent(AbstractAdaptiveAgent):

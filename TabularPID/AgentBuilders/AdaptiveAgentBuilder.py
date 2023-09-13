@@ -67,6 +67,8 @@ def build_adaptive_agent(agent_name, env_name, env, policy, meta_lr, lambd, dela
         optimal_rates = get_stored_optimal_rate(description, env_name, gamma)
     if not get_optimal or optimal_rates is None:
         optimal_rates = default_learning_rates
+    
+    logging.info(f"Using rates {optimal_rates} for agent {agent_name} on env {env_name}")
 
     learning_rate = learning_rate_function(optimal_rates[0], optimal_rates[1])
     update_I_rate = learning_rate_function(optimal_rates[2], optimal_rates[3])
@@ -126,7 +128,9 @@ def build_adaptive_agent(agent_name, env_name, env, policy, meta_lr, lambd, dela
     elif agent_name == "diagonal semi gradient Q updater":
         return build_diagonal_semi_gradient_Q_updater(*params)
 
-    elif agent_name == "semi gradient double Q updater":
+    elif agent_name == "diagonal double Q updater":
+        return build_semi_gradient_Q_updater(*params)
+    elif agent_name == "semi gradient true double Q updater":
         return build_semi_gradient_double_Q_updater(*params)
     
     elif agent_name.startswith("linear TD"):

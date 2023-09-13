@@ -2,7 +2,6 @@ import numpy as np
 from collections import defaultdict
 import logging
 import matplotlib.pyplot as plt
-import math
 
 from TabularPID.Agents.Agents import Agent, learning_rate_function
 
@@ -72,7 +71,6 @@ class AbstractAdaptiveAgent(Agent):
                 self.gain_updater.update_gains()
             else:
                 self.gain_updater.intermediate_update()
-
 
             # Keep a record
             try:
@@ -282,7 +280,7 @@ class NoGainUpdater(AbstractGainUpdater):
 
 
 class SemiGradientUpdater(AbstractGainUpdater):
-    def __init__(self, lambd=0, epsilon=0.1, update_alpha=True, scale=0):
+    def __init__(self, lambd=0, epsilon=0.1, update_alpha=True, scale=0.1):
         super().__init__(lambd, epsilon, scale)
 
         self.d_update = 0

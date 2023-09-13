@@ -82,6 +82,8 @@ def build_agent(agent_name, env_name, env, policy, get_optimal, gamma, seed=42):
     elif agent_description == "Q learning":
         return build_Q_PID(env, kp, ki, kd, alpha, beta, learning_rates, gamma)
     elif agent_description == "double Q learning":
+        return build_Q_PID(env, kp, ki, kd, alpha, beta, learning_rates, gamma, double=True)
+    elif agent_description == "true double Q learning":
         return build_double_Q_PID(env, kp, ki, kd, alpha, beta, learning_rates, gamma)
     
     # If agent_description starts with linear TD, but could have more after
@@ -157,14 +159,15 @@ def build_Speedy_Q_learning(env, policy, learning_rates, gamma):
     )
 
 
-def build_Q_PID(env, kp, ki, kd, alpha, beta, learning_rates, gamma):
+def build_Q_PID(env, kp, ki, kd, alpha, beta, learning_rates, gamma, double=False):
     """Build the Q agent with PID
     """
     return ControlledQLearning(
         env,
         gamma,
         kp, ki, kd, alpha, beta,
-        learning_rates
+        learning_rates,
+        double=double
     )
 
 def build_VI_Q_Control_PID(env, kp, ki, kd, alpha, beta, gamma):

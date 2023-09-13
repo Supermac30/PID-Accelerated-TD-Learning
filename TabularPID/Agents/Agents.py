@@ -354,12 +354,13 @@ class FarSighted_PID_TD(PID_TD):
         return history, self.V
 
 class ControlledQLearning(Agent):
-    def __init__(self, environment, gamma, kp, ki, kd, alpha, beta, learning_rate):
+    def __init__(self, environment, gamma, kp, ki, kd, alpha, beta, learning_rate, double=False):
         """
         kp, ki, kd are floats that are the coefficients of the PID controller
         alpha, beta are floats that are the coefficients of the PID controller
         learning_rate is a float or a tuple of floats (learning_rate, update_I_rate, update_D_rate)
         decay is the float that we multiply the exploration rate by at each iteration.
+        double is true when we use Qp to evaluate the value of the current state in the BR
         """
         super().__init__(environment, None, gamma)
         if type(learning_rate) == type(()):
@@ -406,8 +407,14 @@ class ControlledQLearning(Agent):
             update_D_rate = self.update_D_rate(frequency[current_state])
             update_I_rate = self.update_I_rate(frequency[current_state])
 
+            best_action = np.argmax(self.Q[next_state])
+            if self.double:
+                next_Q_value = self.Qp[next_state][best_action]
+            else:
+                next_Q_value = self.Q[next_state][best_action]
+
             # Update the value function using the floats kp, ki, kd
-            BR = reward + self.gamma * np.max(self.Q[next_state]) - self.Q[current_state][action]
+            BR = reward + self.gamma * next_Q_value - self.Q[current_state][action]
             z_update = self.beta * self.z[current_state][action] + self.alpha * BR
             self.z[current_state][action] = (1 - update_I_rate) * self.z[current_state][action] + update_I_rate * z_update
             update = self.kp * BR + self.ki * z_update + self.kd * (self.Q[current_state][action] - self.Qp[current_state][action])

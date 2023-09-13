@@ -137,7 +137,7 @@ class GainReporterCallback(BaseCallback):
 
 
 class EvaluatePolicyCallback(BaseCallback):
-    def __init__(self, num_iterations, optimal_policy, verbose=0):
+    def __init__(self, num_iterations, optimal_policy=None, verbose=0):
         super(EvaluatePolicyCallback, self).__init__(verbose)
         self.optimal_policy = optimal_policy
         self.run_eval_every = num_iterations // 100
@@ -150,13 +150,14 @@ class EvaluatePolicyCallback(BaseCallback):
         self.logger.record("eval/mean_reward", mean)
         self.logger.record("eval/std_reward", std)
 
-        def evaluate(s, a):
-            state = th.tensor(s, device=self.model.device).reshape(1, -1)
-            return self.model.policy.q_net(th.tensor(state))[0][a].item()
+        if self.optimal_policy is not None:
+            def evaluate(s, a):
+                state = th.tensor(s, device=self.model.device).reshape(1, -1)
+                return self.model.policy.q_net(th.tensor(state))[0][a].item()
 
-        distance = self.optimal_policy.measure_performance(evaluate)
+            distance = self.optimal_policy.measure_performance(evaluate)
 
-        self.logger.record("eval/distance_from_optimal", distance)
+            self.logger.record("eval/distance_from_optimal", distance)
 
         
 

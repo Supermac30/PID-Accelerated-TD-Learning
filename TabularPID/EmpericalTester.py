@@ -22,11 +22,14 @@ def build_emperical_TD_tester(env, policy, gamma):
 def build_emperical_Q_tester(env, gamma, seed=42):
     if isinstance(env, Environment):
         return TrueQEnvTester(env, gamma)
-    if isinstance(env, str):
+    
+    if not isinstance(env, str):
+        env = env.unwrapped.spec.id
+
+    try:
         return GymTesterDatabase(env, seed)
-    else:
-        name = env.unwrapped.spec.id
-        return GymTesterDatabase(name, seed)
+    except FileNotFoundError:
+        return None
 
 class GymTesterDatabase():
     def __init__(self, env_name, seed, num_entries=100):
