@@ -407,14 +407,13 @@ class ControlledQLearning(Agent):
             update_D_rate = self.update_D_rate(frequency[current_state])
             update_I_rate = self.update_I_rate(frequency[current_state])
 
-            best_action = np.argmax(self.Q[next_state])
             if self.double:
-                next_Q_value = self.Qp[next_state][best_action]
+                best_action = np.argmax(self.Qp[next_state])
             else:
-                next_Q_value = self.Q[next_state][best_action]
+                best_action = np.argmax(self.Q[next_state])
 
             # Update the value function using the floats kp, ki, kd
-            BR = reward + self.gamma * next_Q_value - self.Q[current_state][action]
+            BR = reward + self.gamma * self.Q[next_state][best_action] - self.Q[current_state][action]
             z_update = self.beta * self.z[current_state][action] + self.alpha * BR
             self.z[current_state][action] = (1 - update_I_rate) * self.z[current_state][action] + update_I_rate * z_update
             update = self.kp * BR + self.ki * z_update + self.kd * (self.Q[current_state][action] - self.Qp[current_state][action])
