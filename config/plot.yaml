@@ -11,6 +11,7 @@ is_q: False
 is_double_q: False
 
 separation: 1
+small_name: False
 
 seed: -1
 hydra:

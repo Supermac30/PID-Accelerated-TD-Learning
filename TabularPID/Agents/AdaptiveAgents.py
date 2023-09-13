@@ -42,6 +42,8 @@ class AbstractAdaptiveAgent(Agent):
         self.previous_previous_state, self.previous_state, self.current_state, self.next_state = 0, 0, 0, 0
         self.previous_reward, self.reward = 0, 0
 
+        self.num_steps = 0
+
         self.gain_updater.set_agent(self)
 
     def estimate_value_function(self, num_iterations=1000, test_function=None, initial_V=None, stop_if_diverging=True, follow_trajectory=True, reset_environment=True):
@@ -56,6 +58,7 @@ class AbstractAdaptiveAgent(Agent):
         gain_history = np.zeros((num_iterations, 5))
 
         for k in range(num_iterations):
+            self.num_steps += 1
             self.previous_previous_state, self.previous_state, self.previous_reward = self.previous_state, self.current_state, self.reward
             self.current_state, _, self.next_state, self.reward = self.take_action(follow_trajectory)
 
@@ -233,7 +236,7 @@ class AdaptivePlannerAgent(AbstractAdaptiveAgent):
 
 
 class AbstractGainUpdater():
-    def __init__(self, lambd, epsilon=0.1, scale=0.1):
+    def __init__(self, lambd, epsilon=0.1, scale=1):
         self.agent = None
         self.scale = scale
         self.epsilon = epsilon
@@ -280,7 +283,7 @@ class NoGainUpdater(AbstractGainUpdater):
 
 
 class SemiGradientUpdater(AbstractGainUpdater):
-    def __init__(self, lambd=0, epsilon=0.1, update_alpha=True, scale=0.1):
+    def __init__(self, lambd=0, epsilon=0.1, update_alpha=True, scale=1):
         super().__init__(lambd, epsilon, scale)
 
         self.d_update = 0
@@ -320,12 +323,14 @@ class SemiGradientUpdater(AbstractGainUpdater):
         next_BR = self.agent.BR()
         self.previous_BRs[current_state] = next_BR
 
-        self.running_BR[current_state] = (1 - self.scale) * self.running_BR[current_state] + self.scale * BR * BR
+        scale = 1 / self.agent.num_steps
+
+        self.running_BR[current_state] = (1 - scale) * self.running_BR[current_state] + scale * BR * BR
         normalization = self.epsilon + self.running_BR[current_state]
 
-        self.p_update += lr * next_BR * self.agent.p_update / normalization
-        self.d_update += lr * next_BR * self.agent.d_update / normalization
-        self.i_update += lr * next_BR * self.agent.i_update / normalization
+        self.p_update += next_BR * self.agent.p_update / normalization
+        self.d_update += next_BR * self.agent.d_update / normalization
+        self.i_update += next_BR * self.agent.i_update / normalization
 
         if not intermediate:
             self.kp = 1 + (1 - self.lambd) * (self.kp - 1) + self.meta_lr * self.p_update / self.agent.update_frequency
@@ -397,7 +402,8 @@ class DiagonalSemiGradient(AbstractGainUpdater):
         next_BR = self.agent.BR()
         BR = self.agent.previous_BR
 
-        self.running_BR[current_state] = (1 - self.scale) * self.running_BR[current_state] + self.scale * BR * BR
+        scale = 1 / self.agent.num_steps
+        self.running_BR[current_state] = (1 - scale) * self.running_BR[current_state] + scale * BR * BR
 
         normalization = self.epsilon + self.running_BR[current_state]
 

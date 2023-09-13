@@ -42,6 +42,8 @@ class AbstractAdaptiveAgent(Agent):
         self.previous_previous_state, self.previous_state, self.current_state, self.next_state = 0, 0, 0, 0
         self.previous_reward, self.reward = 0, 0
 
+        self.num_steps = 0
+
         self.gain_updater.set_agent(self)
 
         self.policy = Policy(self.num_actions, self.num_states, self.environment.prg, None)
@@ -58,6 +60,7 @@ class AbstractAdaptiveAgent(Agent):
         gain_history = np.zeros((num_iterations, 5))
 
         for k in range(num_iterations):
+            self.num_steps += 1
             self.previous_previous_state, self.previous_state, self.previous_reward = self.previous_state, self.current_state, self.reward
             self.current_state, self.action, self.next_state, self.reward = self.take_action(follow_trajectory, is_q=True)
 
@@ -348,7 +351,7 @@ class SemiGradientUpdater(AbstractGainUpdater):
         BR = self.agent.previous_BR
         next_BR = reward + gamma * np.max(next_Q[next_state]) - next_Q[current_state][action]
 
-        scale = 0.5
+        scale = 1 / self.agent.num_steps
         self.running_BR[current_state][action] = (1 - scale) * self.running_BR[current_state][action] + scale * BR * BR
 
         self.p_update += lr * next_BR * self.agent.p_update / (self.epsilon + self.running_BR[current_state][action])
@@ -419,7 +422,7 @@ class DiagonalSemiGradient(AbstractGainUpdater):
         BR = self.agent.previous_BR
         next_BR = self.agent.BR()
 
-        scale = 0.5
+        scale = 1 / self.agent.num_steps
         self.running_BR[current_state][action] = (1 - scale) * self.running_BR[current_state][action] + scale * BR * BR
         normalization = self.epsilon + self.running_BR[current_state][action]
 

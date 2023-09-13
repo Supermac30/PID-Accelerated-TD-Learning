@@ -73,4 +73,4 @@ python3 -m Experiments.Plotting.plot_adaptation_experiment \
     is_q=False \
     is_double_q=True \
     plot_best=True \
-    
+    small_name=True

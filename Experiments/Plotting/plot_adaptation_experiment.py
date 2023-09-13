@@ -66,20 +66,21 @@ def create_plots(cfg):
                 ax0.plot(x_axis(history), normalize(history), label=name)
                 ax0.fill_between(x_axis(history), normalize(history) - std_dev, normalize(history) + std_dev, alpha=0.2)
         else:
-            if file.startswith("TIDBD"):
-                name = "TIDBD"
-            elif file.startswith("TD"):
-                name = "TD"
-            elif file.startswith("speedy Q learning"):
-                name = "Speedy Q Learning"
-            elif file.startswith("zap Q learning"):
-                name = "Zap Q Learning"
-            elif file.startswith("Q learning"):
-                name = "Q Learning"
+            if cfg['small_name']:
+                if file.startswith("TIDBD"):
+                    name = "TIDBD"
+                elif file.startswith("TD"):
+                    name = "TD"
+                elif file.startswith("speedy Q learning"):
+                    name = "Speedy Q Learning"
+                elif file.startswith("zap Q learning"):
+                    name = "Zap Q Learning"
+                elif file.startswith("Q learning"):
+                    name = "Q Learning"
+                else:
+                    name = cfg['default_name']
             else:
-                name = cfg['default_name']
-
-            name = file[:-4]
+                name = file[:-4]
             if history[0] != 0:
                 std_dev /= history[0]
             max_y = max(max_y, np.max(normalize(history) + std_dev))
@@ -93,7 +94,7 @@ def create_plots(cfg):
         elif cfg['is_q']:
             name = "Q Learning"
         else:
-            name = "TD"
+            name = "Gain Adaptation"
         if min_history[0] != 0:
             min_std_dev /= min_history[0]
         max_y = max(max_y, np.max(normalize(min_history) + min_std_dev))

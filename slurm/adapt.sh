@@ -20,7 +20,7 @@ repeat=3
 seed=$RANDOM
 num_iterations=10000
 search_steps=10000
-recompute_optimal=False
+recompute_optimal=True
 compute_optimal=True  # False when we need to debug, so there is no multiprocessing
 get_optimal=True  # False when we need to debug with a specific learning rate
 
@@ -38,8 +38,8 @@ python3 -m Experiments.AdaptationExperiments.AdaptiveAgentExperiment --multirun 
     recompute_optimal=$recompute_optimal \
     compute_optimal=$compute_optimal \
     get_optimal=$get_optimal \
-    meta_lr=1e-2 \
-    epsilon=1e-2 \
+    meta_lr=1e-5 \
+    epsilon=1e-1 \
     env="$env" \
     gamma=$gamma \
     repeat=$repeat \
@@ -65,4 +65,5 @@ python3 -m Experiments.Plotting.plot_adaptation_experiment \
     save_dir="$directory" \
     plot_best=True \
     repeat=$repeat \
-    env="$env"
+    env="$env" \
+    small_name=True
