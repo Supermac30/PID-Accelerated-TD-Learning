@@ -15,11 +15,16 @@ env="cliff walk"
 gamma=0.99
 repeat=20
 seed=$RANDOM
-num_iterations=10000
-search_steps=10000
+num_iterations=100
+search_steps=100
 directory=outputs/q_adaptation_experiment/$env/$current_time
 echo "Saving to $directory"
 mkdir -p "$directory"
+
+recompute_optimal=False
+compute_optimal=False
+get_optimal=False
+debug=True
 
 python3 -m Experiments.AdaptationExperiments.AdaptiveQAgentExperiment --multirun \
     hydra.mode=MULTIRUN \
@@ -35,7 +40,10 @@ python3 -m Experiments.AdaptationExperiments.AdaptiveQAgentExperiment --multirun
     num_iterations=$num_iterations \
     search_steps=$search_steps \
     agent_name="semi gradient double Q updater" \
-    recompute_optimal=True
+    recompute_optimal=$recompute_optimal \
+    compute_optimal=$compute_optimal \
+    get_optimal=$get_optimal \
+    debug=$debug
 
 python3 -m Experiments.QExperiments.PIDQLearning \
     hydra.run.dir="$directory/TD Agent" \
@@ -49,21 +57,10 @@ python3 -m Experiments.QExperiments.PIDQLearning \
     repeat=$repeat \
     num_iterations=$num_iterations \
     search_steps=$search_steps \
-    agent_name="Q learning"
-
-python3 -m Experiments.QExperiments.PIDQLearning \
-    hydra.run.dir="$directory/TD Agent" \
-    save_dir="$directory" \
-    seed=$seed \
-    kp=1 \
-    ki=0 \
-    kd=0 \
-    gamma=$gamma \
-    env="$env" \
-    repeat=$repeat \
-    num_iterations=$num_iterations \
-    search_steps=$search_steps \
-    agent_name="double Q learning"
+    agent_name="Q learning" \
+    recompute_optimal=$recompute_optimal \
+    compute_optimal=$compute_optimal \
+    get_optimal=$get_optimal \
 
 python3 -m Experiments.Plotting.plot_adaptation_experiment \
     hydra.run.dir="$directory" \

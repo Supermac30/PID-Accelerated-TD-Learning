@@ -375,6 +375,7 @@ class ControlledQLearning(Agent):
         self.kd = kd
         self.alpha = alpha
         self.beta = beta
+        self.double = double
         self.reset()
 
     def reset(self, reset_environment=True):
@@ -484,7 +485,6 @@ class ControlledDoubleQLearning(Agent):
         frequency_A = np.zeros((self.num_states, 1))
         frequency_B = np.zeros((self.num_states, 1))
 
-
         # The history of test_function
         history = np.zeros(num_iterations)
 
@@ -533,33 +533,3 @@ class ControlledDoubleQLearning(Agent):
         self.learning_rate = learning_rate_function(a, b)
         self.update_I_rate = learning_rate_function(c, d)
         self.update_D_rate = learning_rate_function(e, f)
-
-    
-
-
-class ControlledSARSA(Agent):
-    def __init__(self, environment, policy, gamma, kp, ki, kd, alpha, beta, learning_rate):
-        super().__init__(
-            environment,
-            policy,
-            gamma,
-            kp,
-            ki,
-            kd,
-            alpha,
-            beta,
-            learning_rate
-        )
-
-        self.V = np.zeros((self.num_states, 1))
-        self.Vp = np.zeros((self.num_states, 1))
-        self.z = np.zeros((self.num_states, 1))
-
-    def estimate_value_function(self, num_iterations=1000, test_function=None, stop_if_diverging=True, N=1000):
-        """Use the SARSA algorithm to estimate the value function.
-        That is, create a vector V of size num_states, then repeatedly do the following num_iterations times:
-        - perform policy evaluation using the PID-TD algorithm above for N steps
-        - update the policy to greedily follow V, then repeat the above
-        """
-        pass
-        # TODO: Implement

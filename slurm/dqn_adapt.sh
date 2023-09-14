@@ -12,23 +12,23 @@
 source slurm/setup.sh
 
 current_time=$(date "+%Y.%m.%d-%H.%M.%S")
-env=Acrobot-v1
+env=MountainCar-v0
 directory=outputs/dqn_adapt_experiment/${env}/$current_time
 echo "Saving to ${directory}"
 mkdir -p "$directory"
 
 gain_adapter=SingleGainAdapter  # Options: NoGainAdapter, SingleGainAdapter, DiagonalGainAdapter, NetworkGainAdapter
-tabular_d=True
+tabular_d=False
 use_previous_BRs=True
 is_double=True
 
-num_runs=5
+num_runs=20
 
 policy_evaluation=False
 eval=True
 
 seed=$RANDOM
-experiment_name="$env Policy Evaluation Experiment"
+experiment_name="$env new normalization test"
 
 python3 -m Experiments.DQNExperiments.DQNExperiment --multirun \
    env="$env" name="$env" experiment_name="$experiment_name" \
@@ -41,9 +41,9 @@ python3 -m Experiments.DQNExperiments.DQNExperiment --multirun \
    adapt_gains=True \
    is_double=$is_double \
    use_previous_BRs=$use_previous_BRs \
-   d_tau=1,0.5,0.1 \
-   epsilon=1 \
-   meta_lr=0.5,0.1,0.01 \
+   d_tau=0.01,0.001 \
+   epsilon=1,0.1 \
+   meta_lr=0.1,0.01,0.001 \
    tabular_d=$tabular_d \
    num_runs=$num_runs \
    policy_evaluation=$policy_evaluation \
@@ -57,9 +57,7 @@ python3 -m Experiments.DQNExperiments.DQNExperiment \
    save_dir=$directory \
    is_double=$is_double \
    seed=$seed \
-   gain_adapter=$gain_adapter \
    adapt_gains=False \
-   use_previous_BRs=$use_previous_BRs \
    num_runs=$num_runs \
    policy_evaluation=$policy_evaluation \
    eval=$eval

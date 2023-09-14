@@ -28,13 +28,15 @@ num_runs=3
 policy_evaluation=False
 eval=True
 
-adapt_gains=False
+adapt_gains=True
 gain_adapter=SingleGainAdapter  # Options: NoGainAdapter, SingleGainAdapter, DiagonalGainAdapter, NetworkGainAdapter
 meta_lr=1e-5
+epsilon=0.1
+d_tau=0.001
 
 seed=$RANDOM
 
-run_comparison=False  # Set this to false if the control is already computed
+run_comparison=True  # Set this to false if the control is already computed
 experiment_name="$env Atari DQN kd experiment"
 
 if [ "$adapt_gains" = True ];
@@ -50,8 +52,8 @@ then
       adapt_gains=True \
       is_double=$is_double \
       use_previous_BRs=$use_previous_BRs \
-      d_tau=0.001 \
-      epsilon=0.1 \
+      d_tau=$d_tau \
+      epsilon=$epsilon \
       meta_lr=$meta_lr \
       tabular_d=$tabular_d \
       num_runs=$num_runs \

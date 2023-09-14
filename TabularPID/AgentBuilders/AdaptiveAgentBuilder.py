@@ -127,10 +127,9 @@ def build_adaptive_agent(agent_name, env_name, env, policy, meta_lr, lambd, dela
         return build_semi_gradient_Q_updater(*params)
     elif agent_name == "diagonal semi gradient Q updater":
         return build_diagonal_semi_gradient_Q_updater(*params)
-
-    elif agent_name == "diagonal double Q updater":
+    elif agent_name == "semi gradient double Q updater":
         return build_semi_gradient_Q_updater(*params, double=True)
-    elif agent_name == "semi gradient true double Q updater":
+    elif agent_name == "semi gradient true diagonal double Q updater":
         return build_semi_gradient_double_Q_updater(*params)
     
     elif agent_name.startswith("linear TD"):

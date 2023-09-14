@@ -41,9 +41,9 @@ python3 -m Experiments.DQNExperiments.DQNExperiment --multirun \
    seed=$seed \
    is_double=$is_double \
    kp=1 \
-   kd=0.01,0.05,0.1 \
+   kd=0.005 \
    ki=0 \
-   d_tau=0.01,0.001 \
+   d_tau=0.001 \
    tabular_d=$tabular_d \
    num_runs=$num_runs \
    policy_evaluation=$policy_evaluation \
