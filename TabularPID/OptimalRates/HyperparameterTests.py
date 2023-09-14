@@ -4,7 +4,6 @@ Notes about the hyperparameter tuning procedure:
 - The seed is randomly chosen, i.e. not fixed. Hopefully, the results are not dependent on this. It may be worth running this again to corroborate the results.
 - The parameters are turned with respect to minimizing the L1 norm, i.e. we take
                argmin_theta ||V_theta - V^pi||_1
-- We tune after 50000 steps of training.
 - The learning rate functions used are min(c, N/(k + 1)), with a different function on each component
 - We do not follow a trajectory, choosing instead to receive arbitrary samples from the environment.
 """

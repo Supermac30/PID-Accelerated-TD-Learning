@@ -35,7 +35,7 @@ def adaptive_agent_experiment(cfg):
     Q_star = find_Qstar(env, cfg['gamma'])
     test_function = build_test_function(cfg['norm'], Q_star)
     
-    def run_test():
+    def run_test(_):
         Q, gain_history, history = agent.estimate_value_function(
             cfg['num_iterations'],
             test_function,
@@ -57,8 +57,8 @@ def adaptive_agent_experiment(cfg):
         pool.close()
         pool.join()
 
-        all_histories = list(map(lambda n: results[n][1], range(len(results[0]))))
-        all_gain_histories = list(map(lambda n: results[n][2], range(len(results[0]))))
+        all_gain_histories = list(map(lambda n: results[n][1], range(len(results[0]))))
+        all_histories = list(map(lambda n: results[n][2], range(len(results[0]))))
         
     average_history = np.mean(np.array(all_histories), axis=0)
     average_gain_history = np.mean(np.array(all_gain_histories), axis=0)

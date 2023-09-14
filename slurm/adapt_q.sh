@@ -24,7 +24,7 @@ mkdir -p "$directory"
 recompute_optimal=False
 compute_optimal=False
 get_optimal=False
-debug=True
+debug=False
 
 python3 -m Experiments.AdaptationExperiments.AdaptiveQAgentExperiment --multirun \
     hydra.mode=MULTIRUN \
