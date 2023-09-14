@@ -14,20 +14,29 @@ def soft_policy_evaluation_experiment(cfg):
     agent, env, _ = build_agent_and_env((agent_name, kp, ki, kd, alpha, beta), cfg['env'], cfg['get_optimal'], seed, cfg['gamma'])
     Q_star = find_Qstar(env, cfg['gamma'])
     test_function = build_test_function(cfg['norm'], Q_star)
-    
-    all_histories = []
-    for _ in range(cfg['repeat']):
+
+    def run_test(_):
         history, Q = agent.estimate_value_function(
             num_iterations=cfg['num_iterations'],
             test_function=test_function,
             follow_trajectory=cfg['follow_trajectory'],
             stop_if_diverging=cfg['stop_if_diverging']
         )
-        all_histories.append(history)
+        return history, Q
+    
+    if cfg['debug']:
+        history, _ = run_test()
+        all_histories = [history]
+    else:
+        num_chunks = mp.cpu_count()
+        logging.info(f"Running experiments {num_chunks} times")
+        # Run the following agent.estimate_value_function 80 times and take an average of the histories
+        pool = mp.Pool()
+        results = pool.map(run_test, [None] * num_chunks)
+        pool.close()
+        pool.join()
 
-    logging.info(f"Final difference is: Q_star - Q = {Q_star - Q}")
-    logging.info(f"Q_star is: {Q_star}")
-    logging.info(f"Final Q is: {Q}")
+        all_histories = list(map(lambda n: results[n][0], range(len(results[0]))))
 
     mean_history = np.mean(np.array(all_histories), axis=0)
     std_dev_history = np.std(np.array(all_histories), axis=0)

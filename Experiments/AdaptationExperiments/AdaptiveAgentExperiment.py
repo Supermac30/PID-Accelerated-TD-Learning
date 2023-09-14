@@ -35,18 +35,31 @@ def adaptive_agent_experiment(cfg):
     V_pi = find_Vpi(env, policy, cfg['gamma'])
     test_function = build_test_function(cfg['norm'], V_pi)
     # Run the following agent.estimate_value_function 20 times and take an average of the histories
-    average_history = np.zeros((cfg['num_iterations'],))
-    all_histories = []
-    all_gain_histories = []
-    for _ in range(cfg['repeat']):
-        _, gain_history, history = agent.estimate_value_function(
+    
+    def run_test(_):
+        V, gain_history, history = agent.estimate_value_function(
             cfg['num_iterations'],
             test_function,
             follow_trajectory=cfg['follow_trajectory'],
             stop_if_diverging=cfg['stop_if_diverging']
         )
-        all_histories.append(history)
-        all_gain_histories.append(gain_history)
+        return V, gain_history, history
+
+    if cfg['debug']:
+        _, gain_history, history = run_test()
+        all_histories = [history]
+        all_gain_histories = [gain_history]
+    else:
+        num_chunks = mp.cpu_count()
+        logging.info(f"Running experiments {num_chunks} times")
+        # Run the following agent.estimate_value_function 80 times and take an average of the histories
+        pool = mp.Pool()
+        results = pool.map(run_test, [None] * num_chunks)
+        pool.close()
+        pool.join()
+
+        all_gain_histories = list(map(lambda n: results[n][1], range(len(results[0]))))
+        all_histories = list(map(lambda n: results[n][2], range(len(results[0]))))
 
     average_history = np.mean(np.array(all_histories), axis=0)
     std_deviation_history = np.std(np.array(all_histories), axis=0)

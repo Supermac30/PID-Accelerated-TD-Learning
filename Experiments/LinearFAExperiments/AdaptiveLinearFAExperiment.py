@@ -34,21 +34,35 @@ def soft_policy_evaluation_experiment(cfg):
         epsilon=epsilon,
         order=cfg['order']
     )
-    histories = []
-    gain_histories = []
-    for _ in range(cfg['repeat']):
-        history, gain_history, _ = agent.estimate_value_function(
+
+    def run_test(_):
+        history, gain_history, w_V = agent.estimate_value_function(
             num_iterations=cfg['num_iterations'],
             stop_if_diverging=cfg['stop_if_diverging']
         )
-        histories.append(history)
-        gain_histories.append(gain_history)
+        return history, gain_history, w_V
+
+    if cfg['debug']:
+        history, gain_history, _ = run_test()
+        all_histories = [history]
+        all_gain_histories = [gain_history]
+    else:
+        num_chunks = mp.cpu_count()
+        logging.info(f"Running experiments {num_chunks} times")
+        # Run the following agent.estimate_value_function 80 times and take an average of the histories
+        pool = mp.Pool()
+        results = pool.map(run_test, [None] * num_chunks)
+        pool.close()
+        pool.join()
+
+        all_gain_histories = list(map(lambda n: results[n][1], range(len(results[0]))))
+        all_histories = list(map(lambda n: results[n][0], range(len(results[0]))))
 
     description = f"{name} {meta_lr} {epsilon}"
-    save_array(np.mean(histories, axis=0), description, directory=cfg['save_dir'], subdir="mean")
-    save_array(np.std(histories, axis=0), description, directory=cfg['save_dir'], subdir="std_dev")
-    save_array(np.mean(gain_histories, axis=0), f"gain_history {description}", directory=cfg['save_dir'], subdir="mean")
-    save_array(np.std(gain_histories, axis=0), f"gain_history {description}", directory=cfg['save_dir'], subdir="std_dev")
+    save_array(np.mean(all_histories, axis=0), description, directory=cfg['save_dir'], subdir="mean")
+    save_array(np.std(all_histories, axis=0), description, directory=cfg['save_dir'], subdir="std_dev")
+    save_array(np.mean(all_gain_histories, axis=0), f"gain_history {description}", directory=cfg['save_dir'], subdir="mean")
+    save_array(np.std(all_gain_histories, axis=0), f"gain_history {description}", directory=cfg['save_dir'], subdir="std_dev")
 
 
 if __name__ == "__main__":

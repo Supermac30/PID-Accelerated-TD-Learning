@@ -51,7 +51,7 @@ def adaptive_agent_experiment(cfg):
     else:
         num_chunks = mp.cpu_count()
         logging.info(f"Running experiments {num_chunks} times")
-        # Run the following agent.estimate_value_function 20 times and take an average of the histories
+        # Run the following agent.estimate_value_function 80 times and take an average of the histories
         pool = mp.Pool()
         results = pool.map(run_test, [None] * num_chunks)
         pool.close()

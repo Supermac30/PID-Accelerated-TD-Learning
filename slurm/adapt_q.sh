@@ -15,15 +15,15 @@ env="cliff walk"
 gamma=0.99
 repeat=20
 seed=$RANDOM
-num_iterations=100
-search_steps=100
+num_iterations=10000
+search_steps=10000
 directory=outputs/q_adaptation_experiment/$env/$current_time
 echo "Saving to $directory"
 mkdir -p "$directory"
 
-recompute_optimal=False
-compute_optimal=False
-get_optimal=False
+recompute_optimal=True
+compute_optimal=True
+get_optimal=True
 debug=False
 
 python3 -m Experiments.AdaptationExperiments.AdaptiveQAgentExperiment --multirun \
@@ -32,8 +32,8 @@ python3 -m Experiments.AdaptationExperiments.AdaptiveQAgentExperiment --multirun
     hydra.sweep.dir="$directory" \
     seed=$seed \
     save_dir="$directory" \
-    meta_lr=1e-2,5e-3,1e-3 \
-    epsilon=0.1,1 \
+    meta_lr=1e-3,1e-4 \
+    epsilon=0.1 \
     env="$env" \
     gamma=$gamma \
     repeat=$repeat \
