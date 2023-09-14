@@ -47,14 +47,13 @@ class Environment:
         self.seed_generator = np.random.default_rng(self.seed)
         self.prg = np.random.default_rng(self.seed_generator.integers(0, 2**32 - 1))
 
-    def reset(self):
+    def reset(self, seed=-1):
         """Reset the Environment back to the initial state.
         Reset the prg to ensure fair experiments.
-        Of course, by the MDP property, this is equivalent to starting
-        from a blank slate.
         """
         self.current_state = self.start_state
-        self.prg = np.random.default_rng(self.seed_generator.integers(0, 2**32 - 1))
+        if seed == -1:
+            self.prg = np.random.default_rng(self.seed_generator.integers(0, 2**32 - 1))
         
         return self.current_state
 

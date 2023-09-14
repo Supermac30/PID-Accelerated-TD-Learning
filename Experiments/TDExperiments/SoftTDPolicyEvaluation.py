@@ -16,12 +16,13 @@ def soft_policy_evaluation_experiment(cfg):
     V_pi = find_Vpi(env, policy, cfg['gamma'])
     test_function = build_test_function(cfg['norm'], V_pi)
     
-    def run_test(_):
+    def run_test(seed):
         history, V = agent.estimate_value_function(
             cfg['num_iterations'],
             test_function,
             follow_trajectory=cfg['follow_trajectory'],
-            stop_if_diverging=cfg['stop_if_diverging']
+            stop_if_diverging=cfg['stop_if_diverging'],
+            seed=seed
         )
         return history, V
 
@@ -33,7 +34,8 @@ def soft_policy_evaluation_experiment(cfg):
         logging.info(f"Running experiments {num_chunks} times")
         # Run the following agent.estimate_value_function 80 times and take an average of the histories
         pool = mp.Pool()
-        results = pool.map(run_test, [None] * num_chunks)
+        prg = np.random.RandomState(seed)
+        results = pool.map(run_test, [prg.randint(0, 1000000) for _ in range(num_chunks)])
         pool.close()
         pool.join()
 

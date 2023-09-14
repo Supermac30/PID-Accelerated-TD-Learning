@@ -15,12 +15,13 @@ def soft_policy_evaluation_experiment(cfg):
     Q_star = find_Qstar(env, cfg['gamma'])
     test_function = build_test_function(cfg['norm'], Q_star)
 
-    def run_test(_):
+    def run_test(seed):
         history, Q = agent.estimate_value_function(
             num_iterations=cfg['num_iterations'],
             test_function=test_function,
             follow_trajectory=cfg['follow_trajectory'],
-            stop_if_diverging=cfg['stop_if_diverging']
+            stop_if_diverging=cfg['stop_if_diverging'],
+            seed=seed
         )
         return history, Q
     
@@ -28,11 +29,13 @@ def soft_policy_evaluation_experiment(cfg):
         history, _ = run_test()
         all_histories = [history]
     else:
+        # Create a psuedo random number generator with seed seed
+        prg = np.random.RandomState(seed)
         num_chunks = mp.cpu_count()
         logging.info(f"Running experiments {num_chunks} times")
         # Run the following agent.estimate_value_function 80 times and take an average of the histories
         pool = mp.Pool()
-        results = pool.map(run_test, [None] * num_chunks)
+        results = pool.map(run_test, [prg.randint(0, 1000000) for _ in range(num_chunks)])
         pool.close()
         pool.join()
 

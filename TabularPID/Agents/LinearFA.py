@@ -200,13 +200,13 @@ class LinearTD():
         self.current_state = next_state
         return current_state, next_state, reward
 
-    def reset(self, reset_environment=True):
+    def reset(self, reset_environment=True, seed=-1):
         num_features = self.basis.num_features
         if reset_environment:
             if self.is_gym_env:
                 self.current_state = self.env.reset()[0]
             else:
-                self.current_state = self.env.reset()
+                self.current_state = self.env.reset(seed)
 
         self.w_V = np.zeros((num_features, 1))
         self.w_Vp = np.zeros((num_features, 1))
@@ -221,8 +221,8 @@ class LinearTD():
         self.running_BR = 0
         self.num_steps = 0
 
-    def estimate_value_function(self, num_iterations, test_function=None, reset_environment=True, stop_if_diverging=True):
-        self.reset(reset_environment)
+    def estimate_value_function(self, num_iterations, test_function=None, reset_environment=True, stop_if_diverging=True, seed=-1):
+        self.reset(reset_environment, seed)
 
         # The history of the gains
         self.gain_history = [np.zeros(num_iterations // (num_iterations // 100)) for _ in range(5)]

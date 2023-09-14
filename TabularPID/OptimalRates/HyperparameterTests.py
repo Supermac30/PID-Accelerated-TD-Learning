@@ -232,7 +232,7 @@ def run_pid_search(agent_description, env_name, kp, ki, kd, alpha, beta, seed, n
     else:
         update_D_rates = exhaustive_learning_rates[2]
 
-    return run_search(agent, norm, V_pi, search_steps, learning_rates, update_I_rates, update_D_rates)
+    return run_search(agent, norm, V_pi, search_steps, learning_rates, update_I_rates, update_D_rates, 2)
 
 
 def run_past_work_search(agent_description, env_name, seed, norm, gamma, search_steps=50000):
@@ -259,7 +259,7 @@ def run_past_work_search(agent_description, env_name, seed, norm, gamma, search_
     else:
         raise ValueError(f"Unknown agent description: {agent_description}")
 
-    return run_search(agent, norm, V_pi, search_steps, learning_rates0, learning_rates1, learning_rates2)
+    return run_search(agent, norm, V_pi, search_steps, learning_rates0, learning_rates1, learning_rates2, 0)
 
 
 def run_pid_q_search(agent_description, env_name, kp, ki, kd, alpha, beta, seed, norm, gamma, search_steps=50000):
@@ -281,7 +281,7 @@ def run_pid_q_search(agent_description, env_name, kp, ki, kd, alpha, beta, seed,
     else:
         update_D_rates = exhaustive_learning_rates[2]
 
-    return run_search(agent, norm, Q_star, search_steps, learning_rates, update_I_rates, update_D_rates)
+    return run_search(agent, norm, Q_star, search_steps, learning_rates, update_I_rates, update_D_rates, 0)
 
 
 def run_adaptive_search(agent_name, env_name, seed, norm, gamma, lambd, delay, meta_lr, alpha, beta, epsilon, is_q, search_steps=50000):
@@ -297,10 +297,10 @@ def run_adaptive_search(agent_name, env_name, seed, norm, gamma, lambd, delay, m
     update_I_rates = exhaustive_learning_rates[1]
     update_D_rates = exhaustive_learning_rates[2]
 
-    return run_search(agent, norm, goal, search_steps, learning_rates, update_I_rates, update_D_rates)
+    return run_search(agent, norm, goal, search_steps, learning_rates, update_I_rates, update_D_rates, 2)
 
 
-def run_search(agent, norm, goal, search_steps, learning_rates, update_I_rates, update_D_rates):
+def run_search(agent, norm, goal, search_steps, learning_rates, update_I_rates, update_D_rates, index):
     _, rates = find_optimal_learning_rates(
         agent,
         lambda: agent.estimate_value_function(
@@ -308,7 +308,7 @@ def run_search(agent, norm, goal, search_steps, learning_rates, update_I_rates, 
             test_function=build_test_function(norm, goal),
             follow_trajectory=False,
             stop_if_diverging=True,
-        )[2],
+        )[index],
         learning_rates,
         update_I_rates,
         update_D_rates,

@@ -18,10 +18,11 @@ def soft_policy_evaluation_experiment(cfg):
         get_optimal_linear_FA_rates(name, cfg['env'], kp, ki, kd, alpha, beta, cfg['gamma'], cfg['order'], cfg['recompute_optimal'], search_steps=cfg['search_steps'])
     agent, _, _ = build_agent_and_env((name, kp, ki, kd, alpha, beta, order), cfg['env'], cfg['get_optimal'], seed, cfg['gamma'])
     
-    def run_test(_):
+    def run_test(seed):
         history, w_V = agent.estimate_value_function(
             num_iterations=cfg['num_iterations'],
-            stop_if_diverging=cfg['stop_if_diverging']
+            stop_if_diverging=cfg['stop_if_diverging'],
+            seed=seed
         )
         return w_V, history
 
@@ -33,7 +34,8 @@ def soft_policy_evaluation_experiment(cfg):
         logging.info(f"Running experiments {num_chunks} times")
         # Run the following agent.estimate_value_function 80 times and take an average of the histories
         pool = mp.Pool()
-        results = pool.map(run_test, [None] * num_chunks)
+        prg = np.random.RandomState(seed)
+        results = pool.map(run_test, [prg.randint(0, 1000000) for _ in range(num_chunks)])
         pool.close()
         pool.join()
 
