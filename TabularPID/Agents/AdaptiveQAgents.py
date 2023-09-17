@@ -351,7 +351,7 @@ class SemiGradientUpdater(AbstractGainUpdater):
         BR = self.agent.previous_BR
         next_BR = reward + gamma * np.max(next_Q[next_state]) - next_Q[current_state][action]
 
-        scale = 1 / self.agent.num_steps
+        scale = 0.5
         self.running_BR[current_state][action] = (1 - scale) * self.running_BR[current_state][action] + scale * BR * BR
 
         self.p_update += lr * next_BR * self.agent.p_update / (self.epsilon + self.running_BR[current_state][action])

@@ -22,7 +22,7 @@ tabular_d=False
 use_previous_BRs=True
 is_double=True
 
-num_runs=20
+num_runs=1
 
 policy_evaluation=False
 eval=True
@@ -37,13 +37,16 @@ python3 -m Experiments.DQNExperiments.DQNExperiment --multirun \
    hydra.sweep.dir=$directory \
    save_dir=$directory \
    seed=$seed \
+   run_name=$seed \
    gain_adapter=$gain_adapter \
    adapt_gains=True \
    is_double=$is_double \
    use_previous_BRs=$use_previous_BRs \
-   d_tau=0.01,0.001 \
-   epsilon=1,0.1 \
-   meta_lr=0.1,0.01,0.001 \
+   d_tau=0.01 \
+   epsilon=1 \
+   meta_lr_p=0.01 \
+   meta_lr_I=0.01 \
+   meta_lr_d=0.01 \
    tabular_d=$tabular_d \
    num_runs=$num_runs \
    policy_evaluation=$policy_evaluation \
@@ -57,6 +60,7 @@ python3 -m Experiments.DQNExperiments.DQNExperiment \
    save_dir=$directory \
    is_double=$is_double \
    seed=$seed \
+   run_name=$seed \
    adapt_gains=False \
    num_runs=$num_runs \
    policy_evaluation=$policy_evaluation \

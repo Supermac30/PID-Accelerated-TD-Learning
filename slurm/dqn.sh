@@ -39,6 +39,7 @@ python3 -m Experiments.DQNExperiments.DQNExperiment --multirun \
    hydra.sweep.dir=$directory \
    save_dir=$directory \
    seed=$seed \
+   run_name=$seed \
    is_double=$is_double \
    kp=1 \
    kd=0.005 \
@@ -57,6 +58,7 @@ python3 -m Experiments.DQNExperiments.DQNExperiment --multirun \
    hydra.sweep.dir=$directory \
    save_dir=$directory \
    seed=$seed \
+   run_name=$seed \
    is_double=$is_double \
    kp=1 \
    kd=0 \

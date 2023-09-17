@@ -32,7 +32,7 @@ python3 -m Experiments.AdaptationExperiments.AdaptiveQAgentExperiment --multirun
     hydra.sweep.dir="$directory" \
     seed=$seed \
     save_dir="$directory" \
-    meta_lr=1e-3,1e-4 \
+    meta_lr=1e-5,1e-4 \
     epsilon=0.1 \
     env="$env" \
     gamma=$gamma \
@@ -40,6 +40,25 @@ python3 -m Experiments.AdaptationExperiments.AdaptiveQAgentExperiment --multirun
     num_iterations=$num_iterations \
     search_steps=$search_steps \
     agent_name="semi gradient double Q updater" \
+    recompute_optimal=$recompute_optimal \
+    compute_optimal=$compute_optimal \
+    get_optimal=$get_optimal \
+    debug=$debug
+
+python3 -m Experiments.AdaptationExperiments.AdaptiveQAgentExperiment --multirun \
+    hydra.mode=MULTIRUN \
+    hydra.run.dir="$directory/Adaptive Agent" \
+    hydra.sweep.dir="$directory" \
+    seed=$seed \
+    save_dir="$directory" \
+    meta_lr=1e-5,1e-4 \
+    epsilon=0.1 \
+    env="$env" \
+    gamma=$gamma \
+    repeat=$repeat \
+    num_iterations=$num_iterations \
+    search_steps=$search_steps \
+    agent_name="semi gradient Q updater" \
     recompute_optimal=$recompute_optimal \
     compute_optimal=$compute_optimal \
     get_optimal=$get_optimal \

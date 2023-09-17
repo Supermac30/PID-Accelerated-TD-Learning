@@ -21,16 +21,17 @@ def control_experiment(cfg):
     seed_prg = np.random.RandomState(cfg['seed'])
 
     log_name = f"{cfg['kp']} {cfg['ki']} {cfg['kd']}{'*' if cfg['tabular_d'] else ''} {cfg['alpha']} {cfg['beta']} {cfg['d_tau']}" \
-          + f" {cfg['gain_adapter']} {cfg['epsilon']} {cfg['meta_lr']}"
+          + f" {cfg['gain_adapter']} {cfg['epsilon']} {cfg['meta_lr_p']} {cfg['meta_lr_I']} {cfg['meta_lr_d']}"
 
     env_cfg = next(iter(cfg['env'].values()))
     # Adaptation configs for logging
     log_cfg = {
         'kp': cfg['kp'], 'ki': cfg['ki'], 'kd': cfg['kd'],
         'alpha': cfg['alpha'], 'beta': cfg['beta'], 'd_tau': cfg['d_tau'],
-        'epsilon': cfg['epsilon'], 'meta_lr': cfg['meta_lr'],
+        'epsilon': cfg['epsilon'], 'meta_lr_p': cfg['meta_lr_p'],
+        'meta_lr_I': cfg['meta_lr_I'], 'meta_lr_d': cfg['meta_lr_d'],
         'use_previous_BRs': cfg['use_previous_BRs'], 'gain_adapter': cfg['gain_adapter']
-    }.update(env_cfg)
+    }
 
     for i in range(cfg['num_runs']):
         run_seed = seed_prg.randint(0, 2**32)
@@ -40,7 +41,7 @@ def control_experiment(cfg):
             project="PID Accelerated RL",
             config=log_cfg,
             save_code=True,
-            group=f"{cfg['experiment_name']}-{str(cfg['seed'])}",
+            group=f"{cfg['experiment_name']}-{str(cfg['run_name'])}",
             job_type=log_name,
             reinit=True,
             name=str(run_seed),
@@ -49,7 +50,7 @@ def control_experiment(cfg):
         gain_adapter = build_gain_adapter(
             cfg['gain_adapter'], cfg['kp'], cfg['ki'], cfg['kd'],
             cfg['alpha'], cfg['beta'], cfg['meta_lr'], cfg['epsilon'],
-            cfg['use_previous_BRs']
+            cfg['use_previous_BRs'], cfg['meta_lr_p'], cfg['meta_lr_I'], cfg['meta_lr_d']
         )
 
         if cfg['FQI']:

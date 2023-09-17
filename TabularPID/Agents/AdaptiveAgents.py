@@ -323,7 +323,7 @@ class SemiGradientUpdater(AbstractGainUpdater):
         next_BR = self.agent.BR()
         self.previous_BRs[current_state] = next_BR
 
-        scale = 1 / self.agent.num_steps
+        scale = 0.5
 
         self.running_BR[current_state] = (1 - scale) * self.running_BR[current_state] + scale * BR * BR
         normalization = self.epsilon + self.running_BR[current_state]

@@ -16,6 +16,9 @@ gain_adapter: NoGainAdapter  # Options: NoGainAdapter, SingleGainAdapter, Diagon
 adapt_gains: False
 epsilon: 1e-1
 meta_lr: 1e-2
+meta_lr_p: -1
+meta_lr_I: -1
+meta_lr_d: -1
 use_previous_BRs: True
 
 # FQI parameters
@@ -47,6 +50,7 @@ defaults:
 save_dir: ${oc.env:OUTPUT_DIR,./outputs}/${experiment_name}/${name}/${now:%Y-%m-%d}/${now:%H-%M-%S}
 
 seed: -1
+run_name: 123
 hydra:
   run:
     dir: ${oc.env:OUTPUT_DIR,./outputs}/DQNExperiment/${name}/${now:%Y-%m-%d}/${now:%H-%M-%S}

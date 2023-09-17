@@ -27,10 +27,8 @@ def build_PID_DQN(gain_adapter, env_name, gamma, optimizer, replay_memory_size, 
 
     if is_atari:
         policy_type = "CnnPolicy"
-        optimize_memory_usage = False
     else:
         policy_type = "MlpPolicy"
-        optimize_memory_usage = False
 
     dqn = PID_DQN(
         d_tau, stopping_criterion, tabular_d, gain_adapter,
@@ -47,7 +45,7 @@ def build_PID_DQN(gain_adapter, env_name, gamma, optimizer, replay_memory_size, 
         exploration_fraction=exploration_fraction,
         exploration_initial_eps=initial_eps,
         exploration_final_eps=minimum_eps,
-        optimize_memory_usage=optimize_memory_usage,
+        optimize_memory_usage=False,
         learning_starts=learning_starts,
         tensorboard_log=tensorboard_log,
         policy_kwargs=dict(net_arch=[inner_size, inner_size],
@@ -146,7 +144,7 @@ def get_model(env_name):
     model_dir = model_dir[0]
     return unmodified_DQN.load(f"{globals.base_directory}/models/{model_dir}/{model_dir}.zip")
 
-def build_gain_adapter(adapter_type, kp, ki, kd, alpha, beta, meta_lr, epsilon, use_previous_BRs):
+def build_gain_adapter(adapter_type, kp, ki, kd, alpha, beta, meta_lr, epsilon, use_previous_BRs, meta_lr_p=-1, meta_lr_I=-1, meta_lr_d=-1):
     if adapter_type == "NoGainAdapter":
         gain_adapter = NoGainAdapter
     elif adapter_type == "SingleGainAdapter":
@@ -158,7 +156,7 @@ def build_gain_adapter(adapter_type, kp, ki, kd, alpha, beta, meta_lr, epsilon, 
     else:
         raise NotImplementedError
 
-    return gain_adapter(kp, ki, kd, alpha, beta, meta_lr, epsilon, use_previous_BRs)
+    return gain_adapter(kp, ki, kd, alpha, beta, meta_lr, epsilon, use_previous_BRs, meta_lr_p=meta_lr_p, meta_lr_d=meta_lr_d, meta_lr_i=meta_lr_I)
 
 def create_optimizer(optimizer):
     if optimizer == 'Adam':

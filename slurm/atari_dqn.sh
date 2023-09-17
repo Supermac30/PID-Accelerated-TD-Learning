@@ -48,6 +48,7 @@ then
       hydra.sweep.dir=$directory \
       save_dir=$directory \
       seed=$seed \
+      run_name=$seed \
       gain_adapter=$gain_adapter \
       adapt_gains=True \
       is_double=$is_double \
@@ -67,6 +68,7 @@ else
       hydra.sweep.dir=$directory \
       save_dir=$directory \
       seed=$seed \
+      run_name=$seed \
       is_double=$is_double \
       kp=1 \
       kd=0.001,0.01,0.1 \
@@ -87,6 +89,7 @@ then
       hydra.sweep.dir=$directory \
       save_dir=$directory \
       seed=$seed \
+      run_name=$seed \
       is_double=$is_double \
       kp=1 \
       kd=0 \
