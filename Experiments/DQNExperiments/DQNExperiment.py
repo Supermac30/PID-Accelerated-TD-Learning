@@ -20,8 +20,10 @@ def control_experiment(cfg):
     # Create a prg with this seed
     seed_prg = np.random.RandomState(cfg['seed'])
 
-    log_name = f"{cfg['kp']} {cfg['ki']} {cfg['kd']}{'*' if cfg['tabular_d'] else ''} {cfg['alpha']} {cfg['beta']} {cfg['d_tau']}" \
-          + f" {cfg['gain_adapter']} {cfg['epsilon']} {cfg['meta_lr_p']} {cfg['meta_lr_I']} {cfg['meta_lr_d']}"
+    if cfg['gain_adapter'] == "NoGainAdapter":
+        log_name = f"{cfg['kp']} {cfg['ki']} {cfg['kd']}{'*' if cfg['tabular_d'] else ''} {cfg['alpha']} {cfg['beta']} {cfg['d_tau']}"
+    else:
+        log_name = f"{cfg['d_tau']} {cfg['gain_adapter']} {cfg['epsilon']} {cfg['meta_lr_p']} {cfg['meta_lr_I']} {cfg['meta_lr_d']}"
 
     env_cfg = next(iter(cfg['env'].values()))
     # Adaptation configs for logging
@@ -147,7 +149,7 @@ class EvaluatePolicyCallback(BaseCallback):
         if self.num_timesteps % self.run_eval_every != 0:
             return True
 
-        mean, std = evaluation.evaluate_policy(self.model, self.model.get_env(), n_eval_episodes=10)
+        mean, std = evaluation.evaluate_policy(self.model, self.model.get_env(), n_eval_episodes=25)
         self.logger.record("eval/mean_reward", mean)
         self.logger.record("eval/std_reward", std)
 

@@ -57,6 +57,17 @@ class NoGainAdapter(GainAdapter):
             th.full((self.batch_size, 1), self.kd, device=self.device), th.full((self.batch_size, 1), self.alpha, device=self.device), \
             th.full((self.batch_size, 1), self.beta, device=self.device)
     
+    def BR(self, replay_sample, network):
+        with th.no_grad():
+            next_q_values = network(replay_sample.next_observations)
+            next_q_values, _ = next_q_values.max(dim=1)
+            next_q_values = next_q_values.reshape(-1, 1)
+            target_q_values = replay_sample.rewards + (1 - replay_sample.dones) * self.model.gamma * next_q_values
+            current_q_values = network(replay_sample.observations)
+            current_q_values = th.gather(current_q_values, dim=1, index=replay_sample.actions.long())
+        
+            return target_q_values - current_q_values
+    
     def adapt_gains(self, replay_sample):
         """Update the gains"""
         return
@@ -81,17 +92,6 @@ class SingleGainAdapter(GainAdapter):
         return th.full((self.batch_size, 1), self.kp, device=self.device), th.full((self.batch_size, 1), self.ki, device=self.device), \
             th.full((self.batch_size, 1), self.kd, device=self.device), th.full((self.batch_size, 1), self.alpha, device=self.device), \
             th.full((self.batch_size, 1), self.beta, device=self.device)
-    
-    def BR(self, replay_sample, network):
-        with th.no_grad():
-            next_q_values = network(replay_sample.next_observations)
-            next_q_values, _ = next_q_values.max(dim=1)
-            next_q_values = next_q_values.reshape(-1, 1)
-            target_q_values = replay_sample.rewards + (1 - replay_sample.dones) * self.model.gamma * next_q_values
-            current_q_values = network(replay_sample.observations)
-            current_q_values = th.gather(current_q_values, dim=1, index=replay_sample.actions.long())
-        
-            return target_q_values - current_q_values
 
     def adapt_gains(self, replay_sample):
         """Update the gains"""
@@ -108,9 +108,6 @@ class SingleGainAdapter(GainAdapter):
             Q = th.gather(Q, dim=1, index=replay_sample.actions.long())
             Qp = self.model.d_net(replay_sample.observations)
             Qp = th.gather(Qp, dim=1, index=replay_sample.actions.long())
-
-        #if np.random.rand() < 0.2:
-        #    breakpoint()
 
         self.kp += (self.meta_lr_p / self.batch_size) * (next_BRs.T @ previous_BRs / normalization).item()
         self.ki += (self.meta_lr_i / self.batch_size) * (next_BRs.T @ zs / normalization).item()
@@ -131,30 +128,33 @@ class DiagonalGainAdapter(GainAdapter):
         self.initial_beta = beta
 
     def get_gains(self, states, actions, replay_sample):
-        # Replace all gains equal to -1 with the initial gains
-        replay_sample.kp[replay_sample.kp == -1] = self.initial_kp
-        replay_sample.ki[replay_sample.ki == -1] = self.initial_ki
-        replay_sample.kd[replay_sample.kd == -1] = self.initial_kd
+        # Replace all gains equal to -1000 with the initial gains
+        replay_sample.kp[replay_sample.kp == -1000] = self.initial_kp
+        replay_sample.ki[replay_sample.ki == -1000] = self.initial_ki
+        replay_sample.kd[replay_sample.kd == -1000] = self.initial_kd
         return replay_sample.kp, replay_sample.ki, replay_sample.kd, \
             th.full((self.batch_size, 1), self.initial_alpha, device=self.device), \
             th.full((self.batch_size, 1), self.initial_beta, device=self.device)
     
     def adapt_gains(self, replay_sample):
         """Update the gains. Only works if get_gains was called before"""
-        self.num_steps += 1
-        if self.use_previous_BRs:
-            BRs = replay_sample.BRs
-        else:
-            BRs = self.model.BRs
-        scale = 1 / self.num_steps
-        self.running_BRs = (1 - scale) * self.running_BRs + scale * BRs.T @ BRs
-        learning_rate = self.model.learning_rate / self.batch_size
+        self.model.policy.set_training_mode(True)
+        with th.no_grad():
+            next_BRs = self.BR(replay_sample, self.model.q_net)
+            previous_BRs = self.BR(replay_sample, self.model.q_net_target)
+            normalization = self.epsilon + (previous_BRs.T @ previous_BRs) / self.batch_size
 
-        new_kps = replay_sample.kp + self.meta_lr_p * learning_rate * (BRs.T @ self.model.p_update / (self.epsilon + self.running_BRs))
-        new_kis = replay_sample.ki + self.meta_lr_i * learning_rate * (BRs.T @ self.model.i_update / (self.epsilon + self.running_BRs))
-        new_kds = replay_sample.kd + self.meta_lr_d * learning_rate * (BRs.T @ self.model.d_update / (self.epsilon + self.running_BRs))
+            zs = self.beta * replay_sample.zs + self.alpha * previous_BRs
+            Q = self.model.q_net_target(replay_sample.observations)
+            Q = th.gather(Q, dim=1, index=replay_sample.actions.long())
+            Qp = self.model.d_net(replay_sample.observations)
+            Qp = th.gather(Qp, dim=1, index=replay_sample.actions.long())
 
-        self.model.replay_buffer.update(replay_sample.indices, kp=new_kps, ki=new_kis, kd=new_kds)
+        new_kps = (self.meta_lr_p / self.batch_size) * (next_BRs * previous_BRs / normalization).reshape(-1, 1)
+        new_kis = (self.meta_lr_i / self.batch_size) * (next_BRs * zs / normalization).reshape(-1, 1)
+        new_kds = (self.meta_lr_d / self.batch_size) * (next_BRs * (Q - Qp) / normalization).reshape(-1, 1)
+
+        self.model.replay_buffer.update(replay_sample.indices, zs=zs, kp=new_kps, ki=new_kis, kd=new_kds)
 
 
 class GainAdaptingNetwork(nn.Module):

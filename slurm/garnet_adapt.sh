@@ -13,10 +13,15 @@ source slurm/setup.sh
 
 current_time=$(date "+%Y.%m.%d/%H.%M.%S")
 save_dir=$1
-num_iterations=500000
+num_iterations=10000
+search_steps=10000
 directory=$save_dir/$current_time
 echo "Saving to $directory"
 mkdir -p "$directory"
+
+recompute_optimal=False
+compute_optimal=True
+get_optimal=True
 
 for run in $(seq $2 $3)
 do
@@ -36,7 +41,11 @@ do
         env="garnet $garnet_seed 50" \
         gamma=0.999 \
         agent_name="semi gradient updater" \
-        num_iterations=$num_iterations
+        num_iterations=$num_iterations \
+        search_steps=$search_steps \
+        recompute_optimal=$recompute_optimal \
+        compute_optimal=$compute_optimal \
+        get_optimal=$get_optimal \
 
 	python3 -m Experiments.TDExperiments.SoftTDPolicyEvaluation \
         hydra.run.dir="$directory/TD Agent" \
@@ -47,5 +56,9 @@ do
         kd=0 \
         gamma=0.999 \
         env="garnet $garnet_seed 50" \
-        num_iterations=$num_iterations
+        num_iterations=$num_iterations \
+        search_steps=$search_steps \
+        recompute_optimal=$recompute_optimal \
+        compute_optimal=$compute_optimal \
+        get_optimal=$get_optimal \
 done

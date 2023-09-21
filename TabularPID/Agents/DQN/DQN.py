@@ -222,7 +222,6 @@ class PID_DQN(OffPolicyAlgorithm):
         self.logger.record("rollout/exploration_rate", self.exploration_rate)
 
     def train(self, gradient_steps: int, batch_size: int = 100) -> None:
-        breakpoint()
         # Switch to train mode (this affects batch norm / dropout)
         self.policy.set_training_mode(True)
         # Update learning rate according to schedule
@@ -282,6 +281,7 @@ class PID_DQN(OffPolicyAlgorithm):
 
         self.logger.record("train/n_updates", self._n_updates, exclude="tensorboard")
         self.logger.record("train/loss", np.mean(losses))
+        self.logger.record("rollout/BRs", th.mean(self.BRs).item())
 
     def compute_next_q_values(self, replay_data, batch_size):
         if self.policy_evaluation:

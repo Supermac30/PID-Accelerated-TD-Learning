@@ -14,7 +14,7 @@ ulimit -n 2048
 source slurm/setup.sh
 
 current_time=$(date "+%Y.%m.%d/%H.%M.%S")
-env="cliff walk"
+env="garnet 100 50"
 gamma=0.999
 repeat=3
 seed=$RANDOM
