@@ -15,7 +15,7 @@ source slurm/setup.sh
 
 current_time=$(date "+%Y.%m.%d/%H.%M.%S")
 env="garnet 100 50"
-gamma=0.999
+gamma=0.99
 repeat=3
 seed=$RANDOM
 num_iterations=1000
@@ -38,7 +38,7 @@ python3 -m Experiments.AdaptationExperiments.AdaptiveAgentExperiment --multirun 
     recompute_optimal=$recompute_optimal \
     compute_optimal=$compute_optimal \
     get_optimal=$get_optimal \
-    meta_lr=1e-5 \
+    meta_lr=1e-3 \
     epsilon=1e-1 \
     env="$env" \
     gamma=$gamma \

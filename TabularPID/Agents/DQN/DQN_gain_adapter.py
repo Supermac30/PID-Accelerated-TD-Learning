@@ -1,6 +1,5 @@
 import torch as th
 import torch.nn as nn
-import numpy as np
 
 class GainAdapter():
     def __init__(self, meta_lr, epsilon, use_previous_BRs=True, meta_lr_p=-1, meta_lr_d=-1, meta_lr_i=-1):
@@ -33,6 +32,17 @@ class GainAdapter():
 
     def get_gains(self, states, actions, replay_sample):
         raise NotImplementedError
+
+    def BR(self, replay_sample, network):
+        with th.no_grad():
+            next_q_values = network(replay_sample.next_observations)
+            next_q_values, _ = next_q_values.max(dim=1)
+            next_q_values = next_q_values.reshape(-1, 1)
+            target_q_values = replay_sample.rewards + (1 - replay_sample.dones) * self.model.gamma * next_q_values
+            current_q_values = network(replay_sample.observations)
+            current_q_values = th.gather(current_q_values, dim=1, index=replay_sample.actions.long())
+        
+            return target_q_values - current_q_values
     
     def adapt_gains(self, loss, replay_sample):
         """Update the gains"""
@@ -56,17 +66,6 @@ class NoGainAdapter(GainAdapter):
         return th.full((self.batch_size, 1), self.kp, device=self.device), th.full((self.batch_size, 1), self.ki, device=self.device), \
             th.full((self.batch_size, 1), self.kd, device=self.device), th.full((self.batch_size, 1), self.alpha, device=self.device), \
             th.full((self.batch_size, 1), self.beta, device=self.device)
-    
-    def BR(self, replay_sample, network):
-        with th.no_grad():
-            next_q_values = network(replay_sample.next_observations)
-            next_q_values, _ = next_q_values.max(dim=1)
-            next_q_values = next_q_values.reshape(-1, 1)
-            target_q_values = replay_sample.rewards + (1 - replay_sample.dones) * self.model.gamma * next_q_values
-            current_q_values = network(replay_sample.observations)
-            current_q_values = th.gather(current_q_values, dim=1, index=replay_sample.actions.long())
-        
-            return target_q_values - current_q_values
     
     def adapt_gains(self, replay_sample):
         """Update the gains"""

@@ -19,6 +19,8 @@ directory=$save_dir/$current_time
 echo "Saving to $directory"
 mkdir -p "$directory"
 
+gamma=0.99
+
 recompute_optimal=False
 compute_optimal=True
 get_optimal=True
@@ -39,13 +41,13 @@ do
         meta_lr=1e-1,1e-2,1e-3 \
         epsilon=1e-1,1e-2\
         env="garnet $garnet_seed 50" \
-        gamma=0.999 \
+        gamma=$gamma \
         agent_name="semi gradient updater" \
         num_iterations=$num_iterations \
         search_steps=$search_steps \
         recompute_optimal=$recompute_optimal \
         compute_optimal=$compute_optimal \
-        get_optimal=$get_optimal \
+        get_optimal=$get_optimal
 
 	python3 -m Experiments.TDExperiments.SoftTDPolicyEvaluation \
         hydra.run.dir="$directory/TD Agent" \
@@ -54,11 +56,12 @@ do
         kp=1 \
         ki=0 \
         kd=0 \
-        gamma=0.999 \
+        gamma=$gamma \
         env="garnet $garnet_seed 50" \
         num_iterations=$num_iterations \
         search_steps=$search_steps \
         recompute_optimal=$recompute_optimal \
         compute_optimal=$compute_optimal \
-        get_optimal=$get_optimal \
+        get_optimal=$get_optimal
 done
+
