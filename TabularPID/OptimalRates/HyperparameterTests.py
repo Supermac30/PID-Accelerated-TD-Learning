@@ -232,7 +232,7 @@ def run_pid_search(agent_description, env_name, kp, ki, kd, alpha, beta, seed, n
     else:
         update_D_rates = exhaustive_learning_rates[2]
 
-    return run_search(agent, norm, V_pi, search_steps, learning_rates, update_I_rates, update_D_rates, 2)
+    return run_search(agent, norm, V_pi, search_steps, learning_rates, update_I_rates, update_D_rates, 0)
 
 
 def run_past_work_search(agent_description, env_name, seed, norm, gamma, search_steps=50000):
