@@ -123,8 +123,8 @@ class DiagonalGainAdapter(GainAdapter):
         self.initial_kp = kp
         self.initial_ki = ki
         self.initial_kd = kd
-        self.initial_alpha = alpha
-        self.initial_beta = beta
+        self.alpha = alpha
+        self.beta = beta
 
     def get_gains(self, states, actions, replay_sample):
         # Replace all gains equal to -1000 with the initial gains
@@ -132,8 +132,8 @@ class DiagonalGainAdapter(GainAdapter):
         replay_sample.ki[replay_sample.ki == -1000] = self.initial_ki
         replay_sample.kd[replay_sample.kd == -1000] = self.initial_kd
         return replay_sample.kp, replay_sample.ki, replay_sample.kd, \
-            th.full((self.batch_size, 1), self.initial_alpha, device=self.device), \
-            th.full((self.batch_size, 1), self.initial_beta, device=self.device)
+            th.full((self.batch_size, 1), self.alpha, device=self.device), \
+            th.full((self.batch_size, 1), self.beta, device=self.device)
     
     def adapt_gains(self, replay_sample):
         """Update the gains. Only works if get_gains was called before"""

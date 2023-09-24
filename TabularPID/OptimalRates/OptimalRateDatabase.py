@@ -1,8 +1,7 @@
 import pickle
+import globals
 
-FILE_NAME = "/h/bedaywim/PID-Accelerated-TD-Learning/Experiments/optimal_learning_rates.pickle"
-#FILE_NAME = "C:/Users/Mark/Desktop/PID-Accelerated-TD-Learning/Experiments/optimal_learning_rates.pickle"
-
+FILE_NAME = "Experiments/optimal_learning_rates.pickle"
 
 def get_stored_optimal_rate(model, env_name, gamma):
     """If the optimal rate is in FILE_NAME then return it,
@@ -13,7 +12,7 @@ def get_stored_optimal_rate(model, env_name, gamma):
 
     If the file is not found, raise a FileNotFoundException
     """
-    with open(FILE_NAME, 'rb') as f:
+    with open(f"{globals.base_directory}/{FILE_NAME}", 'rb') as f:
         try:
             optimal_rates = pickle.load(f)
         except EOFError:
@@ -31,7 +30,7 @@ def store_optimal_rate(model, env_name, optimal_rate, gamma):
 
     If the file is not found, raise a FileNotFoundException
     """
-    with open(FILE_NAME, 'rb') as f:
+    with open(f"{globals.base_directory}/{FILE_NAME}", 'rb') as f:
         try:
             optimal_rates = pickle.load(f)
         except EOFError:
@@ -40,10 +39,8 @@ def store_optimal_rate(model, env_name, optimal_rate, gamma):
     optimal_rates[(model, env_name, gamma)] = optimal_rate
 
     # save the updated dictionary to the same pickle file
-    with open(FILE_NAME, 'wb') as f:
+    with open(f"{globals.base_directory}/{FILE_NAME}", 'wb') as f:
         pickle.dump(optimal_rates, f, protocol=pickle.HIGHEST_PROTOCOL)
 
 if __name__ == "__main__":
     pass
-    #with open(FILE_NAME, 'wb') as f:
-    #    pickle.dump({}, f, protocol=pickle.HIGHEST_PROTOCOL)

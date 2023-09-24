@@ -152,6 +152,8 @@ class AdaptiveSamplerAgent(AbstractAdaptiveAgent):
         self.V[state] = (1 - lr) * self.V[state][0] + lr * new_V
         self.z[state] = (1 - update_I_rate) * self.z[state][0] + update_I_rate * new_z
         self.Vp[state] = (1 - update_D_rate) * self.Vp[state][0] + update_D_rate * new_Vp
+
+        self.next_BR = self.BR()
         
     def BR(self):
         """Return the empirical bellman residual"""
@@ -212,6 +214,8 @@ class DiagonalAdaptiveSamplerAgent(AbstractAdaptiveAgent):
         self.previous_previous_V[state], self.previous_V[state], self.V[state] = self.previous_V[state][0], self.V[state][0], (1 - lr) * self.V[state][0] + lr * new_V
         self.previous_z[state], self.z[state] = self.z[state][0], (1 - update_I_rate) * self.z[state][0] + update_I_rate * new_z
         self.previous_Vp[state], self.Vp[state] = self.Vp[state][0], (1 - update_D_rate) * self.Vp[state][0] + update_D_rate * new_Vp
+
+        self.next_BR = self.BR()
 
     def BR(self):
         """Return the empirical bellman residual"""
@@ -313,6 +317,8 @@ class SemiGradientUpdater(AbstractGainUpdater):
 
         self.plot_state = 25
 
+        self.BR_estimates = np.zeros((agent.num_states))
+
         return super().set_agent(agent)
 
     def calculate_updated_values(self, intermediate=False):
@@ -320,17 +326,17 @@ class SemiGradientUpdater(AbstractGainUpdater):
         lr = self.agent.lr
 
         BR = self.agent.previous_BR
-        next_BR = self.agent.BR()
-        self.previous_BRs[current_state] = next_BR
+        next_BR = self.agent.next_BR
 
         scale = 0.5
 
         self.running_BR[current_state] = (1 - scale) * self.running_BR[current_state] + scale * BR * BR
+        self.BR_estimates[current_state] = (1 - scale) * self.BR_estimates[current_state] + scale * next_BR
         normalization = self.epsilon + self.running_BR[current_state]
 
-        self.p_update += next_BR * self.agent.p_update / normalization
-        self.d_update += next_BR * self.agent.d_update / normalization
-        self.i_update += next_BR * self.agent.i_update / normalization
+        self.p_update += self.BR_estimates[current_state] * self.agent.p_update / normalization
+        self.d_update += self.BR_estimates[current_state] * self.agent.d_update / normalization
+        self.i_update += self.BR_estimates[current_state] * self.agent.i_update / normalization
 
         if not intermediate:
             self.kp = 1 + (1 - self.lambd) * (self.kp - 1) + self.meta_lr * self.p_update / self.agent.update_frequency
@@ -366,7 +372,7 @@ class SemiGradientUpdater(AbstractGainUpdater):
 
 
 class DiagonalSemiGradient(AbstractGainUpdater):
-    def __init__(self, lambd=0, epsilon=0.1, scale=0.1):
+    def __init__(self, lambd=0, epsilon=0.1, scale=1):
         super().__init__(lambd, epsilon, scale)
 
     def set_agent(self, agent):
@@ -399,10 +405,10 @@ class DiagonalSemiGradient(AbstractGainUpdater):
         current_state = self.agent.current_state
         lr = self.agent.lr
 
-        next_BR = self.agent.BR()
+        next_BR = self.agent.next_BR
         BR = self.agent.previous_BR
 
-        scale = 1 / self.agent.num_steps
+        scale = 0.5
         self.running_BR[current_state] = (1 - scale) * self.running_BR[current_state] + scale * BR * BR
 
         normalization = self.epsilon + self.running_BR[current_state]
@@ -411,9 +417,9 @@ class DiagonalSemiGradient(AbstractGainUpdater):
         self.running_agent_i_update[current_state] = (1 - self.scale) * self.running_agent_i_update[current_state] + self.scale * self.agent.i_update
         self.running_agent_d_update[current_state] = (1 - self.scale) * self.running_agent_d_update[current_state] + self.scale * self.agent.d_update
 
-        self.p_update[current_state] += lr * next_BR * self.running_agent_p_update[current_state] / normalization
-        self.i_update[current_state] += lr * next_BR * self.running_agent_i_update[current_state] / normalization
-        self.d_update[current_state] += lr * next_BR * self.running_agent_d_update[current_state] / normalization
+        self.p_update[current_state] += next_BR * self.running_agent_p_update[current_state] / normalization
+        self.i_update[current_state] += next_BR * self.running_agent_i_update[current_state] / normalization
+        self.d_update[current_state] += next_BR * self.running_agent_d_update[current_state] / normalization
 
         # Plot relevant info for debugging
         if current_state == self.plot_state:

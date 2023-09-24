@@ -14,12 +14,12 @@ ulimit -n 2048
 source slurm/setup.sh
 
 current_time=$(date "+%Y.%m.%d/%H.%M.%S")
-env="garnet 100 50"
+env="cliff walk"
 gamma=0.99
 repeat=3
 seed=$RANDOM
 num_iterations=1000
-search_steps=1000
+search_steps=100
 recompute_optimal=True
 compute_optimal=True  # False when we need to debug, so there is no multiprocessing
 get_optimal=True  # False when we need to debug with a specific learning rate

@@ -83,7 +83,7 @@ def control_experiment(cfg):
         callback= [WandbCallback(verbose=2)]
         if cfg['eval']:
             callback.append(EvaluatePolicyCallback(env_cfg['num_iterations'], build_emperical_Q_tester(env_cfg['env'], env_cfg['gamma'], run_seed)))
-        if cfg['gain_adapter'] != "NoGainAdapter":
+        if cfg['gain_adapter'] != "NoGainAdapter" and agent.gain_adapter.adapts_single_gains:
             callback.append(GainReporterCallback())
         if cfg['policy_evaluation']:
             callback.append(PolicyEvaluationCallback(get_model(env_cfg['env'])))
