@@ -17,30 +17,30 @@ def soft_policy_evaluation_experiment(cfg):
     test_function = build_test_function(cfg['norm'], V_pi)
     
     def run_test(seed):
+        agent.set_seed(seed)
         history, V = agent.estimate_value_function(
             cfg['num_iterations'],
             test_function,
             follow_trajectory=cfg['follow_trajectory'],
-            stop_if_diverging=cfg['stop_if_diverging'],
-            seed=seed
+            stop_if_diverging=cfg['stop_if_diverging']
         )
         return history, V
 
+    prg = np.random.RandomState(seed)
     if cfg['debug']:
-        history, _ = run_test()
+        history, _ = run_test(prg.randint(0, 1000000))
         all_histories = [history]
     else:
         num_chunks = mp.cpu_count()
         logging.info(f"Running experiments {num_chunks} times")
         # Run the following agent.estimate_value_function 80 times and take an average of the histories
         pool = mp.Pool()
-        prg = np.random.RandomState(seed)
         results = pool.map(run_test, [prg.randint(0, 1000000) for _ in range(num_chunks)])
         pool.close()
         pool.join()
 
         all_histories = list(map(lambda n: results[n][0], range(len(results[0]))))
-        
+
     mean_history = np.mean(np.array(all_histories), axis=0)
     std_dev_history = np.std(np.array(all_histories), axis=0)
     save_array(mean_history, f"{agent_name} kp={kp} ki={ki} kd={kd} alpha={alpha} beta={beta}", directory=cfg['save_dir'], subdir="mean")

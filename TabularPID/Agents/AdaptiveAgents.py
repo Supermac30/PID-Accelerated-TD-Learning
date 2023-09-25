@@ -26,9 +26,13 @@ class AbstractAdaptiveAgent(Agent):
 
         self.reset()
 
-    def reset(self, reset_environment=True, seed=-1):
+    def set_seed(self, seed):
+        self.environment.set_seed(seed)
+        self.policy.set_seed(seed)
+
+    def reset(self, reset_environment=True):
         if reset_environment:
-            self.environment.reset(seed=seed)
+            self.environment.reset()
         self.kp, self.ki, self.kd = self.original_kp, self.original_ki, self.original_kd
         self.alpha, self.beta = self.original_alpha, self.original_beta
         self.lr, self.previous_lr, self.update_D_rate_value, self.previous_update_D_rate_value, self.update_I_rate_value, self.previous_update_I_rate_value = 0, 0, 0, 0, 0, 0
@@ -46,8 +50,8 @@ class AbstractAdaptiveAgent(Agent):
 
         self.gain_updater.set_agent(self)
 
-    def estimate_value_function(self, num_iterations=1000, test_function=None, initial_V=None, stop_if_diverging=True, follow_trajectory=True, reset_environment=True, seed=-1):
-        self.reset(reset_environment, seed)
+    def estimate_value_function(self, num_iterations=1000, test_function=None, initial_V=None, stop_if_diverging=True, follow_trajectory=True, reset_environment=True):
+        self.reset(reset_environment)
         # V is the current value function, Vp is the previous value function
         # Vp stores the previous value of the x state when it was last changed
         if initial_V is not None:
@@ -186,6 +190,8 @@ class DiagonalAdaptiveSamplerAgent(AbstractAdaptiveAgent):
         self.previous_previous_state, self.previous_state, self.current_state, self.next_state = 0, 0, 0, 0
         self.previous_reward, self.reward = 0, 0
 
+        self.num_steps = 0
+
         self.gain_updater.set_agent(self)
 
     def update_value(self):
@@ -323,7 +329,6 @@ class SemiGradientUpdater(AbstractGainUpdater):
 
     def calculate_updated_values(self, intermediate=False):
         current_state = self.agent.current_state
-        lr = self.agent.lr
 
         BR = self.agent.previous_BR
         next_BR = self.agent.next_BR
@@ -331,12 +336,14 @@ class SemiGradientUpdater(AbstractGainUpdater):
         scale = 0.5
 
         self.running_BR[current_state] = (1 - scale) * self.running_BR[current_state] + scale * BR * BR
-        self.BR_estimates[current_state] = (1 - scale) * self.BR_estimates[current_state] + scale * next_BR
+        self.BR_estimates[current_state] = (1 - 0.9) * self.BR_estimates[current_state] + 0.9 * next_BR
         normalization = self.epsilon + self.running_BR[current_state]
+        next_BR_estimate = self.BR_estimates[current_state]
 
-        self.p_update += self.BR_estimates[current_state] * self.agent.p_update / normalization
-        self.d_update += self.BR_estimates[current_state] * self.agent.d_update / normalization
-        self.i_update += self.BR_estimates[current_state] * self.agent.i_update / normalization
+        self.p_update += next_BR_estimate * self.agent.p_update / normalization
+        self.d_update += next_BR_estimate * self.agent.d_update / normalization
+        self.i_update += next_BR_estimate * self.agent.i_update / normalization
+
 
         if not intermediate:
             self.kp = 1 + (1 - self.lambd) * (self.kp - 1) + self.meta_lr * self.p_update / self.agent.update_frequency

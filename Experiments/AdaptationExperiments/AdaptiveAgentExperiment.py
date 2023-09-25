@@ -37,17 +37,18 @@ def adaptive_agent_experiment(cfg):
     # Run the following agent.estimate_value_function 20 times and take an average of the histories
     
     def run_test(seed):
+        agent.set_seed(seed)
         V, gain_history, history = agent.estimate_value_function(
             cfg['num_iterations'],
             test_function,
             follow_trajectory=cfg['follow_trajectory'],
-            stop_if_diverging=cfg['stop_if_diverging'],
-            seed=seed
+            stop_if_diverging=cfg['stop_if_diverging']
         )
         return V, gain_history, history
 
+    prg = np.random.RandomState(seed)
     if cfg['debug']:
-        _, gain_history, history = run_test()
+        _, gain_history, history = run_test(prg.randint(0, 1000000))
         all_histories = [history]
         all_gain_histories = [gain_history]
     else:
@@ -55,7 +56,6 @@ def adaptive_agent_experiment(cfg):
         logging.info(f"Running experiments {num_chunks} times")
         # Run the following agent.estimate_value_function 80 times and take an average of the histories
         pool = mp.Pool()
-        prg = np.random.RandomState(seed)
         results = pool.map(run_test, [prg.randint(0, 1000000) for _ in range(num_chunks)])
         pool.close()
         pool.join()

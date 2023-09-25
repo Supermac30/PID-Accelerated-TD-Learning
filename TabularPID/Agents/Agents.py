@@ -27,6 +27,11 @@ class Agent():
         self.num_actions = environment.num_actions
         self.num_states = environment.num_states
         self.policy = policy
+    
+    def set_seed(self, seed):
+        """Set the seed of the environment and the policy"""
+        self.environment.set_seed(seed)
+        self.policy.set_seed(seed)
 
     def reset(self, reset_environment=True):
         """Reset the agent to its initial state."""
@@ -125,9 +130,6 @@ class PID_TD(Agent):
             - a triple of three functions, the first updates the P
                 component, the second the I component, and the third the D component.
             - a learning rate function for the P component, and the other rates have hard updates.
-
-            Note: From a design perspective, this was a bad choice. In the summer,
-            I should come back and clean up this part of the code
         """
         super().__init__(environment, policy, gamma)
         if type(learning_rate) == type(()):
@@ -144,13 +146,13 @@ class PID_TD(Agent):
         self.beta = beta
         self.reset()
 
-    def reset(self, reset_environment=True, seed=-1):
+    def reset(self, reset_environment=True):
         """Reset parameters to be able to run a new test."""
         self.V, self.Vp, self.z = (np.zeros((self.num_states, 1)) for _ in range(3))
         if reset_environment:
-            self.environment.reset(seed=seed)
+            self.environment.reset()
 
-    def estimate_value_function(self, num_iterations=1000, test_function=None, stop_if_diverging=True, follow_trajectory=True, reset=True, reset_environment=True, seed=-1):
+    def estimate_value_function(self, num_iterations=1000, test_function=None, stop_if_diverging=True, follow_trajectory=True, reset=True, reset_environment=True):
         """Computes V^pi of the inputted policy using TD learning augmented with controllers.
         Takes in Controller objects that the agent will use to control the dynamics of learning.
 
@@ -162,7 +164,7 @@ class PID_TD(Agent):
         we stop learning and return a history with the last element being very large
         """
         if reset:
-            self.reset(reset_environment, seed)
+            self.reset(reset_environment)
 
         # A vector storing the number of times we have seen a state.
         frequency = np.zeros((self.num_states))
@@ -235,7 +237,7 @@ class Hard_PID_TD(PID_TD):
 class PID_TD_with_momentum(PID_TD):
     """The old flawed updates that seemed to work better
     """
-    def estimate_value_function(self, num_iterations=1000, test_function=None, stop_if_diverging=True, follow_trajectory=True, reset_environment=False, seed=-1):
+    def estimate_value_function(self, num_iterations=1000, test_function=None, stop_if_diverging=True, follow_trajectory=True, reset_environment=False):
         """Computes V^pi of the inputted policy using TD learning augmented with controllers.
         Takes in Controller objects that the agent will use to control the dynamics of learning.
 
@@ -246,7 +248,7 @@ class PID_TD_with_momentum(PID_TD):
         If stop_if_diverging is True, then when the test_function is 10 times as large as its initial value,
         we stop learning and return a history with the last element being very large
         """
-        self.reset(reset_environment, -1)
+        self.reset(reset_environment)
         # A vector storing the number of times we have seen a state.
         frequency = np.zeros((self.num_states, 1))
 
@@ -301,7 +303,7 @@ class FarSighted_PID_TD(PID_TD):
             learning_rate
         )
 
-    def estimate_value_function(self, controllers=[], num_iterations=1000, test_function=None, stop_if_diverging=True, follow_trajectory=False, reset_environment=False, seed=-1):
+    def estimate_value_function(self, controllers=[], num_iterations=1000, test_function=None, stop_if_diverging=True, follow_trajectory=False, reset_environment=False):
         """Computes V^pi of the inputted policy using TD learning augmented with controllers.
         Takes in Controller objects that the agent will use to control the dynamics of learning.
 
@@ -313,7 +315,7 @@ class FarSighted_PID_TD(PID_TD):
         we stop learning and return a history with the last element being very large
         """
         if reset_environment:
-            self.environment.reset(seed)
+            self.environment.reset()
         # A vector storing the number of times we have seen a state.
         frequency = np.zeros((self.num_states, 1))
 
@@ -379,21 +381,21 @@ class ControlledQLearning(Agent):
         self.double = double
         self.reset()
 
-    def reset(self, reset_environment=True, seed=-1):
+    def reset(self, reset_environment=True):
         """Reset parameters to be able to run a new test."""
         if reset_environment:
-            self.environment.reset(seed=seed)
+            self.environment.reset()
 
         self.Q = np.zeros((self.num_states, self.num_actions))
         self.Qp = np.zeros((self.num_states, self.num_actions))
         self.z = np.zeros((self.num_states, self.num_actions))
         self.policy = Policy(self.num_actions, self.num_states, self.environment.prg, None)
 
-    def estimate_value_function(self, num_iterations=1000, test_function=None, stop_if_diverging=True, follow_trajectory=False, reset_environment=True, seed=-1):
+    def estimate_value_function(self, num_iterations=1000, test_function=None, stop_if_diverging=True, follow_trajectory=False, reset_environment=True):
         """Use the Q-learning algorithm to estimate the value function.
         That is, create a matrix of size num_states by num_actions, Q, and update it according to the Q-learning update rule.
         """
-        self.reset(reset_environment, seed)
+        self.reset(reset_environment)
         # A vector storing the number of times we have seen a state.
         frequency = np.zeros((self.num_states, 1))
 
@@ -463,10 +465,10 @@ class ControlledDoubleQLearning(Agent):
         self.beta = beta
         self.reset()
 
-    def reset(self, reset_environment=True, seed=-1):
+    def reset(self, reset_environment=True):
         """Reset parameters to be able to run a new test."""
         if reset_environment:
-            self.environment.reset(seed=seed)
+            self.environment.reset()
 
         self.Q_A = np.zeros((self.num_states, self.num_actions))
         self.Qp_A = np.zeros((self.num_states, self.num_actions))
@@ -477,11 +479,11 @@ class ControlledDoubleQLearning(Agent):
 
         self.policy = Policy(self.num_actions, self.num_states, self.environment.prg, None)
 
-    def estimate_value_function(self, num_iterations=1000, test_function=None, stop_if_diverging=True, follow_trajectory=False, reset_environment=True, seed=-1):
+    def estimate_value_function(self, num_iterations=1000, test_function=None, stop_if_diverging=True, follow_trajectory=False, reset_environment=True):
         """Use the Q-learning algorithm to estimate the value function.
         That is, create a matrix of size num_states by num_actions, Q, and update it according to the Q-learning update rule.
         """
-        self.reset(reset_environment, seed)
+        self.reset(reset_environment)
         # A vector storing the number of times we have seen a state.
         frequency_A = np.zeros((self.num_states, 1))
         frequency_B = np.zeros((self.num_states, 1))

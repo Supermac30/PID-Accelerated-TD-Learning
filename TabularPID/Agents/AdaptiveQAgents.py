@@ -25,10 +25,13 @@ class AbstractAdaptiveAgent(Agent):
         self.double = double
 
         self.reset()
+    
+    def set_seed(self, seed):
+        self.environment.set_seed(seed)
 
-    def reset(self, reset_environment=True, seed=-1):
+    def reset(self, reset_environment=True):
         if reset_environment:
-            self.environment.reset(seed)
+            self.environment.reset()
         self.kp, self.ki, self.kd = self.original_kp, self.original_ki, self.original_kd
         self.alpha, self.beta = self.original_alpha, self.original_beta
         self.lr, self.previous_lr, self.update_D_rate_value, self.previous_update_D_rate_value, self.update_I_rate_value, self.previous_update_I_rate_value = 0, 0, 0, 0, 0, 0
@@ -48,8 +51,8 @@ class AbstractAdaptiveAgent(Agent):
 
         self.policy = Policy(self.num_actions, self.num_states, self.environment.prg, None)
 
-    def estimate_value_function(self, num_iterations=1000, test_function=None, initial_Q=None, stop_if_diverging=True, follow_trajectory=False, reset_environment=True, seed=-1):
-        self.reset(reset_environment, seed)
+    def estimate_value_function(self, num_iterations=1000, test_function=None, initial_Q=None, stop_if_diverging=True, follow_trajectory=False, reset_environment=True):
+        self.reset(reset_environment)
         # Q is the current value function, Qp is the previous value function
         # Qp stores the previous value of the x state when it was last changed
         if initial_Q is not None:

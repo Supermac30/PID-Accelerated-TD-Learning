@@ -19,7 +19,7 @@ directory=$save_dir/$current_time
 echo "Saving to $directory"
 mkdir -p "$directory"
 
-gamma=0.9
+gamma=0.999
 
 recompute_optimal=False
 compute_optimal=True
@@ -38,11 +38,11 @@ do
         hydra.sweep.dir="$directory" \
         seed=$seed \
         save_dir="$save_dir/gain_adaptation/$run" \
-        meta_lr=1e-1,5e-2,1e-2,5e-3,1e-3 \
+        meta_lr=1e-2,1e-3,1e-4 \
         epsilon=1e-1,1e-2 \
         env="garnet $garnet_seed 50" \
         gamma=$gamma \
-        agent_name="diagonal semi gradient updater" \
+        agent_name="semi gradient updater" \
         num_iterations=$num_iterations \
         search_steps=$search_steps \
         recompute_optimal=$recompute_optimal \

@@ -16,21 +16,21 @@ def soft_policy_evaluation_experiment(cfg):
     test_function = build_test_function(cfg['norm'], Q_star)
 
     def run_test(seed):
+        agent.set_seed(seed)
         history, Q = agent.estimate_value_function(
             num_iterations=cfg['num_iterations'],
             test_function=test_function,
             follow_trajectory=cfg['follow_trajectory'],
-            stop_if_diverging=cfg['stop_if_diverging'],
-            seed=seed
+            stop_if_diverging=cfg['stop_if_diverging']
         )
         return history, Q
     
+    prg = np.random.RandomState(seed)
     if cfg['debug']:
-        history, _ = run_test()
+        history, _ = run_test(prg.randint(0, 1000000))
         all_histories = [history]
     else:
         # Create a psuedo random number generator with seed seed
-        prg = np.random.RandomState(seed)
         num_chunks = mp.cpu_count()
         logging.info(f"Running experiments {num_chunks} times")
         # Run the following agent.estimate_value_function 80 times and take an average of the histories

@@ -36,15 +36,16 @@ def soft_policy_evaluation_experiment(cfg):
     )
 
     def run_test(seed):
+        agent.set_seed(seed)
         history, gain_history, w_V = agent.estimate_value_function(
             num_iterations=cfg['num_iterations'],
-            stop_if_diverging=cfg['stop_if_diverging'],
-            seed=seed
+            stop_if_diverging=cfg['stop_if_diverging']
         )
         return history, gain_history, w_V
 
+    prg = np.random.RandomState(seed)
     if cfg['debug']:
-        history, gain_history, _ = run_test()
+        history, gain_history, _ = run_test(prg.randint(0, 1000000))
         all_histories = [history]
         all_gain_histories = [gain_history]
     else:
@@ -52,7 +53,6 @@ def soft_policy_evaluation_experiment(cfg):
         logging.info(f"Running experiments {num_chunks} times")
         # Run the following agent.estimate_value_function 80 times and take an average of the histories
         pool = mp.Pool()
-        prg = np.random.RandomState(seed)
         results = pool.map(run_test, [prg.randint(0, 1000000) for _ in range(num_chunks)])
         pool.close()
         pool.join()

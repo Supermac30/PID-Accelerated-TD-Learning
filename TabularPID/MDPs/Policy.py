@@ -15,6 +15,10 @@ class Policy():
             self.policy = np.full((num_states, num_actions), 1/self.num_actions)
         else:
             self.policy = policy
+    
+    def set_seed(self, seed):
+        """Set the seed"""
+        self.prg = np.random.RandomState(seed)
 
     def set_policy(self, policy):
         """Set the policy"""

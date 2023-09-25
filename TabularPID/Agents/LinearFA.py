@@ -199,14 +199,23 @@ class LinearTD():
 
         self.current_state = next_state
         return current_state, next_state, reward
+    
+    def set_seed(self, seed):
+        """Set the seed for the environment and the agent.
+        """
+        if self.is_gym_env:
+            self.env.seed(seed)
+        else:
+            self.env.set_seed(seed)
+        self.policy.set_seed(seed)
 
-    def reset(self, reset_environment=True, seed=-1):
+    def reset(self, reset_environment=True):
         num_features = self.basis.num_features
         if reset_environment:
             if self.is_gym_env:
                 self.current_state = self.env.reset()[0]
             else:
-                self.current_state = self.env.reset(seed)
+                self.current_state = self.env.reset()
 
         self.w_V = np.zeros((num_features, 1))
         self.w_Vp = np.zeros((num_features, 1))

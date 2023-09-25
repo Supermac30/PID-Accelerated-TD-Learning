@@ -41,19 +41,16 @@ class Environment:
         )
 
         self.seed = seed
-        # We would like to use a new seed when resetting the environment,
-        # but for the sake of reproducibility, use the same sequence of random seeds.
-        # To do this, create a seed generator, and use it to generate seeds for the environment.
-        self.seed_generator = np.random.default_rng(self.seed)
-        self.prg = np.random.default_rng(self.seed_generator.integers(0, 2**32 - 1))
+        self.prg = np.random.default_rng(seed)
 
-    def reset(self, seed=-1):
+    def set_seed(self, seed):
+        self.prg = np.random.default_rng(seed)
+
+    def reset(self):
         """Reset the Environment back to the initial state.
         Reset the prg to ensure fair experiments.
         """
         self.current_state = self.start_state
-        if seed == -1:
-            self.prg = np.random.default_rng(self.seed_generator.integers(0, 2**32 - 1))
         
         return self.current_state
 
@@ -125,9 +122,9 @@ class Garnet(Environment):
             raise InvalidAction(action)
 
         # Find next state and reward
+        reward = self.rewards[self.current_state]
         transition_probs = self.transitions[self.current_state, :, action]
         self.current_state = self.prg.choice(len(transition_probs), p=transition_probs)
-        reward = self.rewards[self.current_state]
 
         return self.current_state, reward
 
@@ -135,7 +132,7 @@ class Garnet(Environment):
         """Return a vector of dimensions self.num_states by self.num_actions where the
         (i, j)th entry is the expected reward of taking action j in state i.
         """
-        return np.einsum('ijk,il->i', self.transitions, self.rewards).reshape((-1, 1))
+        return np.tile(self.rewards, (1, self.num_actions))
 
     def build_probability_transition_kernel(self):
         """Return a matrix of dimensions self.num_states by self.num_states
@@ -183,7 +180,7 @@ class ChainWalk(Environment):
         return self.current_state, reward
 
     def build_reward_matrix(self):
-        """Return a vector of dimensions self.num_states by self.num_actions where the
+        """Return a matrix of dimensions self.num_states by self.num_actions where the
         (i, j)th entry is the expected reward of taking action j in state i
         """
         rewards = np.zeros((self.num_states, 2))

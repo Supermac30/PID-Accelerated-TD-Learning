@@ -14,15 +14,16 @@ ulimit -n 2048
 source slurm/setup.sh
 
 current_time=$(date "+%Y.%m.%d/%H.%M.%S")
-env="cliff walk"
+env="garnet 150 50"
 gamma=0.99
 repeat=3
 seed=$RANDOM
 num_iterations=1000
-search_steps=100
+search_steps=1000
 recompute_optimal=True
 compute_optimal=True  # False when we need to debug, so there is no multiprocessing
 get_optimal=True  # False when we need to debug with a specific learning rate
+debug=False
 
 directory=outputs/adaptation_experiment/$env/$current_time
 echo "Saving to ${directory}"
@@ -38,11 +39,12 @@ python3 -m Experiments.AdaptationExperiments.AdaptiveAgentExperiment --multirun 
     recompute_optimal=$recompute_optimal \
     compute_optimal=$compute_optimal \
     get_optimal=$get_optimal \
-    meta_lr=1e-3 \
-    epsilon=1e-1 \
+    meta_lr=1e-2 \
+    epsilon=1e-2 \
     env="$env" \
     gamma=$gamma \
     repeat=$repeat \
+    debug=$debug \
     num_iterations=$num_iterations \
     agent_name="semi gradient updater" \
 
@@ -58,6 +60,7 @@ python3 -m Experiments.TDExperiments.SoftTDPolicyEvaluation \
     gamma=$gamma \
     env="$env" \
     repeat=$repeat \
+    debug=$debug \
     num_iterations=$num_iterations \
 
 python3 -m Experiments.Plotting.plot_adaptation_experiment \

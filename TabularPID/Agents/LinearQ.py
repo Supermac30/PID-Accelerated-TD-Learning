@@ -70,13 +70,13 @@ class LinearTDQ():
         self.action = action
         return current_state, next_state, reward, action
 
-    def reset(self, reset_environment=True, seed=-1):
+    def reset(self, reset_environment=True):
         num_features = self.basis.num_features
         if reset_environment:
             if self.is_gym_env:
                 self.current_state = self.env.reset()[0]
             else:
-                self.current_state = self.env.reset(seed)
+                self.current_state = self.env.reset()
 
         self.w_Q = np.zeros((num_features, 1))
         self.w_Qp = np.zeros((num_features, 1))
@@ -90,8 +90,8 @@ class LinearTDQ():
         self.num_steps = 0
 
 
-    def estimate_value_function(self, num_iterations, test_function=None, reset_environment=True, stop_if_diverging=True, seed=-1):
-        self.reset(reset_environment, seed)
+    def estimate_value_function(self, num_iterations, test_function=None, reset_environment=True, stop_if_diverging=True):
+        self.reset(reset_environment)
 
         # The history of the gains
         self.gain_history = [np.zeros(num_iterations // (num_iterations // 100)) for _ in range(5)]
