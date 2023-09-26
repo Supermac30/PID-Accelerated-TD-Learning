@@ -40,8 +40,7 @@ def adaptive_agent_experiment(cfg):
             cfg['num_iterations'],
             test_function,
             follow_trajectory=cfg['follow_trajectory'],
-            stop_if_diverging=cfg['stop_if_diverging'],
-            seed=seed
+            stop_if_diverging=cfg['stop_if_diverging']
         )
         return Q, gain_history, history
 

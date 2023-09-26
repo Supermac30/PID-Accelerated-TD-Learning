@@ -15,4 +15,3 @@ lunarlander:
   learning_starts: 0
   num_iterations: 1000000 # 100000
   gamma: 0.99
-  target_reward: 500 # 200

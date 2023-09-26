@@ -20,7 +20,7 @@ def build_PID_DQN(gain_adapter, env_name, gamma, optimizer, replay_memory_size, 
                   is_double=False, visualize=False, policy_evaluation=False):
     """Build the PID DQN agent
     """
-    env, is_atari, stopping_criterion = create_environment(env_name, slow_motion=slow_motion)
+    env, is_atari, _ = create_environment(env_name, slow_motion=slow_motion)
     if visualize:
         env = gym.wrappers.RecordVideo(env, 'video', episode_trigger = lambda x: x % 25 == 0)
     optimizer_class = create_optimizer(optimizer)
@@ -31,7 +31,7 @@ def build_PID_DQN(gain_adapter, env_name, gamma, optimizer, replay_memory_size, 
         policy_type = "MlpPolicy"
 
     dqn = PID_DQN(
-        d_tau, stopping_criterion, tabular_d, gain_adapter,
+        d_tau, tabular_d, gain_adapter,
         policy=policy_type,
         env=env,
         learning_rate=learning_rate,
@@ -51,7 +51,6 @@ def build_PID_DQN(gain_adapter, env_name, gamma, optimizer, replay_memory_size, 
         policy_kwargs=dict(net_arch=[inner_size, inner_size],
                            optimizer_class=optimizer_class),
         seed=seed,
-        should_stop=should_stop,
         device=device,
         dump_buffer=dump_buffer,
         is_double=is_double,
@@ -82,7 +81,7 @@ def build_PID_FQI(gain_adapter, env_name, gamma, optimizer, replay_memory_size, 
                   log_name="", name_append="", should_stop=False, device="cuda", visualize=False, policy_evaluation=False):
     """Build the PID DQN agent
     """
-    env, is_atari, stopping_criterion = create_environment(env_name, slow_motion=slow_motion)
+    env, is_atari, _ = create_environment(env_name, slow_motion=slow_motion)
     if visualize:
         env = gym.wrappers.RecordVideo(env, 'video', episode_trigger = lambda x: x % 25 == 0)
     optimizer_class = create_optimizer(optimizer)
@@ -95,7 +94,7 @@ def build_PID_FQI(gain_adapter, env_name, gamma, optimizer, replay_memory_size, 
         optimize_memory_usage = False
 
     dqn = PID_FQI(
-        stopping_criterion, gain_adapter,
+        gain_adapter,
         policy=policy_type,
         env=env,
         learning_rate=learning_rate,
@@ -114,7 +113,6 @@ def build_PID_FQI(gain_adapter, env_name, gamma, optimizer, replay_memory_size, 
         policy_kwargs=dict(net_arch=[inner_size, inner_size],
                            optimizer_class=optimizer_class),
         seed=seed,
-        should_stop=should_stop,
         device=device,
         optimal_model=get_model(env_name),
         policy_evaluation=policy_evaluation

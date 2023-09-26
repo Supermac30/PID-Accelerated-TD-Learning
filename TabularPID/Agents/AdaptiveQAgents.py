@@ -161,6 +161,8 @@ class AdaptiveSamplerAgent(AbstractAdaptiveAgent):
         self.z[state][action] = (1 - update_I_rate) * self.z[state][action] + update_I_rate * new_z
         self.Qp[state][action] = (1 - update_D_rate) * self.Qp[state][action] + update_D_rate * new_Qp
 
+        self.next_BR = self.BR()
+
 
     def BR(self):
         """Return the empirical bellman residual"""
@@ -227,6 +229,8 @@ class DiagonalAdaptiveSamplerAgent(AbstractAdaptiveAgent):
         self.previous_Q = self.Q.copy()
         self.previous_z = self.z.copy()
         self.previous_Qp = self.Qp.copy()
+        
+        self.next_BR = self.BR()
 
         """
         self.previous_previous_Q[state][action], self.previous_Q[state][action], self.Q[state][action] = self.previous_Q[state][action], self.Q[state][action], (1 - lr) * self.Q[state][action] + lr * new_Q
@@ -329,7 +333,7 @@ class SemiGradientUpdater(AbstractGainUpdater):
         self.previous_average_BR = float("inf")
 
     def set_agent(self, agent):
-        self.running_BR = np.zeros((agent.num_states, agent.num_actions))
+        self.previous_samples = {(s, a): [] for s in range(agent.num_states) for a in range(agent.num_actions)}
         self.previous_average_BR = float("inf")
         self.d_update = 0
         self.i_update = 0
@@ -349,17 +353,25 @@ class SemiGradientUpdater(AbstractGainUpdater):
         reward = self.agent.reward
         next_state, current_state, action = self.agent.next_state, self.agent.current_state, self.agent.action
         next_Q = self.agent.Q
-        gamma, lr = self.gamma, self.agent.lr
+        gamma = self.gamma
+        
+        if len(self.previous_samples[(current_state, action)]) == 0:
+            self.previous_samples[(current_state, action)] = (self.agent.next_state, self.agent.reward)
+            return
+
+        next_state, reward = self.previous_samples[(current_state, action)]
 
         BR = self.agent.previous_BR
-        next_BR = reward + gamma * np.max(next_Q[next_state]) - next_Q[current_state][action]
+        next_BR = self.agent.next_BR # reward + gamma * np.max(next_Q[next_state]) - next_Q[current_state][action]
 
         scale = 0.5
-        self.running_BR[current_state][action] = (1 - scale) * self.running_BR[current_state][action] + scale * BR * BR
+        self.running_BR = (1 - scale) * self.running_BR + scale * BR * BR
 
-        self.p_update += lr * next_BR * self.agent.p_update / (self.epsilon + self.running_BR[current_state][action])
-        self.d_update += lr * next_BR * self.agent.d_update / (self.epsilon + self.running_BR[current_state][action])
-        self.i_update += lr * next_BR * self.agent.i_update / (self.epsilon + self.running_BR[current_state][action])
+        self.p_update += next_BR * self.agent.p_update / (self.epsilon + self.running_BR)
+        self.d_update += next_BR * self.agent.d_update / (self.epsilon + self.running_BR)
+        self.i_update += next_BR * self.agent.i_update / (self.epsilon + self.running_BR)
+
+        self.previous_samples[(current_state, action)] = (self.agent.next_state, self.agent.reward)
 
         if not intermediate:
             self.kp = 1 + (1 - self.lambd) * (self.kp - 1) + self.meta_lr * self.p_update / self.agent.update_frequency

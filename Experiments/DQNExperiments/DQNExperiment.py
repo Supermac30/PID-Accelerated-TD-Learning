@@ -83,7 +83,7 @@ def control_experiment(cfg):
         callback= [WandbCallback(verbose=2)]
         if cfg['eval']:
             callback.append(EvaluatePolicyCallback(env_cfg['num_iterations'], build_emperical_Q_tester(env_cfg['env'], env_cfg['gamma'], run_seed)))
-        if cfg['gain_adapter'] != "NoGainAdapter" and agent.gain_adapter.adapts_single_gains:
+        if cfg['gain_adapter'] != "NoGainAdapter":
             callback.append(GainReporterCallback())
         if cfg['policy_evaluation']:
             callback.append(PolicyEvaluationCallback(get_model(env_cfg['env'])))
@@ -131,10 +131,15 @@ class GainReporterCallback(BaseCallback):
     def _on_step(self) -> bool:
         if self.num_timesteps % 1000 != 0:
             return True
+        
+        # Sample all states
+        replay_data = self.model.replay_buffer.sample(self.model.replay_buffer.size(), env=self.model._vec_normalize_env)  # type: ignore[union-attr]
 
-        self.logger.record("eval/k_p", self.model.gain_adapter.kp)
-        self.logger.record("eval/k_i", self.model.gain_adapter.ki)
-        self.logger.record("eval/k_d", self.model.gain_adapter.kd)
+        kp, ki, kd, _, _ = self.model.gain_adapter.get_gains(None, None, replay_data)
+
+        self.logger.record("eval/k_p", th.mean(kp).item())
+        self.logger.record("eval/k_i", th.mean(ki).item())
+        self.logger.record("eval/k_d", th.mean(kd).item())
 
         return True
 

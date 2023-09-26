@@ -15,4 +15,3 @@ acrobot:
   learning_starts: 1000
   num_iterations: 50000
   gamma: 0.99
-  target_reward: -100

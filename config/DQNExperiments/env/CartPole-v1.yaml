@@ -9,10 +9,9 @@ cartpole:
   minimum_eps: 0.04
   gradient_steps: 128
   train_freq: 256
-  target_update_interval: 250  # 10
+  target_update_interval: 10
   tau: 1
   inner_size: 256
   learning_starts: 1000
   num_iterations: 50000
   gamma: 0.99
-  target_reward: 195

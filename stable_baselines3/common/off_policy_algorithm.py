@@ -105,9 +105,7 @@ class OffPolicyAlgorithm(BaseAlgorithm):
         sde_sample_freq: int = -1,
         use_sde_at_warmup: bool = False,
         sde_support: bool = True,
-        supported_action_spaces: Optional[Tuple[Type[spaces.Space], ...]] = None,
-        stopping_criterion = None,
-        should_stop = False
+        supported_action_spaces: Optional[Tuple[Type[spaces.Space], ...]] = None
     ):
         super().__init__(
             policy=policy,
@@ -125,11 +123,6 @@ class OffPolicyAlgorithm(BaseAlgorithm):
             sde_sample_freq=sde_sample_freq,
             supported_action_spaces=supported_action_spaces,
         )
-        self.stopping_criterion = stopping_criterion
-        self.should_stop = should_stop
-        self.number_of_stops = 0  # The number of times we reached the stopping criterion in a row.
-        self.reward_log = None  # The reward we received in the last episode for the purpose of determining if we should stop.
-
         self.buffer_size = buffer_size
         self.batch_size = batch_size
         self.learning_starts = learning_starts
@@ -315,7 +308,7 @@ class OffPolicyAlgorithm(BaseAlgorithm):
 
         callback.on_training_start(locals(), globals())
 
-        while self.num_timesteps < total_timesteps and self._continue_training():
+        while self.num_timesteps < total_timesteps:
             # Collect rollout
             rollout = self.collect_rollouts(
                 self.env,
@@ -348,12 +341,6 @@ class OffPolicyAlgorithm(BaseAlgorithm):
         (gradient descent and update target networks)
         """
         raise NotImplementedError()
-
-    def _continue_training(self) -> bool:
-        """Return if we meet the stopping criterion sufficiently many times in a row."""
-        if self.stopping_criterion is None or self.reward_log is None:
-            return True
-        return (not self.should_stop) or (self.stopping_criterion > self.reward_log)
 
     def _sample_action(
         self,

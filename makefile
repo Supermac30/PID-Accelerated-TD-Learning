@@ -1,3 +1,6 @@
+split_work:
+	. slurm/dqn_split_work/split_work.sh
+
 adapt:
 	sbatch slurm/adapt.sh
 

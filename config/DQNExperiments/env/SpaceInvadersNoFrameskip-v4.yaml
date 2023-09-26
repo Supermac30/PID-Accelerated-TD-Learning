@@ -15,4 +15,3 @@ atari:
   learning_starts: 100000
   num_iterations: 4000000
   gamma: 0.99
-  target_reward: 100

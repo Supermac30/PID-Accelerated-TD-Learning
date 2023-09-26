@@ -79,10 +79,9 @@ class MC_DQN(OffPolicyAlgorithm):
     policy: DQNPolicy
 
     def __init__(
-        self, stopping_criterion,
+        self,
         policy: Union[str, Type[DQNPolicy]],
         env: Union[GymEnv, str],
-        should_stop: bool = False,
         learning_rate: Union[float, Schedule] = 1e-4,
         buffer_size: int = 1_000_000,  # 1e6
         learning_starts: int = 50000,

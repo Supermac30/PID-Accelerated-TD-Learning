@@ -269,10 +269,9 @@ class ReplayBuffer(BaseBuffer):
         self.ds[self.pos] = np.array(0)
         self.BRs[self.pos] = np.array(0)
 
-        # Set to -1000 to be changed by the diagonal gain adapter before the next iteration to the default starting gains
-        self.kp[self.pos] = np.array(-1000)
-        self.ki[self.pos] = np.array(-1000)
-        self.kd[self.pos] = np.array(-1000)
+        self.kp[self.pos] = np.array(1)
+        self.ki[self.pos] = np.array(0)
+        self.kd[self.pos] = np.array(0)
 
         if self.handle_timeout_termination:
             self.timeouts[self.pos] = np.array([info.get("TimeLimit.truncated", False) for info in infos])

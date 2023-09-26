@@ -15,8 +15,8 @@ env="cliff walk"
 gamma=0.99
 repeat=20
 seed=$RANDOM
-num_iterations=10000
-search_steps=10000
+num_iterations=3000
+search_steps=3000
 directory=outputs/q_adaptation_experiment/$env/$current_time
 echo "Saving to $directory"
 mkdir -p "$directory"
@@ -39,7 +39,7 @@ python3 -m Experiments.AdaptationExperiments.AdaptiveQAgentExperiment --multirun
     repeat=$repeat \
     num_iterations=$num_iterations \
     search_steps=$search_steps \
-    agent_name="semi gradient double Q updater" \
+    agent_name="semi gradient Q updater" \
     recompute_optimal=$recompute_optimal \
     compute_optimal=$compute_optimal \
     get_optimal=$get_optimal \

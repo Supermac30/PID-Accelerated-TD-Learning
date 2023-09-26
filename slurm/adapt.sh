@@ -14,12 +14,12 @@ ulimit -n 2048
 source slurm/setup.sh
 
 current_time=$(date "+%Y.%m.%d/%H.%M.%S")
-env="garnet 150 50"
+env="garnet 230 50"
 gamma=0.99
 repeat=3
 seed=$RANDOM
-num_iterations=1000
-search_steps=1000
+num_iterations=3000
+search_steps=3000
 recompute_optimal=True
 compute_optimal=True  # False when we need to debug, so there is no multiprocessing
 get_optimal=True  # False when we need to debug with a specific learning rate
@@ -39,8 +39,8 @@ python3 -m Experiments.AdaptationExperiments.AdaptiveAgentExperiment --multirun 
     recompute_optimal=$recompute_optimal \
     compute_optimal=$compute_optimal \
     get_optimal=$get_optimal \
-    meta_lr=1e-2 \
-    epsilon=1e-2 \
+    meta_lr=1e-4 \
+    epsilon=0.1 \
     env="$env" \
     gamma=$gamma \
     repeat=$repeat \
@@ -54,6 +54,8 @@ python3 -m Experiments.TDExperiments.SoftTDPolicyEvaluation \
     seed=$seed \
     search_steps=$search_steps \
     recompute_optimal=$recompute_search \
+    compute_optimal=$compute_optimal \
+    get_optimal=$get_optimal \
     kp=1 \
     ki=0 \
     kd=0 \

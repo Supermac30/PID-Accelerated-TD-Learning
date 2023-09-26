@@ -1,6 +1,7 @@
 import numpy as np
 from collections import defaultdict
 import logging
+import random
 import matplotlib.pyplot as plt
 
 from TabularPID.Agents.Agents import Agent, learning_rate_function
@@ -308,7 +309,7 @@ class SemiGradientUpdater(AbstractGainUpdater):
         self.previous_average_BR = float("inf")
 
     def set_agent(self, agent):
-        self.running_BR = np.zeros((agent.num_states))
+        self.previous_samples = [[] for _ in range(agent.num_states)]
         self.previous_average_BR = float("inf")
         self.previous_BRs = np.zeros((agent.num_states))
         self.d_update = 0
@@ -323,27 +324,30 @@ class SemiGradientUpdater(AbstractGainUpdater):
 
         self.plot_state = 25
 
-        self.BR_estimates = np.zeros((agent.num_states))
-
         return super().set_agent(agent)
 
     def calculate_updated_values(self, intermediate=False):
         current_state = self.agent.current_state
 
+        if len(self.previous_samples[current_state]) == 0:
+            self.previous_samples[current_state] = (self.agent.next_state, self.agent.reward)
+            return
+
+        next_state, reward = self.previous_samples[current_state]
+
         BR = self.agent.previous_BR
-        next_BR = self.agent.next_BR
+        next_BR = self.gamma * self.agent.V[next_state] + reward - self.agent.V[current_state]
 
         scale = 0.5
 
-        self.running_BR[current_state] = (1 - scale) * self.running_BR[current_state] + scale * BR * BR
-        self.BR_estimates[current_state] = (1 - 0.9) * self.BR_estimates[current_state] + 0.9 * next_BR
-        normalization = self.epsilon + self.running_BR[current_state]
-        next_BR_estimate = self.BR_estimates[current_state]
+        self.running_BR = (1 - scale) * self.running_BR + scale * BR * BR
+        normalization = self.epsilon + self.running_BR
 
-        self.p_update += next_BR_estimate * self.agent.p_update / normalization
-        self.d_update += next_BR_estimate * self.agent.d_update / normalization
-        self.i_update += next_BR_estimate * self.agent.i_update / normalization
+        self.p_update += (next_BR * self.agent.p_update) / normalization
+        self.d_update += (next_BR * self.agent.d_update) / normalization
+        self.i_update += (next_BR * self.agent.i_update) / normalization
 
+        self.previous_samples[current_state] = (self.agent.next_state, self.agent.reward)
 
         if not intermediate:
             self.kp = 1 + (1 - self.lambd) * (self.kp - 1) + self.meta_lr * self.p_update / self.agent.update_frequency

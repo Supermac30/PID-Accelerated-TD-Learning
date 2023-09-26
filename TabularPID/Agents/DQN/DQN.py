@@ -78,11 +78,10 @@ class PID_DQN(OffPolicyAlgorithm):
     policy: DQNPolicy
 
     def __init__(
-        self, d_tau, stopping_criterion, tabular_d,
+        self, d_tau, tabular_d,
         gain_adapter,
         policy: Union[str, Type[DQNPolicy]],
         env: Union[GymEnv, str],
-        should_stop: bool = False,
         learning_rate: Union[float, Schedule] = 1e-4,
         buffer_size: int = 1_000_000,  # 1e6
         learning_starts: int = 50000,
@@ -134,9 +133,7 @@ class PID_DQN(OffPolicyAlgorithm):
             sde_support=False,
             optimize_memory_usage=optimize_memory_usage,
             supported_action_spaces=(spaces.Discrete,),
-            support_multi_env=True,
-            stopping_criterion=stopping_criterion,
-            should_stop=should_stop
+            support_multi_env=True
         )
         # The stable baselines wrapped env don't play nice with the RecordVideo Wrapper
         # The simplest solution is to reserve an unwrapped instance for video recording, instead of modifying the API
@@ -206,8 +203,7 @@ class PID_DQN(OffPolicyAlgorithm):
         # each call to step() corresponds to n_envs transitions
         if self._n_calls % max(self.target_update_interval // self.n_envs, 1) == 0:
             # Update the gains here
-            gradient_steps = self.gradient_steps if self.gradient_steps > 0 else 4
-            replay_data = self.replay_buffer.sample(self.batch_size * gradient_steps, env=self._vec_normalize_env)  # type: ignore[union-attr]
+            replay_data = self.replay_buffer.sample(self.replay_buffer.size(), env=self._vec_normalize_env)  # type: ignore[union-attr]
             self.gain_adapter.adapt_gains(replay_data)
 
             # Update the D network
