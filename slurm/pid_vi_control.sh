@@ -11,7 +11,7 @@
 
 source slurm/setup.sh
 current_time=$(date "+%Y.%m.%d/%H.%M.%S")
-env="chain walk"
+env="cliff walk"
 gamma=0.99
 seed=$RANDOM
 num_iterations=300
@@ -26,8 +26,21 @@ python3 -m Experiments.VIExperiments.VIQControl --multirun \
     save_dir="$directory" \
     seed=$seed \
     kp=1 \
-    ki=-0.2,0,0.2 \
-    kd=-0.2,0,0.2 \
+    ki=0 \
+    kd=0 \
+    gamma=$gamma \
+    env="$env" \
+    num_iterations=$num_iterations
+
+python3 -m Experiments.VIExperiments.VIQControl --multirun \
+    hydra.mode=MULTIRUN \
+    hydra.run.dir="$directory" \
+    hydra.sweep.dir="$directory" \
+    save_dir="$directory" \
+    seed=$seed \
+    kp=1 \
+    ki=0.2 \
+    kd=0.2 \
     gamma=$gamma \
     env="$env" \
     num_iterations=$num_iterations
@@ -37,4 +50,5 @@ python3 -m Experiments.Plotting.plot_vi_experiment \
     save_dir="$directory" \
     repeat=$repeat \
     env="$env" \
-    is_q=True
+    is_q=True \
+    log_plot=True

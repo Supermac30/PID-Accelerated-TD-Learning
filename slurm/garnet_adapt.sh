@@ -13,13 +13,13 @@ source slurm/setup.sh
 
 current_time=$(date "+%Y.%m.%d/%H.%M.%S")
 save_dir=$1
-num_iterations=10000
-search_steps=10000
+num_iterations=5000
+search_steps=5000
 directory=$save_dir/$current_time
 echo "Saving to $directory"
 mkdir -p "$directory"
 
-gamma=0.999
+gamma=0.99
 
 recompute_optimal=False
 compute_optimal=True
@@ -38,7 +38,7 @@ do
         hydra.sweep.dir="$directory" \
         seed=$seed \
         save_dir="$save_dir/gain_adaptation/$run" \
-        meta_lr=1e-2,1e-3,1e-4 \
+        meta_lr=1e-1,1e-2,1e-3,1e-4 \
         epsilon=1e-1,1e-2 \
         env="garnet $garnet_seed 50" \
         gamma=$gamma \

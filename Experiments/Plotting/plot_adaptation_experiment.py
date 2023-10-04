@@ -9,7 +9,7 @@ from Experiments.ExperimentHelpers import *
 def create_plots(cfg):
     """Plot all of the data in the npy folder from the runs of the adaptive agent."""
     # Create a figure that will be used to plot the history of each agent
-    fig0, ax0 = plt.subplots(figsize=(11, 7))
+    fig0, ax0 = plt.subplots(figsize=(7, 5))
 
     # Min history
     min_final_history = np.inf
@@ -28,8 +28,8 @@ def create_plots(cfg):
         std_dev = np.load(f"{cfg['save_dir']}/npy/std_dev/{file}")
         # If the file starts with gain_history, plot it:
         if file.startswith("gain_history"):
-            fig = plt.figure(figsize=(10, 4))
-            gs = fig.add_gridspec(nrows=1, ncols=3, width_ratios=[1,1,1], wspace=0.3, hspace=0.5)
+            fig = plt.figure(figsize=(8, 4))
+            gs = fig.add_gridspec(nrows=1, ncols=3, width_ratios=[1,1,1])
             titles = ["kp", "ki", "kd"]
             for i in range(3):
                 gain_values = history[:,i]

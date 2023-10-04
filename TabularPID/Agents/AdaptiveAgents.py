@@ -1,7 +1,6 @@
 import numpy as np
 from collections import defaultdict
 import logging
-import random
 import matplotlib.pyplot as plt
 
 from TabularPID.Agents.Agents import Agent, learning_rate_function
@@ -51,10 +50,11 @@ class AbstractAdaptiveAgent(Agent):
 
         self.gain_updater.set_agent(self)
 
-    def estimate_value_function(self, num_iterations=1000, test_function=None, initial_V=None, stop_if_diverging=True, follow_trajectory=True, reset_environment=True):
+    def estimate_value_function(self, num_iterations=1000, test_function=None, initial_V=None, stop_if_diverging=True, follow_trajectory=True, reset_environment=True, visualize=False):
         self.reset(reset_environment)
         # V is the current value function, Vp is the previous value function
         # Vp stores the previous value of the x state when it was last changed
+        self.history_V = np.zeros((num_iterations, self.num_states))
         if initial_V is not None:
             self.V = initial_V.copy()
             self.Vp = initial_V.copy()
@@ -63,6 +63,9 @@ class AbstractAdaptiveAgent(Agent):
         gain_history = np.zeros((num_iterations, 5))
 
         for k in range(num_iterations):
+            if visualize:
+                self.history_V[k] = self.V.reshape((self.num_states))
+
             self.num_steps += 1
             self.previous_previous_state, self.previous_state, self.previous_reward = self.previous_state, self.current_state, self.reward
             self.current_state, _, self.next_state, self.reward = self.take_action(follow_trajectory)
@@ -73,12 +76,17 @@ class AbstractAdaptiveAgent(Agent):
 
             self.frequencies[self.current_state] += 1
 
-            self.update_value()
             if (k + 1) % self.update_frequency == 0:
                 self.gain_updater.calculate_updated_values()
                 self.gain_updater.update_gains()
             else:
                 self.gain_updater.intermediate_update()
+
+            self.previous_V[self.current_state] = self.V[self.current_state]
+            self.previous_Vp[self.current_state] = self.Vp[self.current_state]
+            self.previous_z[self.current_state] = self.z[self.current_state]
+
+            self.update_value()
 
             # Keep a record
             try:
@@ -97,6 +105,9 @@ class AbstractAdaptiveAgent(Agent):
                     break
 
         logging.info(f"Final gains are: kp: {self.kp}, ki: {self.ki}, kd: {self.kd}, alpha: {self.alpha}, beta: {self.beta}")
+        if visualize:
+            return self.history_V, gain_history
+
         if test_function is not None:
             return self.V, gain_history, history
 
@@ -135,9 +146,6 @@ class AdaptiveSamplerAgent(AbstractAdaptiveAgent):
 
         state = self.current_state
 
-        self.previous_previous_V, self.previous_V = self.previous_V.copy(), self.V.copy()
-        self.previous_Vp, self.previous_z = self.Vp.copy(), self.z.copy()
-
         #Update the value function using the floats kp, ki, kd
         BR = self.BR()
         self.previous_BR = BR
@@ -149,17 +157,10 @@ class AdaptiveSamplerAgent(AbstractAdaptiveAgent):
         new_z = self.beta * self.z[state][0] + self.alpha * BR
         new_Vp = self.V[state][0]
 
-        self.previous_previous_V = self.previous_V.copy()
-        self.previous_V = self.V.copy()
-        self.previous_z = self.z.copy()
-        self.previous_Vp = self.Vp.copy()
-
         self.V[state] = (1 - lr) * self.V[state][0] + lr * new_V
         self.z[state] = (1 - update_I_rate) * self.z[state][0] + update_I_rate * new_z
         self.Vp[state] = (1 - update_D_rate) * self.Vp[state][0] + update_D_rate * new_Vp
 
-        self.next_BR = self.BR()
-        
     def BR(self):
         """Return the empirical bellman residual"""
         return self.reward + self.gamma * self.V[self.next_state][0] - self.V[self.current_state][0]
@@ -208,8 +209,6 @@ class DiagonalAdaptiveSamplerAgent(AbstractAdaptiveAgent):
         state = self.current_state
 
         BR = self.BR()
-        self.previous_BR = BR
-
         self.p_update = BR
         self.i_update = self.beta[state] * self.z[state][0] + self.alpha[state] * BR
         self.d_update = self.Vp[state][0] - self.V[state][0]
@@ -218,11 +217,10 @@ class DiagonalAdaptiveSamplerAgent(AbstractAdaptiveAgent):
         new_z = self.beta[state] * self.z[state][0] + self.alpha[state] * BR
         new_Vp = self.V[state][0]
 
-        self.previous_previous_V[state], self.previous_V[state], self.V[state] = self.previous_V[state][0], self.V[state][0], (1 - lr) * self.V[state][0] + lr * new_V
-        self.previous_z[state], self.z[state] = self.z[state][0], (1 - update_I_rate) * self.z[state][0] + update_I_rate * new_z
-        self.previous_Vp[state], self.Vp[state] = self.Vp[state][0], (1 - update_D_rate) * self.Vp[state][0] + update_D_rate * new_Vp
+        self.V[state] = (1 - lr) * self.V[state][0] + lr * new_V
+        self.z[state] = (1 - update_I_rate) * self.z[state][0] + update_I_rate * new_z
+        self.Vp[state] = (1 - update_D_rate) * self.Vp[state][0] + update_D_rate * new_Vp
 
-        self.next_BR = self.BR()
 
     def BR(self):
         """Return the empirical bellman residual"""
@@ -305,13 +303,12 @@ class SemiGradientUpdater(AbstractGainUpdater):
 
         self.update_alpha = update_alpha
 
-        self.running_BR = 0
         self.previous_average_BR = float("inf")
 
     def set_agent(self, agent):
-        self.previous_samples = [[] for _ in range(agent.num_states)]
         self.previous_average_BR = float("inf")
         self.previous_BRs = np.zeros((agent.num_states))
+        self.running_BR = np.zeros((agent.num_states))
         self.d_update = 0
         self.i_update = 0
         self.p_update = 0
@@ -329,25 +326,19 @@ class SemiGradientUpdater(AbstractGainUpdater):
     def calculate_updated_values(self, intermediate=False):
         current_state = self.agent.current_state
 
-        if len(self.previous_samples[current_state]) == 0:
-            self.previous_samples[current_state] = (self.agent.next_state, self.agent.reward)
-            return
+        next_state, reward = self.agent.next_state, self.agent.reward
 
-        next_state, reward = self.previous_samples[current_state]
-
-        BR = self.agent.previous_BR
+        BR = self.gamma * self.agent.previous_V[next_state] + reward - self.agent.previous_V[current_state]
         next_BR = self.gamma * self.agent.V[next_state] + reward - self.agent.V[current_state]
 
         scale = 0.5
 
-        self.running_BR = (1 - scale) * self.running_BR + scale * BR * BR
-        normalization = self.epsilon + self.running_BR
+        self.running_BR[current_state] = (1 - scale) * self.running_BR[current_state] + scale * BR * BR
+        normalization = self.epsilon + self.running_BR[current_state]
 
-        self.p_update += (next_BR * self.agent.p_update) / normalization
-        self.d_update += (next_BR * self.agent.d_update) / normalization
-        self.i_update += (next_BR * self.agent.i_update) / normalization
-
-        self.previous_samples[current_state] = (self.agent.next_state, self.agent.reward)
+        self.p_update += (next_BR * BR) / normalization
+        self.d_update += (next_BR * (self.agent.previous_V[current_state] - self.agent.previous_Vp[current_state])) / normalization
+        self.i_update += (next_BR * (self.beta * self.agent.previous_z[current_state] + self.alpha * BR)) / normalization
 
         if not intermediate:
             self.kp = 1 + (1 - self.lambd) * (self.kp - 1) + self.meta_lr * self.p_update / self.agent.update_frequency

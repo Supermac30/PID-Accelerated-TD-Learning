@@ -203,7 +203,8 @@ class PID_DQN(OffPolicyAlgorithm):
         # each call to step() corresponds to n_envs transitions
         if self._n_calls % max(self.target_update_interval // self.n_envs, 1) == 0:
             # Update the gains here
-            replay_data = self.replay_buffer.sample(self.replay_buffer.size(), env=self._vec_normalize_env)  # type: ignore[union-attr]
+            update_size = self.gradient_steps * self.batch_size if self.gradient_steps > 0 else self.batch_size * 4
+            replay_data = self.replay_buffer.sample(update_size, env=self._vec_normalize_env)  # type: ignore[union-attr]
             self.gain_adapter.adapt_gains(replay_data)
 
             # Update the D network
@@ -296,7 +297,7 @@ class PID_DQN(OffPolicyAlgorithm):
             next_q_values = self.q_net_target(replay_data.next_observations)
             # Follow greedy policy: use the one with the highest value
             next_q_values, _ = next_q_values.max(dim=1)
-        
+
         return next_q_values.reshape(-1, 1)
 
     def predict(
@@ -336,7 +337,7 @@ class PID_DQN(OffPolicyAlgorithm):
             # Calling self.monte_carlo_rollout() 1 time to build the Q value buffer is enough as the environments we deal with are deterministic
             true_q_value = self.monte_carlo_rollout(action)
             self.buffer.append((*observation, action, true_q_value))
-        
+
         return action, state
 
     def learn(
@@ -392,5 +393,4 @@ class PID_DQN(OffPolicyAlgorithm):
         env.close()
 
     def monte_carlo_rollout(self, action):
-        # TODO: Copy lunarlander by doing this: https://blog.xa0.de/post/box2d%20---%20making-b2Body-clonable-or-copyable/
         return run_simulation(self.optimal_model, deepcopy(self.env.envs[0]), action, self.gamma, self.seed)

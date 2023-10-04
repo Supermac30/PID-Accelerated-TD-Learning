@@ -32,6 +32,9 @@ seed=$RANDOM
 
 experiment_name="$env kd Result"
 
+# call scancel 10736812 ... 10736831
+for i in $(seq 10736812 10736831) do; scancel $i; done
+
 python3 -m Experiments.DQNExperiments.DQNExperiment --multirun \
    env="$env" name="$env" experiment_name="$experiment_name" \
    hydra.mode=MULTIRUN \

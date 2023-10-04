@@ -132,8 +132,15 @@ class BaseBuffer(ABC):
         :return:
         """
         if copy:
-            return th.tensor(array, device=self.device)
-        return th.as_tensor(array, device=self.device)
+            ret = th.tensor(array, device=self.device)
+        else:
+            ret = th.as_tensor(array, device=self.device)
+
+        if array.dtype in [np.float64, np.float128]:
+            dtype = th.float64
+            ret = ret.to(dtype)
+        
+        return ret
 
     @staticmethod
     def _normalize_obs(
@@ -265,13 +272,13 @@ class ReplayBuffer(BaseBuffer):
         self.actions[self.pos] = np.array(action).copy()
         self.rewards[self.pos] = np.array(reward).copy()
         self.dones[self.pos] = np.array(done).copy()
-        self.zs[self.pos] = np.array(0)
-        self.ds[self.pos] = np.array(0)
-        self.BRs[self.pos] = np.array(0)
+        self.zs[self.pos] = np.array(0, dtype=np.float32)
+        self.ds[self.pos] = np.array(0, dtype=np.float32)
+        self.BRs[self.pos] = np.array(0, dtype=np.float32)
 
-        self.kp[self.pos] = np.array(1)
-        self.ki[self.pos] = np.array(0)
-        self.kd[self.pos] = np.array(0)
+        self.kp[self.pos] = np.array(1, dtype=np.float32)
+        self.ki[self.pos] = np.array(0, dtype=np.float32)
+        self.kd[self.pos] = np.array(0, dtype=np.float32)
 
         if self.handle_timeout_termination:
             self.timeouts[self.pos] = np.array([info.get("TimeLimit.truncated", False) for info in infos])
@@ -330,7 +337,7 @@ class ReplayBuffer(BaseBuffer):
         )
 
         return ReplayBufferSamples(*tuple(map(self.to_torch, data)))
-    
+
     def update(self, indices, zs=None, ds=None, BRs=None, kp=None, ki=None, kd=None):
         """Replace the zs of the buffer at batch_inds with zs"""
         if zs is not None:

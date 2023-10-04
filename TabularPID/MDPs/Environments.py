@@ -104,10 +104,10 @@ class Garnet(Environment):
         self.transitions = np.zeros((num_states, num_states, num_actions), dtype=float)
         for i in range(num_states):
             for j in range(num_actions):
-                next_states = self.prg.choice(num_states, bP, replace=False)
-                self.transitions[i, next_states, j] = 1/self.bP
+                next_states = self.prg.choice(num_states, min(bP, num_states), replace=False)
+                self.transitions[i, next_states, j] = 1/min(self.bP, num_states)
 
-        rewarded_states = self.prg.choice(num_states, bR, replace=False)
+        rewarded_states = self.prg.choice(num_states, min(bR, num_states), replace=False)
         self.rewards = np.zeros((num_states, 1))
         self.rewards[rewarded_states] = 1
         self.rewards *= self.prg.uniform(0, 1, (num_states, 1))

@@ -83,8 +83,8 @@ def graph_experiment(cfg):
 
         # Plot the gains, if they exist
         if plot_gains:
-            fig = plt.figure(figsize=(10, 4))
-            gs = fig.add_gridspec(nrows=1, ncols=3, width_ratios=[1,1,1], wspace=0.3, hspace=0.5)
+            fig = plt.figure(figsize=(8, 4))
+            gs = fig.add_gridspec(nrows=1, ncols=3, width_ratios=[1,1,1])
 
             for i, gain in enumerate(['k_p', 'k_i', 'k_d']):
                 ax = fig.add_subplot(gs[0, i])

@@ -23,6 +23,9 @@ def create_plots(cfg):
     # Make the y label steps
     ax0.set_ylabel("Steps")
 
+    if cfg['log_plot']:
+        ax0.set_yscale('log')
+
     # Set the x label to be ||V - V^*||
     create_label(ax0, cfg['norm'], cfg['normalize'], cfg['is_q'])
 

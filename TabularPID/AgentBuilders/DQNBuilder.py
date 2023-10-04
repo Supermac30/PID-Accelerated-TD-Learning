@@ -68,7 +68,7 @@ def build_PID_DQN(gain_adapter, env_name, gamma, optimizer, replay_memory_size, 
     dqn.set_logger(
         configure(
             folder=os.path.join(tensorboard_log, log_name),
-            format_strings=["tensorboard"],
+            format_strings=["tensorboard", "csv"],
         )
     )
 
