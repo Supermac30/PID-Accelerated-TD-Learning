@@ -1,5 +1,5 @@
 atari:
-  env: MsPacmanNoFrameskip-v4
+  env: AsterixNoFrameskip-v4
   optimizer: Adam
   replay_memory_size: 100000
   batch_size: 32

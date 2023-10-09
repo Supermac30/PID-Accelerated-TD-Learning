@@ -34,6 +34,7 @@ def control_experiment(cfg):
         'meta_lr_I': cfg['meta_lr_I'], 'meta_lr_d': cfg['meta_lr_d'],
         'use_previous_BRs': cfg['use_previous_BRs'], 'gain_adapter': cfg['gain_adapter']
     }
+    env_name = next(iter(cfg['env'].keys()))
 
     for i in range(cfg['num_runs']):
         run_seed = seed_prg.randint(0, 2**32)
@@ -75,7 +76,7 @@ def control_experiment(cfg):
                 env_cfg['target_update_interval'], cfg['d_tau'], env_cfg['inner_size'],
                 cfg['slow_motion'], env_cfg['learning_starts'], tabular_d=cfg['tabular_d'],
                 tensorboard_log=cfg['tensorboard_log'], seed=run_seed,
-                log_name=log_name, name_append=f"run {i}", should_stop=cfg['should_stop'],
+                log_name=f"{env_name}/{log_name}", name_append=f"{run_seed}", should_stop=cfg['should_stop'],
                 dump_buffer=cfg['dump_buffer'], visualize=cfg['visualize'], is_double=cfg['is_double'],
                 policy_evaluation=cfg['policy_evaluation']
             )
@@ -122,6 +123,7 @@ class PolicyEvaluationCallback(BaseCallback):
             "eval/distance_from_true_values",
             th.mean(th.linalg.vector_norm(q_values - trained_q_values)).item()
         )
+        self.logger.dump(step=self.model.num_timesteps)
 
 
 class GainReporterCallback(BaseCallback):
@@ -132,14 +134,15 @@ class GainReporterCallback(BaseCallback):
         if self.num_timesteps % 1000 != 0:
             return True
         
-        # Sample all states
-        replay_data = self.model.replay_buffer.sample(self.model.replay_buffer.size(), env=self.model._vec_normalize_env)  # type: ignore[union-attr]
+        # Sample about 10000 states from the replay buffer
+        replay_data = self.model.replay_buffer.sample(10000, env=self.model._vec_normalize_env)  # type: ignore[union-attr]
 
         kp, ki, kd, _, _ = self.model.gain_adapter.get_gains(None, None, replay_data)
 
         self.logger.record("eval/k_p", th.mean(kp).item())
         self.logger.record("eval/k_i", th.mean(ki).item())
         self.logger.record("eval/k_d", th.mean(kd).item())
+        self.logger.dump(step=self.model.num_timesteps)
 
         return True
 

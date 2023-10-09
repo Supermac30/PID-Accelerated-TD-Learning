@@ -132,7 +132,6 @@ class DiagonalGainAdapter(GainAdapter):
             th.full((self.batch_size, 1), self.beta, device=self.device).float()
     
     def adapt_gains(self, replay_sample):
-        """Update the gains. Only works if get_gains was called before"""
         self.model.policy.set_training_mode(True)
         with th.no_grad():
             next_BRs = self.BR(replay_sample, self.model.q_net)
@@ -142,14 +141,27 @@ class DiagonalGainAdapter(GainAdapter):
             zs = self.beta * replay_sample.zs + self.alpha * previous_BRs
             Q = self.model.q_net_target(replay_sample.observations)
             Q = th.gather(Q, dim=1, index=replay_sample.actions.long())
-            Qp = self.model.d_net(replay_sample.observations)
-            Qp = th.gather(Qp, dim=1, index=replay_sample.actions.long())
+            
+            if self.model.tabular_d:
+                ds = replay_sample.ds
+                new_ds = (1 - self.model.d_tau) * ds + self.model.d_tau * Q
+            else:
+                Qp = self.model.d_net(replay_sample.observations)
+                Qp = th.gather(Qp, dim=1, index=replay_sample.actions.long())
+                ds = Qp
+
+        if self.meta_lr_p == 0.51:
+            if th.rand(1) < 0.1:
+                breakpoint()
 
         new_kps = replay_sample.kp + self.meta_lr_p * (next_BRs * previous_BRs / normalization).reshape(-1, 1)
         new_kis = replay_sample.ki + self.meta_lr_i * (next_BRs * zs / normalization).reshape(-1, 1)
-        new_kds = replay_sample.kd + self.meta_lr_d * (next_BRs * (Q - Qp) / normalization).reshape(-1, 1)
+        new_kds = replay_sample.kd + self.meta_lr_d * (next_BRs * (Q - ds) / normalization).reshape(-1, 1)
 
-        self.model.replay_buffer.update(replay_sample.indices, zs=zs, kp=new_kps, ki=new_kis, kd=new_kds)
+        if self.model.tabular_d:
+            self.model.replay_buffer.update(replay_sample.indices, zs=zs, kp=new_kps, ki=new_kis, kd=new_kds, ds=new_ds)
+        else:
+            self.model.replay_buffer.update(replay_sample.indices, zs=zs, kp=new_kps, ki=new_kis, kd=new_kds)
 
 
 class GainAdaptingNetwork(nn.Module):

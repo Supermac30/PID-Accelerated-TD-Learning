@@ -167,6 +167,8 @@ class PID_DQN(OffPolicyAlgorithm):
         self.previous_i_update, self.i_update = None, None
         self.previous_d_update, self.d_update = None, None
 
+        self.policy.jump_start_cuda()
+
     def _setup_model(self) -> None:
         super()._setup_model()
         self._create_aliases()
@@ -202,10 +204,11 @@ class PID_DQN(OffPolicyAlgorithm):
         # Account for multiple environments
         # each call to step() corresponds to n_envs transitions
         if self._n_calls % max(self.target_update_interval // self.n_envs, 1) == 0:
-            # Update the gains here
-            update_size = self.gradient_steps * self.batch_size if self.gradient_steps > 0 else self.batch_size * 4
-            replay_data = self.replay_buffer.sample(update_size, env=self._vec_normalize_env)  # type: ignore[union-attr]
-            self.gain_adapter.adapt_gains(replay_data)
+            # Update the gains here once we have started training
+            if self._n_calls > self.learning_starts:
+                update_size = self.gradient_steps * self.batch_size if self.gradient_steps > 0 else self.batch_size * 4
+                replay_data = self.replay_buffer.sample(update_size, env=self._vec_normalize_env)  # type: ignore[union-attr]
+                self.gain_adapter.adapt_gains(replay_data)
 
             # Update the D network
             polyak_update(self.q_net_target.parameters(), self.d_net.parameters(), self.d_tau)
@@ -279,6 +282,8 @@ class PID_DQN(OffPolicyAlgorithm):
         self.logger.record("train/n_updates", self._n_updates, exclude="tensorboard")
         self.logger.record("train/loss", np.mean(losses))
         self.logger.record("rollout/BRs", th.mean(self.BRs).item())
+        self.logger.record("rollout/BRs_L2_norm", th.norm(self.BRs).item())
+        self.logger.dump(step=self.num_timesteps)
 
     def compute_next_q_values(self, replay_data, batch_size):
         if self.policy_evaluation:

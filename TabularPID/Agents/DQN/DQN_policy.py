@@ -174,7 +174,7 @@ class DQNPolicy(BasePolicy):
         self.q_net_target.set_training_mode(False)
         self.d_net = self.make_q_net()
         self.d_net.load_state_dict(self.q_net.state_dict())
-        self.d_net.set_training_mode(False)
+        self.d_net.set_training_mode(False)  # Keep false so that we don't dropout anything here
 
         # Setup optimizer with initial learning rate
         self.optimizer = self.optimizer_class(  # type: ignore[call-arg]
@@ -222,6 +222,12 @@ class DQNPolicy(BasePolicy):
         self.d_net.set_training_mode(mode)
         self.training = mode
 
+    def jump_start_cuda(self) -> None:
+        """Surprisingly, this fixes a CUDNN_STATUS_NOT_INITIALIZED error when using DQN with CUDA on Arcade.
+        https://stackoverflow.com/questions/66588715/runtimeerror-cudnn-error-cudnn-status-not-initialized-using-pytorch"""
+        s = 32
+        dev = th.device('cuda')
+        th.nn.functional.conv2d(th.zeros(s, s, s, s, device=dev), th.zeros(s, s, s, s, device=dev))
 
 MlpPolicy = DQNPolicy
 
