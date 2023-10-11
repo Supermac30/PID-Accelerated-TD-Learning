@@ -353,7 +353,7 @@ class SemiGradientUpdater(AbstractGainUpdater):
 
         self.p_update += next_BR * BR / normalization
         self.d_update += next_BR * (self.agent.previous_Q[current_state][action] - self.agent.previous_Qp[current_state][action]) / normalization
-        self.i_update += next_BR * (self.beta * self.z[current_state][action] + self.alpha * BR) / normalization
+        self.i_update += next_BR * (self.beta * self.agent.z[current_state][action] + self.alpha * BR) / normalization
 
         if not intermediate:
             self.kp = 1 + (1 - self.lambd) * (self.kp - 1) + self.meta_lr * self.p_update / self.agent.update_frequency

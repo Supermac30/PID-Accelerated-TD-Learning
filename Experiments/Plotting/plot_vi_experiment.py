@@ -32,6 +32,9 @@ def create_plots(cfg):
     # Set the title
     ax0.set_title(f"{cfg['env'].title()}")
 
+    # Add grid lines
+    ax0.grid()
+
     # Set the legend
     ax0.legend()
 

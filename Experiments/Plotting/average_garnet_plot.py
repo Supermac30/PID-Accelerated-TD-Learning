@@ -55,6 +55,8 @@ def create_plots(cfg):
 
     ax0.title.set_text("Garnet")
     ax0.legend()
+    # Add grid lines
+    ax0.grid()
     ax0.set_xlabel('Steps')
     create_label(ax0, cfg['norm'], cfg['normalize'], False)
 

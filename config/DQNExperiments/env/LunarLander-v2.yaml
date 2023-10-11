@@ -5,7 +5,7 @@ lunarlander:
   batch_size: 128
   learning_rate: 6.3e-4
   initial_eps: 1
-  exploration_fraction: 0.012  # 0.12
+  exploration_fraction: 0.12
   minimum_eps: 0.1
   gradient_steps: -1
   train_freq: 4
@@ -13,5 +13,5 @@ lunarlander:
   tau: 1
   inner_size: 256
   learning_starts: 0
-  num_iterations: 1000000 # 100000
+  num_iterations: 100000
   gamma: 0.99

@@ -207,6 +207,7 @@ class PID_DQN(OffPolicyAlgorithm):
             # Update the gains here once we have started training
             if self._n_calls > self.learning_starts:
                 update_size = self.gradient_steps * self.batch_size if self.gradient_steps > 0 else self.batch_size * 4
+                update_size = min(100 * update_size, self.replay_buffer.size())
                 replay_data = self.replay_buffer.sample(update_size, env=self._vec_normalize_env)  # type: ignore[union-attr]
                 self.gain_adapter.adapt_gains(replay_data)
 
@@ -282,28 +283,29 @@ class PID_DQN(OffPolicyAlgorithm):
         self.logger.record("train/n_updates", self._n_updates, exclude="tensorboard")
         self.logger.record("train/loss", np.mean(losses))
         self.logger.record("rollout/BRs", th.mean(self.BRs).item())
-        self.logger.record("rollout/BRs_L2_norm", th.norm(self.BRs).item())
+        self.logger.record("rollout/BRs_L2_norm", th.norm(self.BRs).item() / np.sqrt(self.BRs.shape[0]))
         self.logger.dump(step=self.num_timesteps)
 
     def compute_next_q_values(self, replay_data, batch_size):
-        if self.policy_evaluation:
-            next_q_values = self.q_net_target(replay_data.next_observations)
-            next_actions = th.tensor(self.optimal_model.predict(replay_data.next_observations.cpu())[0]).reshape(-1,1)
-            next_actions = next_actions.to(next_q_values.device)
-            next_q_values = th.gather(next_q_values, dim=1, index=next_actions)
-        elif self.is_double:
-            # Double DQN
-            next_q_values = self.q_net(replay_data.next_observations)
-            next_actions = th.argmax(next_q_values, dim=1)
-            next_q_values = self.q_net_target(replay_data.next_observations)
-            next_q_values = next_q_values[range(batch_size), next_actions]
-        else:
-            # Compute the next Q-values using the target network
-            next_q_values = self.q_net_target(replay_data.next_observations)
-            # Follow greedy policy: use the one with the highest value
-            next_q_values, _ = next_q_values.max(dim=1)
+        with th.no_grad():
+            if self.policy_evaluation:
+                next_q_values = self.q_net_target(replay_data.next_observations)
+                next_actions = th.tensor(self.optimal_model.predict(replay_data.next_observations.cpu())[0]).reshape(-1,1)
+                next_actions = next_actions.to(next_q_values.device)
+                next_q_values = th.gather(next_q_values, dim=1, index=next_actions)
+            elif self.is_double:
+                # Double DQN
+                next_q_values = self.q_net(replay_data.next_observations)
+                next_actions = th.argmax(next_q_values, dim=1)
+                next_q_values = self.q_net_target(replay_data.next_observations)
+                next_q_values = next_q_values[range(batch_size), next_actions]
+            else:
+                # Compute the next Q-values using the target network
+                next_q_values = self.q_net_target(replay_data.next_observations)
+                # Follow greedy policy: use the one with the highest value
+                next_q_values, _ = next_q_values.max(dim=1)
 
-        return next_q_values.reshape(-1, 1)
+            return next_q_values.reshape(-1, 1)
 
     def predict(
         self,

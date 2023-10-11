@@ -101,10 +101,9 @@ def create_plots(cfg):
         ax0.plot(x_axis(min_history), normalize(min_history), label=name)
         ax0.fill_between(x_axis(min_history), normalize(min_history) - min_std_dev, normalize(min_history) + min_std_dev, alpha=0.2)
 
-    ax0.legend(loc='upper center', bbox_to_anchor=(0.5, -0.1), fancybox=True, shadow=True, ncol=2)
     ax0.title.set_text(f"{cfg['env'].title()}")
     ax0.set_xlabel('Steps')
-    ax0.set_ylim(0, min(2, max_y))
+    # ax0.set_ylim(0, min(2, max_y))
     # Place the legend outside the graph
     create_label(ax0, cfg['norm'], cfg['normalize'], cfg['is_q'])
 
@@ -113,6 +112,9 @@ def create_plots(cfg):
 
     # Force everything to fit
     fig0.tight_layout()
+
+    # Add grid lines
+    ax0.grid()
 
     fig0.savefig(f"{cfg['save_dir']}/adaptive_agent_{cfg['env']}.pdf")
     fig0.savefig(f"{cfg['save_dir']}/adaptive_agent_{cfg['env']}.png")

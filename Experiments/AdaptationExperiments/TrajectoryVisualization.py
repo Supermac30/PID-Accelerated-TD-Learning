@@ -112,8 +112,8 @@ def adaptive_agent_experiment(cfg):
     # Set axis limits, labels, and legend
     ax.set_xlim(min_x - (max_x - min_x) * 0.1, max_x + (max_x - min_x) * 0.1)
     ax.set_ylim(min_y - (max_y - min_y) * 0.1, max_y + (max_y - min_y) * 0.1)
-    ax.set_xlabel('V[0]')
-    ax.set_ylabel('V[1]')
+    ax.set_xlabel('V(0)')
+    ax.set_ylabel('V(1)')
     ax.legend(
         handles=[
             plt.Line2D([0], [0], color='red', lw=2, label='Gain Adaptation'),

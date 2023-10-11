@@ -17,13 +17,13 @@ current_time=$(date "+%Y.%m.%d/%H.%M.%S")
 env="garnet 100 2"
 gamma=0.99
 seed=$RANDOM
-num_iterations=200
-search_steps=300
+num_iterations=250
+search_steps=350
 recompute_optimal=True
 compute_optimal=True  # False when we need to debug, so there is no multiprocessing
 get_optimal=True  # False when we need to debug with a specific learning rate
 
-directory=outputs/adaptation_experiment/$env/$current_time
+directory=outputs/visualize_adaptation/$env/$current_time
 echo "Saving to ${directory}"
 mkdir -p "$directory"
 
@@ -38,7 +38,7 @@ python3 -m Experiments.AdaptationExperiments.TrajectoryVisualization --multirun 
     compute_optimal=$compute_optimal \
     get_optimal=$get_optimal \
     meta_lr=0.02 \
-    epsilon=0.01 \
+    epsilon=0.1 \
     env="$env" \
     gamma=$gamma \
     num_iterations=$num_iterations \

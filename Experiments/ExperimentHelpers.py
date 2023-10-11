@@ -193,28 +193,26 @@ def create_label(ax, norm, normalize, is_q, is_v_star=False):
     if is_q:
         current = 'Q_k'
         goal = 'Q^*'
-        start = 'Q_0'
     else:
         current = 'V_k'
         if is_v_star:
             goal = 'V^*'
         else:
             goal = 'V^\pi'
-        start = 'V_0'
     if norm == 'inf':
         if normalize:
-            ax.set_ylabel(f'$\\frac{{||{current} - {goal}||_{{\infty}}}}{{||{start} - {goal}||_{{\infty}}}}$')
+            ax.set_ylabel(f'Normalized $||{current} - {goal}||_{{\infty}}$')
         else:
             ax.set_ylabel(f'$||{current} - {goal}||_{{\infty}}$')
     if type(norm) == str and norm[:4] == 'diff':
         state = norm[5:]
         if normalize:
-            ax.set_ylabel(f'$\\frac{{{current}[{state}] - {goal}[{state}]}}{{{start}[{state}] - {goal}[{state}]}}$')
+            ax.set_ylabel(f'Normalized ${current}[{state}] - {goal}[{state}]$')
         else:
             ax.set_ylabel(f'${current}[{state}] - {goal}[{state}]$')
         ax.axhline(y=0, color='k', linestyle='--')
     else:
         if normalize:
-            ax.set_ylabel(f'$\\frac{{||{current} - {goal}||_{{{norm}}}}}{{||{start} - {goal}||_{{{norm}}}}}$')
+            ax.set_ylabel(f'Normalized $||{current} - {goal}||_{{{norm}}}$')
         else:
             ax.set_ylabel(f'$||{current} - {goal}||_{{{norm}}}$')
