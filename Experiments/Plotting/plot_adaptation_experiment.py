@@ -9,7 +9,8 @@ from Experiments.ExperimentHelpers import *
 def create_plots(cfg):
     """Plot all of the data in the npy folder from the runs of the adaptive agent."""
     # Create a figure that will be used to plot the history of each agent
-    fig0, ax0 = plt.subplots(figsize=(7, 5))
+    fig0 = plt.figure()
+    ax0 = fig0.add_subplot()
 
     # Min history
     min_final_history = np.inf
@@ -90,11 +91,11 @@ def create_plots(cfg):
     if cfg['plot_best']:
         logging.info(f"Best final history: {min_history_file}")
         if cfg['is_double_q']:
-            name = "Double Q Learning"
+            name = "Gain Adaptation Double Q Learning"
         elif cfg['is_q']:
-            name = "Q Learning"
+            name = "Gain Adaptation Q Learning"
         else:
-            name = "Gain Adaptation"
+            name = "Gain Adaptation TD"
         if min_history[0] != 0:
             min_std_dev /= min_history[0]
         max_y = max(max_y, np.max(normalize(min_history) + min_std_dev))
@@ -104,15 +105,12 @@ def create_plots(cfg):
     ax0.title.set_text(f"{cfg['env'].title()}")
     ax0.set_xlabel('Steps')
     # ax0.set_ylim(0, min(2, max_y))
-    # Place the legend outside the graph
+    ax0.legend()
     create_label(ax0, cfg['norm'], cfg['normalize'], cfg['is_q'])
 
     if cfg['log_plot']:
         ax0.set_yscale('log')
-
-    # Force everything to fit
-    fig0.tight_layout()
-
+    
     # Add grid lines
     ax0.grid()
 

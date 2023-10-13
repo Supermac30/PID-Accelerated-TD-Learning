@@ -16,6 +16,8 @@ def get_env_policy(name, seed):
         # The name is of the form garnet <seed> <num_states>
         seed, num_states = map(int, name[7:].split(" "))
         return garnet_problem(num_states, 3, 5, 10, seed)
+    elif name == "baby chain walk":
+        return baby_chain_walk_left(seed)
     elif name == "chain walk":
         return chain_walk_left(50, 2, seed)
     elif name == "chain walk random":
@@ -97,6 +99,14 @@ def chain_walk_left(num_states, num_actions, seed):
         policy[i,0] = 1
         policy[i,1] = 0
     return env, Policy(num_actions, num_states, env.prg, policy)
+
+def baby_chain_walk_left(seed):
+    env = ChainWalk(4, seed, 1, 2)
+    policy = np.zeros((4, 2))
+    for i in range(4):
+        policy[i,0] = 1
+        policy[i,1] = 0
+    return env, Policy(2, 4, env.prg, policy)
 
 def identity(seed):
     """Return the identity environment the policy that picks the only available action."""

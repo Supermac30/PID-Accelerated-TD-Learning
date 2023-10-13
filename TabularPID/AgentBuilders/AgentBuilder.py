@@ -81,9 +81,9 @@ def build_agent(agent_name, env_name, env, policy, get_optimal, gamma, seed=42):
         return build_momentum_TD_PID(env, policy, kp, ki, kd, alpha, beta, learning_rates, gamma)
     elif agent_description == "Q learning":
         return build_Q_PID(env, kp, ki, kd, alpha, beta, learning_rates, gamma)
+    # elif agent_description == "double Q learning":
+    #     return build_Q_PID(env, kp, ki, kd, alpha, beta, learning_rates, gamma, double=True)
     elif agent_description == "double Q learning":
-        return build_Q_PID(env, kp, ki, kd, alpha, beta, learning_rates, gamma, double=True)
-    elif agent_description == "true double Q learning":
         return build_double_Q_PID(env, kp, ki, kd, alpha, beta, learning_rates, gamma)
     
     # If agent_description starts with linear TD, but could have more after

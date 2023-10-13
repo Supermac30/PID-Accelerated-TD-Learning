@@ -206,8 +206,9 @@ class PID_DQN(OffPolicyAlgorithm):
         if self._n_calls % max(self.target_update_interval // self.n_envs, 1) == 0:
             # Update the gains here once we have started training
             if self._n_calls > self.learning_starts:
-                update_size = self.gradient_steps * self.batch_size if self.gradient_steps > 0 else self.batch_size * 4
-                update_size = min(100 * update_size, self.replay_buffer.size())
+                update_size = self.target_update_interval * self.batch_size * (self.gradient_steps if self.gradient_steps > 0 else 4)
+                update_size = min(update_size, self.replay_buffer.size())
+
                 replay_data = self.replay_buffer.sample(update_size, env=self._vec_normalize_env)  # type: ignore[union-attr]
                 self.gain_adapter.adapt_gains(replay_data)
 

@@ -5,8 +5,6 @@ import matplotlib.pyplot as plt
 
 from TabularPID.Agents.Agents import Agent, learning_rate_function
 
-# TODO: Rewrite this class to use the agent class instead of rewriting the updates here.
-
 class AbstractAdaptiveAgent(Agent):
     def __init__(self, gain_updater, learning_rates, meta_lr, environment, policy, gamma, update_frequency=1, kp=1, kd=0, ki=0, alpha=0.05, beta=0.95, auto_lr=False):
         super().__init__(environment, policy, gamma)

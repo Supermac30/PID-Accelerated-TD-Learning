@@ -8,10 +8,20 @@ from TabularPID.Agents.Agents import Agent, learning_rate_function
         
 
 class AbstractAdaptiveAgent(Agent):
-    def __init__(self, gain_updater, learning_rates, meta_lr, environment, gamma, update_frequency=1, kp=1, kd=0, ki=0, alpha=0.05, beta=0.95, double=False):
+    def __init__(self, gain_updater, learning_rates, meta_lr, environment, gamma, update_frequency=1, kp=1, kd=0, ki=0, alpha=0.05, beta=0.95, double=False, meta_lr_p=None, meta_lr_I=None, meta_lr_d=None):
         super().__init__(environment, None, gamma)
 
-        self.meta_lr = meta_lr
+        self.meta_lr_p = meta_lr_p
+        self.meta_lr_I = meta_lr_I
+        self.meta_lr_d = meta_lr_d
+
+        if self.meta_lr_p is None:
+            self.meta_lr_p = meta_lr
+        if self.meta_lr_I is None:
+            self.meta_lr_I = meta_lr
+        if self.meta_lr_d is None:
+            self.meta_lr_d = meta_lr
+
         self.learning_rate = learning_rates[0]
         self.update_I_rate = learning_rates[1]
         self.update_D_rate = learning_rates[2]
@@ -78,9 +88,9 @@ class AbstractAdaptiveAgent(Agent):
             else:
                 self.gain_updater.intermediate_update()
 
-            self.previous_V[self.current_state] = self.V[self.current_state]
-            self.previous_Vp[self.current_state] = self.Vp[self.current_state]
-            self.previous_z[self.current_state] = self.z[self.current_state]
+            self.previous_Q[self.current_state][self.action] = self.Q[self.current_state][self.action]
+            self.previous_Qp[self.current_state][self.action] = self.Qp[self.current_state][self.action]
+            self.previous_z[self.current_state][self.action] = self.z[self.current_state][self.action]
 
             self.update_value()
 
@@ -146,12 +156,6 @@ class AdaptiveSamplerAgent(AbstractAdaptiveAgent):
         new_Q = self.Q[state][action] + self.kp * self.p_update + self.ki * self.i_update + self.kd * self.d_update
         new_z = self.beta * self.z[state][action] + self.alpha * BR
         new_Qp = self.Q[state][action]
-
-        """
-        self.previous_previous_Q[state][action], self.previous_Q[state][action] = self.previous_Q[state][action], self.Q[state][action]
-        self.previous_z[state][action] = self.z[state][action]
-        self.previous_Qp[state][action] = self.Qp[state][action]
-        """
         
         self.Q[state][action] = (1 - lr) * self.Q[state][action] + lr * new_Q
         self.z[state][action] = (1 - update_I_rate) * self.z[state][action] + update_I_rate * new_z
@@ -215,8 +219,6 @@ class DiagonalAdaptiveSamplerAgent(AbstractAdaptiveAgent):
         new_z = self.beta * self.z[state][action] + self.alpha * BR
         new_Qp = self.Q[state][action]
         
-        # Try modifying this to copy previous_Q into Q, instead of doing it delayed state wise
-        # This fits the math better, and might fix the problems we are having
         self.Q[state][action] = (1 - lr) * self.Q[state][action] + lr * new_Q
         self.z[state][action] = (1 - update_I_rate) * self.z[state][action] + update_I_rate * new_z
         self.Qp[state][action] = (1 - update_D_rate) * self.Qp[state][action] + update_D_rate * new_Qp
@@ -261,7 +263,10 @@ class AbstractGainUpdater():
         self.agent = agent
         self.num_states = self.agent.num_states
         self.gamma = self.agent.gamma
-        self.meta_lr = self.agent.meta_lr
+
+        self.meta_lr_p = self.agent.meta_lr_p
+        self.meta_lr_I = self.agent.meta_lr_I
+        self.meta_lr_d = self.agent.meta_lr_d
 
         self.kp = self.agent.kp
         self.ki = self.agent.ki
@@ -334,10 +339,10 @@ class SemiGradientUpdater(AbstractGainUpdater):
             Q_vals = self.agent.Q
             Qp_vals = self.agent.Qp
 
-        if self.agent.double:
-            best_action = np.argmax(Qp_vals[next_state])
+        if is_previous:
+            best_action = np.argmax(self.agent.previous_Q[next_state])
         else:
-            best_action = np.argmax(Q_vals[next_state])
+            best_action = np.argmax(self.agent.Q[next_state])
 
         return reward + self.gamma * Q_vals[next_state][best_action] - Q_vals[current_state][action]
 
@@ -353,12 +358,12 @@ class SemiGradientUpdater(AbstractGainUpdater):
 
         self.p_update += next_BR * BR / normalization
         self.d_update += next_BR * (self.agent.previous_Q[current_state][action] - self.agent.previous_Qp[current_state][action]) / normalization
-        self.i_update += next_BR * (self.beta * self.agent.z[current_state][action] + self.alpha * BR) / normalization
+        self.i_update += next_BR * (self.beta * self.agent.previous_z[current_state][action] + self.alpha * BR) / normalization
 
         if not intermediate:
-            self.kp = 1 + (1 - self.lambd) * (self.kp - 1) + self.meta_lr * self.p_update / self.agent.update_frequency
-            self.kd = self.kd * (1 - self.lambd) + self.meta_lr * self.d_update / self.agent.update_frequency
-            self.ki = self.ki * (1 - self.lambd) + self.meta_lr * self.i_update / self.agent.update_frequency
+            self.kp = 1 + (1 - self.lambd) * (self.kp - 1) + self.meta_lr_p * self.p_update / self.agent.update_frequency
+            self.kd = self.kd * (1 - self.lambd) + self.meta_lr_d * self.d_update / self.agent.update_frequency
+            self.ki = self.ki * (1 - self.lambd) + self.meta_lr_I * self.i_update / self.agent.update_frequency
 
             self.d_update = 0
             self.i_update = 0
@@ -436,9 +441,9 @@ class DiagonalSemiGradient(AbstractGainUpdater):
             #self.alpha[current_state] *= 1 - self.lambd
             #self.beta[current_state] = 1 + (1 - self.lambd) * (self.beta[current_state] - 1)
 
-            self.kp[current_state][action] += self.meta_lr * self.p_update[current_state][action] / self.update_frequency
-            self.kd[current_state][action] += self.meta_lr * self.d_update[current_state][action] / self.update_frequency
-            self.ki[current_state][action] += self.meta_lr * self.i_update[current_state][action] / self.update_frequency
+            self.kp[current_state][action] += self.meta_lr_p * self.p_update[current_state][action] / self.update_frequency
+            self.kd[current_state][action] += self.meta_lr_d * self.d_update[current_state][action] / self.update_frequency
+            self.ki[current_state][action] += self.meta_lr_I * self.i_update[current_state][action] / self.update_frequency
             #self.alpha[current_state] += self.meta_lr * self.alpha_update[current_state] / self.update_frequency
             #self.beta[current_state] += self.meta_lr * self.beta_update[current_state] / self.update_frequency
 

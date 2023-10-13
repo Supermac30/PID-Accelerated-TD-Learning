@@ -43,6 +43,8 @@ def adaptive_agent_experiment(cfg):
 
     # Create a figure and axis
     fig, ax = plt.subplots()
+    state0 = 0
+    state1 = 2
     
     for run in range(2):
         agent_name, lambd, delay, alpha, beta, epsilon = cfg['agent_name'], cfg['lambda'], cfg['delay'], cfg['alpha'], cfg['beta'], cfg['epsilon']
@@ -51,8 +53,8 @@ def adaptive_agent_experiment(cfg):
         else:
             meta_lr = 0
 
-        if cfg['compute_optimal']:
-            get_optimal_adaptive_rates(agent_name, cfg['env'], meta_lr, cfg['gamma'], lambd, delay, alpha, beta, recompute=cfg['recompute_optimal'], epsilon=epsilon, search_steps=cfg['search_steps'])
+        #if cfg['compute_optimal']:
+            #get_optimal_adaptive_rates(agent_name, cfg['env'], meta_lr, cfg['gamma'], lambd, delay, alpha, beta, recompute=cfg['recompute_optimal'], epsilon=epsilon, search_steps=cfg['search_steps'])
         agent, env, policy = build_adaptive_agent_and_env(
             agent_name,
             cfg['env'],
@@ -87,33 +89,33 @@ def adaptive_agent_experiment(cfg):
         ###### GPT generated code below ######
 
         # Extract x and y coordinates separately
-        x = V_trajectory[:, 0]
-        y = V_trajectory[:, 1]
+        x = V_trajectory[:, state0]
+        y = V_trajectory[:, state1]
 
-        max_x = max(max_x, max(x))
-        min_x = min(min_x, min(x))
-        max_y = max(max_y, max(y))
-        min_y = min(min_y, min(y))
-
-        jump = 5
+        jump = cfg['jump']
         # Plot the trajectory with arrows
         for i in range(0, len(V_trajectory) - jump, jump):
             color = 'red' if run == 0 else 'blue'
             ax.annotate('', xy=(x[i + jump], y[i + jump]), xytext=(x[i], y[i]), arrowprops={'arrowstyle': '->', 'color': color})
 
-    ax.plot(x[0], y[0], 'go', label='Start')
-    ax.plot(V_pi[0], V_pi[1], 'y*', markersize=12, label='End')
+            max_x = max(max_x, x[i])
+            min_x = min(min_x, x[i])
+            max_y = max(max_y, y[i])
+            min_y = min(min_y, y[i])
 
-    max_x = max(max_x, V_pi[0], x[0])
-    min_x = min(min_x, V_pi[0], x[0])
-    max_y = max(max_y, V_pi[1], y[0])
-    min_y = min(min_y, V_pi[1], y[0])
+    ax.plot(x[state0], y[state0], 'go', label='Start')
+    ax.plot(V_pi[state0], V_pi[state1], 'y*', markersize=12, label='End')
+
+    max_x = max(max_x, V_pi[state0], x[state0])
+    min_x = min(min_x, V_pi[state0], x[state0])
+    max_y = max(max_y, V_pi[state1], y[state0])
+    min_y = min(min_y, V_pi[state1], y[state0])
 
     # Set axis limits, labels, and legend
     ax.set_xlim(min_x - (max_x - min_x) * 0.1, max_x + (max_x - min_x) * 0.1)
     ax.set_ylim(min_y - (max_y - min_y) * 0.1, max_y + (max_y - min_y) * 0.1)
-    ax.set_xlabel('V(0)')
-    ax.set_ylabel('V(1)')
+    ax.set_xlabel(f'V({state0})')
+    ax.set_ylabel(f'V({state1})')
     ax.legend(
         handles=[
             plt.Line2D([0], [0], color='red', lw=2, label='Gain Adaptation'),

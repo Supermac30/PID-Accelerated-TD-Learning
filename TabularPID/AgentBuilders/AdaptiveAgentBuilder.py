@@ -18,7 +18,7 @@ import logging
 default_meta_lr = 1
 default_learning_rates =  (1, 100, 1, float("inf"), 0.01, float("inf"))  #  (0.1, 10, 1, float("inf"), 0.01, float("inf"))
 
-def build_adaptive_agent_and_env(agent_name, env_name, meta_lr, lambd, delay, get_optimal=False, seed=42, gamma=0.99, kp=1, kd=0, ki=0, alpha=0.05, beta=0.95, epsilon=0.1, order=None):
+def build_adaptive_agent_and_env(agent_name, env_name, meta_lr, lambd, delay, get_optimal=False, seed=42, gamma=0.99, kp=1, kd=0, ki=0, alpha=0.05, beta=0.95, epsilon=0.1, order=None, meta_lr_p=None, meta_lr_d=None, meta_lr_I=None):
     """Return the adaptive agent and the environment & policy given its name. The names include:
     - planner: The original PAVIA gain adaptation algorithm
     - log space planner: The original PAVIA gain adaptation algorithm, but in the log space
@@ -47,10 +47,10 @@ def build_adaptive_agent_and_env(agent_name, env_name, meta_lr, lambd, delay, ge
     Return None if the names are not in the list of possible names.
     """
     env, policy = get_env_policy(env_name, seed)
-    agent = build_adaptive_agent(agent_name, env_name, env, policy, meta_lr, lambd, delay, get_optimal, gamma, kp, kd, ki, alpha, beta, epsilon, order, seed=seed)
+    agent = build_adaptive_agent(agent_name, env_name, env, policy, meta_lr, lambd, delay, get_optimal, gamma, kp, kd, ki, alpha, beta, epsilon, order, seed=seed, meta_lr_p=meta_lr_p, meta_lr_d=meta_lr_d, meta_lr_I=meta_lr_I)
     return agent, env, policy
 
-def build_adaptive_agent(agent_name, env_name, env, policy, meta_lr, lambd, delay, get_optimal, gamma, kp, kd, ki, alpha, beta, epsilon, order=None, seed=42):
+def build_adaptive_agent(agent_name, env_name, env, policy, meta_lr, lambd, delay, get_optimal, gamma, kp, kd, ki, alpha, beta, epsilon, order=None, seed=42, meta_lr_p=None, meta_lr_d=None, meta_lr_I=None):
     """Return the adaptive agent given its name.
 
     get_optimal: Try to find the optimal learning rate and set it
@@ -124,12 +124,12 @@ def build_adaptive_agent(agent_name, env_name, env, policy, meta_lr, lambd, dela
     elif agent_name == "no gain Q adapter":
         return build_no_gain_Q_adapter(*params)
     elif agent_name == "semi gradient Q updater":
-        return build_semi_gradient_Q_updater(*params)
+        return build_semi_gradient_Q_updater(*params, meta_lr_p=meta_lr_p, meta_lr_d=meta_lr_d, meta_lr_I=meta_lr_I)
     elif agent_name == "diagonal semi gradient Q updater":
         return build_diagonal_semi_gradient_Q_updater(*params)
+    # elif agent_name == "semi gradient double Q updater":
+    #     return build_semi_gradient_Q_updater(*params, double=True)
     elif agent_name == "semi gradient double Q updater":
-        return build_semi_gradient_Q_updater(*params, double=True)
-    elif agent_name == "semi gradient true diagonal double Q updater":
         return build_semi_gradient_double_Q_updater(*params)
     
     elif agent_name.startswith("linear TD"):
@@ -190,7 +190,7 @@ def build_no_gain_Q_adapter(env, policy, meta_lr, lambd, learning_rates, gamma, 
     )
 
 
-def build_semi_gradient_Q_updater(env, policy, meta_lr, lambd, learning_rates, gamma, delay, kp, kd, ki, alpha, beta, epsilon, double=False):
+def build_semi_gradient_Q_updater(env, policy, meta_lr, lambd, learning_rates, gamma, delay, kp, kd, ki, alpha, beta, epsilon, double=False, meta_lr_p=None, meta_lr_d=None, meta_lr_I=None):
     gain_updater = AdaptiveQAgents.SemiGradientUpdater(lambd, epsilon)
     return AdaptiveQAgents.AdaptiveSamplerAgent(
         gain_updater,
@@ -200,7 +200,10 @@ def build_semi_gradient_Q_updater(env, policy, meta_lr, lambd, learning_rates, g
         gamma,
         delay,
         kp, kd, ki, alpha, beta,
-        double=double
+        double=double,
+        meta_lr_p=meta_lr_p,
+        meta_lr_d=meta_lr_d,
+        meta_lr_I=meta_lr_I
     )
 
 

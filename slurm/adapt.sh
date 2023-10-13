@@ -14,12 +14,12 @@ ulimit -n 2048
 source slurm/setup.sh
 
 current_time=$(date "+%Y.%m.%d/%H.%M.%S")
-env="cliff walk"
-gamma=0.99
+env="chain walk"
+gamma=0
 repeat=3
 seed=$RANDOM
-num_iterations=5000
-search_steps=5000
+num_iterations=1000
+search_steps=1000
 recompute_optimal=True
 compute_optimal=True  # False when we need to debug, so there is no multiprocessing
 get_optimal=True  # False when we need to debug with a specific learning rate
@@ -28,6 +28,22 @@ debug=False
 directory=outputs/adaptation_experiment/$env/$current_time
 echo "Saving to ${directory}"
 mkdir -p "$directory"
+
+python3 -m Experiments.TDExperiments.PastWorkEvaluation \
+    hydra.run.dir="${directory}/TD Agent" \
+    save_dir="$directory" \
+    seed=$seed \
+    agent_name=TIDBD \
+    gamma=$gamma \
+    repeat=$repeat \
+    env="$env" \
+    search_steps=$search_steps \
+    recompute_optimal=$recompute_optimal \
+    compute_optimal=$compute_optimal \
+    get_optimal=$get_optimal \
+    num_iterations=$num_iterations \
+    debug=$debug \
+    is_q=False
 
 python3 -m Experiments.AdaptationExperiments.AdaptiveAgentExperiment --multirun \
     hydra.mode=MULTIRUN \
@@ -39,8 +55,8 @@ python3 -m Experiments.AdaptationExperiments.AdaptiveAgentExperiment --multirun 
     recompute_optimal=$recompute_optimal \
     compute_optimal=$compute_optimal \
     get_optimal=$get_optimal \
-    meta_lr=1e-3 \
-    epsilon=0.5 \
+    meta_lr=1e-5 \
+    epsilon=0.1 \
     env="$env" \
     gamma=$gamma \
     repeat=$repeat \

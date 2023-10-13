@@ -14,11 +14,11 @@ ulimit -n 2048
 source slurm/setup.sh
 
 current_time=$(date "+%Y.%m.%d/%H.%M.%S")
-env="garnet 100 2"
-gamma=0.99
+env="baby chain walk"
+gamma=0.1
 seed=$RANDOM
-num_iterations=250
-search_steps=350
+num_iterations=10000
+search_steps=10000
 recompute_optimal=True
 compute_optimal=True  # False when we need to debug, so there is no multiprocessing
 get_optimal=True  # False when we need to debug with a specific learning rate
@@ -37,9 +37,10 @@ python3 -m Experiments.AdaptationExperiments.TrajectoryVisualization --multirun 
     recompute_optimal=$recompute_optimal \
     compute_optimal=$compute_optimal \
     get_optimal=$get_optimal \
-    meta_lr=0.02 \
-    epsilon=0.1 \
+    meta_lr=0.01 \
+    epsilon=0.01 \
     env="$env" \
     gamma=$gamma \
     num_iterations=$num_iterations \
-    agent_name="semi gradient updater"
+    agent_name="semi gradient updater" \
+    +jump=1000

@@ -97,18 +97,18 @@ def get_optimal_pid_q_rates(agent_name, env_name, kp, ki, kd, alpha, beta, gamma
     return optimal_rates
 
 
-def get_optimal_adaptive_rates(agent_name, env_name, meta_lr, gamma, lambd, delay, alpha, beta, recompute=False, seed=-1, norm=1, epsilon=0.01, is_q=False, search_steps=1000):
+def get_optimal_adaptive_rates(agent_name, env_name, meta_lr, gamma, lambd, delay, alpha, beta, recompute=False, seed=-1, norm=1, epsilon=0.01, is_q=False, search_steps=1000, meta_lr_p=None, meta_lr_I=None, meta_lr_d=None):
     """Find the optimal rates for the choice of adaptive agent and environment.
     If this has been done before, get the optimal rates from the file of stored rates.
 
     If recompute is True, recompute the learning rates even if it is in the file of stored rates.
     """
-    optimal_rates = get_stored_optimal_rate((agent_name, meta_lr, lambd, delay, alpha, beta, epsilon), env_name, gamma)
+    optimal_rates = get_stored_optimal_rate((agent_name, meta_lr, lambd, delay, alpha, beta, epsilon, meta_lr_p, meta_lr_I, meta_lr_d), env_name, gamma)
 
     if optimal_rates is None or recompute:
         seed = pick_seed(seed)
-        optimal_rates = run_adaptive_search(agent_name, env_name, seed, norm, gamma, lambd, delay, meta_lr, alpha, beta, epsilon, is_q, search_steps)
-        store_optimal_rate((agent_name, meta_lr, lambd, delay, alpha, beta, epsilon), env_name, optimal_rates, gamma)
+        optimal_rates = run_adaptive_search(agent_name, env_name, seed, norm, gamma, lambd, delay, meta_lr, alpha, beta, epsilon, is_q, search_steps, meta_lr_p, meta_lr_I, meta_lr_d)
+        store_optimal_rate((agent_name, meta_lr, lambd, delay, alpha, beta, epsilon, meta_lr_p, meta_lr_I, meta_lr_d), env_name, optimal_rates, gamma)
 
     logging.info(f"The optimal rates for {(env_name, agent_name, meta_lr, epsilon)} are: {optimal_rates}")
 
@@ -240,7 +240,8 @@ def run_past_work_search(agent_description, env_name, seed, norm, gamma, search_
     dummy = {1: {float("inf")}}
     if agent_description == "TIDBD":
         # Taken from the TIDBD paper, 200 values between 0 and 0.2
-        learning_rates0 = {i / 1000: {float("inf")} for i in range(200)}
+        # We add more thetas to account for more complex environments
+        learning_rates0 = {i / 10000: {float("inf")} for i in range(2000)}
         learning_rates1 = dummy
         learning_rates2 = dummy
     elif agent_description == "speedy Q learning":
@@ -281,9 +282,9 @@ def run_pid_q_search(agent_description, env_name, kp, ki, kd, alpha, beta, seed,
     return run_search(agent, norm, Q_star, search_steps, learning_rates, update_I_rates, update_D_rates, 0)
 
 
-def run_adaptive_search(agent_name, env_name, seed, norm, gamma, lambd, delay, meta_lr, alpha, beta, epsilon, is_q, search_steps=50000):
+def run_adaptive_search(agent_name, env_name, seed, norm, gamma, lambd, delay, meta_lr, alpha, beta, epsilon, is_q, search_steps=50000, meta_lr_p=None, meta_lr_I=None, meta_lr_d=None):
     """Run a grid search on the exhaustive learning rates for the choice of adaptive agent"""
-    agent, env, policy = build_adaptive_agent_and_env(agent_name, env_name, meta_lr, lambd, delay, alpha=alpha, beta=beta, seed=seed, gamma=gamma, epsilon=epsilon)
+    agent, env, policy = build_adaptive_agent_and_env(agent_name, env_name, meta_lr, lambd, delay, alpha=alpha, beta=beta, seed=seed, gamma=gamma, epsilon=epsilon, meta_lr_p=meta_lr_p, meta_lr_I=meta_lr_I, meta_lr_d=meta_lr_d)
     if is_q:
         goal = find_Qstar(env, gamma)
     else:

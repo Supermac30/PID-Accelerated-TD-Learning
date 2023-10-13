@@ -145,10 +145,10 @@ class Garnet(Environment):
 class ChainWalk(Environment):
     """An implementation of the Chain Walk problem as described in
     appendix H.
-
-    We assume self.num_states > 10
     """
-    def __init__(self, num_states, seed=-1):
+    def __init__(self, num_states, seed=-1, goal_state=40, punish_state=10):
+        self.goal_state = goal_state
+        self.punish_state = punish_state
         super().__init__(num_states, 2, num_states - 1, seed)
 
     def take_action(self, action):
@@ -172,10 +172,10 @@ class ChainWalk(Environment):
         # else: Don't move
 
         reward = 0
-        if self.current_state == 10:
-            reward = -1
-        if self.current_state == self.num_states - 10:
+        if self.current_state == self.goal_state:
             reward = 1
+        if self.current_state == self.punish_state:
+            reward = -1
 
         return self.current_state, reward
 
@@ -185,19 +185,19 @@ class ChainWalk(Environment):
         """
         rewards = np.zeros((self.num_states, 2))
 
-        rewards[9, 1] = -0.7
-        rewards[9, 0] = -0.2
-        rewards[11, 0] = -0.7
-        rewards[11, 1] = -0.2
-        rewards[10, 0] = -0.1
-        rewards[10, 1] = -0.1
+        rewards[self.punish_state - 1, 1] += -0.7
+        rewards[self.punish_state - 1, 0] += -0.2
+        rewards[self.punish_state, 0] += -0.1
+        rewards[self.punish_state, 1] += -0.1
+        rewards[self.punish_state + 1, 0] += -0.7
+        rewards[self.punish_state + 1, 1] += -0.2
 
-        rewards[self.num_states - 11, 1] = 0.7
-        rewards[self.num_states - 11, 0] = 0.2
-        rewards[self.num_states - 10, 0] = 0.1
-        rewards[self.num_states - 10, 1] = 0.1
-        rewards[self.num_states - 9, 0] = 0.7
-        rewards[self.num_states - 9, 1] = 0.2
+        rewards[self.goal_state - 1, 1] += 0.7
+        rewards[self.goal_state - 1, 0] += 0.2
+        rewards[self.goal_state, 0] += 0.1
+        rewards[self.goal_state, 1] += 0.1
+        rewards[self.goal_state + 1, 0] += 0.7
+        rewards[self.goal_state + 1, 1] += 0.2
 
         return rewards
 
@@ -359,7 +359,7 @@ class NormalApproximation(Environment):
 class BernoulliApproximation(Environment):
     def __init__(self, seed):
         self.reward = 0
-        super().__init__(1, 1, 0, seed)
+        super().__init__(3, 2, 2, seed)
 
     def build_probability_transition_kernel(self):
         return np.array([[[1]]])
@@ -374,3 +374,39 @@ class BernoulliApproximation(Environment):
             return self.current_state, 200
         else:
             return self.current_state, -100/9
+
+class ComplexMDP(Environment):
+    def __init__(self, seed):
+        self.reward = 0
+        super().__init__(1, 1, 0, seed)
+
+    def build_probability_transition_kernel(self, policy):
+        """
+        Return the np matrix:
+        0 0 1
+        1 0 0
+        0 1/2 1/2
+        """
+        return np.array([[[0, 1/2, 1/2]], [[1/2, 0, 1/2]], [[0, 1/2, 1/2]]])
+    
+    def build_reward_matrix(self):
+        """
+        Return the np vector:
+        0
+        0
+        0
+        """
+        return np.array([[0, -1, 1]])
+    
+    def take_action(self, action):
+        if self.current_state == 2:
+            if action == 0:
+                self.current_state = 0
+                return self.current_state, 0
+            else:
+                self.current_state = 1
+                return self.current_state, 0
+        elif self.current_state == 1:
+            return self.current_state, -1
+        else:
+            return self.current_state, 1
