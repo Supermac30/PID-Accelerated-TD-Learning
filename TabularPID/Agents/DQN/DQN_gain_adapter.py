@@ -118,7 +118,7 @@ class SingleGainAdapter(GainAdapter):
             Qp = self.model.d_net(replay_sample.observations)
             Qp = th.gather(Qp, dim=1, index=replay_sample.actions.long())
 
-        self.kp = self.kp * (1 - self.lambd) + (self.meta_lr_p / self.batch_size) * (next_BRs.T @ previous_BRs / normalization).item()
+        self.kp = 1 + (self.kp - 1) * (1 - self.lambd) + (self.meta_lr_p / self.batch_size) * (next_BRs.T @ previous_BRs / normalization).item()
         self.ki = self.ki * (1 - self.lambd) + (self.meta_lr_i / self.batch_size) * (next_BRs.T @ zs / normalization).item()
         self.kd = self.kd * (1 - self.lambd) + (self.meta_lr_d / self.batch_size) * (next_BRs.T @ (Q - Qp) / normalization).item()
 
@@ -178,7 +178,7 @@ class DiagonalGainAdapter(GainAdapter):
         #     index = th.argmax(next_BRs > 1)
         #     breakpoint()
 
-        new_kps = replay_sample.kp * (1 - self.lambd) + self.meta_lr_p * (next_BRs * previous_BRs / normalization).reshape(-1, 1)
+        new_kps = 1 + (replay_sample.kp - 1) * (1 - self.lambd) + self.meta_lr_p * (next_BRs * previous_BRs / normalization).reshape(-1, 1)
         new_kis = replay_sample.ki * (1 - self.lambd) + self.meta_lr_i * (next_BRs * zs / normalization).reshape(-1, 1)
         new_kds = replay_sample.kd * (1 - self.lambd) + self.meta_lr_d * (next_BRs * (Q - ds) / normalization).reshape(-1, 1)
 
