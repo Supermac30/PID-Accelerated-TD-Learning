@@ -62,10 +62,15 @@ def build_adaptive_agent(agent_name, env_name, env, policy, meta_lr, lambd, dela
     if get_optimal:
         if order is None:
             description = (agent_name, meta_lr, lambd, delay, alpha, beta, epsilon)
+            if meta_lr_p is not None:
+                description = description + (meta_lr_p, meta_lr_I, meta_lr_d)
         else:
             description = (agent_name, meta_lr, lambd, delay, alpha, beta, epsilon, order)
         optimal_rates = get_stored_optimal_rate(description, env_name, gamma)
-    if not get_optimal or optimal_rates is None:
+        if optimal_rates is None:
+            logging.info(f"Could not find optimal rates for agent {agent_name} on env {env_name}")
+            optimal_rates = default_learning_rates
+    else:
         optimal_rates = default_learning_rates
     
     logging.info(f"Using rates {optimal_rates} for agent {agent_name} on env {env_name}")

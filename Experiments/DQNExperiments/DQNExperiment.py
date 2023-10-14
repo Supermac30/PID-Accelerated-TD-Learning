@@ -21,9 +21,9 @@ def control_experiment(cfg):
     seed_prg = np.random.RandomState(cfg['seed'])
 
     if cfg['gain_adapter'] == "NoGainAdapter":
-        log_name = f"{cfg['kp']} {cfg['ki']} {cfg['kd']}{'*' if cfg['tabular_d'] else ''} {cfg['alpha']} {cfg['beta']} {cfg['d_tau']}"
+        log_name = f"{cfg['kp']} {cfg['ki']} {cfg['kd']}{'*' if cfg['tabular_d'] else ''} {cfg['alpha']} {cfg['beta']} {cfg['d_tau']} {cfg['lambda']}"
     else:
-        log_name = f"{cfg['d_tau']} {cfg['gain_adapter']} {cfg['epsilon']} {cfg['meta_lr_p']} {cfg['meta_lr_I']} {cfg['meta_lr_d']}"
+        log_name = f"{cfg['d_tau']} {cfg['gain_adapter']} {cfg['epsilon']} {cfg['meta_lr_p']} {cfg['meta_lr_I']} {cfg['meta_lr_d']} {cfg['lambda']}"
 
     env_cfg = next(iter(cfg['env'].values()))
     # Adaptation configs for logging
@@ -53,7 +53,8 @@ def control_experiment(cfg):
         gain_adapter = build_gain_adapter(
             cfg['gain_adapter'], cfg['kp'], cfg['ki'], cfg['kd'],
             cfg['alpha'], cfg['beta'], cfg['meta_lr'], cfg['epsilon'],
-            cfg['use_previous_BRs'], cfg['meta_lr_p'], cfg['meta_lr_I'], cfg['meta_lr_d']
+            cfg['use_previous_BRs'], cfg['meta_lr_p'], cfg['meta_lr_I'],
+            cfg['meta_lr_d'], cfg['lambda']
         )
 
         if cfg['FQI']:

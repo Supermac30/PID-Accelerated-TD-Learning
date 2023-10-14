@@ -8,7 +8,7 @@ from TabularPID.Agents.Agents import Agent, learning_rate_function
         
 
 class AbstractAdaptiveAgent(Agent):
-    def __init__(self, gain_updater, learning_rates, meta_lr, environment, gamma, update_frequency=1, kp=1, kd=0, ki=0, alpha=0.05, beta=0.95, double=False, meta_lr_p=None, meta_lr_I=None, meta_lr_d=None):
+    def __init__(self, gain_updater, learning_rates, meta_lr, environment, gamma, update_frequency=1, kp=1, kd=0, ki=0, alpha=0.05, beta=0.95, double=False, meta_lr_p=None, meta_lr_I=None, meta_lr_d=None, verbose=False):
         super().__init__(environment, None, gamma)
 
         self.meta_lr_p = meta_lr_p
@@ -33,6 +33,7 @@ class AbstractAdaptiveAgent(Agent):
         self.original_alpha, self.original_beta = alpha, beta
 
         self.double = double
+        self.verbose = verbose
 
         self.reset()
     
@@ -109,8 +110,9 @@ class AbstractAdaptiveAgent(Agent):
                 if stop_if_diverging and history[k] > 1.5 * history[0]:
                     history[k:] = float("inf")
                     break
-
-        logging.info(f"Final gains are: kp: {self.kp}, ki: {self.ki}, kd: {self.kd}, alpha: {self.alpha}, beta: {self.beta}")
+        
+        if self.verbose:
+            logging.info(f"Final gains are: kp: {self.kp}, ki: {self.ki}, kd: {self.kd}, alpha: {self.alpha}, beta: {self.beta}")
         if test_function is not None:
             return self.Q, gain_history, history
 
@@ -195,6 +197,8 @@ class DiagonalAdaptiveSamplerAgent(AbstractAdaptiveAgent):
 
         self.previous_previous_state, self.previous_state, self.current_state, self.next_state = 0, 0, 0, 0
         self.previous_reward, self.reward = 0, 0
+        
+        self.num_steps = 0
 
         self.gain_updater.set_agent(self)
         self.policy = Policy(self.num_actions, self.num_states, self.environment.prg, None)
@@ -293,6 +297,23 @@ class AbstractGainUpdater():
         """Plot any relavant information"""
         # raise NotImplementedError
         return None
+    
+    def find_BR(self, is_previous):
+        """Return the bellman residual"""
+        current_state, action, reward, next_state = self.agent.current_state, self.agent.action, self.agent.reward, self.agent.next_state
+        if is_previous:
+            Q_vals = self.agent.previous_Q
+            Qp_vals = self.agent.previous_Qp
+        else:
+            Q_vals = self.agent.Q
+            Qp_vals = self.agent.Qp
+
+        if is_previous:
+            best_action = np.argmax(self.agent.previous_Q[next_state])
+        else:
+            best_action = np.argmax(self.agent.Q[next_state])
+
+        return reward + self.gamma * Q_vals[next_state][best_action] - Q_vals[current_state][action]
 
 
 class NoGainUpdater(AbstractGainUpdater):
@@ -328,23 +349,6 @@ class SemiGradientUpdater(AbstractGainUpdater):
         self.plot_state = 25
 
         return super().set_agent(agent)
-
-    def find_BR(self, is_previous):
-        """Return the bellman residual"""
-        current_state, action, reward, next_state = self.agent.current_state, self.agent.action, self.agent.reward, self.agent.next_state
-        if is_previous:
-            Q_vals = self.agent.previous_Q
-            Qp_vals = self.agent.previous_Qp
-        else:
-            Q_vals = self.agent.Q
-            Qp_vals = self.agent.Qp
-
-        if is_previous:
-            best_action = np.argmax(self.agent.previous_Q[next_state])
-        else:
-            best_action = np.argmax(self.agent.Q[next_state])
-
-        return reward + self.gamma * Q_vals[next_state][best_action] - Q_vals[current_state][action]
 
     def calculate_updated_values(self, intermediate=False):
         current_state, action = self.agent.current_state, self.agent.action
@@ -417,20 +421,17 @@ class DiagonalSemiGradient(AbstractGainUpdater):
 
     def calculate_updated_values(self, intermediate=False):
         current_state, action = self.agent.current_state, self.agent.action
-        lr = self.agent.lr
 
-        BR = self.agent.previous_BR
-        next_BR = self.agent.BR()
+        BR = self.find_BR(True)
+        next_BR = self.find_BR(False)
 
-        scale = 1 / self.agent.num_steps
+        scale = 0.5
         self.running_BR[current_state][action] = (1 - scale) * self.running_BR[current_state][action] + scale * BR * BR
         normalization = self.epsilon + self.running_BR[current_state][action]
 
-        self.p_update[current_state][action] += lr * next_BR * self.agent.p_update / normalization
-        self.d_update[current_state][action] += lr * next_BR * self.agent.d_update / normalization
-        self.i_update[current_state][action] += lr * next_BR * self.agent.i_update / normalization  
-        #self.alpha_update[current_state][action] += lr * self.ki[current_state][action] * BR * BR_previous / normalization
-        #self.beta_update[current_state][action] += lr * self.ki[current_state][action] * BR * z[current_state][action] / normalization
+        self.p_update[current_state][action] += next_BR * BR / normalization
+        self.d_update[current_state][action] += next_BR * (self.agent.previous_Q[current_state][action] - self.agent.previous_Qp[current_state][action]) / normalization
+        self.i_update[current_state][action] += next_BR * (self.beta * self.agent.previous_z[current_state][action] + self.alpha * BR) / normalization
 
 
         self.frequencies[current_state][action] += 1
@@ -455,14 +456,6 @@ class DiagonalSemiGradient(AbstractGainUpdater):
 
             self.frequencies[current_state][action] = 0
 
-
-        if current_state == 0 and action == 1:
-            self.BR_plot.append(BR)
-            self.kp_plot.append(self.kp[current_state][action])
-            self.kd_plot.append(self.kd[current_state][action])
-            self.ki_plot.append(self.ki[current_state][action])
-            self.d_update_plot.append(self.d_update[current_state][action])
-            self.i_update_plot.append(self.i_update[current_state][action])
 
     def plot(self, directory):
         #Create a subplot for each BR_plot, kp_plot kd_plot, ki_plot, d_update_plot, i_update_plot

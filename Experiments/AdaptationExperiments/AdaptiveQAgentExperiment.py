@@ -36,6 +36,7 @@ def adaptive_agent_experiment(cfg):
         meta_lr_I=meta_lr_I,
         meta_lr_d=meta_lr_d,
     )
+    agent.verbose = True
     Q_star = find_Qstar(env, cfg['gamma'])
     test_function = build_test_function(cfg['norm'], Q_star)
     

@@ -142,7 +142,7 @@ def get_model(env_name):
     model_dir = model_dir[0]
     return unmodified_DQN.load(f"{globals.base_directory}/models/{model_dir}/{model_dir}.zip")
 
-def build_gain_adapter(adapter_type, kp, ki, kd, alpha, beta, meta_lr, epsilon, use_previous_BRs, meta_lr_p=-1, meta_lr_I=-1, meta_lr_d=-1):
+def build_gain_adapter(adapter_type, kp, ki, kd, alpha, beta, meta_lr, epsilon, use_previous_BRs, meta_lr_p=-1, meta_lr_I=-1, meta_lr_d=-1, lambd=0):
     if adapter_type == "NoGainAdapter":
         gain_adapter = NoGainAdapter
     elif adapter_type == "SingleGainAdapter":
@@ -154,7 +154,7 @@ def build_gain_adapter(adapter_type, kp, ki, kd, alpha, beta, meta_lr, epsilon, 
     else:
         raise NotImplementedError
 
-    return gain_adapter(kp, ki, kd, alpha, beta, meta_lr, epsilon, use_previous_BRs, meta_lr_p=meta_lr_p, meta_lr_d=meta_lr_d, meta_lr_i=meta_lr_I)
+    return gain_adapter(kp, ki, kd, alpha, beta, meta_lr, epsilon, use_previous_BRs, meta_lr_p=meta_lr_p, meta_lr_d=meta_lr_d, meta_lr_i=meta_lr_I, lambd=lambd)
 
 def create_optimizer(optimizer):
     if optimizer == 'Adam':

@@ -2,8 +2,9 @@ import torch as th
 import torch.nn as nn
 
 class GainAdapter():
-    def __init__(self, meta_lr, epsilon, use_previous_BRs=True, meta_lr_p=-1, meta_lr_d=-1, meta_lr_i=-1):
+    def __init__(self, meta_lr, epsilon, use_previous_BRs=True, meta_lr_p=-1, meta_lr_d=-1, meta_lr_i=-1, lambd=0):
         self.running_BRs = 0
+        self.lambd = lambd
 
         self.epsilon = epsilon
         self.meta_lr = meta_lr
@@ -56,8 +57,8 @@ class GainAdapter():
 
 class NoGainAdapter(GainAdapter):
     """Doesn't adapt the gains at all."""
-    def __init__(self, kp, ki, kd, alpha, beta, meta_lr, epsilon, use_previous_BRs=True, meta_lr_p=-1, meta_lr_d=-1, meta_lr_i=-1):
-        super().__init__(meta_lr, epsilon, use_previous_BRs, meta_lr_p, meta_lr_d, meta_lr_i)
+    def __init__(self, kp, ki, kd, alpha, beta, meta_lr, epsilon, use_previous_BRs=True, meta_lr_p=-1, meta_lr_d=-1, meta_lr_i=-1, lambd=0):
+        super().__init__(meta_lr, epsilon, use_previous_BRs, meta_lr_p, meta_lr_d, meta_lr_i, lambd)
 
         self.kp = kp
         self.ki = ki
@@ -81,8 +82,8 @@ class SingleGainAdapter(GainAdapter):
     """The regular gain adaptation algorithm for PID-DQN.
     Maintains a single gain for all states and actions, and updates it using the
     """
-    def __init__(self, kp, ki, kd, alpha, beta, meta_lr, epsilon, use_previous_BRs=True, meta_lr_p=-1, meta_lr_d=-1, meta_lr_i=-1):
-        super().__init__(meta_lr, epsilon, use_previous_BRs, meta_lr_p, meta_lr_d, meta_lr_i)
+    def __init__(self, kp, ki, kd, alpha, beta, meta_lr, epsilon, use_previous_BRs=True, meta_lr_p=-1, meta_lr_d=-1, meta_lr_i=-1, lambd=0):
+        super().__init__(meta_lr, epsilon, use_previous_BRs, meta_lr_p, meta_lr_d, meta_lr_i, lambd)
         
         self.kp = kp
         self.ki = ki
@@ -108,7 +109,7 @@ class SingleGainAdapter(GainAdapter):
                 previous_BRs = self.BR(replay_sample, self.model.q_net_target, self.model.q_net)
             else:
                 next_BRs = self.BR(replay_sample, self.model.q_net)
-                previous_BRs = self.BR(replay_sample, self.model.q_net)
+                previous_BRs = self.BR(replay_sample, self.model.q_net_target)
             normalization = self.epsilon + previous_BRs.T @ previous_BRs
 
             zs = self.beta * replay_sample.zs + self.alpha * previous_BRs
@@ -117,17 +118,17 @@ class SingleGainAdapter(GainAdapter):
             Qp = self.model.d_net(replay_sample.observations)
             Qp = th.gather(Qp, dim=1, index=replay_sample.actions.long())
 
-        self.kp += (self.meta_lr_p / self.batch_size) * (next_BRs.T @ previous_BRs / normalization).item()
-        self.ki += (self.meta_lr_i / self.batch_size) * (next_BRs.T @ zs / normalization).item()
-        self.kd += (self.meta_lr_d / self.batch_size) * (next_BRs.T @ (Q - Qp) / normalization).item()
+        self.kp = self.kp * (1 - self.lambd) + (self.meta_lr_p / self.batch_size) * (next_BRs.T @ previous_BRs / normalization).item()
+        self.ki = self.ki * (1 - self.lambd) + (self.meta_lr_i / self.batch_size) * (next_BRs.T @ zs / normalization).item()
+        self.kd = self.kd * (1 - self.lambd) + (self.meta_lr_d / self.batch_size) * (next_BRs.T @ (Q - Qp) / normalization).item()
 
         self.model.replay_buffer.update(replay_sample.indices, zs=zs)
 
 
 class DiagonalGainAdapter(GainAdapter):
     """The diagonal gain adaptation algorithm for PID-DQN"""
-    def __init__(self, kp, ki, kd, alpha, beta, meta_lr, epsilon, use_previous_BRs=True, meta_lr_p=-1, meta_lr_d=-1, meta_lr_i=-1):
-        super().__init__(meta_lr, epsilon, use_previous_BRs, meta_lr_p, meta_lr_d, meta_lr_i)
+    def __init__(self, kp, ki, kd, alpha, beta, meta_lr, epsilon, use_previous_BRs=True, meta_lr_p=-1, meta_lr_d=-1, meta_lr_i=-1, lambd=0):
+        super().__init__(meta_lr, epsilon, use_previous_BRs, meta_lr_p, meta_lr_d, meta_lr_i, lambd)
 
         self.initial_kp = kp
         self.initial_ki = ki
@@ -177,9 +178,9 @@ class DiagonalGainAdapter(GainAdapter):
         #     index = th.argmax(next_BRs > 1)
         #     breakpoint()
 
-        new_kps = replay_sample.kp + self.meta_lr_p * (next_BRs * previous_BRs / normalization).reshape(-1, 1)
-        new_kis = replay_sample.ki + self.meta_lr_i * (next_BRs * zs / normalization).reshape(-1, 1)
-        new_kds = replay_sample.kd + self.meta_lr_d * (next_BRs * (Q - ds) / normalization).reshape(-1, 1)
+        new_kps = replay_sample.kp * (1 - self.lambd) + self.meta_lr_p * (next_BRs * previous_BRs / normalization).reshape(-1, 1)
+        new_kis = replay_sample.ki * (1 - self.lambd) + self.meta_lr_i * (next_BRs * zs / normalization).reshape(-1, 1)
+        new_kds = replay_sample.kd * (1 - self.lambd) + self.meta_lr_d * (next_BRs * (Q - ds) / normalization).reshape(-1, 1)
 
         if self.model.tabular_d:
             self.model.replay_buffer.update(replay_sample.indices, zs=zs, kp=new_kps, ki=new_kis, kd=new_kds, ds=new_ds, BRs=running_BRs)
@@ -243,7 +244,7 @@ class NetworkGainAdapter(GainAdapter):
 
     def adapt_gains(self, replay_sample):
         """
-        Update the gains. Only works if get_gains was called before.
+        Update the gains. Assumes get_gains was called before.
         Assumes that loss.backwards was called before.
         """
         # Clip norms

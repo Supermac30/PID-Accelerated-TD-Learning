@@ -11,17 +11,17 @@
 
 source slurm/setup.sh
 current_time=$(date "+%Y.%m.%d/%H.%M.%S")
-env="chain walk"
+env="garnet 123 50"
 gamma=0.99
 repeat=20
 seed=$RANDOM
-num_iterations=10000
-search_steps=10000
+num_iterations=3000
+search_steps=3000
 directory=outputs/q_adaptation_experiment/$env/$current_time
 echo "Saving to $directory"
 mkdir -p "$directory"
 
-recompute_optimal=True
+recompute_optimal=False
 compute_optimal=True
 get_optimal=True
 debug=False
@@ -32,10 +32,11 @@ python3 -m Experiments.AdaptationExperiments.AdaptiveQAgentExperiment --multirun
     hydra.sweep.dir="$directory" \
     seed=$seed \
     save_dir="$directory" \
-    meta_lr_p=1e-3 \
-    meta_lr_I=1e-3 \
-    meta_lr_d=1e-5 \
-    epsilon=1 \
+    meta_lr_p=1e-2 \
+    meta_lr_I=1e-2 \
+    meta_lr_d=1e-4 \
+    epsilon=0.001 \
+    lambda=0.01 \
     env="$env" \
     gamma=$gamma \
     repeat=$repeat \
@@ -60,7 +61,7 @@ python3 -m Experiments.QExperiments.PIDQLearning \
     num_iterations=$num_iterations \
     search_steps=$search_steps \
     agent_name="Q learning" \
-    recompute_optimal=False #$recompute_optimal \
+    recompute_optimal=$recompute_optimal \
     compute_optimal=$compute_optimal \
     get_optimal=$get_optimal \
 
