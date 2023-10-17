@@ -3,8 +3,8 @@
 #SBATCH -p cpu
 #SBATCH --cpus-per-task=64
 #SBATCH --tasks-per-node=1
-#SBATCH --time=100:00:00
-#SBATCH --mem=8GB
+#SBATCH --time=2:00:00
+#SBATCH --mem=2GB
 #SBATCH --job-name=garnet_adapt
 #SBATCH --output=slurm/logs/%x_%j.out
 #SBATCH --error=slurm/errors/%x_%j.err
@@ -35,8 +35,8 @@ do
 	seed=$RANDOM
 	garnet_seed=$RANDOM
 
-    # if is_q == 'False'
-    if [ "$is_q" = "False" ]; then
+    if [ "$is_q" = "False" ]
+    then
         python3 -m Experiments.AdaptationExperiments.AdaptiveAgentExperiment --multirun \
             hydra.run.dir="$directory/Adaptive Agent" \
             hydra.sweep.dir="$directory" \
@@ -69,42 +69,41 @@ do
             get_optimal=$get_optimal
     else
         python3 -m Experiments.AdaptationExperiments.AdaptiveQAgentExperiment --multirun \
-            hydra.mode=MULTIRUN \
-            hydra.run.dir="$directory/Adaptive Agent" \
+            hydra.run.dir="$directory/Adaptive Q Agent" \
             hydra.sweep.dir="$directory" \
             seed=$seed \
-            save_dir="$directory" \
-            meta_lr_p=1e-1,1e-2 \
-            meta_lr_I=1e-1,1e-2 \
-            meta_lr_d=1e-3,1e-4 \
-            epsilon=0.0001 \
-            env="$env" \
+            save_dir="$save_dir/gain_adaptation/$run" \
+            env="garnet $garnet_seed 50" \
             gamma=$gamma \
-            repeat=$repeat \
             num_iterations=$num_iterations \
             search_steps=$search_steps \
-            agent_name="diagonal semi gradient Q updater" \
             recompute_optimal=$recompute_optimal \
             compute_optimal=$compute_optimal \
             get_optimal=$get_optimal \
-            debug=$debug
+            meta_lr_p=1e-2,1e-3 \
+            meta_lr_I=1e-2,1e-3 \
+            meta_lr_d=1e-4,1e-5 \
+            epsilon=0.0001 \
+            lambda=0.1 \
+            agent_name="semi gradient Q updater" \
 
         python3 -m Experiments.QExperiments.PIDQLearning \
-            hydra.run.dir="$directory/TD Agent" \
-            save_dir="$directory" \
+            hydra.run.dir="$directory/Q Agent" \
+            save_dir="$save_dir/Q/$run" \
             seed=$seed \
             kp=1 \
             ki=0 \
             kd=0 \
-            gamma=$gamma \
-            env="$env" \
             repeat=$repeat \
+            agent_name="Q learning" \
+            seed=$seed \
+            gamma=$gamma \
+            env="garnet $garnet_seed 50" \
             num_iterations=$num_iterations \
             search_steps=$search_steps \
-            agent_name="Q learning" \
             recompute_optimal=$recompute_optimal \
             compute_optimal=$compute_optimal \
-            get_optimal=$get_optimal \
+            get_optimal=$get_optimal
     fi
 done
 

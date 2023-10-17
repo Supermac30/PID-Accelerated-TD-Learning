@@ -236,6 +236,11 @@ class ReplayBuffer(BaseBuffer):
                     f"replay buffer {total_memory_usage:.2f}GB > {mem_available:.2f}GB"
                 )
 
+    def apply_weight_decay(self, decay):
+        self.kp = 1 + (self.kp - 1) * (1 - decay)
+        self.ki = self.ki * (1 - decay)
+        self.kd = self.kd * (1 - decay)
+
     def add(
         self,
         obs: np.ndarray,
@@ -302,6 +307,14 @@ class ReplayBuffer(BaseBuffer):
         else:
             batch_inds = np.random.randint(0, self.pos, size=batch_size)
         return self._get_samples(batch_inds, env=env)
+    
+    def chunk(self, env):
+        jump = 50000
+        if self.full:
+            all_batch_inds = [np.arange(i, i + jump) for i in range(0, self.buffer_size, jump)]
+        else:
+            all_batch_inds = [np.arange(i, i + jump) for i in range(0, self.pos, jump)]
+        return [self._get_samples(batch_inds, env=env) for batch_inds in all_batch_inds]
 
     def _get_samples(self, batch_inds: np.ndarray, env: Optional[VecNormalize] = None) -> ReplayBufferSamples:
         # Sample randomly the env idx

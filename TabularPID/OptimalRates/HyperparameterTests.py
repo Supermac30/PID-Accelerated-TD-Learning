@@ -97,7 +97,25 @@ def get_optimal_pid_q_rates(agent_name, env_name, kp, ki, kd, alpha, beta, gamma
     return optimal_rates
 
 
-def get_optimal_adaptive_rates(agent_name, env_name, meta_lr, gamma, lambd, delay, alpha, beta, recompute=False, seed=-1, norm=1, epsilon=0.01, is_q=False, search_steps=1000, meta_lr_p=None, meta_lr_I=None, meta_lr_d=None):
+def get_optimal_adaptive_rates(agent_name, env_name, meta_lr, gamma, lambd, delay, alpha, beta, recompute=False, seed=-1, norm=1, epsilon=0.01, is_q=False, search_steps=1000):
+    """Find the optimal rates for the choice of adaptive agent and environment.
+    If this has been done before, get the optimal rates from the file of stored rates.
+
+    If recompute is True, recompute the learning rates even if it is in the file of stored rates.
+    """
+    optimal_rates = get_stored_optimal_rate((agent_name, meta_lr, lambd, delay, alpha, beta, epsilon), env_name, gamma)
+
+    if optimal_rates is None or recompute:
+        seed = pick_seed(seed)
+        optimal_rates = run_adaptive_search(agent_name, env_name, seed, norm, gamma, lambd, delay, meta_lr, alpha, beta, epsilon, is_q, search_steps)
+        store_optimal_rate((agent_name, meta_lr, lambd, delay, alpha, beta, epsilon), env_name, optimal_rates, gamma)
+
+    logging.info(f"The optimal rates for {(env_name, agent_name, meta_lr, epsilon)} are: {optimal_rates}")
+
+    return optimal_rates
+
+
+def get_optimal_q_adaptive_rates(agent_name, env_name, meta_lr, gamma, lambd, delay, alpha, beta, recompute=False, seed=-1, norm=1, epsilon=0.01, is_q=False, search_steps=1000, meta_lr_p=None, meta_lr_I=None, meta_lr_d=None):
     """Find the optimal rates for the choice of adaptive agent and environment.
     If this has been done before, get the optimal rates from the file of stored rates.
 
@@ -289,7 +307,7 @@ def run_adaptive_search(agent_name, env_name, seed, norm, gamma, lambd, delay, m
         goal = find_Qstar(env, gamma)
     else:
         goal = find_Vpi(env, policy, gamma)
-
+    
     # For now, only optimize the learning rate of the controller
     learning_rates = exhaustive_learning_rates[0]
     update_I_rates = exhaustive_learning_rates[1]

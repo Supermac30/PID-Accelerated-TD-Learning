@@ -206,10 +206,12 @@ class PID_DQN(OffPolicyAlgorithm):
         if self._n_calls % max(self.target_update_interval // self.n_envs, 1) == 0:
             # Update the gains here once we have started training
             if self._n_calls > self.learning_starts:
-                update_size = self.target_update_interval * self.batch_size * (self.gradient_steps if self.gradient_steps > 0 else 4)
+                #self.gain_adapter.apply_weight_decay(self.replay_buffer)
+                update_size = 50000
                 update_size = min(update_size, self.replay_buffer.size())
 
                 replay_data = self.replay_buffer.sample(update_size, env=self._vec_normalize_env)  # type: ignore[union-attr]
+                
                 self.gain_adapter.adapt_gains(replay_data)
 
             # Update the D network
@@ -255,11 +257,14 @@ class PID_DQN(OffPolicyAlgorithm):
                 self.BRs = target_q_values - target_current_q_values
                 new_zs = beta * replay_data.zs + alpha * self.BRs
 
-                self.previous_p_update, self.p_update = self.p_update, self.BRs
-                self.previous_d_update, self.d_update = self.d_update, target_current_q_values - d_values
-                self.previous_i_update, self.i_update = self.i_update, new_zs
+                self.p_update = self.BRs
+                self.d_update = target_current_q_values - d_values
+                self.i_update = new_zs
 
                 target = target_current_q_values + kp * self.p_update + ki * self.i_update + kd * self.d_update
+
+            # if np.random.rand() < 0.005:
+            #     breakpoint()
 
             # Get current Q-values estimates
             current_q_values = self.q_net(replay_data.observations)

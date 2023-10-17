@@ -48,7 +48,8 @@ def graph_experiment(cfg):
     environment_name = cfg['env']['env']
 
     # Loop through all directories in f"{directory}/tensorboard"
-    for subdir in os.listdir(f"{directory}/tensorboard"):
+    for subdir in os.listdir(f"{directory}/tensorboard/{cfg['env']['env']}"):
+
         total_history = 0
         total_gain_history = {'k_p': 0, 'k_i': 0, 'k_d': 0}
         plot_gains = False
@@ -100,7 +101,7 @@ def graph_experiment(cfg):
                     f"train_{gain}"
                 )
 
-            plt.suptitle(f"Adaptive Agent: {subdir}")
+            plt.suptitle(f"{subdir}")
 
             # Set square aspect ratio for each subplot
             for ax in fig.axes:
@@ -118,7 +119,7 @@ def graph_experiment(cfg):
     # Set the title of the graph
     total_ax.set_title(f"{environment_name}")
     # Set the x-axis label
-    total_ax.set_xlabel("Episode")
+    total_ax.set_xlabel("Step")
     # Set the y-axis label
     total_ax.set_ylabel("Mean Reward")
     # Set the legend

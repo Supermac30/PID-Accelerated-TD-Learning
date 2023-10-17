@@ -16,7 +16,7 @@ from TabularPID.Agents.Agents import learning_rate_function
 import logging
 
 default_meta_lr = 1
-default_learning_rates =  (1, 100, 1, float("inf"), 0.01, float("inf"))  #  (0.1, 10, 1, float("inf"), 0.01, float("inf"))
+default_learning_rates =  (0.001, float("inf"), 0.5, float("inf"), 0.01, float("inf"))  #  (0.1, 10, 1, float("inf"), 0.01, float("inf"))
 
 def build_adaptive_agent_and_env(agent_name, env_name, meta_lr, lambd, delay, get_optimal=False, seed=42, gamma=0.99, kp=1, kd=0, ki=0, alpha=0.05, beta=0.95, epsilon=0.1, order=None, meta_lr_p=None, meta_lr_d=None, meta_lr_I=None):
     """Return the adaptive agent and the environment & policy given its name. The names include:

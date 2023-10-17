@@ -35,6 +35,7 @@ def plot_gains(history, cfg):
 def adaptive_agent_experiment(cfg):
     """Visualize the behavior of adaptation without learning rates."""
     seed = pick_seed(cfg['seed'])
+    prgs = [np.random.RandomState(seed), np.random.RandomState(seed)]
 
     min_x = float("inf")
     max_x = float("-inf")
@@ -44,7 +45,7 @@ def adaptive_agent_experiment(cfg):
     # Create a figure and axis
     fig, ax = plt.subplots()
     state0 = 0
-    state1 = 2
+    state1 = 1
     
     for run in range(2):
         agent_name, lambd, delay, alpha, beta, epsilon = cfg['agent_name'], cfg['lambda'], cfg['delay'], cfg['alpha'], cfg['beta'], cfg['epsilon']
@@ -53,8 +54,8 @@ def adaptive_agent_experiment(cfg):
         else:
             meta_lr = 0
 
-        #if cfg['compute_optimal']:
-            #get_optimal_adaptive_rates(agent_name, cfg['env'], meta_lr, cfg['gamma'], lambd, delay, alpha, beta, recompute=cfg['recompute_optimal'], epsilon=epsilon, search_steps=cfg['search_steps'])
+        if cfg['compute_optimal']:
+            get_optimal_adaptive_rates(agent_name, cfg['env'], meta_lr, cfg['gamma'], lambd, delay, alpha, beta, recompute=cfg['recompute_optimal'], epsilon=epsilon, search_steps=cfg['search_steps'])
         agent, env, policy = build_adaptive_agent_and_env(
             agent_name,
             cfg['env'],
@@ -74,14 +75,22 @@ def adaptive_agent_experiment(cfg):
         V_pi = find_Vpi(env, policy, cfg['gamma'])
         test_function = build_test_function(cfg['norm'], V_pi)
 
-        agent.set_seed(seed)
-        V_trajectory, gain_history = agent.estimate_value_function(
-            cfg['num_iterations'],
-            test_function,
-            follow_trajectory=cfg['follow_trajectory'],
-            stop_if_diverging=cfg['stop_if_diverging'],
-            visualize=True
-        )
+        V_trajectory = 0
+        gain_history = 0
+        for _ in range(cfg['repeat']):
+            agent.set_seed(prgs[run].randint(0, 1000000))
+            trajectory, gains = agent.estimate_value_function(
+                cfg['num_iterations'],
+                test_function,
+                follow_trajectory=cfg['follow_trajectory'],
+                stop_if_diverging=cfg['stop_if_diverging'],
+                visualize=True
+            )
+            V_trajectory += trajectory
+            gain_history += gains
+
+        V_trajectory /= cfg['repeat']
+        gain_history /= cfg['repeat']
 
         if run == 0:
             plot_gains(gain_history, cfg)
@@ -103,7 +112,7 @@ def adaptive_agent_experiment(cfg):
             max_y = max(max_y, y[i])
             min_y = min(min_y, y[i])
 
-    ax.plot(x[state0], y[state0], 'go', label='Start')
+    ax.plot(x[0], y[0], 'go', label='Start')
     ax.plot(V_pi[state0], V_pi[state1], 'y*', markersize=12, label='End')
 
     max_x = max(max_x, V_pi[state0], x[state0])
@@ -119,7 +128,7 @@ def adaptive_agent_experiment(cfg):
     ax.legend(
         handles=[
             plt.Line2D([0], [0], color='red', lw=2, label='Gain Adaptation'),
-            plt.Line2D([0], [0], color='blue', lw=2, label='TD Learning'),
+            plt.Line2D([0], [0], color='green', lw=2, label='TD Learning'),
             plt.Line2D([0], [0], marker='o', color='green', markersize=10, linestyle='', label='Initial Value'),
             plt.Line2D([0], [0], marker='*', color='yellow', markersize=10, linestyle='', label='Optimal Value')
         ],

@@ -89,6 +89,9 @@ def find_optimal_learning_rates(agent, value_function_estimator, learning_rates=
             
         return results
 
+    # Don't show info logging
+    logging.getLogger().setLevel(logging.WARNING)
+
     parameter_combinations = []
     for alpha, beta, gamma in itertools.product(learning_rates, update_I_rates, update_D_rates):
         for N, M, L in itertools.product(learning_rates[alpha], update_I_rates[beta], update_D_rates[gamma]):
@@ -99,6 +102,10 @@ def find_optimal_learning_rates(agent, value_function_estimator, learning_rates=
     results = pool.map(try_params, chunked_params)
     pool.close()
     pool.join()
+
+    # Show info logging again
+    logging.getLogger().setLevel(logging.INFO)
+
 
     # Combine results to find the best parameters
     minimum_index = float("inf")

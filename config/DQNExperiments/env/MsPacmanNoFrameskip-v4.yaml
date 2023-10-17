@@ -1,7 +1,7 @@
 atari:
   env: MsPacmanNoFrameskip-v4
   optimizer: Adam
-  replay_memory_size: 100000
+  replay_memory_size: 400000
   batch_size: 32
   learning_rate: 1e-4
   initial_eps: 1

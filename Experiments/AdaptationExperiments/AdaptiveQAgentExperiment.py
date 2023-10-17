@@ -5,7 +5,7 @@ import logging
 import multiprocessing as mp
 
 from TabularPID.AgentBuilders.AdaptiveAgentBuilder import build_adaptive_agent_and_env
-from TabularPID.OptimalRates.HyperparameterTests import get_optimal_adaptive_rates
+from TabularPID.OptimalRates.HyperparameterTests import get_optimal_q_adaptive_rates
 from Experiments.ExperimentHelpers import *
 
 @hydra.main(version_base=None, config_path="../../config/AdaptationExperiments", config_name="AdaptiveQAgentExperiment")
@@ -16,7 +16,7 @@ def adaptive_agent_experiment(cfg):
     meta_lr_p, meta_lr_I, meta_lr_d = cfg['meta_lr_p'], cfg['meta_lr_I'], cfg['meta_lr_d']
 
     if cfg['compute_optimal']:
-        get_optimal_adaptive_rates(cfg['agent_name'], cfg['env'], meta_lr, cfg['gamma'], lambd, delay, alpha, beta, recompute=cfg['recompute_optimal'], epsilon=epsilon, norm=cfg['norm'], is_q=True, search_steps=cfg['search_steps'], meta_lr_p=meta_lr_p, meta_lr_I=meta_lr_I, meta_lr_d=meta_lr_d)
+        get_optimal_q_adaptive_rates(cfg['agent_name'], cfg['env'], meta_lr, cfg['gamma'], lambd, delay, alpha, beta, recompute=cfg['recompute_optimal'], epsilon=epsilon, norm=cfg['norm'], is_q=True, search_steps=cfg['search_steps'], meta_lr_p=meta_lr_p, meta_lr_I=meta_lr_I, meta_lr_d=meta_lr_d)
     agent, env, _ = build_adaptive_agent_and_env(
         cfg['agent_name'],
         cfg['env'],

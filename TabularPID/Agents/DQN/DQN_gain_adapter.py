@@ -33,6 +33,9 @@ class GainAdapter():
 
     def get_gains(self, states, actions, replay_sample):
         raise NotImplementedError
+    
+    def apply_weight_decay(self, replay_buffer):
+        raise NotImplementedError
 
     def BR(self, replay_sample, network, action_network=None):
         with th.no_grad():
@@ -68,6 +71,9 @@ class NoGainAdapter(GainAdapter):
 
         self.adapts_single_gains = True
 
+    def apply_weight_decay(self, replay_buffer):
+        return
+
     def get_gains(self, states, actions, replay_sample):
         return th.full((self.batch_size, 1), self.kp, device=self.device), th.full((self.batch_size, 1), self.ki, device=self.device), \
             th.full((self.batch_size, 1), self.kd, device=self.device), th.full((self.batch_size, 1), self.alpha, device=self.device), \
@@ -93,6 +99,9 @@ class SingleGainAdapter(GainAdapter):
 
         self.adapts_single_gains = True
 
+    def apply_weight_decay(self, replay_buffer):
+        replay_buffer.apply_weight_decay(self.lambd)
+
     def get_gains(self, states, actions, replay_sample):
         return th.full((self.batch_size, 1), self.kp, device=self.device).float(), th.full((self.batch_size, 1), self.ki, device=self.device).float(), \
             th.full((self.batch_size, 1), self.kd, device=self.device).float(), th.full((self.batch_size, 1), self.alpha, device=self.device).float(), \
@@ -104,7 +113,7 @@ class SingleGainAdapter(GainAdapter):
         # The current network plays the role of the next Q
         self.model.policy.set_training_mode(False)
         with th.no_grad():
-            if self.agent.is_double:
+            if self.model.is_double:
                 next_BRs = self.BR(replay_sample, self.model.q_net, self.model.q_net_target)
                 previous_BRs = self.BR(replay_sample, self.model.q_net_target, self.model.q_net)
             else:
@@ -118,9 +127,9 @@ class SingleGainAdapter(GainAdapter):
             Qp = self.model.d_net(replay_sample.observations)
             Qp = th.gather(Qp, dim=1, index=replay_sample.actions.long())
 
-        self.kp = 1 + (self.kp - 1) * (1 - self.lambd) + (self.meta_lr_p / self.batch_size) * (next_BRs.T @ previous_BRs / normalization).item()
-        self.ki = self.ki * (1 - self.lambd) + (self.meta_lr_i / self.batch_size) * (next_BRs.T @ zs / normalization).item()
-        self.kd = self.kd * (1 - self.lambd) + (self.meta_lr_d / self.batch_size) * (next_BRs.T @ (Q - Qp) / normalization).item()
+        self.kp += (self.meta_lr_p / self.batch_size) * (next_BRs.T @ previous_BRs / normalization).item()
+        self.ki += (self.meta_lr_i / self.batch_size) * (next_BRs.T @ zs / normalization).item()
+        self.kd += (self.meta_lr_d / self.batch_size) * (next_BRs.T @ (Q - Qp) / normalization).item()
 
         self.model.replay_buffer.update(replay_sample.indices, zs=zs)
 
@@ -135,6 +144,9 @@ class DiagonalGainAdapter(GainAdapter):
         self.initial_kd = kd
         self.alpha = alpha
         self.beta = beta
+
+    # def apply_weight_decay(self, replay_buffer):
+    #     replay_buffer.apply_weight_decay(self.lambd)
 
     def get_gains(self, states, actions, replay_sample):
         return replay_sample.kp, replay_sample.ki, replay_sample.kd, \
@@ -151,12 +163,13 @@ class DiagonalGainAdapter(GainAdapter):
                 next_BRs = self.BR(replay_sample, self.model.q_net)
                 previous_BRs = self.BR(replay_sample, self.model.q_net)
 
-            scale = 0.75 
-            zero_mask = replay_sample.BRs == 0
-            previous_BRs_squared = previous_BRs * previous_BRs
-            running_BRs = th.zeros_like(previous_BRs_squared)
-            running_BRs[zero_mask] = previous_BRs_squared[zero_mask]
-            running_BRs[~zero_mask] = (1 - scale) * replay_sample.BRs[~zero_mask] + scale * previous_BRs_squared[~zero_mask]
+            # scale = 1
+            # zero_mask = replay_sample.BRs == 0
+            # previous_BRs_squared = previous_BRs * previous_BRs
+            # running_BRs = th.zeros_like(previous_BRs_squared)
+            # running_BRs[zero_mask] = previous_BRs_squared[zero_mask]
+            # running_BRs[~zero_mask] = (1 - scale) * replay_sample.BRs[~zero_mask] + scale * previous_BRs_squared[~zero_mask]
+            running_BRs = previous_BRs * previous_BRs
 
             normalization = self.epsilon + running_BRs
 
@@ -183,9 +196,9 @@ class DiagonalGainAdapter(GainAdapter):
         new_kds = replay_sample.kd * (1 - self.lambd) + self.meta_lr_d * (next_BRs * (Q - ds) / normalization).reshape(-1, 1)
 
         if self.model.tabular_d:
-            self.model.replay_buffer.update(replay_sample.indices, zs=zs, kp=new_kps, ki=new_kis, kd=new_kds, ds=new_ds, BRs=running_BRs)
+            self.model.replay_buffer.update(replay_sample.indices, zs=zs, kp=new_kps, ki=new_kis, kd=new_kds, ds=new_ds)
         else:
-            self.model.replay_buffer.update(replay_sample.indices, zs=zs, kp=new_kps, ki=new_kis, kd=new_kds, BRs=running_BRs)
+            self.model.replay_buffer.update(replay_sample.indices, zs=zs, kp=new_kps, ki=new_kis, kd=new_kds)
 
 
 class GainAdaptingNetwork(nn.Module):

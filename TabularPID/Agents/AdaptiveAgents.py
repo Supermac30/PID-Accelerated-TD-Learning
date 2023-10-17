@@ -98,7 +98,7 @@ class AbstractAdaptiveAgent(Agent):
 
             if test_function is not None:
                 history[k] = test_function(self.V, self.Vp, self.BR)
-                if stop_if_diverging and history[k] > 1.25 * history[0]:
+                if stop_if_diverging and history[k] > 5 * history[0]:
                     history[k:] = float("inf")
                     break
 

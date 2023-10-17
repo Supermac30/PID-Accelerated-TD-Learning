@@ -1,0 +1,17 @@
+breakout:
+  env: Breakout-v1
+  optimizer: Adam
+  replay_memory_size: 100000
+  batch_size: 32
+  learning_rate: 6.3e-4
+  initial_eps: 1
+  exploration_fraction: 0.12
+  minimum_eps: 0.1
+  gradient_steps: -1
+  train_freq: 1
+  target_update_interval: 1000
+  tau: 1
+  inner_size: 256
+  learning_starts: 5000
+  num_iterations: 50000
+  gamma: 0.99

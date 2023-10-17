@@ -135,7 +135,7 @@ class GainReporterCallback(BaseCallback):
         if self.num_timesteps % 1000 != 0:
             return True
         
-        # Sample about 10000 states from the replay buffer
+        # Sample 10000 states from the replay buffer
         replay_data = self.model.replay_buffer.sample(10000, env=self.model._vec_normalize_env)  # type: ignore[union-attr]
 
         kp, ki, kd, _, _ = self.model.gain_adapter.get_gains(None, None, replay_data)

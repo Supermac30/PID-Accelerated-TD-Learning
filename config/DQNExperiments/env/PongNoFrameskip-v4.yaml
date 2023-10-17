@@ -1,11 +1,11 @@
 atari:
   env: PongNoFrameskip-v4
   optimizer: Adam
-  replay_memory_size: 100000
+  replay_memory_size: 400000
   batch_size: 32
   learning_rate: 1e-4
   initial_eps: 1
-  exploration_fraction: 0.25  # Modified exploration fraction for the reduced number of iterations
+  exploration_fraction: 0.4  # Modified exploration fraction for the reduced number of iterations
   minimum_eps: 0.01
   gradient_steps: 1
   train_freq: 4
@@ -13,5 +13,5 @@ atari:
   tau: 1
   inner_size: 256
   learning_starts: 100000
-  num_iterations: 4000000
+  num_iterations: 2500000
   gamma: 0.99

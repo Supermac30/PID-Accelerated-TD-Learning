@@ -3,7 +3,7 @@
 #SBATCH -p cpu
 #SBATCH --cpus-per-task=64
 #SBATCH --tasks-per-node=1
-#SBATCH --time=30:00:00
+#SBATCH --time=1:00:00
 #SBATCH --mem=1GB
 #SBATCH --job-name=adapt_Q
 #SBATCH --output=slurm/logs/%x_%j.out
@@ -32,11 +32,11 @@ python3 -m Experiments.AdaptationExperiments.AdaptiveQAgentExperiment --multirun
     hydra.sweep.dir="$directory" \
     seed=$seed \
     save_dir="$directory" \
-    meta_lr_p=1e-2 \
-    meta_lr_I=1e-2 \
-    meta_lr_d=1e-4 \
+    meta_lr_p=1e-1 \
+    meta_lr_I=1e-1 \
+    meta_lr_d=1e-3 \
     epsilon=0.001 \
-    lambda=0.01 \
+    lambda=0.1 \
     env="$env" \
     gamma=$gamma \
     repeat=$repeat \
