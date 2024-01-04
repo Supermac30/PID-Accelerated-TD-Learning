@@ -17,6 +17,7 @@ compute_optimal: True # Run a grid search. When recompute_optimal is false, we d
 recompute_optimal: False  # If compute_optimal is True, run a grid search even if the optimal parameters are in the database
 debug: False # If multiprocessing should be disabled
 repeat: 1
+name: PIDQLearning
 
 stop_if_diverging: True
 

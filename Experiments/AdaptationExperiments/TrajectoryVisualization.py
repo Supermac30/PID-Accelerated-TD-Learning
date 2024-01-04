@@ -128,7 +128,7 @@ def adaptive_agent_experiment(cfg):
     ax.legend(
         handles=[
             plt.Line2D([0], [0], color='red', lw=2, label='Gain Adaptation'),
-            plt.Line2D([0], [0], color='green', lw=2, label='TD Learning'),
+            plt.Line2D([0], [0], color='blue', lw=2, label='TD'),
             plt.Line2D([0], [0], marker='o', color='green', markersize=10, linestyle='', label='Initial Value'),
             plt.Line2D([0], [0], marker='*', color='yellow', markersize=10, linestyle='', label='Optimal Value')
         ],

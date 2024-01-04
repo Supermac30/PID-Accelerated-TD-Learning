@@ -8,6 +8,7 @@ gamma: 0.99
 agent_name: TD
 
 env: chain walk
+name: ${env}_${agent_name}_kp=${kp}_kd=${kd}_ki=${ki}_alpha=${alpha}_beta=${beta}_gamma=${gamma}
 num_iterations: 30000
 norm: 1
 get_optimal: True # Get the optimal parameters from the database

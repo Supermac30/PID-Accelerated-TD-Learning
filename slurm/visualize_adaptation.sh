@@ -1,25 +1,27 @@
 #!/bin/bash
 #SBATCH -N 1
 #SBATCH -p cpu
-#SBATCH --cpus-per-task=64
+#SBATCH --cpus-per-task=32
 #SBATCH --tasks-per-node=1
-#SBATCH --time=01:00:00
+#SBATCH --time=05:00:00
 #SBATCH --mem=1GB
 #SBATCH --job-name=visualize_adaptation
 #SBATCH --output=slurm/logs/%x_%j.out
 #SBATCH --error=slurm/errors/%x_%j.err
+#SBATCH --account=deadline
+#SBATCH --qos=deadline 
 
 ulimit -n 2048
 
 source slurm/setup.sh
 
 current_time=$(date "+%Y.%m.%d/%H.%M.%S")
-env="baby chain walk"
-gamma=0.9999
+env="garnet 123 50"
+gamma=0.9
 seed=$RANDOM
 num_iterations=1000
 search_steps=1000
-recompute_optimal=True
+recompute_optimal=False
 compute_optimal=True  # False when we need to debug, so there is no multiprocessing
 get_optimal=True  # False when we need to debug with a specific learning rate
 

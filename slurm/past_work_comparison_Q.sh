@@ -21,6 +21,18 @@ echo "Saving to ${directory}"
 mkdir -p "$directory"
 
 python3 -m Experiments.TDExperiments.PastWorkEvaluation \
+    hydra.run.dir="${directory}/Zap Agent" \
+    save_dir="$directory" \
+    agent_name="zap Q learning" \
+    gamma=$gamma \
+    seed=$seed \
+    repeat=$repeat \
+    env="$env" \
+    is_q=True \
+    recompute_optimal=True \
+    name="Zap Q learning"
+
+python3 -m Experiments.TDExperiments.PastWorkEvaluation \
     hydra.run.dir="${directory}/Speedy Agent" \
     save_dir="$directory" \
     seed=$seed \
@@ -29,18 +41,8 @@ python3 -m Experiments.TDExperiments.PastWorkEvaluation \
     repeat=$repeat \
     env="$env" \
     is_q=True \
-    recompute_optimal=True
-
-python3 -m Experiments.TDExperiments.PastWorkEvaluation \
-    hydra.run.dir="${directory}/Zip Agent" \
-    save_dir="$directory" \
-    agent_name="zap Q learning" \
-    gamma=$gamma \
-    seed=$seed \
-    repeat=$repeat \
-    env="$env" \
-    is_q=True \
-    recompute_optimal=True
+    recompute_optimal=True \
+    name="Speedy Q learning"
 
 python3 -m Experiments.AdaptationExperiments.AdaptiveQAgentExperiment \
     hydra.run.dir="${directory}/PID Agent" \
@@ -52,7 +54,8 @@ python3 -m Experiments.AdaptationExperiments.AdaptiveQAgentExperiment \
     gamma=$gamma \
     repeat=$repeat \
     env="$env" \
-    recompute_optimal=True
+    recompute_optimal=True \
+    name="PID Q learning"
 
 python3 -m Experiments.Plotting.plot_adaptation_experiment \
     hydra.run.dir="$directory" \

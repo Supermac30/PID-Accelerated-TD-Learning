@@ -131,7 +131,7 @@ def build_adaptive_agent(agent_name, env_name, env, policy, meta_lr, lambd, dela
     elif agent_name == "semi gradient Q updater":
         return build_semi_gradient_Q_updater(*params, meta_lr_p=meta_lr_p, meta_lr_d=meta_lr_d, meta_lr_I=meta_lr_I)
     elif agent_name == "diagonal semi gradient Q updater":
-        return build_diagonal_semi_gradient_Q_updater(*params)
+        return build_diagonal_semi_gradient_Q_updater(*params, meta_lr_p=meta_lr_p, meta_lr_d=meta_lr_d, meta_lr_I=meta_lr_I)
     # elif agent_name == "semi gradient double Q updater":
     #     return build_semi_gradient_Q_updater(*params, double=True)
     elif agent_name == "semi gradient double Q updater":
@@ -169,7 +169,7 @@ def build_semi_gradient_double_Q_updater(env, policy, meta_lr, lambd, learning_r
     )
 
 
-def build_diagonal_semi_gradient_Q_updater(env, policy, meta_lr, lambd, learning_rates, gamma, delay, kp, kd, ki, alpha, beta, epsilon):
+def build_diagonal_semi_gradient_Q_updater(env, policy, meta_lr, lambd, learning_rates, gamma, delay, kp, kd, ki, alpha, beta, epsilon, meta_lr_p=None, meta_lr_d=None, meta_lr_I=None):
     gain_updater = AdaptiveQAgents.DiagonalSemiGradient(lambd, epsilon)
     return AdaptiveQAgents.DiagonalAdaptiveSamplerAgent(
         gain_updater,
@@ -178,7 +178,10 @@ def build_diagonal_semi_gradient_Q_updater(env, policy, meta_lr, lambd, learning
         env,
         gamma,
         delay,
-        kp, kd, ki, alpha, beta
+        kp, kd, ki, alpha, beta,
+        meta_lr_p=meta_lr_p,
+        meta_lr_d=meta_lr_d,
+        meta_lr_I=meta_lr_I
     )
 
 

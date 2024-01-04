@@ -46,11 +46,11 @@ def past_work(cfg):
         pool.join()
 
         all_histories = list(map(lambda n: results[n][0], range(len(results[0]))))
-        
+    
     mean_history = np.mean(np.array(all_histories), axis=0)
     std_dev_history = np.std(np.array(all_histories), axis=0)
-    save_array(mean_history, f"{agent_name}", directory=cfg['save_dir'], subdir="mean")
-    save_array(std_dev_history, f"{agent_name}", directory=cfg['save_dir'], subdir="std_dev")
+    save_array(mean_history, f"{cfg['name']}", directory=cfg['save_dir'], subdir="mean")
+    save_array(std_dev_history, f"{cfg['name']}", directory=cfg['save_dir'], subdir="std_dev")
 
 
 if __name__ == "__main__":

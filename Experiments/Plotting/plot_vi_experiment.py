@@ -16,7 +16,10 @@ def create_plots(cfg):
     for file in os.listdir(f"{cfg['save_dir']}/npy"):
         name = file[:-4]
         history = np.load(f"{cfg['save_dir']}/npy/{file}")
-        
+
+        # log the file
+        logging.info(f"Plotting {name} in directory {cfg['save_dir']}/npy/mean/{file}")
+
         # Plot history
         ax0.plot(normalize(history), label=name)
 

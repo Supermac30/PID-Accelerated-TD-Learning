@@ -14,7 +14,7 @@ def policy_evaluation_experiment(cfg):
         num_iterations=cfg['num_iterations'],
         test_function=build_test_function(cfg['norm'], find_Vpi(env, policy, cfg['gamma']))
     )
-    save_array(history, f"kp={kp} kd={kd} ki={ki} alpha={alpha} beta={beta}", directory=cfg['save_dir'])
+    save_array(history, f"{cfg['name']}", directory=cfg['save_dir'])
 
 if __name__ == "__main__":
     policy_evaluation_experiment()

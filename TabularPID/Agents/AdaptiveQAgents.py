@@ -174,17 +174,17 @@ class AdaptiveSamplerAgent(AbstractAdaptiveAgent):
 
 
 class DiagonalAdaptiveSamplerAgent(AbstractAdaptiveAgent):
-    def __init__(self, gain_updater, learning_rates, meta_lr, environment, gamma, update_frequency=1, kp=1, kd=0, ki=0, alpha=0.05, beta=0.95):
-        super().__init__(gain_updater, learning_rates, meta_lr, environment, gamma, update_frequency, kp, kd, ki, alpha, beta)
+    def __init__(self, gain_updater, learning_rates, meta_lr, environment, gamma, update_frequency=1, kp=1, kd=0, ki=0, alpha=0.05, beta=0.95, verbose=False, meta_lr_p=None, meta_lr_I=None, meta_lr_d=None):
+        super().__init__(gain_updater, learning_rates, meta_lr, environment, gamma, update_frequency, kp, kd, ki, alpha, beta, meta_lr_p=meta_lr_p, meta_lr_I=meta_lr_I, meta_lr_d=meta_lr_d)
         
         gain_updater.set_agent(self)
     
     def reset(self, reset_environment=True):
         if reset_environment:
             self.environment.reset()
-        self.kp = np.full((self.num_states, self.num_actions), self.original_kp, dtype=np.longdouble)
-        self.ki = np.full((self.num_states, self.num_actions), self.original_ki, dtype=np.longdouble)
-        self.kd = np.full((self.num_states, self.num_actions), self.original_kd, dtype=np.longdouble)
+        self.kp = np.full((self.num_states), self.original_kp, dtype=np.longdouble)
+        self.ki = np.full((self.num_states), self.original_ki, dtype=np.longdouble)
+        self.kd = np.full((self.num_states), self.original_kd, dtype=np.longdouble)
 
         self.alpha, self.beta = self.original_alpha, self.original_beta
         self.lr, self.previous_lr, self.update_D_rate_value, self.previous_update_D_rate_value, self.update_I_rate_value, self.previous_update_I_rate_value = 0, 0, 0, 0, 0, 0
@@ -219,7 +219,7 @@ class DiagonalAdaptiveSamplerAgent(AbstractAdaptiveAgent):
         self.d_update = self.Q[state][action] - self.Qp[state][action]
         self.i_update = self.beta * self.z[state][action] + self.alpha * BR
 
-        new_Q = self.Q[state][action] + self.kp[state][action] * self.p_update + self.kd[state][action] * self.d_update + self.ki[state][action] * self.i_update
+        new_Q = self.Q[state][action] + self.kp[state] * self.p_update + self.kd[state] * self.d_update + self.ki[state] * self.i_update
         new_z = self.beta * self.z[state][action] + self.alpha * BR
         new_Qp = self.Q[state][action]
         
@@ -372,9 +372,14 @@ class SemiGradientUpdater(AbstractGainUpdater):
             self.d_update = 0
             self.i_update = 0
             self.p_update = 0
+        
+        if current_state == 1:
+            # Plot all required information
+            self.BR_plot.append(BR)
+            self.i_update_plot.append(self.i_update)
+            self.z_plot.append(self.agent.previous_z[current_state][action])
 
     def plot(self, directory):
-        return
         # Plot BR_plot and i_update_plot on separate sub-plots
         fig, (ax1, ax2, ax3) = plt.subplots(3, 1)
         ax1.plot(self.BR_plot, color="red", label="BR")
@@ -399,16 +404,16 @@ class DiagonalSemiGradient(AbstractGainUpdater):
 
     def set_agent(self, agent):
         super().set_agent(agent)
-        self.previous_BRs = np.zeros((agent.num_states, agent.num_actions))
-        self.running_BR = np.zeros((agent.num_states, agent.num_actions))
-        self.p_update = np.zeros((agent.num_states, agent.num_actions))
-        self.i_update = np.zeros((agent.num_states, agent.num_actions))
-        self.d_update = np.zeros((agent.num_states, agent.num_actions))
-        self.alpha_update = np.zeros((agent.num_states, agent.num_actions))
-        self.beta_update = np.zeros((agent.num_states, agent.num_actions))
+        self.previous_BRs = np.zeros((agent.num_states))
+        self.running_BR = np.zeros((agent.num_states))
+        self.p_update = np.zeros((agent.num_states))
+        self.i_update = np.zeros((agent.num_states))
+        self.d_update = np.zeros((agent.num_states))
+        self.alpha_update = np.zeros((agent.num_states))
+        self.beta_update = np.zeros((agent.num_states))
 
         self.update_frequency = self.agent.update_frequency
-        self.frequencies = np.zeros((agent.num_states, agent.num_actions))
+        self.frequencies = np.zeros((agent.num_states))
 
         self.plot_state = 25
         self.BR_plot = [0]
@@ -426,35 +431,37 @@ class DiagonalSemiGradient(AbstractGainUpdater):
         next_BR = self.find_BR(False)
 
         scale = 0.5
-        self.running_BR[current_state][action] = (1 - scale) * self.running_BR[current_state][action] + scale * BR * BR
-        normalization = self.epsilon + self.running_BR[current_state][action]
+        self.running_BR[current_state] = (1 - scale) * self.running_BR[current_state] + scale * BR * BR
+        normalization = self.epsilon + self.running_BR[current_state]
 
-        self.p_update[current_state][action] += next_BR * BR / normalization
-        self.d_update[current_state][action] += next_BR * (self.agent.previous_Q[current_state][action] - self.agent.previous_Qp[current_state][action]) / normalization
-        self.i_update[current_state][action] += next_BR * (self.beta * self.agent.previous_z[current_state][action] + self.alpha * BR) / normalization
+        self.p_update[current_state] += next_BR * BR / normalization
+        self.d_update[current_state] += next_BR * (self.agent.previous_Q[current_state][action] - self.agent.previous_Qp[current_state][action]) / normalization
+        self.i_update[current_state] += next_BR * (self.beta * self.agent.previous_z[current_state][action] + self.alpha * BR) / normalization
 
+        # if np.random.random() < 0.01:
+        #     breakpoint()
 
-        self.frequencies[current_state][action] += 1
-        if self.frequencies[current_state][action] == self.update_frequency:
-            self.kp[current_state][action] = 1 + (1 - self.lambd) * (self.kp[current_state][action] - 1)
-            self.kd[current_state][action] *= 1 - self.lambd
-            self.ki[current_state][action] *= 1 - self.lambd
+        self.frequencies[current_state] += 1
+        if self.frequencies[current_state] == self.update_frequency:
+            self.kp[current_state] = 1 + (1 - self.lambd) * (self.kp[current_state] - 1)
+            self.kd[current_state] *= 1 - self.lambd
+            self.ki[current_state] *= 1 - self.lambd
             #self.alpha[current_state] *= 1 - self.lambd
             #self.beta[current_state] = 1 + (1 - self.lambd) * (self.beta[current_state] - 1)
 
-            self.kp[current_state][action] += self.meta_lr_p * self.p_update[current_state][action] / self.update_frequency
-            self.kd[current_state][action] += self.meta_lr_d * self.d_update[current_state][action] / self.update_frequency
-            self.ki[current_state][action] += self.meta_lr_I * self.i_update[current_state][action] / self.update_frequency
+            self.kp[current_state] += self.meta_lr_p * self.p_update[current_state] / self.update_frequency
+            self.kd[current_state] += self.meta_lr_d * self.d_update[current_state] / self.update_frequency
+            self.ki[current_state] += self.meta_lr_I * self.i_update[current_state] / self.update_frequency
             #self.alpha[current_state] += self.meta_lr * self.alpha_update[current_state] / self.update_frequency
             #self.beta[current_state] += self.meta_lr * self.beta_update[current_state] / self.update_frequency
 
-            self.p_update[current_state][action] = 0
-            self.d_update[current_state][action] = 0
-            self.i_update[current_state][action] = 0
-            self.alpha_update[current_state][action] = 0
-            self.beta_update[current_state][action] = 0
+            self.p_update[current_state] = 0
+            self.d_update[current_state] = 0
+            self.i_update[current_state] = 0
+            self.alpha_update[current_state] = 0
+            self.beta_update[current_state] = 0
 
-            self.frequencies[current_state][action] = 0
+            self.frequencies[current_state] = 0
 
 
     def plot(self, directory):

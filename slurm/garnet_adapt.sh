@@ -3,9 +3,9 @@
 #SBATCH -p cpu
 #SBATCH --cpus-per-task=64
 #SBATCH --tasks-per-node=1
-#SBATCH --time=2:00:00
-#SBATCH --mem=2GB
-#SBATCH --job-name=garnet_adapt
+#SBATCH --time=5:00:00
+#SBATCH --mem=1GB
+#SBATCH --job-name=pid_vi_control
 #SBATCH --output=slurm/logs/%x_%j.out
 #SBATCH --error=slurm/errors/%x_%j.err
 
@@ -84,7 +84,9 @@ do
             meta_lr_I=1e-2,1e-3 \
             meta_lr_d=1e-4,1e-5 \
             epsilon=0.0001 \
-            lambda=0.1 \
+            lambda=0.25 \
+            alpha=0.5 \
+            beta=0.5 \
             agent_name="semi gradient Q updater" \
 
         python3 -m Experiments.QExperiments.PIDQLearning \

@@ -119,13 +119,14 @@ class SingleGainAdapter(GainAdapter):
             else:
                 next_BRs = self.BR(replay_sample, self.model.q_net)
                 previous_BRs = self.BR(replay_sample, self.model.q_net_target)
-            normalization = self.epsilon + previous_BRs.T @ previous_BRs
 
             zs = self.beta * replay_sample.zs + self.alpha * previous_BRs
             Q = self.model.q_net_target(replay_sample.observations)
             Q = th.gather(Q, dim=1, index=replay_sample.actions.long())
             Qp = self.model.d_net(replay_sample.observations)
             Qp = th.gather(Qp, dim=1, index=replay_sample.actions.long())
+
+            normalization = self.epsilon + th.sqrt(next_BRs.T @ next_BRs)
 
         self.kp += (self.meta_lr_p / self.batch_size) * (next_BRs.T @ previous_BRs / normalization).item()
         self.ki += (self.meta_lr_i / self.batch_size) * (next_BRs.T @ zs / normalization).item()

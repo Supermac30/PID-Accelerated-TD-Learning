@@ -24,6 +24,7 @@ normalize: True
 
 is_q: False
 
+name: ${hydra.job.config_name}
 save_dir: ${oc.env:OUTPUT_DIR,./outputs}/${hydra.job.config_name}/${now:%Y-%m-%d}/${now:%H-%M-%S}
 
 seed: 2388

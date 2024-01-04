@@ -23,35 +23,61 @@ def create_plots(cfg):
     x_axis = lambda n: np.arange(0, sep * len(n), sep)
 
     # Iterate through all of the files in the npy folder
-    for file in os.listdir(f"{cfg['save_dir']}/npy/mean"):
+    for file in os.listdir(f"{cfg['save_dir']}/npy/mean")[::-1]:
         name = file[:-4]
         history = np.load(f"{cfg['save_dir']}/npy/mean/{file}")
         std_dev = np.load(f"{cfg['save_dir']}/npy/std_dev/{file}")
         # If the file starts with gain_history, plot it:
         if file.startswith("gain_history"):
-            fig = plt.figure(figsize=(8, 4))
-            gs = fig.add_gridspec(nrows=1, ncols=3, width_ratios=[1,1,1])
-            titles = ["kp", "ki", "kd"]
-            for i in range(3):
-                gain_values = history[:,i]
-                std_dev_values = std_dev[:,i]
-                ax = fig.add_subplot(gs[0, i])
-                ax.plot(x_axis(gain_values), gain_values)
-                ax.fill_between(x_axis(gain_values), gain_values - std_dev_values, gain_values + std_dev_values, alpha=0.2)
-                ax.set_xlabel('Steps')
-                ax.title.set_text(titles[i])
+            # GPT generated plotting code:
+            # Create a figure and a single subplot
+            fig, ax1 = plt.subplots()
 
-            # Set square aspect ratio for each subplot
-            for ax in fig.axes:
-                ax.set_box_aspect(1)
-                
-            # Center the subplots in a single row and move up to remove whitespace
-            gs.tight_layout(fig, rect=[0.05, 0.08, 0.95, 0.95])
+            # Plot kp with its standard deviation on the left y-axis (colored line)
+            gain_values_kp = history[:, 0]
+            std_dev_values_kp = std_dev[:, 0]
+            ax1.plot(x_axis(gain_values_kp), gain_values_kp, label='kp', color='blue')
+            ax1.fill_between(x_axis(gain_values_kp), gain_values_kp - std_dev_values_kp, 
+                            gain_values_kp + std_dev_values_kp, alpha=0.2, color='lightblue')
+            ax1.set_xlabel('Steps')
+            ax1.set_ylabel('kp', color='black')
+            ax1.tick_params(axis='y', labelcolor='black')
 
-            fig.savefig(f"{cfg['save_dir']}/{name}.png")
-            fig.savefig(f"{cfg['save_dir']}/{name}.pdf")
-            plt.close(fig)
+            # Reduce the title font size
+            ax1.set_title('PID Gain Values Over Time', fontsize=10)
 
+            # Create a second y-axis for ki and kd (colored lines)
+            ax2 = ax1.twinx()
+
+            # Plot ki with its standard deviation on the right y-axis
+            gain_values_ki = history[:, 1]
+            std_dev_values_ki = std_dev[:, 1]
+            ax2.plot(x_axis(gain_values_ki), gain_values_ki, label='ki', color='orange')
+            ax2.fill_between(x_axis(gain_values_ki), gain_values_ki - std_dev_values_ki, 
+                            gain_values_ki + std_dev_values_ki, alpha=0.2, color='moccasin')
+
+            # Plot kd with its standard deviation on the right y-axis
+            gain_values_kd = history[:, 2]
+            std_dev_values_kd = std_dev[:, 2]
+            ax2.plot(x_axis(gain_values_kd), gain_values_kd, label='kd', color='green')
+            ax2.fill_between(x_axis(gain_values_kd), gain_values_kd - std_dev_values_kd, 
+                            gain_values_kd + std_dev_values_kd, alpha=0.2, color='honeydew')
+
+            ax2.set_ylabel('ki, kd', color='black')
+            ax2.tick_params(axis='y', labelcolor='black')
+
+            # Set square aspect ratio
+            ax1.set_box_aspect(1)
+
+            # Legend
+            lines, labels = ax1.get_legend_handles_labels()
+            lines2, labels2 = ax2.get_legend_handles_labels()
+            ax2.legend(lines + lines2, labels + labels2, loc='upper left')
+
+            # Save the figure
+            fig.savefig(f"{cfg['save_dir']}/gain_history_{name}.png")
+            fig.savefig(f"{cfg['save_dir']}/gain_history_{name}.pdf")
+            
         # Otherwise, plot the file on the history plot
         elif file.startswith("Adaptive Agent"):
             if cfg['plot_best']:

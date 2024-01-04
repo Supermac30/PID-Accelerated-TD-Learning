@@ -9,6 +9,7 @@ env: chain walk
 
 norm: 1
 num_iterations: 500
+name: VIPolicyEvaluation
 
 save_dir: ${oc.env:OUTPUT_DIR,./outputs}/${hydra.job.config_name}/${now:%Y-%m-%d}/${now:%H-%M-%S}
 
@@ -17,4 +18,4 @@ hydra:
   run:
     dir: ${oc.env:OUTPUT_DIR,./outputs}/${hydra.job.config_name}/${now:%Y-%m-%d}/${now:%H-%M-%S}
   job:
-    chdir: True
+    chdir: False

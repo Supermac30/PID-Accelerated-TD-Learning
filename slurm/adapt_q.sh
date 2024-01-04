@@ -1,22 +1,24 @@
 #!/bin/bash
 #SBATCH -N 1
 #SBATCH -p cpu
-#SBATCH --cpus-per-task=64
+#SBATCH --cpus-per-task=32
 #SBATCH --tasks-per-node=1
-#SBATCH --time=1:00:00
-#SBATCH --mem=1GB
-#SBATCH --job-name=adapt_Q
+#SBATCH --time=10:00:00
+#SBATCH --mem=8GB
+#SBATCH --job-name=adapt_q
 #SBATCH --output=slurm/logs/%x_%j.out
 #SBATCH --error=slurm/errors/%x_%j.err
+#SBATCH --account=deadline
+#SBATCH --qos=deadline 
 
 source slurm/setup.sh
 current_time=$(date "+%Y.%m.%d/%H.%M.%S")
-env="garnet 123 50"
-gamma=0.99
+env="chain walk"
+gamma=0.9
 repeat=20
 seed=$RANDOM
-num_iterations=3000
-search_steps=3000
+num_iterations=1000
+search_steps=1000
 directory=outputs/q_adaptation_experiment/$env/$current_time
 echo "Saving to $directory"
 mkdir -p "$directory"
@@ -32,11 +34,13 @@ python3 -m Experiments.AdaptationExperiments.AdaptiveQAgentExperiment --multirun
     hydra.sweep.dir="$directory" \
     seed=$seed \
     save_dir="$directory" \
-    meta_lr_p=1e-1 \
-    meta_lr_I=1e-1 \
-    meta_lr_d=1e-3 \
-    epsilon=0.001 \
-    lambda=0.1 \
+    meta_lr_p=0.001 \
+    meta_lr_I=0.001 \
+    meta_lr_d=0.001 \
+    alpha=0.95 \
+    beta=0.05 \
+    epsilon=0.01 \
+    lambda=0 \
     env="$env" \
     gamma=$gamma \
     repeat=$repeat \
@@ -46,7 +50,8 @@ python3 -m Experiments.AdaptationExperiments.AdaptiveQAgentExperiment --multirun
     recompute_optimal=$recompute_optimal \
     compute_optimal=$compute_optimal \
     get_optimal=$get_optimal \
-    debug=$debug
+    debug=$debug \
+    name="Gain Adaptation"
 
 python3 -m Experiments.QExperiments.PIDQLearning \
     hydra.run.dir="$directory/TD Agent" \
@@ -64,6 +69,7 @@ python3 -m Experiments.QExperiments.PIDQLearning \
     recompute_optimal=$recompute_optimal \
     compute_optimal=$compute_optimal \
     get_optimal=$get_optimal \
+    name="Q Learning"
 
 python3 -m Experiments.Plotting.plot_adaptation_experiment \
     hydra.run.dir="$directory" \

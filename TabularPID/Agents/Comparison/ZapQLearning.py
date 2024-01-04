@@ -7,14 +7,13 @@ class ZapQLearning(Agent):
         super().__init__(environment, policy, gamma)
         self.gamma_lr = gamma_lr
         self.alpha_lr = alpha_lr
-        self.Q = np.zeros((self.num_states, self.num_actions))
+        self.Q = np.zeros(self.num_states * self.num_actions)
 
     def unit_mat(self, a, b):
-        """Create a matrix with a one at (a, b) and zeros everywhere else
+        """Create a vector in R^(n * m) indexed by (state, action) pairs,
+        where the value is 1 if the pair is (a, b) and 0 otherwise.
         """
-        matrix = np.zeros((self.num_states, self.num_actions))
-        matrix[a, b] = 1
-        return matrix
+        return np.eye(self.num_states * self.num_actions)[a * self.num_actions + b]
 
     def set_learning_rates(self, a, b, c, d, e, f):
         self.gamma_lr = learning_rate_function(a, b)
@@ -31,34 +30,38 @@ class ZapQLearning(Agent):
         history = np.zeros(num_iterations)
 
         # A vector storing the number of times we have seen a state.
-        frequency = np.zeros((self.num_states, 1))
+        frequency = np.zeros(self.num_states)
 
         # The matrix A, initialized randomly to avoid singularities
-        rolling_A = np.random.rand(self.num_states, self.num_states)
+        rolling_A = np.random.rand(self.num_states * self.num_actions, self.num_states * self.num_actions)
 
         for k in range(num_iterations):
             current_state, action, next_state, reward = self.take_action(follow_trajectory, is_q=True)
             frequency[current_state] += 1
 
-            best_action = np.argmax(self.Q[next_state])
-            BR = reward + self.gamma * self.Q[next_state, best_action] - self.Q[current_state, action]
+            best_action = np.argmax(self.Q[next_state * self.num_actions : (next_state + 1) * self.num_actions])
+            BR = reward + self.gamma * self.Q[next_state * self.num_actions + best_action] - self.Q[current_state * self.num_actions + action]
 
             gamma_lr = self.gamma_lr(frequency[current_state])
             alpha_lr = self.alpha_lr(frequency[current_state])
 
             A = self.unit_mat(current_state, action) @ (self.gamma * self.unit_mat(next_state, best_action) - self.unit_mat(current_state, action)).T
             rolling_A = rolling_A + gamma_lr * (A - rolling_A)
-            
-            self.Q -= alpha_lr * np.linalg.inv(rolling_A) @ BR
 
+            try:
+                self.Q -= alpha_lr * BR * np.linalg.inv(rolling_A) @ self.unit_mat(current_state, action)
+            except np.linalg.LinAlgError:
+                # If we are singular, fail and return early
+                history[k:] = float('inf')
+                break
             if test_function is not None:
-                history[k] = test_function(self.current_Q, None, BR)
+                history[k] = test_function(self.Q, None, BR)
                 if stop_if_diverging and history[k] > 10 * history[0]:
                     # If we are too large, stop learning
                     history[k:] = float('inf')
                     break
 
         if test_function is None:
-            return self.current_Q
+            return self.Q
 
-        return history, self.current_Q
+        return history, self.Q

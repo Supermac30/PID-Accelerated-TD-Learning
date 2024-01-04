@@ -43,8 +43,8 @@ def soft_policy_evaluation_experiment(cfg):
 
     mean_history = np.mean(np.array(all_histories), axis=0)
     std_dev_history = np.std(np.array(all_histories), axis=0)
-    save_array(mean_history, f"{agent_name} kp={kp} ki={ki} kd={kd} alpha={alpha} beta={beta}", directory=cfg['save_dir'], subdir="mean")
-    save_array(std_dev_history, f"{agent_name} kp={kp} ki={ki} kd={kd} alpha={alpha} beta={beta}", directory=cfg['save_dir'], subdir="std_dev")
+    save_array(mean_history, f"{cfg['name']}", directory=cfg['save_dir'], subdir="mean")
+    save_array(std_dev_history, f"{cfg['name']}", directory=cfg['save_dir'], subdir="std_dev")
 
 if __name__ == "__main__":
     soft_policy_evaluation_experiment()
