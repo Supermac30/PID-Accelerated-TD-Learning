@@ -10,7 +10,8 @@ def control_experiment(cfg):
     agent, env, _ = build_agent_and_env(("VI Q control", kp, ki, kd, alpha, beta), cfg['env'], False, seed, cfg['gamma'])
     Q_star = find_Qstar(env, cfg['gamma'])
     history, _ = agent.value_iteration(num_iterations=cfg['num_iterations'], test_function=build_test_function(cfg['norm'], Q_star))
-    save_array(history, f"kp={kp} kd={kd} ki={ki} alpha={alpha} beta={beta}", directory=cfg['save_dir'])
+    name = cfg['name']
+    save_array(history, f"{name}", directory=cfg['save_dir'])
 
 if __name__ == "__main__":
     control_experiment()

@@ -212,6 +212,96 @@ class PID_TD(Agent):
         return state, self.V[state][0]
 
 
+class nth_order_TD(Agent):
+    """A variation studied for curiosity's sake
+    """
+    def __init__(self, environment, policy, gamma, eta, alpha, beta, learning_rate, n=3):
+        """learning_rate is either:
+            - a triple of three functions, the first updates the P
+                component, the second the I component, and the third the D component.
+            - a learning rate function for the P component, and the other rates have hard updates.
+        """
+        super().__init__(environment, policy, gamma)
+        if type(learning_rate) == type(()):
+            self.learning_rate = learning_rate[0]
+            self.update_I_rate = learning_rate[1]
+            self.update_D_rate = learning_rate[2]
+        else:
+            self.learning_rate = learning_rate
+            self.update_D_rate = self.update_I_rate = lambda _: 1  # Hard updates
+        self.kp = kp
+        self.ki = ki
+        self.kd = kd
+        self.alpha = alpha
+        self.beta = beta
+        self.reset()
+
+    def reset(self, reset_environment=True):
+        """Reset parameters to be able to run a new test."""
+        self.V, self.Vp, self.z = (np.zeros((self.num_states, 1)) for _ in range(3))
+        if reset_environment:
+            self.environment.reset()
+
+    def estimate_value_function(self, num_iterations=1000, test_function=None, stop_if_diverging=True, follow_trajectory=True, reset=True, reset_environment=True):
+        """Computes V^pi of the inputted policy using TD learning augmented with controllers.
+        Takes in Controller objects that the agent will use to control the dynamics of learning.
+
+        If test_function is not None, we record the value of test_function on V, Vp.
+
+        If threshold and test_function are not None, we stop after test_function outputs a value smaller than threshold.
+
+        If stop_if_diverging is True, then when the test_function is 10 times as large as its initial value,
+        we stop learning and return a history with the last element being very large
+        """
+        if reset:
+            self.reset(reset_environment)
+
+        # A vector storing the number of times we have seen a state.
+        frequency = np.zeros((self.num_states))
+
+        # The history of test_function
+        history = np.zeros(num_iterations)
+
+        for k in range(num_iterations):
+            current_state, _, next_state, reward = self.take_action(follow_trajectory)
+            frequency[current_state] += 1
+
+            BR = reward + self.gamma * self.V[next_state] - self.V[current_state]
+
+            learning_rate = self.learning_rate(frequency[current_state])
+            update_D_rate = self.update_D_rate(frequency[current_state])
+            update_I_rate = self.update_I_rate(frequency[current_state])
+
+            # Update the value function using the floats kp, ki, kd
+            z_update = (self.beta * self.z[current_state][0] + self.alpha * BR)
+            self.z[current_state] = (1 - update_I_rate) * self.z[current_state][0] + update_I_rate * z_update
+            update = self.kp * BR + self.ki * z_update + self.kd * (self.V[current_state][0] - self.Vp[current_state][0])
+            self.Vp[current_state] = (1 - update_D_rate) * self.Vp[current_state][0] + update_D_rate * self.V[current_state][0]
+            self.V[current_state] = self.V[current_state][0] + learning_rate * update
+
+            if test_function is not None:
+                history[k] = test_function(self.V, self.Vp, BR)
+                if stop_if_diverging and history[k] > 10 * history[0]:
+                    # If we are too large, stop learning
+                    history[k:] = float('inf')
+                    break
+
+        if test_function is None:
+            return self.V
+
+        return history, self.V
+
+    def set_learning_rates(self, a, b, c, d, e, f):
+        self.learning_rate = learning_rate_function(a, b)
+        self.update_I_rate = learning_rate_function(c, d)
+        self.update_D_rate = learning_rate_function(e, f)
+    
+    def randomly_query_agent(self):
+        """Returns a random state and the value of the state"""
+        state = np.random.randint(self.num_states)
+        return state, self.V[state][0]
+
+
 class Hard_PID_TD(PID_TD):
     """The bread and butter of our work, this is the agent that
     can be augmented with controllers, namely the PID controller.

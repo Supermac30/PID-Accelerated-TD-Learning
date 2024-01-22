@@ -12,7 +12,8 @@ def control_experiment(cfg):
     agent, env, _ = build_agent_and_env(("VI control", kp, ki, kd, alpha, beta), cfg['env'], False, seed, cfg['gamma'])
     V_star = find_Vstar(env, cfg['gamma'])
     history, _ = agent.value_iteration(num_iterations=cfg['num_iterations'], test_function=build_test_function(cfg['norm'], V_star))
-    save_array(history, f"kp={kp} kd={kd} ki={ki} alpha={alpha} beta={beta}", directory=cfg['save_dir'])
+    name = cfg['name']
+    save_array(history, f"{name}", directory=cfg['save_dir'])
 
 
 if __name__ == "__main__":

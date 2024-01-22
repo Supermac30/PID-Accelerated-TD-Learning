@@ -18,8 +18,10 @@ def far_sighted_update_experiment(cfg):
         all_histories.append(history)
     mean_history = np.mean(np.array(all_histories), axis=0)
     std_dev_history = np.std(np.array(all_histories), axis=0)
-    save_array(mean_history, f"kp={kp} ki={ki} kd={kd} alpha={alpha} beta={beta}", directory=cfg['save_dir'], subdir="mean")
-    save_array(std_dev_history, f"kp={kp} ki={ki} kd={kd} alpha={alpha} beta={beta}", directory=cfg['save_dir'], subdir="std_dev")
+
+    name = cfg['name']
+    save_array(mean_history, f"{name}", directory=cfg['save_dir'], subdir="mean")
+    save_array(std_dev_history, f"{name}", directory=cfg['save_dir'], subdir="std_dev")
 
 
 

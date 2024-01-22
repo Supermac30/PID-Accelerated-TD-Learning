@@ -73,11 +73,11 @@ def adaptive_agent_experiment(cfg):
     std_dev_gain_history = np.std(np.array(all_gain_histories), axis=0)
 
 
-    agent_description = f"Adaptive Agent Q {meta_lr_p} {meta_lr_I} {meta_lr_d} {delay} {lambd} {epsilon}"
-    save_array(average_history, f"{agent_description}", directory=cfg['save_dir'], subdir="mean")
-    save_array(average_gain_history, f"gain_history {agent_description}", directory=cfg['save_dir'], subdir="mean")
-    save_array(std_dev_history, f"{agent_description}", directory=cfg['save_dir'], subdir="std_dev")
-    save_array(std_dev_gain_history, f"gain_history {agent_description}", directory=cfg['save_dir'], subdir="std_dev")
+    name = cfg['name']
+    save_array(average_history, f"{name}", directory=cfg['save_dir'], subdir="mean")
+    save_array(average_gain_history, f"gain_history {name}", directory=cfg['save_dir'], subdir="mean")
+    save_array(std_dev_history, f"{name}", directory=cfg['save_dir'], subdir="std_dev")
+    save_array(std_dev_gain_history, f"gain_history {name}", directory=cfg['save_dir'], subdir="std_dev")
 
     agent.plot(cfg['save_dir'])
 

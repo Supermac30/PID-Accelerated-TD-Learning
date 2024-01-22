@@ -8,8 +8,6 @@
 #SBATCH --job-name=kd_final
 #SBATCH --output=slurm/logs/%x_%j.out
 #SBATCH --error=slurm/errors/%x_%j.err
-#SBATCH --account=deadline
-#SBATCH --qos=deadline 
 
 # regular dqn with atari presets
 

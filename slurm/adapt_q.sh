@@ -8,8 +8,6 @@
 #SBATCH --job-name=adapt_q
 #SBATCH --output=slurm/logs/%x_%j.out
 #SBATCH --error=slurm/errors/%x_%j.err
-#SBATCH --account=deadline
-#SBATCH --qos=deadline 
 
 source slurm/setup.sh
 current_time=$(date "+%Y.%m.%d/%H.%M.%S")
@@ -17,8 +15,8 @@ env="chain walk"
 gamma=0.9
 repeat=20
 seed=$RANDOM
-num_iterations=1000
-search_steps=1000
+num_iterations=10000
+search_steps=10000
 directory=outputs/q_adaptation_experiment/$env/$current_time
 echo "Saving to $directory"
 mkdir -p "$directory"
@@ -77,5 +75,5 @@ python3 -m Experiments.Plotting.plot_adaptation_experiment \
     repeat=$repeat \
     env="$env" \
     is_q=True \
-    plot_best=True \
+    plot_best=False \
     small_name=True

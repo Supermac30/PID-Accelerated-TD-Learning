@@ -47,8 +47,9 @@ python3 -m Experiments.LinearFAExperiments.AdaptiveLinearFAExperiment --multirun
     recompute_optimal=$recompute_optimal \
     search_steps=$search_steps \
     is_q=$is_q \
-    epsilon=1e-2,2e-2,3e-2 \
-    meta_lr=1e-2,2e-2,3e-2 \
+    epsilon=1e-6 \
+    meta_lr=1e-6 \
+    name="Gain Adaptation"
 
 python3 -m Experiments.LinearFAExperiments.LinearFAExperiment --multirun \
     hydra.mode=MULTIRUN \
@@ -69,7 +70,8 @@ python3 -m Experiments.LinearFAExperiments.LinearFAExperiment --multirun \
     get_optimal=$get_optimal \
     recompute_optimal=$recompute_optimal \
     search_steps=$search_steps \
-    is_q=$is_q
+    is_q=$is_q \
+    name="TD"
 
 python3 -m Experiments.Plotting.plot_adaptation_experiment \
     hydra.run.dir="$directory" \

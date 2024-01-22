@@ -8,15 +8,16 @@ from TabularPID.OptimalRates.HyperparameterTests import get_optimal_linear_FA_ra
 def soft_policy_evaluation_experiment(cfg):
     """Experiments with policy evaluation and TD"""
     seed = pick_seed(cfg['seed'])
-    name = f"linear TD {cfg['type']}"
+    agent_name = "linear TD " + cfg['type']
     if cfg['is_q']:
-        name += " Q"
+        agent_name += " Q"
+    
     kp, ki, kd, alpha, beta = cfg['kp'], cfg['ki'], cfg['kd'], cfg['alpha'], cfg['beta']
     order = cfg['order']
 
     if cfg['compute_optimal']:
-        get_optimal_linear_FA_rates(name, cfg['env'], kp, ki, kd, alpha, beta, cfg['gamma'], cfg['order'], cfg['recompute_optimal'], search_steps=cfg['search_steps'])
-    agent, _, _ = build_agent_and_env((name, kp, ki, kd, alpha, beta, order), cfg['env'], cfg['get_optimal'], seed, cfg['gamma'])
+        get_optimal_linear_FA_rates(agent_name, cfg['env'], kp, ki, kd, alpha, beta, cfg['gamma'], cfg['order'], cfg['recompute_optimal'], search_steps=cfg['search_steps'])
+    agent, _, _ = build_agent_and_env((agent_name, kp, ki, kd, alpha, beta, order), cfg['env'], cfg['get_optimal'], seed, cfg['gamma'])
     
     def run_test(seed):
         agent.set_seed(seed)
@@ -41,8 +42,9 @@ def soft_policy_evaluation_experiment(cfg):
 
         all_histories = list(map(lambda n: results[n][1], range(len(results[0]))))
         
-    save_array(np.mean(all_histories, axis=0), f"{name} kp={kp} ki={ki} kd={kd} alpha={alpha} beta={beta}", directory=cfg['save_dir'], subdir="mean")
-    save_array(np.std(all_histories, axis=0), f"{name} kp={kp} ki={ki} kd={kd} alpha={alpha} beta={beta}", directory=cfg['save_dir'], subdir="std_dev")
+    name = cfg['name']
+    save_array(np.mean(all_histories, axis=0), f"{name}", directory=cfg['save_dir'], subdir="mean")
+    save_array(np.std(all_histories, axis=0), f"{name}", directory=cfg['save_dir'], subdir="std_dev")
 
 
 if __name__ == "__main__":

@@ -13,14 +13,14 @@ source slurm/setup.sh
 
 current_time=$(date "+%Y.%m.%d/%H.%M.%S")
 env="chain walk"
-gamma=0.99
+gamma=0.9
 repeat=20
-order=3
+order=20
 type="fourier"  # "trivial", "fourier", "polynomial", "tile coding"
 is_q=True
 seed=$RANDOM
-num_iterations=1000
-search_steps=1000
+num_iterations=10000
+search_steps=10000
 separation=$((num_iterations/100))
 directory=outputs/linear_experiment/$env/$current_time
 echo "Saving to $directory"
@@ -49,13 +49,58 @@ python3 -m Experiments.LinearFAExperiments.LinearFAExperiment --multirun \
     get_optimal=$get_optimal \
     recompute_optimal=$recompute_optimal \
     search_steps=$search_steps \
-    is_q=$is_q
+    is_q="$is_q" \
+    name="Linear TD"
+
+python3 -m Experiments.LinearFAExperiments.LinearFAExperiment --multirun \
+    hydra.mode=MULTIRUN \
+    hydra.run.dir="$directory" \
+    hydra.sweep.dir="$directory" \
+    save_dir="$directory" \
+    seed=$seed \
+    kp=1 \
+    ki=0 \
+    kd=0.15 \
+    order=$order \
+    gamma=$gamma \
+    env="$env" \
+    repeat=$repeat \
+    num_iterations=$num_iterations \
+    type="$type" \
+    compute_optimal=$compute_optimal \
+    get_optimal=$get_optimal \
+    recompute_optimal=$recompute_optimal \
+    search_steps=$search_steps \
+    is_q="$is_q" \
+    'name="Linear TD kd=0.15"'
+
+python3 -m Experiments.LinearFAExperiments.LinearFAExperiment --multirun \
+    hydra.mode=MULTIRUN \
+    hydra.run.dir="$directory" \
+    hydra.sweep.dir="$directory" \
+    save_dir="$directory" \
+    seed=$seed \
+    kp=1 \
+    ki="-0.4" \
+    kd=0 \
+    order=$order \
+    gamma=$gamma \
+    env="$env" \
+    repeat=$repeat \
+    num_iterations=$num_iterations \
+    type="$type" \
+    compute_optimal=$compute_optimal \
+    get_optimal=$get_optimal \
+    recompute_optimal=$recompute_optimal \
+    search_steps=$search_steps \
+    is_q="$is_q" \
+    'name="Linear TD ki=-0.4"'
 
 python3 -m Experiments.Plotting.plot_adaptation_experiment \
     hydra.run.dir="$directory" \
     save_dir="$directory" \
     repeat=$repeat \
     env="$env" \
-    is_q=False \
+    is_q="$is_q" \
     plot_best=False \
     separation=$separation

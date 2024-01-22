@@ -32,6 +32,7 @@ search_steps: 1000
 
 save_dir: ${oc.env:OUTPUT_DIR,./outputs}/${hydra.job.config_name}/${now:%Y-%m-%d}/${now:%H-%M-%S}
 
+name: linear
 seed: 2388
 hydra:
   run:

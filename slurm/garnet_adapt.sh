@@ -3,7 +3,7 @@
 #SBATCH -p cpu
 #SBATCH --cpus-per-task=64
 #SBATCH --tasks-per-node=1
-#SBATCH --time=5:00:00
+#SBATCH --time=20:00:00
 #SBATCH --mem=1GB
 #SBATCH --job-name=pid_vi_control
 #SBATCH --output=slurm/logs/%x_%j.out
@@ -51,7 +51,8 @@ do
             search_steps=$search_steps \
             recompute_optimal=$recompute_optimal \
             compute_optimal=$compute_optimal \
-            get_optimal=$get_optimal
+            get_optimal=$get_optimal \
+            name="Gain Adaptation $run"
 
         python3 -m Experiments.TDExperiments.SoftTDPolicyEvaluation \
             hydra.run.dir="$directory/TD Agent" \
@@ -66,7 +67,8 @@ do
             search_steps=$search_steps \
             recompute_optimal=$recompute_optimal \
             compute_optimal=$compute_optimal \
-            get_optimal=$get_optimal
+            get_optimal=$get_optimal \
+            name="TD $run"
     else
         python3 -m Experiments.AdaptationExperiments.AdaptiveQAgentExperiment --multirun \
             hydra.run.dir="$directory/Adaptive Q Agent" \
@@ -88,6 +90,7 @@ do
             alpha=0.5 \
             beta=0.5 \
             agent_name="semi gradient Q updater" \
+            name="Gain Adaptation $run"
 
         python3 -m Experiments.QExperiments.PIDQLearning \
             hydra.run.dir="$directory/Q Agent" \
@@ -105,7 +108,8 @@ do
             search_steps=$search_steps \
             recompute_optimal=$recompute_optimal \
             compute_optimal=$compute_optimal \
-            get_optimal=$get_optimal
+            get_optimal=$get_optimal \
+            name="Q Learning $run"
     fi
 done
 

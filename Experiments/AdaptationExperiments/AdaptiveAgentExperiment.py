@@ -12,7 +12,6 @@ def adaptive_agent_experiment(cfg):
     seed = pick_seed(cfg['seed'])
     
     agent_name, meta_lr, lambd, delay, alpha, beta, epsilon = cfg['agent_name'], cfg['meta_lr'], cfg['lambda'], cfg['delay'], cfg['alpha'], cfg['beta'], cfg['epsilon']
-    agent_description = f"Adaptive Agent {agent_name} {meta_lr} {delay} {lambd} {epsilon}"
 
     if cfg['compute_optimal']:
         get_optimal_adaptive_rates(agent_name, cfg['env'], meta_lr, cfg['gamma'], lambd, delay, alpha, beta, recompute=cfg['recompute_optimal'], epsilon=epsilon, search_steps=cfg['search_steps'])
@@ -63,14 +62,15 @@ def adaptive_agent_experiment(cfg):
         all_gain_histories = list(map(lambda n: results[n][1], range(len(results[0]))))
         all_histories = list(map(lambda n: results[n][2], range(len(results[0]))))
 
+    name = cfg['name']
     average_history = np.mean(np.array(all_histories), axis=0)
     std_deviation_history = np.std(np.array(all_histories), axis=0)
     average_gain_history = np.mean(np.array(all_gain_histories), axis=0)
     std_deviation_gain_history = np.std(np.array(all_gain_histories), axis=0)
-    save_array(average_history, f"{agent_description}", directory=cfg['save_dir'], subdir="mean")
-    save_array(std_deviation_history, f"{agent_description}", directory=cfg['save_dir'], subdir="std_dev")
-    save_array(average_gain_history, f"gain_history {agent_description}", directory=cfg['save_dir'], subdir="mean")
-    save_array(std_deviation_gain_history, f"gain_history {agent_description}", directory=cfg['save_dir'], subdir="std_dev")
+    save_array(average_history, f"{name}", directory=cfg['save_dir'], subdir="mean")
+    save_array(std_deviation_history, f"{name}", directory=cfg['save_dir'], subdir="std_dev")
+    save_array(average_gain_history, f"gain_history {name}", directory=cfg['save_dir'], subdir="mean")
+    save_array(std_deviation_gain_history, f"gain_history {name}", directory=cfg['save_dir'], subdir="std_dev")
 
     agent.plot(directory=cfg['save_dir'])
 

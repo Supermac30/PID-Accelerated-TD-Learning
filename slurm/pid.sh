@@ -8,8 +8,6 @@
 #SBATCH --job-name=pid
 #SBATCH --output=slurm/logs/%x_%j.out
 #SBATCH --error=slurm/errors/%x_%j.err
-#SBATCH --account=deadline
-#SBATCH --qos=deadline 
 
 source slurm/setup.sh
 current_time=$(date "+%Y.%m.%d/%H.%M.%S")

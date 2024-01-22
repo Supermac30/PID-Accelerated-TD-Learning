@@ -230,8 +230,8 @@ class LinearTD():
         self.running_BR = 0
         self.num_steps = 0
 
-    def estimate_value_function(self, num_iterations, test_function=None, reset_environment=True, stop_if_diverging=True, seed=-1):
-        self.reset(reset_environment, seed)
+    def estimate_value_function(self, num_iterations, test_function=None, reset_environment=True, stop_if_diverging=True):
+        self.reset(reset_environment)
 
         # The history of the gains
         self.gain_history = [np.zeros(num_iterations // (num_iterations // 100)) for _ in range(5)]
@@ -261,7 +261,6 @@ class LinearTD():
             self.w_V += lr_V * (V_update.item() - current_state_value.item()) * self.basis.value(current_state)
             self.w_Vp += lr_Vp * (Vp_update.item() - current_state_Vp_value.item()) * self.basis.value(current_state)
             self.w_z += lr_z * (z_update.item() - current_state_z_value.item()) * self.basis.value(current_state)
-
 
             new_next_state_value = self.basis.value(next_state).T @ self.w_V
             new_current_state_value = self.basis.value(current_state).T @ self.w_V

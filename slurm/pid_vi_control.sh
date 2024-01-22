@@ -30,7 +30,8 @@ python3 -m Experiments.VIExperiments.VIQControl --multirun \
     kd=0 \
     gamma=$gamma \
     env="$env" \
-    num_iterations=$num_iterations
+    num_iterations=$num_iterations \
+    name="VI"
 
 python3 -m Experiments.VIExperiments.VIQControl --multirun \
     hydra.mode=MULTIRUN \
@@ -43,7 +44,8 @@ python3 -m Experiments.VIExperiments.VIQControl --multirun \
     kd=0.2 \
     gamma=$gamma \
     env="$env" \
-    num_iterations=$num_iterations
+    num_iterations=$num_iterations \
+    'name="PID VI with kp=1, ki=0.2, kd=0.2"'
 
 python3 -m Experiments.Plotting.plot_vi_experiment \
     hydra.run.dir="$directory" \

@@ -79,35 +79,13 @@ def create_plots(cfg):
             fig.savefig(f"{cfg['save_dir']}/gain_history_{name}.pdf")
             
         # Otherwise, plot the file on the history plot
-        elif file.startswith("Adaptive Agent"):
-            if cfg['plot_best']:
-                if history[-1] < min_final_history:
-                    min_final_history = history[-1]
-                    min_history_file = file
-                    min_history = history
-                    min_std_dev = std_dev
-            else:
-                if history[0] != 0:
-                    std_dev /= history[0]
-                max_y = max(max_y, np.max(normalize(history) + std_dev))
-                ax0.plot(x_axis(history), normalize(history), label=name)
-                ax0.fill_between(x_axis(history), normalize(history) - std_dev, normalize(history) + std_dev, alpha=0.2)
+        elif cfg['plot_best']:
+            if history[-1] < min_final_history:
+                min_final_history = history[-1]
+                min_history_file = file
+                min_history = history
+                min_std_dev = std_dev
         else:
-            if cfg['small_name']:
-                if file.startswith("TIDBD"):
-                    name = "TIDBD"
-                elif file.startswith("TD"):
-                    name = "TD"
-                elif file.startswith("speedy Q learning"):
-                    name = "Speedy Q Learning"
-                elif file.startswith("zap Q learning"):
-                    name = "Zap Q Learning"
-                elif file.startswith("Q learning"):
-                    name = "Q Learning"
-                else:
-                    name = cfg['default_name']
-            else:
-                name = file[:-4]
             if history[0] != 0:
                 std_dev /= history[0]
             max_y = max(max_y, np.max(normalize(history) + std_dev))

@@ -88,7 +88,15 @@ class LinearTDQ():
 
         self.running_BR = 0
         self.num_steps = 0
-
+    
+    def set_seed(self, seed):
+        """Set the seed for the environment and the agent.
+        """
+        if self.is_gym_env:
+            self.env.seed(seed)
+        else:
+            self.env.set_seed(seed)
+        self.policy.set_seed(seed)
 
     def estimate_value_function(self, num_iterations, test_function=None, reset_environment=True, stop_if_diverging=True):
         self.reset(reset_environment)

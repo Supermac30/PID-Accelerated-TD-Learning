@@ -19,15 +19,19 @@ def create_plots(cfg):
         file_loc = "Q"
     else:
         file_loc = "TD"
+    
+    assert(cfg['repeat'] > 0)
     for run in range(1, cfg['repeat'] + 1):
         # If the file starts with gain_history, plot it:
-        # Take the file f"{cfg['save_dir']}/TD/{run}/npy/" and plot it on the history plot
+        # Take the file f"{cfg['save_dir']}/{file_loc}/{run}/npy/" and plot it on the history plot
         # I don't know what the file name is, so plot the only file in the folder
-        file = os.listdir(f"{cfg['save_dir']}/{file_loc}/{run}/npy/mean")[0]
-
-        # Load f"{cfg['save_dir']}/TD/{run}/npy/{file}" and plot it on the history plot
-        all_histories.append(np.load(f"{cfg['save_dir']}/{file_loc}/{run}/npy/mean/{file}"))
-
+        file_folder = f"{cfg['save_dir']}/{file_loc}/{run}/npy/mean"
+        if os.path.exists(file_folder):
+            files = os.listdir(file_folder)
+            if len(files) > 0:
+                file = files[0]
+                # Load f"{cfg['save_dir']}/TD/{run}/npy/{file}" and plot it on the history plot
+                all_histories.append(np.load(f"{file_folder}/{file}"))
 
     # Average all of the histories together
     average_history = np.mean(all_histories, axis=0)
@@ -46,14 +50,13 @@ def create_plots(cfg):
         min_final_history = np.inf
         final_history = None
         for file in os.listdir(f"{cfg['save_dir']}/gain_adaptation/{run}/npy/mean"):
-            if file.startswith("Adaptive Agent"):
-                history = np.load(f"{cfg['save_dir']}/gain_adaptation/{run}/npy/mean/{file}")
-                if history[-1] < min_final_history:
-                    min_final_history = history[-1]
-                    final_history = history
-        
-        if final_history is None:
-            breakpoint()
+            if file.startswith("gain_history"):
+                continue
+
+            history = np.load(f"{cfg['save_dir']}/gain_adaptation/{run}/npy/mean/{file}")
+            if history[-1] < min_final_history:
+                min_final_history = history[-1]
+                final_history = history
         
         all_histories.append(final_history)
 

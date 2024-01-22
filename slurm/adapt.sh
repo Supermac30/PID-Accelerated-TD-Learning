@@ -5,11 +5,9 @@
 #SBATCH --tasks-per-node=1
 #SBATCH --time=1:00:00
 #SBATCH --mem=8GB
-#SBATCH --job-name=adapt_q
+#SBATCH --job-name=adapt
 #SBATCH --output=slurm/logs/%x_%j.out
 #SBATCH --error=slurm/errors/%x_%j.err
-#SBATCH --account=deadline
-#SBATCH --qos=deadline 
 
 ulimit -n 2048
 
@@ -17,11 +15,11 @@ source slurm/setup.sh
 
 current_time=$(date "+%Y.%m.%d/%H.%M.%S")
 env="cliff walk"
-gamma=0.99
+gamma=0.1
 repeat=3
 seed=$RANDOM
-num_iterations=5000
-search_steps=5000
+num_iterations=1000
+search_steps=1000
 recompute_optimal=True
 compute_optimal=True  # False when we need to debug, so there is no multiprocessing
 get_optimal=True  # False when we need to debug with a specific learning rate
@@ -46,6 +44,7 @@ mkdir -p "$directory"
 #     num_iterations=$num_iterations \
 #     debug=$debug \
 #     is_q=False
+#     name="TIDBD"
 
 python3 -m Experiments.AdaptationExperiments.AdaptiveAgentExperiment --multirun \
     hydra.mode=MULTIRUN \
@@ -57,7 +56,7 @@ python3 -m Experiments.AdaptationExperiments.AdaptiveAgentExperiment --multirun 
     recompute_optimal=$recompute_optimal \
     compute_optimal=$compute_optimal \
     get_optimal=$get_optimal \
-    meta_lr=1e-4 \
+    meta_lr=1e-7 \
     epsilon=0.1 \
     env="$env" \
     gamma=$gamma \
@@ -88,7 +87,7 @@ python3 -m Experiments.TDExperiments.SoftTDPolicyEvaluation \
 python3 -m Experiments.Plotting.plot_adaptation_experiment \
     hydra.run.dir="$directory" \
     save_dir="$directory" \
-    plot_best=True \
     repeat=$repeat \
     env="$env" \
-    small_name=True
+    small_name=True \
+    plot_best=False
