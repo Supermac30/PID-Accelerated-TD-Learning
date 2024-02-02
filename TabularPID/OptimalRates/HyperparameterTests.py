@@ -15,7 +15,7 @@ from TabularPID.AgentBuilders.AdaptiveAgentBuilder import build_adaptive_agent_a
 from TabularPID.AgentBuilders.AgentBuilder import build_agent_and_env
 from TabularPID.OptimalRates.OptimalRateDatabase import get_stored_optimal_rate, store_optimal_rate
 
-default_rates = (0.1, 100, 0, 1, 0, float("inf"))
+default_rates = (0.1, 100, 0.1, 1, 0, float("inf"))
 
 exhaustive_learning_rates = [
     {
@@ -272,6 +272,10 @@ def run_past_work_search(agent_description, env_name, seed, norm, gamma, search_
         learning_rates0 = exhaustive_learning_rates[0]
         learning_rates1 = exhaustive_learning_rates[1]
         learning_rates2 = dummy
+
+        # Remove key 0 from learning_rates1
+        learning_rates1.pop(0)
+
     else:
         raise ValueError(f"Unknown agent description: {agent_description}")
 

@@ -11,9 +11,9 @@ debug: False # If multiprocessing should be disabled
 agent_name: diagonal semi gradient Q updater
 
 meta_lr: 1e-4
-meta_lr_p: 1e-2
-meta_lr_I: 1e-2
-meta_lr_d: 1e-7
+meta_lr_p: -1
+meta_lr_I: -1
+meta_lr_d: -1
 lambda: 0
 delay: 1
 alpha: 0.01

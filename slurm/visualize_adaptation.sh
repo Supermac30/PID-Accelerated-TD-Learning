@@ -22,6 +22,7 @@ search_steps=1000
 recompute_optimal=False
 compute_optimal=True  # False when we need to debug, so there is no multiprocessing
 get_optimal=True  # False when we need to debug with a specific learning rate
+debug=False
 
 repeat=10
 
@@ -39,6 +40,7 @@ python3 -m Experiments.AdaptationExperiments.TrajectoryVisualization --multirun 
     recompute_optimal=$recompute_optimal \
     compute_optimal=$compute_optimal \
     get_optimal=$get_optimal \
+    debug=$debug \
     meta_lr=0.001 \
     epsilon=0.01 \
     env="$env" \

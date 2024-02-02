@@ -39,10 +39,10 @@ class AbstractAdaptiveAgent(Agent):
         self.replay_buffer = defaultdict(list)
         self.frequencies = np.zeros((self.num_states))
 
-        V_pi = find_Vpi(self.environment, self.policy, self.gamma)
-
-        self.V, self.Vp, self.z, self.previous_V, self.previous_Vp, self.previous_z, self.previous_previous_V \
-            = (0.9 * V_pi.copy() for _ in range(7))
+        self.V, self.Vp, self.previous_V, self.previous_Vp, self.previous_previous_V \
+            = (np.zeros((self.num_states, 1)) for _ in range(5))
+        
+        self.z, self.previous_z = (np.zeros((self.num_states, 1)) for _ in range(2))
 
         self.previous_previous_state, self.previous_state, self.current_state, self.next_state = 0, 0, 0, 0
         self.previous_reward, self.reward = 0, 0

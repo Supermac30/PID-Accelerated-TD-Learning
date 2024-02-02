@@ -234,7 +234,7 @@ class LinearTD():
         self.reset(reset_environment)
 
         # The history of the gains
-        self.gain_history = [np.zeros(num_iterations // (num_iterations // 100)) for _ in range(5)]
+        self.gain_history = np.zeros((num_iterations // (num_iterations // 100), 5))
         self.history = np.zeros(num_iterations // (num_iterations // 100))
         index = 0
 
@@ -311,11 +311,11 @@ class LinearTD():
     def update_gain_history(self, index):
         """Update the gain history.
         """
-        self.gain_history[0][index] = self.kp
-        self.gain_history[1][index] = self.ki
-        self.gain_history[2][index] = self.kd
-        self.gain_history[3][index] = self.alpha
-        self.gain_history[4][index] = self.beta
+        self.gain_history[index][0] = self.kp
+        self.gain_history[index][1] = self.ki
+        self.gain_history[index][2] = self.kd
+        self.gain_history[index][3] = self.alpha
+        self.gain_history[index][4] = self.beta
 
     def query_agent(self, state):
         """Query the agent for the value at a state"""

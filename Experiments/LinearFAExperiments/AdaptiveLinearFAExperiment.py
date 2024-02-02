@@ -62,6 +62,8 @@ def soft_policy_evaluation_experiment(cfg):
         all_histories = list(map(lambda n: results[n][0], range(len(results[0]))))
 
     description = cfg['name']
+    description = description.replace("<epsilon>", f"{epsilon}")
+    description = description.replace("<meta_lr>", f"{meta_lr}")
     save_array(np.mean(np.array(all_histories), axis=0), description, directory=cfg['save_dir'], subdir="mean")
     save_array(np.std(np.array(all_histories), axis=0), description, directory=cfg['save_dir'], subdir="std_dev")
     save_array(np.mean(np.array(all_gain_histories), axis=0), f"gain_history {description}", directory=cfg['save_dir'], subdir="mean")

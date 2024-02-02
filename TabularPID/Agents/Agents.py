@@ -1,6 +1,7 @@
 """
 A collection of agents that learn in an RL setting
 """
+from Experiments.ExperimentHelpers import find_Vpi
 import numpy as np
 
 from TabularPID.MDPs.Policy import Policy
@@ -148,7 +149,8 @@ class PID_TD(Agent):
 
     def reset(self, reset_environment=True):
         """Reset parameters to be able to run a new test."""
-        self.V, self.Vp, self.z = (np.zeros((self.num_states, 1)) for _ in range(3))
+        self.V, self.Vp = (np.zeros((self.num_states, 1)) for _ in range(2))
+        self.z = np.zeros((self.num_states, 1))
         if reset_environment:
             self.environment.reset()
 

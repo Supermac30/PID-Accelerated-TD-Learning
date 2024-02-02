@@ -3,7 +3,7 @@
 #SBATCH -p cpu
 #SBATCH --cpus-per-task=32
 #SBATCH --tasks-per-node=1
-#SBATCH --time=10:00:00
+#SBATCH --time=1:00:00
 #SBATCH --mem=8GB
 #SBATCH --job-name=adapt_q
 #SBATCH --output=slurm/logs/%x_%j.out
@@ -11,17 +11,17 @@
 
 source slurm/setup.sh
 current_time=$(date "+%Y.%m.%d/%H.%M.%S")
-env="chain walk"
-gamma=0.9
+env="garnet 23123 50"
+gamma=0.99
 repeat=20
 seed=$RANDOM
-num_iterations=10000
-search_steps=10000
+num_iterations=5000
+search_steps=5000
 directory=outputs/q_adaptation_experiment/$env/$current_time
 echo "Saving to $directory"
 mkdir -p "$directory"
 
-recompute_optimal=False
+recompute_optimal=True
 compute_optimal=True
 get_optimal=True
 debug=False
@@ -32,9 +32,9 @@ python3 -m Experiments.AdaptationExperiments.AdaptiveQAgentExperiment --multirun
     hydra.sweep.dir="$directory" \
     seed=$seed \
     save_dir="$directory" \
-    meta_lr_p=0.001 \
-    meta_lr_I=0.001 \
-    meta_lr_d=0.001 \
+    meta_lr_p=1e-5 \
+    meta_lr_I=1e-5 \
+    meta_lr_d=1e-5 \
     alpha=0.95 \
     beta=0.05 \
     epsilon=0.01 \

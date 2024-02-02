@@ -7,13 +7,13 @@ class ZapQLearning(Agent):
         super().__init__(environment, policy, gamma)
         self.gamma_lr = gamma_lr
         self.alpha_lr = alpha_lr
-        self.Q = np.zeros(self.num_states * self.num_actions)
+        self.Q = np.zeros((self.num_states * self.num_actions, 1))
 
     def unit_mat(self, a, b):
         """Create a vector in R^(n * m) indexed by (state, action) pairs,
         where the value is 1 if the pair is (a, b) and 0 otherwise.
         """
-        return np.eye(self.num_states * self.num_actions)[a * self.num_actions + b]
+        return np.eye(self.num_states * self.num_actions)[a * self.num_actions + b].reshape((-1, 1))
 
     def set_learning_rates(self, a, b, c, d, e, f):
         self.gamma_lr = learning_rate_function(a, b)
@@ -51,11 +51,11 @@ class ZapQLearning(Agent):
             try:
                 self.Q -= alpha_lr * BR * np.linalg.inv(rolling_A) @ self.unit_mat(current_state, action)
             except np.linalg.LinAlgError:
-                # If we are singular, fail and return early
+                # If we are singular, set the remaining history to infinity and return early
                 history[k:] = float('inf')
                 break
             if test_function is not None:
-                history[k] = test_function(self.Q, None, BR)
+                history[k] = test_function(self.Q.reshape((self.num_states, self.num_actions)), None, BR)
                 if stop_if_diverging and history[k] > 10 * history[0]:
                     # If we are too large, stop learning
                     history[k:] = float('inf')

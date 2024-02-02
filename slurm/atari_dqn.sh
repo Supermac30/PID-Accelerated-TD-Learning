@@ -5,7 +5,7 @@
 #SBATCH --tasks-per-node=1
 #SBATCH --time=50:00:00
 #SBATCH --mem=8GB
-#SBATCH --job-name=kd_final
+#SBATCH --job-name=atari_dqn
 #SBATCH --output=slurm/logs/%x_%j.out
 #SBATCH --error=slurm/errors/%x_%j.err
 

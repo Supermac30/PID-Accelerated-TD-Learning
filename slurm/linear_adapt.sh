@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH -N 1
 #SBATCH -p cpu
-#SBATCH --cpus-per-task=64
+#SBATCH --cpus-per-task=32
 #SBATCH --tasks-per-node=1
 #SBATCH --time=30:00:00
 #SBATCH --mem=8GB
@@ -29,6 +29,7 @@ mkdir -p "$directory"
 recompute_optimal=True
 compute_optimal=True
 get_optimal=True
+debug=False
 
 python3 -m Experiments.LinearFAExperiments.AdaptiveLinearFAExperiment --multirun \
     hydra.mode=MULTIRUN \
@@ -45,10 +46,11 @@ python3 -m Experiments.LinearFAExperiments.AdaptiveLinearFAExperiment --multirun
     compute_optimal=$compute_optimal \
     get_optimal=$get_optimal \
     recompute_optimal=$recompute_optimal \
+    debug=$debug \
     search_steps=$search_steps \
     is_q=$is_q \
-    epsilon=1e-6 \
-    meta_lr=1e-6 \
+    epsilon=0.1 \
+    meta_lr=2e-6 \
     name="Gain Adaptation"
 
 python3 -m Experiments.LinearFAExperiments.LinearFAExperiment --multirun \
@@ -69,6 +71,7 @@ python3 -m Experiments.LinearFAExperiments.LinearFAExperiment --multirun \
     compute_optimal=$compute_optimal \
     get_optimal=$get_optimal \
     recompute_optimal=$recompute_optimal \
+    debug=$debug \
     search_steps=$search_steps \
     is_q=$is_q \
     name="TD"

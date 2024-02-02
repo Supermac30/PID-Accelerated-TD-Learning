@@ -20,6 +20,11 @@ directory=outputs/past_work_comparison/${env}/${current_time}
 echo "Saving to ${directory}"
 mkdir -p "$directory"
 
+recompute_optimal=False
+compute_optimal=False
+get_optimal=False
+debug=False
+
 python3 -m Experiments.TDExperiments.PastWorkEvaluation \
     hydra.run.dir="${directory}/TD Agent" \
     save_dir="$directory" \
@@ -28,7 +33,10 @@ python3 -m Experiments.TDExperiments.PastWorkEvaluation \
     gamma=$gamma \
     repeat=$repeat \
     env="$env" \
-    recompute_optimal=True \
+    recompute_optimal=$recompute_optimal \
+    compute_optimal=$compute_optimal \
+    get_optimal=$get_optimal \
+    debug=$debug \
     is_q=False \
     name="TIDBD"
 
@@ -42,7 +50,10 @@ python3 -m Experiments.AdaptationExperiments.AdaptiveAgentExperiment \
     gamma=$gamma \
     repeat=$repeat \
     env="$env" \
-    recompute_optimal=True \
+    recompute_optimal=$recompute_optimal \
+    compute_optimal=$compute_optimal \
+    get_optimal=$get_optimal \
+    debug=$debug \
     name="PID TD"
 
 python3 -m Experiments.Plotting.plot_adaptation_experiment \

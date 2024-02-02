@@ -15,11 +15,11 @@ class AbstractAdaptiveAgent(Agent):
         self.meta_lr_I = meta_lr_I
         self.meta_lr_d = meta_lr_d
 
-        if self.meta_lr_p is None:
+        if self.meta_lr_p is None or self.meta_lr_p < 0:
             self.meta_lr_p = meta_lr
-        if self.meta_lr_I is None:
+        if self.meta_lr_I is None or self.meta_lr_I < 0:
             self.meta_lr_I = meta_lr
-        if self.meta_lr_d is None:
+        if self.meta_lr_d is None or self.meta_lr_d < 0:
             self.meta_lr_d = meta_lr
 
         self.learning_rate = learning_rates[0]

@@ -21,6 +21,11 @@ directory=outputs/pid_experiment/$env/$current_time
 echo "Saving to $directory"
 mkdir -p "$directory"
 
+recompute_optimal=True
+compute_optimal=True
+get_optimal=True
+debug=False
+
 python3 -m Experiments.TDExperiments.SoftTDPolicyEvaluation --multirun \
     hydra.mode=MULTIRUN \
     hydra.run.dir="$directory" \
@@ -35,7 +40,10 @@ python3 -m Experiments.TDExperiments.SoftTDPolicyEvaluation --multirun \
     repeat=$repeat \
     num_iterations=$num_iterations \
     search_steps=$search_steps \
-    recompute_optimal=False \
+    recompute_optimal=$recompute_optimal \
+    compute_optimal=$compute_optimal \
+    get_optimal=$get_optimal \
+    debug=$debug \
     name="TD"
 
 python3 -m Experiments.TDExperiments.SoftTDPolicyEvaluation --multirun \
@@ -52,7 +60,10 @@ python3 -m Experiments.TDExperiments.SoftTDPolicyEvaluation --multirun \
     repeat=$repeat \
     num_iterations=$num_iterations \
     search_steps=$search_steps \
-    recompute_optimal=False \
+    recompute_optimal=$recompute_optimal \
+    compute_optimal=$compute_optimal \
+    get_optimal=$get_optimal \
+    debug=$debug \
     'name="PID TD with kp=1, ki=-0.4, kd=0"'
 
 python3 -m Experiments.TDExperiments.SoftTDPolicyEvaluation --multirun \
@@ -69,7 +80,10 @@ python3 -m Experiments.TDExperiments.SoftTDPolicyEvaluation --multirun \
     repeat=$repeat \
     num_iterations=$num_iterations \
     search_steps=$search_steps \
-    recompute_optimal=False \
+    recompute_optimal=$recompute_optimal \
+    compute_optimal=$compute_optimal \
+    get_optimal=$get_optimal \
+    debug=$debug \
     'name="PID TD with kp=1, ki=0, kd=0.15"'
 
 python3 -m Experiments.Plotting.plot_adaptation_experiment \

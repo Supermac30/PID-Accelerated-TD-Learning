@@ -1,11 +1,11 @@
 #!/bin/bash
 #SBATCH -N 1
 #SBATCH -p cpu
-#SBATCH --cpus-per-task=64
+#SBATCH --cpus-per-task=32
 #SBATCH --tasks-per-node=1
 #SBATCH --time=20:00:00
 #SBATCH --mem=1GB
-#SBATCH --job-name=pid_vi_control
+#SBATCH --job-name=garnet_tests
 #SBATCH --output=slurm/logs/%x_%j.out
 #SBATCH --error=slurm/errors/%x_%j.err
 
@@ -82,15 +82,13 @@ do
             recompute_optimal=$recompute_optimal \
             compute_optimal=$compute_optimal \
             get_optimal=$get_optimal \
-            meta_lr_p=1e-2,1e-3 \
-            meta_lr_I=1e-2,1e-3 \
-            meta_lr_d=1e-4,1e-5 \
-            epsilon=0.0001 \
-            lambda=0.25 \
-            alpha=0.5 \
-            beta=0.5 \
+            meta_lr=1e-6,1e-5,5e-5 \
+            epsilon=0.01 \
+            lambda=0 \
+            alpha=0.95 \
+            beta=0.05 \
             agent_name="semi gradient Q updater" \
-            name="Gain Adaptation $run"
+            name="Gain Adaptation <meta_lr> <epsilon>"
 
         python3 -m Experiments.QExperiments.PIDQLearning \
             hydra.run.dir="$directory/Q Agent" \

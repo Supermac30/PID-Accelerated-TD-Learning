@@ -3,7 +3,7 @@
 #SBATCH -p cpu
 #SBATCH --cpus-per-task=64
 #SBATCH --tasks-per-node=1
-#SBATCH --time=1:00:00
+#SBATCH --time=0:10:00
 #SBATCH --mem=8GB
 #SBATCH --job-name=adapt
 #SBATCH --output=slurm/logs/%x_%j.out
@@ -15,7 +15,7 @@ source slurm/setup.sh
 
 current_time=$(date "+%Y.%m.%d/%H.%M.%S")
 env="cliff walk"
-gamma=0.1
+gamma=0.999
 repeat=3
 seed=$RANDOM
 num_iterations=1000
@@ -56,7 +56,7 @@ python3 -m Experiments.AdaptationExperiments.AdaptiveAgentExperiment --multirun 
     recompute_optimal=$recompute_optimal \
     compute_optimal=$compute_optimal \
     get_optimal=$get_optimal \
-    meta_lr=1e-7 \
+    meta_lr=1e-4 \
     epsilon=0.1 \
     env="$env" \
     gamma=$gamma \
