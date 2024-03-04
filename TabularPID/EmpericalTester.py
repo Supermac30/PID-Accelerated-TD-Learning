@@ -8,7 +8,7 @@ import numpy as np
 
 import globals
 from TabularPID.MDPs.Environments import Environment
-from TabularPID.MDPs.MDP import PolicyEvaluation, Control_Q
+from TabularPID.MDPs.MDP import PolicyEvaluation, Control_Q, Q_PE
 from TabularPID.AgentBuilders.DQNBuilder import get_model
 
 def build_emperical_TD_tester(env, policy, gamma):
@@ -124,6 +124,20 @@ def get_optimal_TD(env, policy, gamma):
         env.build_policy_probability_transition_kernel(policy),
         1,0,0,0,0,
         gamma
+    )
+    oracle.value_iteration(num_iterations=10000)
+    return oracle
+
+
+def get_optimal_TD_Q(env, policy, gamma):
+    oracle = Q_PE(
+        env.num_states,
+        env.num_actions,
+        env.build_reward_matrix(),
+        env.build_probability_transition_kernel(),
+        1,0,0,0,0,
+        gamma,
+        policy.policy
     )
     oracle.value_iteration(num_iterations=10000)
     return oracle

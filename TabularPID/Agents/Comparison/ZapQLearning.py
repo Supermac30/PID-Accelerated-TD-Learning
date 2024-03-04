@@ -44,6 +44,7 @@ class ZapQLearning(Agent):
 
             gamma_lr = self.gamma_lr(frequency[current_state])
             alpha_lr = self.alpha_lr(frequency[current_state])
+            breakpoint()
 
             A = self.unit_mat(current_state, action) @ (self.gamma * self.unit_mat(next_state, best_action) - self.unit_mat(current_state, action)).T
             rolling_A = rolling_A + gamma_lr * (A - rolling_A)

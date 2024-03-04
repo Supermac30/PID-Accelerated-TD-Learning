@@ -23,9 +23,9 @@ mkdir -p "$directory"
 num_iterations=1000
 search_steps=1000
 
-recompute_optimal=True
-compute_optimal=True
-get_optimal=True
+recompute_optimal=False
+compute_optimal=False
+get_optimal=False
 debug=True
 
 python3 -m Experiments.TDExperiments.PastWorkEvaluation \

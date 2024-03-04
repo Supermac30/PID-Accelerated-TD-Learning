@@ -5,7 +5,7 @@ import logging
 import multiprocess as mp
 from pathlib import Path
 
-from TabularPID.EmpericalTester import get_optimal_Q, get_optimal_TD
+from TabularPID.EmpericalTester import get_optimal_Q, get_optimal_TD, get_optimal_TD_Q
 
 
 def normalize(arr):
@@ -156,6 +156,9 @@ def find_Vpi(env, policy, gamma):
     """Find a good approximation of the value function of policy in an environment.
     """
     return get_optimal_TD(env, policy, gamma).V
+
+def find_Qpi(env, policy, gamma):
+    get_optimal_TD_Q(env, policy, gamma).Q
 
 def find_Vstar(env, gamma):
     """Find a good approximation of the value function of the optimal policy in an environment.

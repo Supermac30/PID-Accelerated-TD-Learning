@@ -167,3 +167,13 @@ class Control_Q(MDP_Q):
     """
     def bellman_operator(self, Q):
         return self.R + self.gamma * np.einsum('ijk,j->ik', self.P, np.max(Q, axis=1))
+
+
+class Q_PE(MDP_Q):
+    def __init__(self, num_states, num_actions, R, P, kp, ki, kd, alpha, beta, gamma, policy):
+        super().__init__(num_states, num_actions, R, P, kp, ki, kd, alpha, beta, gamma)
+        self.policy = policy
+    def bellman_operator(self, Q):
+        expected_next_state_value = (self.policy @ Q.T).diagonal()
+        next_Q = np.tensordot(self.P, expected_next_state_value, axes=(1, 0))
+        return self.R + self.gamma * next_Q

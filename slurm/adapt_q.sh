@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH -N 1
 #SBATCH -p cpu
-#SBATCH --cpus-per-task=32
+#SBATCH --cpus-per-task=64
 #SBATCH --tasks-per-node=1
 #SBATCH --time=1:00:00
 #SBATCH --mem=8GB
@@ -12,16 +12,16 @@
 source slurm/setup.sh
 current_time=$(date "+%Y.%m.%d/%H.%M.%S")
 env="garnet 23123 50"
-gamma=0.99
+gamma=0.999
 repeat=20
 seed=$RANDOM
-num_iterations=5000
-search_steps=5000
+num_iterations=20000
+search_steps=20000
 directory=outputs/q_adaptation_experiment/$env/$current_time
 echo "Saving to $directory"
 mkdir -p "$directory"
 
-recompute_optimal=True
+recompute_optimal=False
 compute_optimal=True
 get_optimal=True
 debug=False

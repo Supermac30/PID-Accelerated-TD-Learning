@@ -75,8 +75,8 @@ def adaptive_agent_experiment(cfg):
 
     name = cfg['name']
     # Replace <epsilon> and <meta_lr> with the actual values
-    name = name.replace("<epsilon>", f"{epsilon}")
-    name = name.replace("<meta_lr>", f"{meta_lr}")
+    name = name.replace("-epsilon-", f"{epsilon}")
+    name = name.replace("-meta_lr-", f"{meta_lr}")
     save_array(average_history, f"{name}", directory=cfg['save_dir'], subdir="mean")
     save_array(average_gain_history, f"gain_history {name}", directory=cfg['save_dir'], subdir="mean")
     save_array(std_dev_history, f"{name}", directory=cfg['save_dir'], subdir="std_dev")

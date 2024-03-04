@@ -49,14 +49,17 @@ def create_plots(cfg):
     for run in range(1, cfg['repeat'] + 1):
         min_final_history = np.inf
         final_history = None
-        for file in os.listdir(f"{cfg['save_dir']}/gain_adaptation/{run}/npy/mean"):
-            if file.startswith("gain_history"):
-                continue
+        for run in range(1, cfg['repeat'] + 1):
+            file_folder = f"{cfg['save_dir']}/gain_adaptation/{run}/npy/mean"
+            if os.path.exists(file_folder):
+                for file in os.listdir(file_folder):
+                    if file.startswith("gain_history"):
+                        continue
 
-            history = np.load(f"{cfg['save_dir']}/gain_adaptation/{run}/npy/mean/{file}")
-            if history[-1] < min_final_history:
-                min_final_history = history[-1]
-                final_history = history
+                    history = np.load(f"{file_folder}/{file}")
+                    if history[-1] < min_final_history:
+                        min_final_history = history[-1]
+                        final_history = history
         
         all_histories.append(final_history)
 

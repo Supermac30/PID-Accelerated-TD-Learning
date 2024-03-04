@@ -1,9 +1,9 @@
 #!/bin/bash
 #SBATCH -N 1
 #SBATCH -p cpu
-#SBATCH --cpus-per-task=32
+#SBATCH --cpus-per-task=64
 #SBATCH --tasks-per-node=1
-#SBATCH --time=20:00:00
+#SBATCH --time=40:00:00
 #SBATCH --mem=1GB
 #SBATCH --job-name=garnet_tests
 #SBATCH --output=slurm/logs/%x_%j.out
@@ -13,13 +13,13 @@ source slurm/setup.sh
 
 current_time=$(date "+%Y.%m.%d/%H.%M.%S")
 save_dir=$1
-num_iterations=5000
-search_steps=5000
+num_iterations=20000
+search_steps=20000
 directory=$save_dir/$current_time
 echo "Saving to $directory"
 mkdir -p "$directory"
 
-gamma=0.99
+gamma=0.999
 
 recompute_optimal=False
 compute_optimal=True
@@ -82,13 +82,13 @@ do
             recompute_optimal=$recompute_optimal \
             compute_optimal=$compute_optimal \
             get_optimal=$get_optimal \
-            meta_lr=1e-6,1e-5,5e-5 \
+            meta_lr=1e-5,5e-5,5e-6 \
             epsilon=0.01 \
             lambda=0 \
             alpha=0.95 \
             beta=0.05 \
             agent_name="semi gradient Q updater" \
-            name="Gain Adaptation <meta_lr> <epsilon>"
+            name="Gain Adaptation -meta_lr- -epsilon-"
 
         python3 -m Experiments.QExperiments.PIDQLearning \
             hydra.run.dir="$directory/Q Agent" \

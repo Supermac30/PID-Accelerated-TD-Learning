@@ -55,7 +55,7 @@ do
         is_q=$is_q \
         epsilon=0.1 \
         meta_lr=2e-6 \
-        name="Gain Adaptation <meta_lr> <epsilon>"
+        name="Gain Adaptation -meta_lr- -epsilon-"
 
     python3 -m Experiments.LinearFAExperiments.LinearFAExperiment --multirun \
         hydra.mode=MULTIRUN \

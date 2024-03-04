@@ -34,6 +34,8 @@ def build_adaptive_agent_and_env(agent_name, env_name, meta_lr, lambd, delay, ge
     - partials exact sampler: Uses the exact gradients for the partials, but not for the bellman
     - bellman exact sampler: Uses the exact gradients for the bellman, but not for the partials
     - semi gradient updater: Uses the semi-gradient updater
+    - semi gradient Q updater: Uses the semi-gradient updater to do Q-learning
+    - semi gradient Q updater PE: Uses the semi-gradient updater to do PE with Q functions
     - true soft sampler: The true soft sampling gain adaptation algorithm
     - log space updater: Updates the gains in the log space
     - true log space updater: Updates the gains in the log space using the true gradients
@@ -130,6 +132,8 @@ def build_adaptive_agent(agent_name, env_name, env, policy, meta_lr, lambd, dela
         return build_no_gain_Q_adapter(*params)
     elif agent_name == "semi gradient Q updater":
         return build_semi_gradient_Q_updater(*params, meta_lr_p=meta_lr_p, meta_lr_d=meta_lr_d, meta_lr_I=meta_lr_I)
+    elif agent_name == "semi gradient Q updater PE":
+        return build_semi_gradient_Q_updater_PE(*params, meta_lr_p=meta_lr_p, meta_lr_d=meta_lr_d, meta_lr_I=meta_lr_I)
     elif agent_name == "diagonal semi gradient Q updater":
         return build_diagonal_semi_gradient_Q_updater(*params, meta_lr_p=meta_lr_p, meta_lr_d=meta_lr_d, meta_lr_I=meta_lr_I)
     # elif agent_name == "semi gradient double Q updater":
@@ -201,6 +205,24 @@ def build_no_gain_Q_adapter(env, policy, meta_lr, lambd, learning_rates, gamma, 
 def build_semi_gradient_Q_updater(env, policy, meta_lr, lambd, learning_rates, gamma, delay, kp, kd, ki, alpha, beta, epsilon, double=False, meta_lr_p=None, meta_lr_d=None, meta_lr_I=None):
     gain_updater = AdaptiveQAgents.SemiGradientUpdater(lambd, epsilon)
     return AdaptiveQAgents.AdaptiveSamplerAgent(
+        gain_updater,
+        learning_rates,
+        meta_lr,
+        env,
+        gamma,
+        delay,
+        kp, kd, ki, alpha, beta,
+        double=double,
+        meta_lr_p=meta_lr_p,
+        meta_lr_d=meta_lr_d,
+        meta_lr_I=meta_lr_I
+    )
+
+
+def build_semi_gradient_Q_updater(env, policy, meta_lr, lambd, learning_rates, gamma, delay, kp, kd, ki, alpha, beta, epsilon, double=False, meta_lr_p=None, meta_lr_d=None, meta_lr_I=None):
+    gain_updater = AdaptiveQAgents.SemiGradientUpdater(lambd, epsilon)
+    return AdaptiveQAgents.AdaptiveSamplerPE(
+        policy,
         gain_updater,
         learning_rates,
         meta_lr,

@@ -39,6 +39,7 @@ def build_agent(agent_name, env_name, env, policy, get_optimal, gamma, seed=42):
     - "VI": The agent that uses PID to learn the optimal policy with VI
     - "VI control": The agent that uses PID to learn the optimal policy with VI
     - "TD": The agent that uses PID to learn the optimal policy with TD
+    - "TD Q": The agent that uses PID to learn the optimal policy with Q-TD
     - "far sighted TD": The agent that uses Far Sighted PID to learn the optimal policy with TD. kwargs is the delay.
     - "hard TD": The agent that uses hard updates with PID TD
     - "momentum TD": The agent that uses momentum with PID TD
@@ -72,6 +73,8 @@ def build_agent(agent_name, env_name, env, policy, get_optimal, gamma, seed=42):
 
     if agent_description == "TD":
         return build_TD_PID(env, policy, kp, ki, kd, alpha, beta, learning_rates, gamma)
+    elif agent_description == "TD Q":
+        return build_TD_Q_PID(env, policy, kp, ki, kd, alpha, beta, learning_rates, gamma)
     elif agent_description == "far sighted TD":
         delay = kwargs[0]
         return build_FarSighted_TD_PID(env, policy, kp, ki, kd, alpha, beta, learning_rates, gamma, delay)
@@ -256,6 +259,18 @@ def build_VI_PID(env, policy, kp, ki, kd, alpha, beta, gamma):
         kp, ki, kd, alpha, beta,
         gamma
     )
+
+def build_TD_Q_PID(env, policy, kp, ki, kd, alpha, beta, learning_rates, gamma):
+    """Build the TD agent with PID
+    """
+    return PID_TD(
+        env,
+        policy,
+        gamma,
+        kp, ki, kd, alpha, beta,
+        learning_rates
+    )
+
 
 def build_TD_PID(env, policy, kp, ki, kd, alpha, beta, learning_rates, gamma):
     """Build the TD agent with PID

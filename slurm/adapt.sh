@@ -63,7 +63,7 @@ python3 -m Experiments.AdaptationExperiments.AdaptiveAgentExperiment --multirun 
     repeat=$repeat \
     debug=$debug \
     num_iterations=$num_iterations \
-    agent_name="semi gradient updater" \
+    agent_name="semi gradient Q updater PE" \
     name="Adaptive Agent"
 
 python3 -m Experiments.TDExperiments.SoftTDPolicyEvaluation \
