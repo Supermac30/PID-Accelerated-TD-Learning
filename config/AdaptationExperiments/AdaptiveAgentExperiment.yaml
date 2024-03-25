@@ -1,5 +1,5 @@
 env: chain walk
-norm: fro
+norm: 1
 num_iterations: 30000
 
 get_optimal: True # Get the optimal parameters from the database

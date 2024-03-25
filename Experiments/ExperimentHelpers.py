@@ -158,7 +158,7 @@ def find_Vpi(env, policy, gamma):
     return get_optimal_TD(env, policy, gamma).V
 
 def find_Qpi(env, policy, gamma):
-    get_optimal_TD_Q(env, policy, gamma).Q
+    return get_optimal_TD_Q(env, policy, gamma).Q
 
 def find_Vstar(env, gamma):
     """Find a good approximation of the value function of the optimal policy in an environment.
@@ -199,13 +199,16 @@ def save_array(nparr, name, normalize=False, directory="", subdir=""):
         np.savetxt(f"{directory}/txt/" + name + ".txt", nparr)
 
 
-def create_label(ax, norm, normalize, is_q, is_v_star=False):
+def create_label(ax, norm, normalize, is_q, is_star=False):
     if is_q:
         current = 'Q_k'
-        goal = 'Q^*'
+        if is_star:
+            goal = 'Q^*'
+        else:
+            goal = "Q^\pi"
     else:
         current = 'V_k'
-        if is_v_star:
+        if is_star:
             goal = 'V^*'
         else:
             goal = 'V^\pi'
@@ -214,6 +217,8 @@ def create_label(ax, norm, normalize, is_q, is_v_star=False):
             ax.set_ylabel(f'Normalized $||{current} - {goal}||_{{\infty}}$')
         else:
             ax.set_ylabel(f'$||{current} - {goal}||_{{\infty}}$')
+    if norm == 'fro':
+        norm = 'F'
     if type(norm) == str and norm[:4] == 'diff':
         state = norm[5:]
         if normalize:

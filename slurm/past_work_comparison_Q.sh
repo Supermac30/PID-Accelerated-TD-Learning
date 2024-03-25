@@ -1,9 +1,9 @@
 #!/bin/bash
 #SBATCH -N 1
 #SBATCH -p cpu
-#SBATCH --cpus-per-task=32
+#SBATCH --cpus-per-task=64
 #SBATCH --tasks-per-node=1
-#SBATCH --time=1:00:00
+#SBATCH --time=10:00:00
 #SBATCH --mem=1GB
 #SBATCH --job-name=past_work_comparison_Q
 #SBATCH --output=slurm/logs/%x_%j.out
@@ -22,10 +22,11 @@ mkdir -p "$directory"
 
 num_iterations=1000
 search_steps=1000
+norm="fro"
 
-recompute_optimal=False
-compute_optimal=False
-get_optimal=False
+recompute_optimal=True
+compute_optimal=True
+get_optimal=True
 debug=True
 
 python3 -m Experiments.TDExperiments.PastWorkEvaluation \
@@ -41,44 +42,47 @@ python3 -m Experiments.TDExperiments.PastWorkEvaluation \
     compute_optimal=$compute_optimal \
     get_optimal=$get_optimal \
     debug=$debug \
+    norm=$norm \
     num_iterations=$num_iterations \
     search_steps=$search_steps \
     name="Zap Q learning"
 
-# python3 -m Experiments.TDExperiments.PastWorkEvaluation \
-#     hydra.run.dir="${directory}/Speedy Agent" \
-#     save_dir="$directory" \
-#     seed=$seed \
-#     agent_name="speedy Q learning" \
-#     gamma=0.999 \
-#     repeat=$repeat \
-#     env="$env" \
-#     is_q=True \
-#     recompute_optimal=$recompute_optimal \
-#     compute_optimal=$compute_optimal \
-#     get_optimal=$get_optimal \
-#     num_iterations=$num_iterations \
-#     search_steps=$search_steps \
-#     debug=$debug \
-#     name="Speedy Q learning"
+python3 -m Experiments.TDExperiments.PastWorkEvaluation \
+    hydra.run.dir="${directory}/Speedy Agent" \
+    save_dir="$directory" \
+    seed=$seed \
+    agent_name="speedy Q learning" \
+    gamma=0.999 \
+    repeat=$repeat \
+    env="$env" \
+    is_q=True \
+    recompute_optimal=$recompute_optimal \
+    compute_optimal=$compute_optimal \
+    get_optimal=$get_optimal \
+    num_iterations=$num_iterations \
+    search_steps=$search_steps \
+    debug=$debug \
+    norm=$norm \
+    name="Speedy Q learning"
 
-# python3 -m Experiments.AdaptationExperiments.AdaptiveQAgentExperiment \
-#     hydra.run.dir="${directory}/PID Agent" \
-#     save_dir="$directory" \
-#     seed=$seed \
-#     meta_lr=1e-5 \
-#     epsilon=10 \
-#     agent_name="semi gradient Q updater" \
-#     gamma=$gamma \
-#     repeat=$repeat \
-#     env="$env" \
-#     recompute_optimal=$recompute_optimal \
-#     compute_optimal=$compute_optimal \
-#     get_optimal=$get_optimal \
-#     num_iterations=$num_iterations \
-#     search_steps=$search_steps \
-#     debug=$debug \
-#     name="PID Q learning"
+python3 -m Experiments.AdaptationExperiments.AdaptiveQAgentExperiment \
+    hydra.run.dir="${directory}/PID Agent" \
+    save_dir="$directory" \
+    seed=$seed \
+    meta_lr=1e-5 \
+    epsilon=10 \
+    agent_name="semi gradient Q updater" \
+    gamma=$gamma \
+    repeat=$repeat \
+    env="$env" \
+    recompute_optimal=$recompute_optimal \
+    compute_optimal=$compute_optimal \
+    get_optimal=$get_optimal \
+    num_iterations=$num_iterations \
+    search_steps=$search_steps \
+    debug=$debug \
+    norm=$norm \
+    name="PID Q learning"
 
 python3 -m Experiments.Plotting.plot_adaptation_experiment \
     hydra.run.dir="$directory" \
@@ -86,4 +90,5 @@ python3 -m Experiments.Plotting.plot_adaptation_experiment \
     env="$env" \
     is_q=True \
     plot_best=False \
+    norm=$norm \
     hydra/job_logging=disabled

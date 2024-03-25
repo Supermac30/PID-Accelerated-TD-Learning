@@ -9,6 +9,7 @@ class TIDBD(Agent):
 
     def set_learning_rates(self, a, b, c, d, e, f):
         self.theta = learning_rate_function(a, b)
+        self.initial_step_size = c
 
     def estimate_value_function(self, follow_trajectory=True, num_iterations=1000, test_function=None, reset=True, reset_environment=True, stop_if_diverging=True):
         """Estimate the value function of the current policy using the TIDBD algorithm
@@ -20,7 +21,7 @@ class TIDBD(Agent):
         # The history of test_function
         history = np.zeros(num_iterations)
 
-        betas = np.zeros((self.num_states, 1))
+        betas = np.ones((self.num_states, 1)) * np.log(self.initial_step_size)
         H = np.zeros((self.num_states, 1))
 
         for k in range(num_iterations):
@@ -36,7 +37,7 @@ class TIDBD(Agent):
 
             if test_function is not None:
                 history[k] = test_function(self.V, None, BR)
-                if stop_if_diverging and (history[k] > 10 * history[0] or np.isnan(history[k])):
+                if stop_if_diverging and (history[k] > 2 * history[0] or np.isnan(history[k])):
                     # If we are too large, stop learning
                     history[k:] = float('inf')
                     break

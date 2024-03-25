@@ -48,7 +48,6 @@ class Environment:
 
     def reset(self):
         """Reset the Environment back to the initial state.
-        Reset the prg to ensure fair experiments.
         """
         self.current_state = self.start_state
         
@@ -86,6 +85,88 @@ class Environment:
         """
         return np.einsum('ijk,ik->ij', self.build_probability_transition_kernel(), policy.get_policy())
 
+
+class GridWorld(Environment):
+    def __init__(self, square_size, seed=-1):
+        self.square_size = square_size
+        num_states = square_size ** 2
+        super().__init__(num_states, 4, (0, 0), seed)
+ 
+        self.teleport_rules = {
+            (0, 1): ((4, 1), 10),
+            (0, 3): ((2, 3), 5)
+        }
+
+    def index(self, i, j):
+        if i < 0:
+            i = 0
+        if i >= self.square_size:
+            i = self.square_size - 1
+        if j < 0:
+            j = 0
+        if j >= self.square_size:
+            j = self.square_size - 1
+        return i * self.square_size + j
+
+    def unindex(self, index_num):
+        return (index_num // self.square_size, index_num % self.square_size)
+
+    def take_action(self, action):
+        if action > 3 or action < 0:
+            raise InvalidAction(action)
+        
+        if self.current_state in self.teleport_rules:
+            return self.teleport_rules[self.current_state]
+        
+        x, y = self.unindex(self.current_state)
+        
+        if action == 0:
+            x -= 1
+        if action == 1:
+            x += 1
+        if action == 2:
+            y -= 1
+        if action == 3:
+            y += 1
+
+        next_state = self.index(x, y)
+        
+        if x < 0 or y < 0 or x >= self.square_size or y >= self.square_size:
+            return next_state, -1
+        return next_state, 0
+
+    def build_reward_matrix(self):
+        rewards = np.zeros((self.num_states, self.num_actions))
+        for start in self.teleport_rules:
+            _, reward = self.teleport_rules[start]
+            rewards[self.index(*start), :] = reward
+        
+        # Out of bounds penalties
+        for i in range(self.square_size):
+            # Action order: Up (0) Down (1) Left (2) Right (3)
+            rewards[self.index(0, i), 0] = -1
+            rewards[self.index(self.square_size - 1, i), 1] = -1
+            rewards[self.index(i, 0), 2] = -1
+            rewards[self.index(i, self.square_size - 1), 3] = -1
+
+        return rewards
+
+    def build_probability_transition_kernel(self):
+        transitions = np.zeros((self.num_states, self.num_states, 4), dtype=float)
+        for i in range(self.square_size):
+            for j in range(self.square_size):
+                if (i, j) in self.teleport_rules: continue
+                # Action order: Up (0) Down (1) Left (2) Right (3)
+                transitions[self.index(i, j), self.index(i - 1, j), 0] = 1
+                transitions[self.index(i, j), self.index(i + 1, j), 1] = 1
+                transitions[self.index(i, j), self.index(i, j - 1), 2] = 1
+                transitions[self.index(i, j), self.index(i, j + 1), 3] = 1
+        
+        for start in self.teleport_rules:
+            end, _ = self.teleport_rules[start]
+            transitions[self.index(*start), self.index(*end), :] = 1
+        
+        return transitions
 
 
 class Garnet(Environment):

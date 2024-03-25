@@ -91,6 +91,7 @@ python3 -m Experiments.Plotting.plot_adaptation_experiment \
     save_dir="$directory" \
     repeat=$repeat \
     env="$env" \
-    is_q=False \
+    is_q=True \
+    is_star=False \
     small_name=False \
     plot_best=False

@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH -N 1
 #SBATCH -p cpu
-#SBATCH --cpus-per-task=32
+#SBATCH --cpus-per-task=64
 #SBATCH --tasks-per-node=1
 #SBATCH --time=10:00:00
 #SBATCH --mem=1GB
@@ -14,10 +14,10 @@ current_time=$(date "+%Y.%m.%d/%H.%M.%S")
 env="cliff walk"
 gamma=0.99
 repeat=20
-norm="1"
+norm="fro"
 seed=$RANDOM
-num_iterations=10000
-search_steps=10000
+num_iterations=2500
+search_steps=2500
 directory=outputs/pid_Q_experiment/$env/$current_time
 echo "Saving to $directory"
 mkdir -p "$directory"
@@ -49,15 +49,21 @@ python3 -m Experiments.QExperiments.PIDQLearning --multirun \
     debug=$debug \
     name="Q learning"
 
-python3 -m Experiments.QExperiments.PIDQLearning --multirun \
+for kp in 1 1.25 0.75
+do
+for ki in 0 -0.25 0.25
+do
+for kd in 0 -0.25 0.25
+do
+    python3 -m Experiments.QExperiments.PIDQLearning --multirun \
     hydra.mode=MULTIRUN \
     hydra.run.dir="$directory" \
     hydra.sweep.dir="$directory" \
     save_dir="$directory" \
     seed=$seed \
-    kp=1 \
-    ki=0.75 \
-    kd=0.4 \
+    kp=$kp \
+    ki=$ki \
+    kd=$kd \
     gamma=$gamma \
     env="$env" \
     repeat=$repeat \
@@ -65,25 +71,10 @@ python3 -m Experiments.QExperiments.PIDQLearning --multirun \
     norm="$norm" \
     agent_name="Q learning" \
     recompute_optimal=True \
-    'name="PID Q-learning with kp=1, ki=0.75, kd=0.4"'
-
-python3 -m Experiments.QExperiments.PIDQLearning --multirun \
-    hydra.mode=MULTIRUN \
-    hydra.run.dir="$directory" \
-    hydra.sweep.dir="$directory" \
-    save_dir="$directory" \
-    seed=$seed \
-    kp=1 \
-    ki=0.7 \
-    kd=0.2 \
-    gamma=$gamma \
-    env="$env" \
-    repeat=$repeat \
-    num_iterations=$num_iterations \
-    norm="$norm" \
-    agent_name="Q learning" \
-    recompute_optimal=True \
-    'name="PID Q-learning with kp=1, ki=0.7, kd=0.2"'
+    name="PID Q-learning with kp $kp, ki $ki, kd $kd"
+done
+done
+done
 
 python3 -m Experiments.Plotting.plot_adaptation_experiment \
     hydra.run.dir="$directory" \

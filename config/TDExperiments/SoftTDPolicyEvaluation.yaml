@@ -5,12 +5,12 @@ alpha: 0.05
 beta: 0.95
 gamma: 0.99
 
-agent_name: "TD Q"
+agent_name: "TD"
 
 env: chain walk
 name: ${env}_${agent_name}_kp=${kp}_kd=${kd}_ki=${ki}_alpha=${alpha}_beta=${beta}_gamma=${gamma}
 num_iterations: 30000
-norm: fro
+norm: 1
 get_optimal: True # Get the optimal parameters from the database
 compute_optimal: True # Run a grid search. When recompute_optimal is false, we don't run a grid search if the optimal parameters are in the database already
 recompute_optimal: False # If compute_optimal is True, run a grid search even if the optimal parameters are in the database

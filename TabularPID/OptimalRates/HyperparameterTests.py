@@ -260,21 +260,17 @@ def run_past_work_search(agent_description, env_name, seed, norm, gamma, search_
         # Taken from the TIDBD paper, 200 values between 0 and 0.2
         # We add more thetas to account for more complex environments
         learning_rates0 = {i / 10000: {float("inf")} for i in range(2000)}
-        learning_rates1 = dummy
+        # Set initial learning rates as in the TIDBD paper
+        learning_rates1 = {0.0005: {float("inf")}, 0.0025: {float("inf")}, 0.005: {float("inf")}, 0.025: {float("inf")}, 0.05: {float("inf")}, 0.25: {float("inf")}, 0.5: {float("inf")}}
         learning_rates2 = dummy
     elif agent_description == "speedy Q learning":
         learning_rates0 = exhaustive_learning_rates[0]
         learning_rates1 = dummy
         learning_rates2 = dummy
     elif agent_description == "zap Q learning":
-        # The paper uses polynomial learning rates
-        # TODO: Make sure that this is also fine? Code polynoimal rates as well just in case.
-        learning_rates0 = exhaustive_learning_rates[0]
-        learning_rates1 = exhaustive_learning_rates[1]
-        learning_rates2 = dummy
-
-        # Remove key 0 from learning_rates1
-        learning_rates1.pop(0)
+        learning_rates0 = {1: {1}}
+        learning_rates1 = {1: {0}, 0.85: {0}}  # The exponent term, with dummy extras
+        learning_rates2 = {1: {1}}
 
     else:
         raise ValueError(f"Unknown agent description: {agent_description}")

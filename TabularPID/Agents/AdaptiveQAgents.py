@@ -172,18 +172,6 @@ class AdaptiveSamplerAgent(AbstractAdaptiveAgent):
             best_action = np.argmax(self.Q[self.next_state])
         return self.reward + self.gamma * self.Q[self.next_state][best_action] - self.Q[self.current_state][self.action]
 
-
-class AdaptiveSamplerPE(AbstractAdaptiveAgent):
-    def __init__(self, policy, gain_updater, learning_rates, meta_lr, environment, gamma, update_frequency=1, kp=1, kd=0, ki=0, alpha=0.05, beta=0.95, double=False, meta_lr_p=None, meta_lr_I=None, meta_lr_d=None, verbose=False):
-        super().__init__(gain_updater, learning_rates, meta_lr, environment, gamma, update_frequency, kp, kd, ki, alpha, beta, double, meta_lr_p, meta_lr_I, meta_lr_d, verbose)
-
-        self.policy = policy
-
-    def BR(self):
-        next_action = self.policy.get_action(self.next_state)
-        return self.reward + self.gamma * self.Q[self.next_state][next_action] - self.Q[self.current_state][self.action]
-
-
 class DiagonalAdaptiveSamplerAgent(AbstractAdaptiveAgent):
     def __init__(self, gain_updater, learning_rates, meta_lr, environment, gamma, update_frequency=1, kp=1, kd=0, ki=0, alpha=0.05, beta=0.95, verbose=False, meta_lr_p=None, meta_lr_I=None, meta_lr_d=None):
         super().__init__(gain_updater, learning_rates, meta_lr, environment, gamma, update_frequency, kp, kd, ki, alpha, beta, meta_lr_p=meta_lr_p, meta_lr_I=meta_lr_I, meta_lr_d=meta_lr_d)

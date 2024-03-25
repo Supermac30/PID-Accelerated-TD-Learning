@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH -N 1
 #SBATCH -p cpu
-#SBATCH --cpus-per-task=1
+#SBATCH --cpus-per-task=64
 #SBATCH --tasks-per-node=1
 #SBATCH --time=10:00:00
 #SBATCH --mem=1GB
@@ -12,17 +12,20 @@
 source slurm/setup.sh
 
 current_time=$(date "+%Y.%m.%d/%H.%M.%S")
-env="cliff walk"
+env="grid world"
 seed=$RANDOM
-gamma=0.999
+gamma=0.99
 repeat=20
+norm="1"
 directory=outputs/past_work_comparison/${env}/${current_time}
 echo "Saving to ${directory}"
 mkdir -p "$directory"
+num_iterations=2500
+search_steps=2500
 
-recompute_optimal=False
-compute_optimal=False
-get_optimal=False
+recompute_optimal=True
+compute_optimal=True
+get_optimal=True
 debug=False
 
 python3 -m Experiments.TDExperiments.PastWorkEvaluation \
@@ -33,31 +36,38 @@ python3 -m Experiments.TDExperiments.PastWorkEvaluation \
     gamma=$gamma \
     repeat=$repeat \
     env="$env" \
+    search_steps=$search_steps \
+    num_iterations=$num_iterations \
     recompute_optimal=$recompute_optimal \
     compute_optimal=$compute_optimal \
     get_optimal=$get_optimal \
     debug=$debug \
     is_q=False \
+    norm=$norm \
     name="TIDBD"
 
 python3 -m Experiments.AdaptationExperiments.AdaptiveAgentExperiment \
     hydra.run.dir="${directory}/TD Agent" \
     save_dir="$directory" \
     seed=$seed \
-    meta_lr=0.1 \
-    epsilon=0.1 \
+    meta_lr=1e-3 \
+    epsilon=1e-3 \
     agent_name="semi gradient updater" \
     gamma=$gamma \
     repeat=$repeat \
     env="$env" \
+    search_steps=$search_steps \
+    num_iterations=$num_iterations \
     recompute_optimal=$recompute_optimal \
     compute_optimal=$compute_optimal \
     get_optimal=$get_optimal \
     debug=$debug \
-    name="PID TD"
+    norm=$norm \
+    name="Gain Adaptation"
 
 python3 -m Experiments.Plotting.plot_adaptation_experiment \
     hydra.run.dir="$directory" \
     save_dir="$directory" \
     env="$env" \
-    hydra/job_logging=disabled
+    hydra/job_logging=disabled \
+    norm=$norm

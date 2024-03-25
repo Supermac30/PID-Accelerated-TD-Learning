@@ -3,7 +3,7 @@
 #SBATCH -p cpu
 #SBATCH --cpus-per-task=64
 #SBATCH --tasks-per-node=1
-#SBATCH --time=1:00:00
+#SBATCH --time=10:00:00
 #SBATCH --mem=8GB
 #SBATCH --job-name=adapt_q
 #SBATCH --output=slurm/logs/%x_%j.out
@@ -11,12 +11,12 @@
 
 source slurm/setup.sh
 current_time=$(date "+%Y.%m.%d/%H.%M.%S")
-env="garnet 23123 50"
-gamma=0.999
+env="chain walk"
+gamma=0.99
 repeat=20
 seed=$RANDOM
-num_iterations=20000
-search_steps=20000
+num_iterations=10000
+search_steps=10000
 directory=outputs/q_adaptation_experiment/$env/$current_time
 echo "Saving to $directory"
 mkdir -p "$directory"
@@ -26,18 +26,56 @@ compute_optimal=True
 get_optimal=True
 debug=False
 
+python3 -m Experiments.TDExperiments.PastWorkEvaluation \
+    hydra.run.dir="${directory}/Zap Agent" \
+    save_dir="$directory" \
+    agent_name="zap Q learning" \
+    gamma=$gamma \
+    seed=$seed \
+    repeat=$repeat \
+    env="$env" \
+    is_q=True \
+    recompute_optimal=$recompute_optimal \
+    compute_optimal=$compute_optimal \
+    get_optimal=$get_optimal \
+    debug=$debug \
+    num_iterations=$num_iterations \
+    search_steps=$search_steps \
+    name="Zap Q learning"
+
+python3 -m Experiments.TDExperiments.PastWorkEvaluation \
+    hydra.run.dir="${directory}/Speedy Agent" \
+    save_dir="$directory" \
+    seed=$seed \
+    agent_name="speedy Q learning" \
+    gamma=$gamma \
+    repeat=$repeat \
+    env="$env" \
+    is_q=True \
+    recompute_optimal=$recompute_optimal \
+    compute_optimal=True \
+    get_optimal=$get_optimal \
+    num_iterations=$num_iterations \
+    search_steps=$search_steps \
+    debug=$debug \
+    name="Speedy Q learning"
+
+for meta_lr in 1e-5 1e-6 1e-7
+do
+for epsilon in 1e-1 1e-2
+do
 python3 -m Experiments.AdaptationExperiments.AdaptiveQAgentExperiment --multirun \
     hydra.mode=MULTIRUN \
     hydra.run.dir="$directory/Adaptive Agent" \
     hydra.sweep.dir="$directory" \
     seed=$seed \
     save_dir="$directory" \
-    meta_lr_p=1e-5 \
-    meta_lr_I=1e-5 \
-    meta_lr_d=1e-5 \
+    meta_lr_p=$meta_lr \
+    meta_lr_I=$meta_lr \
+    meta_lr_d=$meta_lr \
     alpha=0.95 \
     beta=0.05 \
-    epsilon=0.01 \
+    epsilon=$epsilon \
     lambda=0 \
     env="$env" \
     gamma=$gamma \
@@ -49,7 +87,9 @@ python3 -m Experiments.AdaptationExperiments.AdaptiveQAgentExperiment --multirun
     compute_optimal=$compute_optimal \
     get_optimal=$get_optimal \
     debug=$debug \
-    name="Gain Adaptation"
+    name="Gain Adaptation $meta_lr $epsilon"
+done
+done
 
 python3 -m Experiments.QExperiments.PIDQLearning \
     hydra.run.dir="$directory/TD Agent" \
@@ -75,5 +115,6 @@ python3 -m Experiments.Plotting.plot_adaptation_experiment \
     repeat=$repeat \
     env="$env" \
     is_q=True \
+    norm=fro \
     plot_best=False \
     small_name=True
