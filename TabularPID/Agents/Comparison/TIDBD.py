@@ -2,10 +2,11 @@ from TabularPID.Agents.Agents import Agent, learning_rate_function
 import numpy as np
 
 class TIDBD(Agent):
-    def __init__(self, environment, policy, gamma, theta):
+    def __init__(self, environment, policy, gamma, theta, initial_step_size=1):
         super().__init__(environment, policy, gamma)
         self.V = np.zeros((self.num_states, 1))
         self.theta = theta
+        self.initial_step_size = initial_step_size
 
     def set_learning_rates(self, a, b, c, d, e, f):
         self.theta = learning_rate_function(a, b)

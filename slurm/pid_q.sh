@@ -11,7 +11,7 @@
 
 source slurm/setup.sh
 current_time=$(date "+%Y.%m.%d/%H.%M.%S")
-env="cliff walk"
+env="chain walk"
 gamma=0.99
 repeat=20
 norm="fro"
@@ -70,8 +70,10 @@ do
     num_iterations=$num_iterations \
     norm="$norm" \
     agent_name="Q learning" \
-    recompute_optimal=True \
-    name="PID Q-learning with kp $kp, ki $ki, kd $kd"
+    recompute_optimal=$recompute_optimal \
+    compute_optimal=$compute_optimal \
+    get_optimal=$get_optimal \
+    name="PID Q-learning with kp $kp ki $ki kd $kd"
 done
 done
 done

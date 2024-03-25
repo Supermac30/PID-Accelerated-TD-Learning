@@ -24,7 +24,7 @@ def create_plots(cfg):
 
     files = os.listdir(f"{cfg['save_dir']}/npy/mean")[::-1]
     # Change the order of files, so that if a file starts with 'TD' or with 'Q learning', it comes first
-    files = sorted(files, key=lambda x: (not x.startswith('TD'), not x.startswith('Q learning')))
+    files = sorted(files, key=lambda x: (not x.startswith('TD'), not x.startswith('Q Learning')))
 
     # Iterate through all of the files in the npy folder
     for file in files:

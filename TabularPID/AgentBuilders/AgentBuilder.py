@@ -146,7 +146,7 @@ def build_TIDBD(env, policy, learning_rates, gamma):
     """
     # The learning rate for the TIDBD agent is a float stored in the first component
     return TIDBD(
-        env, policy, gamma, theta=learning_rates[0]
+        env, policy, gamma, theta=learning_rates[0], initial_step_size=learning_rates[1](0)
     )
 
 def build_Zap_Q_learning(env, policy, learning_rates, gamma):

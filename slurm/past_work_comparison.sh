@@ -23,7 +23,7 @@ mkdir -p "$directory"
 num_iterations=2500
 search_steps=2500
 
-recompute_optimal=True
+recompute_optimal=False
 compute_optimal=True
 get_optimal=True
 debug=False

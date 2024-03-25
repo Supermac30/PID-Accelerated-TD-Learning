@@ -11,12 +11,12 @@
 
 source slurm/setup.sh
 current_time=$(date "+%Y.%m.%d/%H.%M.%S")
-env="chain walk"
+env="cliff walk"
 gamma=0.99
 repeat=20
 seed=$RANDOM
-num_iterations=10000
-search_steps=10000
+num_iterations=25000
+search_steps=25000
 directory=outputs/q_adaptation_experiment/$env/$current_time
 echo "Saving to $directory"
 mkdir -p "$directory"
@@ -41,7 +41,7 @@ python3 -m Experiments.TDExperiments.PastWorkEvaluation \
     debug=$debug \
     num_iterations=$num_iterations \
     search_steps=$search_steps \
-    name="Zap Q learning"
+    name="Zap Q Learning"
 
 python3 -m Experiments.TDExperiments.PastWorkEvaluation \
     hydra.run.dir="${directory}/Speedy Agent" \
@@ -58,7 +58,7 @@ python3 -m Experiments.TDExperiments.PastWorkEvaluation \
     num_iterations=$num_iterations \
     search_steps=$search_steps \
     debug=$debug \
-    name="Speedy Q learning"
+    name="Speedy Q Learning"
 
 for meta_lr in 1e-5 1e-6 1e-7
 do
