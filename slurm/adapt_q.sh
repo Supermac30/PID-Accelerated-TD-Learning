@@ -15,13 +15,13 @@ env="cliff walk"
 gamma=0.99
 repeat=20
 seed=$RANDOM
-num_iterations=25000
-search_steps=25000
+num_iterations=50000
+search_steps=50000
 directory=outputs/q_adaptation_experiment/$env/$current_time
 echo "Saving to $directory"
 mkdir -p "$directory"
 
-recompute_optimal=False
+recompute_optimal=True
 compute_optimal=True
 get_optimal=True
 debug=False
