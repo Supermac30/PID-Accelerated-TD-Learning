@@ -11,12 +11,12 @@
 
 source slurm/setup.sh
 current_time=$(date "+%Y.%m.%d/%H.%M.%S")
-env="cliff walk"
+env="chain walk"
 gamma=0.99
 repeat=20
 seed=$RANDOM
-num_iterations=50000
-search_steps=50000
+num_iterations=10000
+search_steps=10000
 directory=outputs/q_adaptation_experiment/$env/$current_time
 echo "Saving to $directory"
 mkdir -p "$directory"

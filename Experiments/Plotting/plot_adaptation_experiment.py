@@ -23,9 +23,8 @@ def create_plots(cfg):
     x_axis = lambda n: np.arange(0, sep * len(n), sep)
 
     files = os.listdir(f"{cfg['save_dir']}/npy/mean")[::-1]
-    # Change the order of files, so that if a file starts with 'TD' or with 'Q learning', it comes first
-    files = sorted(files, key=lambda x: (not x.startswith('TD'), not x.startswith('Q Learning')))
-
+    # Order files so that a file starting with "TD" or "Q Learning" or "Zap Q Learning" or "Speedy Q Learning" or "TIDBD" goes after anything else
+    files = sorted(files, key=lambda x: (not x.startswith("TD") and not x.startswith("Q Learning") and not x.startswith("Zap Q Learning") and not x.startswith("Speedy Q Learning") and not x.startswith("TIDBD"), x))
     # Iterate through all of the files in the npy folder
     for file in files:
         name = file[:-4]
