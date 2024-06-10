@@ -89,6 +89,8 @@ def build_adaptive_agent(agent_name, env_name, env, policy, meta_lr, lambd, dela
 
     if agent_name == "planner":
         return build_planner(*params)
+    elif agent_name == "Q planner":
+        return build_Q_planner(*params)
     elif agent_name == "no gain adapter":
         return build_no_gain_adapter(*params)
     elif agent_name == "log space planner":
@@ -436,6 +438,25 @@ def build_planner(env, policy, meta_lr, lambd, learning_rates, gamma, delay, kp,
     gain_updater = ExactUpdater(transition, reward, False, lambd, epsilon)
 
     return AdaptivePlannerAgent(
+        reward,
+        transition,
+        gain_updater,
+        learning_rates,
+        meta_lr,
+        env,
+        policy,
+        gamma,
+        delay,
+        kp, kd, ki, alpha, beta
+    )
+
+def build_Q_planner(env, policy, meta_lr, lambd, learning_rates, gamma, delay, kp, kd, ki, alpha, beta, epsilon):
+    reward = env.build_policy_reward_vector(policy)
+    transition = env.build_policy_probability_transition_kernel(policy)
+
+    gain_updater = AdaptiveQAgents.ExactUpdater(transition, reward, False, lambd, epsilon)
+
+    return AdaptiveQAgents.AdaptivePlannerAgent(
         reward,
         transition,
         gain_updater,

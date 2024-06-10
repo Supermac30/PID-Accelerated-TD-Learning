@@ -3,20 +3,20 @@
 #SBATCH -p cpu
 #SBATCH --cpus-per-task=64
 #SBATCH --tasks-per-node=1
-#SBATCH --time=10:00:00
+#SBATCH --time=20:00:00
 #SBATCH --mem=8GB
 #SBATCH --job-name=adapt_q
 #SBATCH --output=slurm/logs/%x_%j.out
 #SBATCH --error=slurm/errors/%x_%j.err
 
 source slurm/setup.sh
-current_time=$(date "+%Y.%m.%d/%H.%M.%S")
-env="chain walk"
+current_time=$(date "+%Y.%m.%d/%H.%M.%S.%3N")
+env="zap MDP"
 gamma=0.99
 repeat=20
 seed=$RANDOM
-num_iterations=10000
-search_steps=10000
+num_iterations=200000
+search_steps=200000
 directory=outputs/q_adaptation_experiment/$env/$current_time
 echo "Saving to $directory"
 mkdir -p "$directory"
@@ -60,9 +60,9 @@ python3 -m Experiments.TDExperiments.PastWorkEvaluation \
     debug=$debug \
     name="Speedy Q Learning"
 
-for meta_lr in 1e-5 1e-6 1e-7
+for meta_lr in 1e-7
 do
-for epsilon in 1e-1 1e-2
+for epsilon in 1e-3
 do
 python3 -m Experiments.AdaptationExperiments.AdaptiveQAgentExperiment --multirun \
     hydra.mode=MULTIRUN \
@@ -70,9 +70,9 @@ python3 -m Experiments.AdaptationExperiments.AdaptiveQAgentExperiment --multirun
     hydra.sweep.dir="$directory" \
     seed=$seed \
     save_dir="$directory" \
-    meta_lr_p=$meta_lr \
-    meta_lr_I=$meta_lr \
-    meta_lr_d=$meta_lr \
+    meta_lr_p=8e-9 \
+    meta_lr_I=8e-9 \
+    meta_lr_d=8e-9 \
     alpha=0.95 \
     beta=0.05 \
     epsilon=$epsilon \
@@ -87,7 +87,7 @@ python3 -m Experiments.AdaptationExperiments.AdaptiveQAgentExperiment --multirun
     compute_optimal=$compute_optimal \
     get_optimal=$get_optimal \
     debug=$debug \
-    name="Gain Adaptation $meta_lr $epsilon"
+    name="Gain Adaptation"
 done
 done
 
@@ -107,6 +107,7 @@ python3 -m Experiments.QExperiments.PIDQLearning \
     recompute_optimal=$recompute_optimal \
     compute_optimal=$compute_optimal \
     get_optimal=$get_optimal \
+    debug=$debug \
     name="Q Learning"
 
 python3 -m Experiments.Plotting.plot_adaptation_experiment \

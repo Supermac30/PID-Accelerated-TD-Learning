@@ -20,23 +20,15 @@ default_rates = (0.1, 100, 0.1, 1, 0, float("inf"))
 exhaustive_learning_rates = [
     {
         1: {10, 50, 100, 500, 1000, 10000},
-        0.75: {10, 50, 100, 500, 1000},
-        0.5: {10, 50, 100, 500, 1000},
-        0.25: {10, 50, 100},
-        0.1: {10, 50, 100}
     },
     {
-        1: {float("inf"), 100},
-        0.5: {float("inf")},
-        0.1: {float("inf")},
+        0.25: {float("inf"), 10, 100, 500, 1000, 10000},
+        # 0.001: {float("inf")},
         0: {float("inf")},
     },
     {
-        1: {float("inf"), 100},
-        0.5: {float("inf")},
-        0.25: {float("inf")},
-        0.1: {float("inf")},
-        0.01: {float("inf")},
+        0.25: {float("inf"), 10, 100, 500, 1000, 10000},
+        #0.001: {float("inf")},
         0: {float("inf")},
     }
 ]
@@ -268,9 +260,9 @@ def run_past_work_search(agent_description, env_name, seed, norm, gamma, search_
         learning_rates1 = dummy
         learning_rates2 = dummy
     elif agent_description == "zap Q learning":
-        learning_rates0 = {1: {1}}
-        learning_rates1 = {1: {0}, 0.85: {0}}  # The exponent term, with dummy extras
-        learning_rates2 = {1: {1}}
+        learning_rates0 = {i / 100: {0} for i in range(50, 105, 5)}
+        learning_rates1 = dummy
+        learning_rates2 = dummy
 
     else:
         raise ValueError(f"Unknown agent description: {agent_description}")
@@ -328,7 +320,7 @@ def run_search(agent, norm, goal, search_steps, learning_rates, update_I_rates, 
         learning_rates,
         update_I_rates,
         update_D_rates,
-        True,
+        verbose=True,
         repeat=20
     )
     if rates is None:

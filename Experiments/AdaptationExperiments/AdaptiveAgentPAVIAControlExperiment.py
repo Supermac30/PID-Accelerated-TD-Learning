@@ -7,10 +7,10 @@ from Experiments.ExperimentHelpers import *
 def adaptive_agent_experiment(cfg):
     """Visualize the behavior of adaptation without learning rates."""
     seed = pick_seed(cfg['seed'])
-    agent, env, policy = build_adaptive_agent_and_env(cfg['agent_name'], cfg['env'], cfg['meta_lr'], 0, 1, seed=seed, gamma=cfg['gamma'])
+    agent, env, _ = build_adaptive_agent_and_env(cfg['agent_name'], cfg['env'], cfg['meta_lr'], 0, 1, seed=seed, gamma=cfg['gamma'])
 
-    V_pi = find_Vpi(env, policy, cfg['gamma'])
-    test_function = build_test_function(cfg['norm'], V_pi)
+    V_star = find_Vstar(env, cfg['gamma'])
+    test_function = build_test_function(cfg['norm'], V_star)
 
     all_histories = []
     all_gain_histories = []

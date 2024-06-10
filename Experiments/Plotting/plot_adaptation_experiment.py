@@ -5,6 +5,34 @@ import hydra
 
 from Experiments.ExperimentHelpers import *
 
+def sorting_mechanism(files):
+    """Order files so that a file starting with "TD" or "Q Learning" or "Zap Q Learning" or "Speedy Q Learning" or "TIDBD" goes after anything else,
+    and sort those files in the corresponding order they appear afterwards.
+    """
+    td_files = []
+    q_learning_files = []
+    zap_q_learning_files = []
+    speedy_q_learning_files = []
+    tidbd_files = []
+    other_files = []
+
+    for file in files:
+        if file.startswith("TD"):
+            td_files.append(file)
+        elif file.startswith("Q Learning"):
+            q_learning_files.append(file)
+        elif file.startswith("Zap Q Learning"):
+            zap_q_learning_files.append(file)
+        elif file.startswith("Speedy Q Learning"):
+            speedy_q_learning_files.append(file)
+        elif file.startswith("TIDBD"):
+            tidbd_files.append(file)
+        else:
+            other_files.append(file)
+
+    return other_files + td_files + q_learning_files + zap_q_learning_files + speedy_q_learning_files + tidbd_files
+
+
 @hydra.main(version_base=None, config_path="../../config", config_name="plot")
 def create_plots(cfg):
     """Plot all of the data in the npy folder from the runs of the adaptive agent."""
@@ -23,8 +51,7 @@ def create_plots(cfg):
     x_axis = lambda n: np.arange(0, sep * len(n), sep)
 
     files = os.listdir(f"{cfg['save_dir']}/npy/mean")[::-1]
-    # Order files so that a file starting with "TD" or "Q Learning" or "Zap Q Learning" or "Speedy Q Learning" or "TIDBD" goes after anything else
-    files = sorted(files, key=lambda x: (not x.startswith("TD") and not x.startswith("Q Learning") and not x.startswith("Zap Q Learning") and not x.startswith("Speedy Q Learning") and not x.startswith("TIDBD"), x))
+    files = sorting_mechanism(files)
     # Iterate through all of the files in the npy folder
     for file in files:
         name = file[:-4]

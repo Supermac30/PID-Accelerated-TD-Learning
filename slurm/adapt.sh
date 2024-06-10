@@ -3,7 +3,7 @@
 #SBATCH -p cpu
 #SBATCH --cpus-per-task=64
 #SBATCH --tasks-per-node=1
-#SBATCH --time=1:00:00
+#SBATCH --time=10:00:00
 #SBATCH --mem=8GB
 #SBATCH --job-name=adapt
 #SBATCH --output=slurm/logs/%x_%j.out
@@ -15,12 +15,12 @@ source slurm/setup.sh
 
 current_time=$(date "+%Y.%m.%d/%H.%M.%S")
 env="chain walk"
-gamma=0.99
+gamma=0.999
 repeat=20
 seed=$RANDOM
-num_iterations=5000
-search_steps=5000
-recompute_optimal=False
+num_iterations=25000
+search_steps=25000
+recompute_optimal=True
 compute_optimal=True  # False when we need to debug, so there is no multiprocessing
 get_optimal=True  # False when we need to debug with a specific learning rate
 debug=False
@@ -46,9 +46,9 @@ mkdir -p "$directory"
 #     is_q=False \
 #     name="TIDBD"
 
-for meta_lr in 1e-3 1e-4 1e-5
+for meta_lr in 5e-8
 do
-for epsilon in 1e-1 1e-2
+for epsilon in 1e-3
 do
 python3 -m Experiments.AdaptationExperiments.AdaptiveAgentExperiment --multirun \
     hydra.mode=MULTIRUN \
@@ -70,7 +70,7 @@ python3 -m Experiments.AdaptationExperiments.AdaptiveAgentExperiment --multirun 
     debug=$debug \
     num_iterations=$num_iterations \
     agent_name="semi gradient updater" \
-    name="Gain Adaptation $meta_lr $epsilon"
+    name="Gain Adaptation"
 done
 done
 

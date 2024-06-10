@@ -125,7 +125,7 @@ def get_optimal_TD(env, policy, gamma):
         1,0,0,0,0,
         gamma
     )
-    oracle.value_iteration(num_iterations=10000)
+    oracle.value_iteration(num_iterations=100000)
     return oracle
 
 
@@ -139,7 +139,7 @@ def get_optimal_TD_Q(env, policy, gamma):
         gamma,
         policy.policy
     )
-    oracle.value_iteration(num_iterations=10000)
+    oracle.value_iteration(num_iterations=100000)
     return oracle
 
 
@@ -152,5 +152,5 @@ def get_optimal_Q(env, gamma):
         1,0,0,0,0,
         gamma
     )
-    oracle.value_iteration(num_iterations=10000)
+    oracle.value_iteration(num_iterations=100000)
     return oracle

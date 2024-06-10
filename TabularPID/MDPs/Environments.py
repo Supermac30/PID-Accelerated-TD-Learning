@@ -86,6 +86,69 @@ class Environment:
         return np.einsum('ijk,ik->ij', self.build_probability_transition_kernel(), policy.get_policy())
 
 
+class ZapMDP(Environment):
+    def __init__(self, seed=-1):
+        super().__init__(6, 18, 1, seed)
+        self.actions = [
+            (0, 0),
+            (1, 1),
+            (2, 2),
+            (3, 3),
+            (4, 4),
+            (5, 5),
+            (0, 4), (4, 0),
+            (4, 5), (5, 4),
+            (3, 4), (4, 3),
+            (2, 3), (3, 2),
+            (1, 3), (3, 1),
+            (1, 5), (5, 1)
+        ]
+    
+    def take_action(self, action):
+        if action > 17 or action < 0:
+            raise InvalidAction(action)
+        
+        start, end = self.actions[action]
+
+        next_state = self.current_state
+        if start == self.current_state and self.prg.random() < 0.8:
+            next_state = end
+        
+        if start == self.current_state and end == self.current_state:
+            reward = 0
+        elif action == 10:
+            reward = -100
+        elif start == self.current_state and end == 5:
+            reward = 100
+        else:
+            reward = -5
+
+        return next_state, reward
+    
+    def build_reward_matrix(self):
+        rewards = np.ones((self.num_states, self.num_actions)) * -5
+        for i in range(6):
+            rewards[i, i] = 0
+            rewards[i, 10] = -100
+
+        rewards[4, 8] = 100
+        rewards[1, 16] = 100
+
+        return rewards
+    
+    def build_probability_transition_kernel(self):
+        transitions = np.zeros((self.num_states, self.num_states, self.num_actions), dtype=float)
+        for a in range(self.num_actions):
+            start, end = self.actions[a]
+            transitions[start, end, a] = 0.8
+            transitions[start, start, a] = 0.2
+            for s in range(self.num_states):
+                if s != start:
+                    transitions[s, s, a] = 1
+        
+        return transitions
+
+
 class GridWorld(Environment):
     def __init__(self, square_size, seed=-1):
         self.square_size = square_size

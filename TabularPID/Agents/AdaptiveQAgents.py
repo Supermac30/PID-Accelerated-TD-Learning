@@ -251,7 +251,7 @@ class AdaptivePlannerAgent(AbstractAdaptiveAgent):
         """Return the bellman residual"""
         max_future_reward = 0
         for i in range(self.num_actions):
-            expected_reward = sum(self.P[i, :, j] * self.Q[j] for j in range(self.num_states))
+            expected_reward = sum(self.transition[i, :, j] * self.Q[j] for j in range(self.num_states))
             max_future_reward = max(max_future_reward, expected_reward)
         return self.R[0] + self.gamma * max_future_reward - self.Q
 
@@ -302,10 +302,8 @@ class AbstractGainUpdater():
         current_state, action, reward, next_state = self.agent.current_state, self.agent.action, self.agent.reward, self.agent.next_state
         if is_previous:
             Q_vals = self.agent.previous_Q
-            Qp_vals = self.agent.previous_Qp
         else:
             Q_vals = self.agent.Q
-            Qp_vals = self.agent.Qp
 
         if is_previous:
             best_action = np.argmax(self.agent.previous_Q[next_state])
@@ -395,6 +393,72 @@ class SemiGradientUpdater(AbstractGainUpdater):
         # Save the figure
         fig.savefig("BR_plot.png")
         plt.show()
+
+
+class AbstractOriginalCostUpdater(AbstractGainUpdater):
+    def __init__(self, scale_by_lr, lambd=0, epsilon=0.1):
+        super().__init__(lambd, epsilon)
+        self.scale_by_lr = scale_by_lr
+        self.partial_br_kp = []
+        self.partial_br_ki = []
+        self.partial_br_kd = []
+        self.partial_br_alpha = []
+        self.partial_br_beta = []
+
+    def calculate_updated_values(self, intermediate=False):
+        if intermediate: return
+        partial_br_kp, partial_br_ki, partial_br_kd, partial_br_beta, BR_current, BR_previous = self.get_gradient_terms()
+
+        if self.scale_by_lr:
+            normalizer = 1
+        else:
+            normalizer = self.epsilon + BR_previous.T @ BR_previous
+
+        kp_grad = (BR_current.T @ partial_br_kp) / normalizer
+        ki_grad = (BR_current.T @ partial_br_ki) / normalizer
+        kd_grad = (BR_current.T @ partial_br_kd) / normalizer
+        beta_grad = (BR_current.T @ partial_br_beta) / normalizer
+        alpha_grad = self.ki * kp_grad
+
+        # Renormalize alpha and beta
+        # self.alpha, self.beta = self.alpha / (self.alpha + self.beta), self.beta / (self.alpha + self.beta)
+        if self.scale_by_lr:
+            lr = self.agent.lr * self.meta_lr
+        else:
+            lr = self.meta_lr
+        self.kp = (1 - self.lambd) * self.kp - lr * kp_grad
+        self.ki = (1 - self.lambd) * self.ki - lr * ki_grad
+        self.kd = (1 - self.lambd) * self.kd - lr * kd_grad
+        self.alpha = (1 - self.lambd) * self.alpha - lr * alpha_grad
+        self.beta = (1 - self.lambd) * self.beta - lr * beta_grad
+
+    def get_gradient_terms():
+        raise NotImplementedError
+
+
+class ExactUpdater(AbstractOriginalCostUpdater):
+    def __init__(self, transition, reward, scale, lambd=0, epsilon=0.1):
+        super().__init__(scale, lambd, epsilon)
+        self.transition = transition.astype(np.float64)
+        self.reward = reward.reshape(-1, 1).astype(np.float64)
+
+    def get_gradient_terms(self):
+        Q, Qp, Qpp = self.agent.Q, self.agent.previous_Q, self.agent.previous_Qp
+        z, zp = self.agent.z, self.agent.previous_z
+
+        BR = lambda n: self.reward + self.gamma * np.max(n, axis=1, keepdims=True) - n
+
+        BR_current = BR(Q)
+        BR_previous = BR(Qp)
+
+        mult = lambda n: (self.gamma * self.transition @ n) - n
+
+        partial_br_kp = mult(BR_previous)
+        partial_br_kd = mult(Qp - Qpp)
+        partial_br_ki = mult(z)
+        partial_br_beta = self.ki * mult(zp)
+
+        return partial_br_kp, partial_br_ki, partial_br_kd, partial_br_beta, BR_current, BR_previous
 
 
 class DiagonalSemiGradient(AbstractGainUpdater):

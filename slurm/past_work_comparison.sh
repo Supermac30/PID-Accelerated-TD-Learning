@@ -28,6 +28,24 @@ compute_optimal=True
 get_optimal=True
 debug=False
 
+python3 -m Experiments.TDExperiments.SoftTDPolicyEvaluation \
+    hydra.run.dir="$directory/TD Agent" \
+    save_dir="$directory" \
+    seed=$seed \
+    search_steps=$search_steps \
+    recompute_optimal=$recompute_search \
+    compute_optimal=$compute_optimal \
+    get_optimal=$get_optimal \
+    kp=1 \
+    ki=0 \
+    kd=0 \
+    gamma=$gamma \
+    env="$env" \
+    repeat=$repeat \
+    debug=$debug \
+    num_iterations=$num_iterations \
+    name="TD"
+
 python3 -m Experiments.TDExperiments.PastWorkEvaluation \
     hydra.run.dir="${directory}/TD Agent" \
     save_dir="$directory" \
@@ -69,5 +87,7 @@ python3 -m Experiments.Plotting.plot_adaptation_experiment \
     hydra.run.dir="$directory" \
     save_dir="$directory" \
     env="$env" \
-    hydra/job_logging=disabled \
-    norm=$norm
+    is_q=False \
+    plot_best=False \
+    norm=$norm \
+    hydra/job_logging=disabled

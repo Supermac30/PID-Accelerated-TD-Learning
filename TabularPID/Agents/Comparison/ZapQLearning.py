@@ -16,8 +16,8 @@ class ZapQLearning(Agent):
         return np.eye(self.num_states * self.num_actions)[a * self.num_actions + b].reshape((-1, 1))
 
     def set_learning_rates(self, a, b, c, d, e, f):
-        self.gamma_lr = lambda n: 1 / n
-        self.alpha_lr = lambda n: 1 / n
+        self.gamma_lr = lambda n: 1/n
+        self.alpha_lr = lambda n: n ** (-a) 
 
     def estimate_value_function(self, follow_trajectory=True, num_iterations=1000, test_function=None, reset=True, reset_environment=True, stop_if_diverging=True):
         """Estimate the value function of the current policy using the TIDBD algorithm

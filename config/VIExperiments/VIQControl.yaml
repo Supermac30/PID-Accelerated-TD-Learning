@@ -11,6 +11,7 @@ norm: fro   # fro or nuc
 num_iterations: 1000
 
 save_dir: ${oc.env:OUTPUT_DIR,./outputs}/${hydra.job.config_name}/${now:%Y-%m-%d}/${now:%H-%M-%S}
+name: fine-tuning
 
 seed: -1
 hydra:

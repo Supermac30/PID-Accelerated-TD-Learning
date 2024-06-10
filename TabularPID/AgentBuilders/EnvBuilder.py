@@ -30,6 +30,8 @@ def get_env_policy(name, seed):
         return grid_world(seed)
     elif name == "identity":
         return identity(seed)
+    elif name == "zap MDP":
+        return zap_mdp(seed)
     elif name[:6] == "normal":
         variance = float(name[7:])
         return normal_env(variance, seed)
@@ -83,6 +85,11 @@ def grid_world(seed):
         5, seed
     )
     return env, Policy(4, 5 * 5, env.prg, None)
+
+def zap_mdp(seed):
+    """Return the MDP used in the Zap Q-learning paper"""
+    env = ZapMDP(seed)
+    return env, Policy(env.num_actions, env.num_states, env.prg, None)
 
 def garnet_problem(num_states, num_actions, bP, bR, seed):
     """Return the Garnet Environment with the policy that chooses the first move at each iteration"""
