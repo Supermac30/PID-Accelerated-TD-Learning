@@ -19,7 +19,7 @@ directory=$save_dir/$current_time
 echo "Saving to $directory"
 mkdir -p "$directory"
 
-gamma=0.999
+gamma=0.99
 
 recompute_optimal=False
 compute_optimal=True

@@ -5,6 +5,7 @@ from Experiments.ExperimentHelpers import find_Vpi
 import numpy as np
 
 from TabularPID.MDPs.Policy import Policy
+from TabularPID.MDPs.MDP import Control_Q
 
 def learning_rate_function(alpha, N):
     """Return the learning rate function alpha(k) parameterized by alpha and N.
@@ -238,6 +239,18 @@ class PID_Q_TD(Agent):
         self.beta = beta
         self.reset()
 
+        self.oracle = Control_Q(
+            environment.num_states,
+            environment.num_actions,
+            environment.build_reward_matrix(),
+            environment.build_probability_transition_kernel(),
+            1,0,0,0,0,
+            gamma
+        )
+    
+    def true_BR(self):
+        return self.oracle.bellman_operator(self.Q)
+
     def reset(self, reset_environment=True):
         """Reset parameters to be able to run a new test."""
         self.Q, self.Qp = (np.zeros((self.num_states, self.num_actions)) for _ in range(2))
@@ -284,7 +297,7 @@ class PID_Q_TD(Agent):
             self.Q[current_state][action] = self.V[current_state][action] + learning_rate * update
 
             if test_function is not None:
-                history[k] = test_function(self.V, self.Vp, BR)
+                history[k] = test_function(self.V, self.Vp, self.true_BR())
                 if stop_if_diverging and history[k] > 10 * history[0]:
                     # If we are too large, stop learning
                     history[k:] = float('inf')

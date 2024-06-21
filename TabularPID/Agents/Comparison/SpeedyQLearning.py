@@ -1,12 +1,26 @@
 from TabularPID.Agents.Agents import Agent, learning_rate_function
 import numpy as np
 
+from TabularPID.MDPs.MDP import Control_Q
+
 class SpeedyQLearning(Agent):
     def __init__(self, learning_rate, environment, policy, gamma):
         super().__init__(environment, policy, gamma)
         self.learning_rate = learning_rate
         self.previous_Q = np.zeros((self.num_states, self.num_actions))
         self.current_Q = np.zeros((self.num_states, self.num_actions))
+
+        self.oracle = Control_Q(
+            environment.num_states,
+            environment.num_actions,
+            environment.build_reward_matrix(),
+            environment.build_probability_transition_kernel(),
+            1,0,0,0,0,
+            gamma
+        )
+    
+    def true_BR(self):
+        return self.oracle.bellman_operator(self.current_Q)
 
     def set_learning_rates(self, a, b, c, d, e, f):
         self.learning_rate = learning_rate_function(a, b)
@@ -31,14 +45,14 @@ class SpeedyQLearning(Agent):
             previous_bellman = reward + self.gamma * max(self.previous_Q[next_state])
             current_bellman = reward + self.gamma * max(self.current_Q[next_state])
 
-            learning_rate = self.learning_rate(frequency[current_state])
+            learning_rate = self.learning_rate(k + 1)
 
             self.previous_Q = self.current_Q.copy()
             self.current_Q[current_state, action] = (1 - learning_rate) * self.current_Q[current_state, action] + learning_rate * previous_bellman
             self.current_Q[current_state, action] += (1 - learning_rate) * (current_bellman - previous_bellman)
 
             if test_function is not None:
-                history[k] = test_function(self.current_Q, None, current_bellman - self.current_Q[current_state, action])
+                history[k] = test_function(self.current_Q, None, self.true_BR())
                 if stop_if_diverging and history[k] > 10 * history[0]:
                     # If we are too large, stop learning
                     history[k:] = float('inf')

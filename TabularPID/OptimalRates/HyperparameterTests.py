@@ -35,7 +35,7 @@ exhaustive_learning_rates = [
 
 
 def get_optimal_past_work_rates(agent_description, env_name, gamma, recompute=False, seed=-1, norm=1, search_steps=10000):
-    optimal_rates = get_stored_optimal_rate((agent_description, gamma), env_name, gamma)
+    optimal_rates = get_stored_optimal_rate((agent_description, 1, 0, 0, 0, 0), env_name, gamma)
     if optimal_rates is None or recompute:
         seed = pick_seed(seed)
         optimal_rates = run_past_work_search(agent_description, env_name, seed, norm, gamma, search_steps)

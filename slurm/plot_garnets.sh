@@ -16,4 +16,5 @@ python3 -m Experiments.Plotting.average_garnet_plot \
     save_dir="$1" \
     repeat="$2" \
     is_q="$3" \
+    norm="$4" \
     hydra/job_logging=disabled

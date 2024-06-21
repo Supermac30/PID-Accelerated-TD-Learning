@@ -14,12 +14,12 @@ ulimit -n 2048
 source slurm/setup.sh
 
 current_time=$(date "+%Y.%m.%d/%H.%M.%S")
-env="chain walk"
+env="cliff walk"
 gamma=0.999
 repeat=20
 seed=$RANDOM
-num_iterations=25000
-search_steps=25000
+num_iterations=20000
+search_steps=20000
 recompute_optimal=True
 compute_optimal=True  # False when we need to debug, so there is no multiprocessing
 get_optimal=True  # False when we need to debug with a specific learning rate
@@ -46,9 +46,9 @@ mkdir -p "$directory"
 #     is_q=False \
 #     name="TIDBD"
 
-for meta_lr in 5e-8
+for meta_lr in 1e-7
 do
-for epsilon in 1e-3
+for epsilon in 1e-2
 do
 python3 -m Experiments.AdaptationExperiments.AdaptiveAgentExperiment --multirun \
     hydra.mode=MULTIRUN \

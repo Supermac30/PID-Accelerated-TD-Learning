@@ -88,7 +88,7 @@ class Environment:
 
 class ZapMDP(Environment):
     def __init__(self, seed=-1):
-        super().__init__(6, 18, 1, seed)
+        super().__init__(6, 18, 0, seed)
         self.actions = [
             (0, 0),
             (1, 1),
@@ -114,7 +114,7 @@ class ZapMDP(Environment):
         if start == self.current_state and self.prg.random() < 0.8:
             next_state = end
         
-        if start == self.current_state and end == self.current_state:
+        if start == self.current_state and end == self.current_state and start != 5:
             reward = 0
         elif action == 10:
             reward = -100
@@ -123,14 +123,17 @@ class ZapMDP(Environment):
         else:
             reward = -5
 
+        self.current_state = next_state
+
         return next_state, reward
     
     def build_reward_matrix(self):
         rewards = np.ones((self.num_states, self.num_actions)) * -5
-        for i in range(6):
+        for i in range(self.num_states):
             rewards[i, i] = 0
             rewards[i, 10] = -100
 
+        rewards[5, 5] = 100
         rewards[4, 8] = 100
         rewards[1, 16] = 100
 
@@ -140,8 +143,11 @@ class ZapMDP(Environment):
         transitions = np.zeros((self.num_states, self.num_states, self.num_actions), dtype=float)
         for a in range(self.num_actions):
             start, end = self.actions[a]
-            transitions[start, end, a] = 0.8
-            transitions[start, start, a] = 0.2
+            if start == end:
+                transitions[start, end, a] = 1
+            else:
+                transitions[start, end, a] = 0.8
+                transitions[start, start, a] = 0.2
             for s in range(self.num_states):
                 if s != start:
                     transitions[s, s, a] = 1
@@ -179,7 +185,9 @@ class GridWorld(Environment):
             raise InvalidAction(action)
         
         if self.current_state in self.teleport_rules:
-            return self.teleport_rules[self.current_state]
+            next_state, reward = self.teleport_rules[self.current_state]
+            self.current_state = next_state
+            return next_state, reward
         
         x, y = self.unindex(self.current_state)
         
@@ -193,6 +201,7 @@ class GridWorld(Environment):
             y += 1
 
         next_state = self.index(x, y)
+        self.current_state = next_state
         
         if x < 0 or y < 0 or x >= self.square_size or y >= self.square_size:
             return next_state, -1

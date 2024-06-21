@@ -31,6 +31,9 @@ def build_test_function(norm, V_pi):
     """
     if norm == "inf":
         return lambda V, Vp, BR: np.max(np.abs(V - V_pi))
+
+    elif norm == "BR":
+        return lambda V, Vp, BR: np.max(BR)
     
     elif type(norm) == type("") and norm[:4] == "diff":
         # Check if the norm is of the form diff <num-1> <num-2> or if is of the form diff <num>
@@ -199,35 +202,64 @@ def save_array(nparr, name, normalize=False, directory="", subdir=""):
         np.savetxt(f"{directory}/txt/" + name + ".txt", nparr)
 
 
-def create_label(ax, norm, normalize, is_q, is_star=False):
+def create_label(ax, norm, normalize, is_q, is_star=False, fontsize=None):
     if is_q:
-        current = 'Q_k'
+        current = 'Q_t'
         if is_star:
             goal = 'Q^*'
         else:
             goal = "Q^\pi"
     else:
-        current = 'V_k'
+        current = 'V_t'
         if is_star:
             goal = 'V^*'
         else:
             goal = 'V^\pi'
     if norm == 'inf':
         if normalize:
-            ax.set_ylabel(f'Normalized $||{current} - {goal}||_{{\infty}}$')
+            if fontsize is None:
+                ax.set_ylabel(f'Normalized $||{current} - {goal}||_{{\infty}}$')
+            else:
+                ax.set_ylabel(f'Normalized $||{current} - {goal}||_{{\infty}}$', fontsize=fontsize)
         else:
-            ax.set_ylabel(f'$||{current} - {goal}||_{{\infty}}$')
+            if fontsize is None:
+                ax.set_ylabel(f'$||{current} - {goal}||_{{\infty}}$')
+            else:
+                ax.set_ylabel(f'$||{current} - {goal}||_{{\infty}}$', fontsize=fontsize)
     if norm == 'fro':
         norm = 'F'
+    if norm == "BR":
+        if normalize:
+            if fontsize is None:
+                ax.set_ylabel(f'Normalized Bellman Residual')
+            else:
+                ax.set_ylabel(f'Normalized Bellman Residual', fontsize=fontsize)
+        else:
+            if fontsize is None:
+                ax.set_ylabel(f'Bellman Residual')
+            else:
+                ax.set_ylabel(f'Bellman Residual', fontsize=fontsize)
     if type(norm) == str and norm[:4] == 'diff':
         state = norm[5:]
         if normalize:
-            ax.set_ylabel(f'Normalized ${current}[{state}] - {goal}[{state}]$')
+            if fontsize is None:
+                ax.set_ylabel(f'Normalized ${current}[{state}] - {goal}[{state}]$')
+            else:
+                ax.set_ylabel(f'Normalized ${current}[{state}] - {goal}[{state}]$', fontsize=fontsize)
         else:
-            ax.set_ylabel(f'${current}[{state}] - {goal}[{state}]$')
+            if fontsize is None:
+                ax.set_ylabel(f'${current}[{state}] - {goal}[{state}]$')
+            else:
+                ax.set_ylabel(f'${current}[{state}] - {goal}[{state}]$', fontsize=fontsize)
         ax.axhline(y=0, color='k', linestyle='--')
     else:
         if normalize:
-            ax.set_ylabel(f'Normalized $||{current} - {goal}||_{{{norm}}}$')
+            if fontsize is None:
+                ax.set_ylabel(f'Normalized $||{current} - {goal}||_{{{norm}}}$')
+            else:
+                ax.set_ylabel(f'Normalized $||{current} - {goal}||_{{{norm}}}$', fontsize=fontsize)
         else:
-            ax.set_ylabel(f'$||{current} - {goal}||_{{{norm}}}$')
+            if fontsize is None:
+                ax.set_ylabel(f'$||{current} - {goal}||_{{{norm}}}$')
+            else:
+                ax.set_ylabel(f'$||{current} - {goal}||_{{{norm}}}$', fontsize=fontsize)
