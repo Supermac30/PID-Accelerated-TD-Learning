@@ -93,7 +93,7 @@ def find_optimal_learning_rates(agent, value_function_estimator, learning_rates=
         return results
 
     # Don't show info logging
-    logging.getLogger().setLevel(logging.WARNING)
+    # logging.getLogger().setLevel(logging.WARNING)
 
     parameter_combinations = []
     for alpha, beta, gamma in itertools.product(learning_rates, update_I_rates, update_D_rates):
@@ -206,13 +206,13 @@ def create_label(ax, norm, normalize, is_q, is_star=False, fontsize=None):
     if is_q:
         current = 'Q_t'
         if is_star:
-            goal = 'Q^*'
+            goal = 'Q*'
         else:
             goal = "Q^\pi"
     else:
         current = 'V_t'
         if is_star:
-            goal = 'V^*'
+            goal = 'V*'
         else:
             goal = 'V^\pi'
     if norm == 'inf':

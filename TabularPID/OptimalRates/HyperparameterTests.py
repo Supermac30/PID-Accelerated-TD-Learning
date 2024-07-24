@@ -263,6 +263,7 @@ def run_past_work_search(agent_description, env_name, seed, norm, gamma, search_
         learning_rates0 = {i / 100: {0} for i in range(50, 105, 5)}
         learning_rates1 = dummy
         learning_rates2 = dummy
+        return (0.8, 0, 0, 0, 0, 0)
 
     else:
         raise ValueError(f"Unknown agent description: {agent_description}")

@@ -19,7 +19,8 @@ class ZapQLearning(Agent):
         )
     
     def true_BR(self):
-        return self.oracle.bellman_operator(self.Q.reshape((self.num_states, self.num_actions)))
+        Q = self.Q.reshape((self.num_states, self.num_actions))
+        return self.oracle.bellman_operator(Q) - Q
 
     def unit_mat(self, a, b):
         """Create a vector in R^(n * m) indexed by (state, action) pairs,

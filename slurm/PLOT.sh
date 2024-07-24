@@ -11,11 +11,11 @@
 
 source slurm/setup.sh
 
-directory="/h/bedaywim/PID-Accelerated-TD-Learning/outputs/q_adaptation_experiment/cliff walk/0.99 Final 2"
+directory="/h/bedaywim/PID-Accelerated-TD-Learning/outputs/q_adaptation_experiment/zap MDP/2024.07.22/03.03.04.529"
 is_q=True
 repeat=20
-norm=1
-env="cliff walk"
+norm="BR"
+env="zap MDP"
 
 python3 -m Experiments.Plotting.plot_adaptation_experiment \
     hydra.run.dir="$directory" \
@@ -25,4 +25,5 @@ python3 -m Experiments.Plotting.plot_adaptation_experiment \
     is_q=$is_q \
     norm=$norm \
     plot_best=False \
-    small_name=True
+    small_name=True \
+    is_star=$is_q

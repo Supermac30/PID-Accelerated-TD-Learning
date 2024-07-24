@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import hydra
 from matplotlib.ticker import FuncFormatter
+from math import sqrt
 
 from Experiments.ExperimentHelpers import *
 
@@ -14,12 +15,12 @@ def thousands_formatter(x, pos):
 def create_plots(cfg):
     """Plot all of the data in the npy folder from the runs of the adaptive agent."""
     # Create a figure that will be used to plot the history of each agent
-    titlefontsize = 13
-    plt.rc('font', size=12)          # controls default text sizes
-    plt.rc('axes', titlesize=12)     # fontsize of the axes title
-    plt.rc('axes', labelsize=12)     # fontsize of the x and y labels
-    plt.rc('xtick', labelsize=11)    # fontsize of the tick labels
-    plt.rc('ytick', labelsize=11)    # fontsize of the tick labels
+    titlefontsize = 15
+    plt.rc('font', size=14)          # controls default text sizes
+    plt.rc('axes', titlesize=14)     # fontsize of the axes title
+    plt.rc('axes', labelsize=14)     # fontsize of the x and y labels
+    plt.rc('xtick', labelsize=13)    # fontsize of the tick labels
+    plt.rc('ytick', labelsize=13)    # fontsize of the tick labels
 
     fig0 = plt.figure()
     ax0 = fig0.add_subplot()
@@ -78,7 +79,7 @@ def create_plots(cfg):
     else:
         ax0.plot(normalize(new_average_history), label="PID TD (Gain Adaptation)")
     
-    ax0.fill_between(np.arange(len(new_average_history)), normalize(new_average_history - new_standard_deviation), normalize(new_average_history + new_standard_deviation), alpha=0.2)
+    ax0.fill_between(np.arange(len(new_average_history)), normalize(new_average_history - new_standard_deviation / sqrt(80)), normalize(new_average_history + new_standard_deviation / sqrt(80)), alpha=0.2)
 
     # Plot the average history
     if cfg['is_q']:
@@ -86,7 +87,7 @@ def create_plots(cfg):
     else:
         ax0.plot(normalize(average_history), label="TD")
     
-    ax0.fill_between(np.arange(len(average_history)), normalize(average_history - standard_deviation), normalize(average_history + standard_deviation), alpha=0.2)
+    ax0.fill_between(np.arange(len(average_history)), normalize(average_history - standard_deviation / sqrt(80)), normalize(average_history + standard_deviation / sqrt(80)), alpha=0.2)
 
     ax0.set_title("Garnet", fontsize=titlefontsize)
     ax0.legend()
@@ -94,7 +95,7 @@ def create_plots(cfg):
     ax0.grid()
     ax0.xaxis.set_major_formatter(FuncFormatter(thousands_formatter))
     ax0.set_xlabel('Steps (t)')
-    create_label(ax0, cfg['norm'], cfg['normalize'], cfg['is_q'])
+    create_label(ax0, cfg['norm'], cfg['normalize'], cfg['is_q'], is_star=cfg['is_q'])
 
     fig0.savefig(f"{cfg['save_dir']}/adaptive_agent_{cfg['env']}.pdf")
     fig0.savefig(f"{cfg['save_dir']}/adaptive_agent_{cfg['env']}.png")

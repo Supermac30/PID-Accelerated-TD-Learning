@@ -20,7 +20,7 @@ class SpeedyQLearning(Agent):
         )
     
     def true_BR(self):
-        return self.oracle.bellman_operator(self.current_Q)
+        return self.oracle.bellman_operator(self.current_Q) - self.current_Q
 
     def set_learning_rates(self, a, b, c, d, e, f):
         self.learning_rate = learning_rate_function(a, b)

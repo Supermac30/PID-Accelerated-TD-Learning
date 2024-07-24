@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import hydra
 from matplotlib.ticker import FuncFormatter
+from math import sqrt
 
 from Experiments.ExperimentHelpers import *
 
@@ -21,7 +22,7 @@ def sorting_mechanism(files):
     tidbd_files = []
     other_files = []
 
-    dont_compare = True
+    dont_compare = False
 
     for file in files:
         if file.startswith("TD"):
@@ -53,12 +54,12 @@ def create_plots(cfg):
     min_history_file = None
     min_std_dev = None
 
-    titlefontsize = 13
-    plt.rc('font', size=12)          # controls default text sizes
-    plt.rc('axes', titlesize=12)     # fontsize of the axes title
-    plt.rc('axes', labelsize=12)     # fontsize of the x and y labels
-    plt.rc('xtick', labelsize=11)    # fontsize of the tick labels
-    plt.rc('ytick', labelsize=11)    # fontsize of the tick labels
+    titlefontsize = 15
+    plt.rc('font', size=14)          # controls default text sizes
+    plt.rc('axes', titlesize=14)     # fontsize of the axes title
+    plt.rc('axes', labelsize=14)     # fontsize of the x and y labels
+    plt.rc('xtick', labelsize=13)    # fontsize of the tick labels
+    plt.rc('ytick', labelsize=13)    # fontsize of the tick labels
 
     fig0 = plt.figure()
     ax0 = fig0.add_subplot()
@@ -66,7 +67,7 @@ def create_plots(cfg):
     max_y = 1
     sep = cfg['separation']
     x_axis = lambda n: np.arange(0, sep * len(n), sep)
-
+    
     files = os.listdir(f"{cfg['save_dir']}/npy/mean")[::-1]
     files = sorting_mechanism(files)
     # Iterate through all of the files in the npy folder
@@ -90,8 +91,8 @@ def create_plots(cfg):
             gain_values_kp = history[:, 0]
             std_dev_values_kp = std_dev[:, 0]
             ax1.plot(x_axis(gain_values_kp), gain_values_kp - 1, label='$\kappa_p - 1$', color='blue')
-            ax1.fill_between(x_axis(gain_values_kp), gain_values_kp - 1 - std_dev_values_kp, 
-                            gain_values_kp - 1 + std_dev_values_kp, alpha=0.2, color='lightblue')
+            ax1.fill_between(x_axis(gain_values_kp), gain_values_kp - 1 - std_dev_values_kp / sqrt(80), 
+                            gain_values_kp - 1 + std_dev_values_kp / sqrt(80), alpha=0.2, color='lightblue')
 
             # Reduce the title font size
             ax1.set_title('PID Gain Values Over Time', fontsize=titlefontsize)
@@ -100,15 +101,15 @@ def create_plots(cfg):
             gain_values_ki = history[:, 1]
             std_dev_values_ki = std_dev[:, 1]
             ax1.plot(x_axis(gain_values_ki), gain_values_ki, label='$\kappa_I$', color='orange')
-            ax1.fill_between(x_axis(gain_values_ki), gain_values_ki - std_dev_values_ki, 
-                            gain_values_ki + std_dev_values_ki, alpha=0.2, color='moccasin')
+            ax1.fill_between(x_axis(gain_values_ki), gain_values_ki - std_dev_values_ki / sqrt(80), 
+                            gain_values_ki + std_dev_values_ki / sqrt(80), alpha=0.2, color='moccasin')
 
             # Plot kd with its standard deviation on the right y-axis
             gain_values_kd = history[:, 2]
             std_dev_values_kd = std_dev[:, 2]
             ax1.plot(x_axis(gain_values_kd), gain_values_kd, label='$\kappa_d$', color='green')
-            ax1.fill_between(x_axis(gain_values_kd), gain_values_kd - std_dev_values_kd, 
-                            gain_values_kd + std_dev_values_kd, alpha=0.2, color='honeydew')
+            ax1.fill_between(x_axis(gain_values_kd), gain_values_kd - std_dev_values_kd / sqrt(80), 
+                            gain_values_kd + std_dev_values_kd / sqrt(80), alpha=0.2, color='honeydew')
 
             ax1.tick_params(axis='y', labelcolor='black')
 
@@ -162,9 +163,9 @@ def create_plots(cfg):
             if history[0] != 0:
                 std_dev /= history[0]
             max_value = np.max(normalize(history) + std_dev)
-            if max_value > 10:
-                # Don't plot diverging runs
-                continue
+            # if max_value > 10:
+            #     # Don't plot diverging runs
+            #     continue
             max_y = max(max_y, max_value)
             if name == "Gain Adaptation":
                 if cfg['is_q']:
@@ -172,9 +173,9 @@ def create_plots(cfg):
                 else:
                     plot_name = "PID TD (Gain Adaptation)"
             else:
-                plot_name = name.replace("Q Learning", "Q-Learning")
+                plot_name = name.replace("Q Learning", "Q-Learning").replace("kp=", "\kappa_p=").replace("ki=", "\kappa_I=").replace("kd=", "\kappa_d=")
             ax0.plot(x_axis(history), normalize(history), label=plot_name)
-            ax0.fill_between(x_axis(history), normalize(history) - std_dev, normalize(history) + std_dev, alpha=0.2)
+            ax0.fill_between(x_axis(history), normalize(history) - std_dev / sqrt(80), normalize(history) + std_dev / sqrt(80), alpha=0.2)
 
     if cfg['plot_best']:
         logging.info(f"Best final history: {min_history_file}")
@@ -188,7 +189,7 @@ def create_plots(cfg):
             min_std_dev /= min_history[0]
         max_y = max(max_y, np.max(normalize(min_history) + min_std_dev))
         ax0.plot(x_axis(min_history), normalize(min_history), label=r"{}".format(name))
-        ax0.fill_between(x_axis(min_history), normalize(min_history) - min_std_dev, normalize(min_history) + min_std_dev, alpha=0.2)
+        ax0.fill_between(x_axis(min_history), normalize(min_history) - min_std_dev / sqrt(80), normalize(min_history) + min_std_dev / sqrt(80), alpha=0.2)
 
     ax0.set_title(f"{cfg['env'].title()}", fontsize=titlefontsize)
     ax0.set_xlabel('Steps (t)')

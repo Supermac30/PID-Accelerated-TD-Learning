@@ -11,11 +11,11 @@
 
 source slurm/setup.sh
 current_time=$(date "+%Y.%m.%d/%H.%M.%S.%3N")
-env="chain walk"
-gamma=0.999
+env="zap MDP"
+gamma=0.99
 repeat=20
 seed=$RANDOM
-norm="fro"  # 1, 2, inf, fro, BR
+norm="BR"  # 1, 2, inf, fro, BR
 num_iterations=100000
 search_steps=100000
 directory=outputs/q_adaptation_experiment/$env/$current_time
@@ -122,5 +122,6 @@ python3 -m Experiments.Plotting.plot_adaptation_experiment \
     env="$env" \
     is_q=True \
     norm=$norm \
+    normalize=False \
     plot_best=False \
     small_name=True
