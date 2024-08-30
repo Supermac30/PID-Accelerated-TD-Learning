@@ -10,6 +10,7 @@ default_name: Not Specified
 is_q: False
 is_double_q: False
 is_star: False
+plot_time: True
 
 separation: 1
 small_name: False

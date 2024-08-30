@@ -11,11 +11,11 @@
 
 source slurm/setup.sh
 
-directory="/h/bedaywim/PID-Accelerated-TD-Learning/outputs/q_adaptation_experiment/zap MDP/2024.07.22/03.03.04.529"
+directory="outputs/q_adaptation_experiment/chain walk/Final Result 0.999"
 is_q=True
 repeat=20
-norm="BR"
-env="zap MDP"
+norm="fro"
+env="chain walk"
 
 python3 -m Experiments.Plotting.plot_adaptation_experiment \
     hydra.run.dir="$directory" \

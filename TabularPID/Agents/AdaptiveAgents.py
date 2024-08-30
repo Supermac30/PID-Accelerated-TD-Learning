@@ -51,7 +51,7 @@ class AbstractAdaptiveAgent(Agent):
 
         self.gain_updater.set_agent(self)
 
-    def estimate_value_function(self, num_iterations=1000, test_function=None, initial_V=None, stop_if_diverging=True, follow_trajectory=True, reset_environment=True, visualize=False):
+    def estimate_value_function(self, num_iterations=1000, test_function=None, initial_V=None, stop_if_diverging=True, follow_trajectory=True, reset_environment=True, visualize=False, measure_time=True):
         self.reset(reset_environment)
         # V is the current value function, Vp is the previous value function
         # Vp stores the previous value of the x state when it was last changed
@@ -104,6 +104,9 @@ class AbstractAdaptiveAgent(Agent):
                 if stop_if_diverging and history[k] > 5 * history[0]:
                     history[k:] = float("inf")
                     break
+            
+            if measure_time and history[k] / history[0] < 0.2:
+                break
 
         logging.info(f"Final gains are: kp: {self.kp}, ki: {self.ki}, kd: {self.kd}, alpha: {self.alpha}, beta: {self.beta}")
         if visualize:

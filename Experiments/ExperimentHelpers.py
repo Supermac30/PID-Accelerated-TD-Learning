@@ -4,6 +4,7 @@ import os
 import logging
 import multiprocess as mp
 from pathlib import Path
+import pickle
 
 from TabularPID.EmpericalTester import get_optimal_Q, get_optimal_TD, get_optimal_TD_Q
 
@@ -263,3 +264,18 @@ def create_label(ax, norm, normalize, is_q, is_star=False, fontsize=None):
                 ax.set_ylabel(f'$||{current} - {goal}||_{{{norm}}}$')
             else:
                 ax.set_ylabel(f'$||{current} - {goal}||_{{{norm}}}$', fontsize=fontsize)
+
+
+def save_time(num_states, mean, std_dev, directory, model_name, subdir="time"):
+    """Save the time taken in a file storing time if it exists, otherwise create one."""
+    path = f"{directory}/{subdir}/{model_name}.pkl"
+    if not os.path.isdir(f"{directory}/{subdir}"):
+        Path(f"{directory}/{subdir}").mkdir(parents=True, exist_ok=True)
+        time_data = {num_states: (mean, std_dev)}
+    else:
+        with open(path, 'rb') as file:
+            time_data = pickle.load(file)
+        time_data[num_states] = (mean, std_dev)
+    
+    with open(path, 'wb') as file:
+        pickle.dump(time_data, file)

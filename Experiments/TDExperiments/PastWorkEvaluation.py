@@ -2,6 +2,7 @@ import hydra
 
 import multiprocessing as mp
 import logging
+from time import time
 
 from Experiments.ExperimentHelpers import *
 from TabularPID.AgentBuilders.AgentBuilder import build_agent_and_env
@@ -25,18 +26,22 @@ def past_work(cfg):
 
     def run_test(seed):
         agent.set_seed(seed)
+        start_time = time()
         history, V = agent.estimate_value_function(
             num_iterations=cfg['num_iterations'],
             test_function=test_function,
             follow_trajectory=cfg['follow_trajectory'],
-            stop_if_diverging=cfg['stop_if_diverging']
+            stop_if_diverging=cfg['stop_if_diverging'],
+            measure_time=cfg['measure_time']
         )
-        return history, V
+        end_time = time()
+        return history, V, end_time - start_time
 
     prg = np.random.RandomState(seed)
     if cfg['debug']:
-        history, _ = run_test(prg.randint(0, 1000000))
+        history, _, time_taken = run_test(prg.randint(0, 1000000))
         all_histories = [history]
+        all_time_taken = [time_taken]
     else:
         num_chunks = mp.cpu_count()
         logging.info(f"Running experiments {num_chunks} times")
@@ -47,12 +52,15 @@ def past_work(cfg):
         pool.join()
 
         all_histories = list(map(lambda n: results[n][0], range(len(results[0]))))
+        all_time_taken = list(map(lambda n: results[n][2], range(len(results[0]))))
     
     mean_history = np.mean(np.array(all_histories), axis=0)
     std_dev_history = np.std(np.array(all_histories), axis=0)
+    mean_time_taken = np.mean(np.array(all_time_taken), axis=0)
+    std_dev_time_taken = np.std(np.array(all_time_taken), axis=0)
     save_array(mean_history, f"{cfg['name']}", directory=cfg['save_dir'], subdir="mean")
     save_array(std_dev_history, f"{cfg['name']}", directory=cfg['save_dir'], subdir="std_dev")
-
+    save_time(env.num_states, mean_time_taken, std_dev_time_taken, cfg['save_dir'], cfg['name'])
 
 if __name__ == "__main__":
     past_work()

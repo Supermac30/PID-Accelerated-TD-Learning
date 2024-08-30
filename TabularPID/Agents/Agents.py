@@ -588,7 +588,7 @@ class ControlledQLearning(Agent):
         self.z = np.zeros((self.num_states, self.num_actions))
         self.policy = Policy(self.num_actions, self.num_states, self.environment.prg, None)
 
-    def estimate_value_function(self, num_iterations=1000, test_function=None, stop_if_diverging=True, follow_trajectory=False, reset_environment=True):
+    def estimate_value_function(self, num_iterations=1000, test_function=None, stop_if_diverging=True, follow_trajectory=False, reset_environment=True, measure_time=True):
         """Use the Q-learning algorithm to estimate the value function.
         That is, create a matrix of size num_states by num_actions, Q, and update it according to the Q-learning update rule.
         """
@@ -627,6 +627,9 @@ class ControlledQLearning(Agent):
                     # If we are too large, stop learning
                     history[k:] = float('inf')
                     break
+
+            if measure_time and history[k] / history[0] < 0.2:
+                break
 
         if test_function is None:
             return self.Q

@@ -18,6 +18,7 @@ recompute_optimal: False  # If compute_optimal is True, run a grid search even i
 debug: False # If multiprocessing should be disabled
 repeat: 1
 name: PIDQLearning
+measure_time: True
 
 stop_if_diverging: True
 

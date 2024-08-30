@@ -62,7 +62,7 @@ class AbstractAdaptiveAgent(Agent):
 
         self.policy = Policy(self.num_actions, self.num_states, self.environment.prg, None)
 
-    def estimate_value_function(self, num_iterations=1000, test_function=None, initial_Q=None, stop_if_diverging=True, follow_trajectory=False, reset_environment=True):
+    def estimate_value_function(self, num_iterations=1000, test_function=None, initial_Q=None, stop_if_diverging=True, follow_trajectory=False, reset_environment=True, measure_time=True):
         self.reset(reset_environment)
         # Q is the current value function, Qp is the previous value function
         # Qp stores the previous value of the x state when it was last changed
@@ -110,6 +110,9 @@ class AbstractAdaptiveAgent(Agent):
                 if stop_if_diverging and history[k] > 1.5 * history[0]:
                     history[k:] = float("inf")
                     break
+
+            if measure_time and history[k] / history[0] < 0.2:
+                break
         
         if self.verbose:
             logging.info(f"Final gains are: kp: {self.kp}, ki: {self.ki}, kd: {self.kd}, alpha: {self.alpha}, beta: {self.beta}")

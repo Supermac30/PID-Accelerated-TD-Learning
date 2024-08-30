@@ -21,6 +21,7 @@ plot_updater: True
 stop_if_diverging: False
 normalize: True
 repeat: 1
+measure_time: True
 
 search_steps: 1000
 

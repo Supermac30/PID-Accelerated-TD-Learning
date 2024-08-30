@@ -30,7 +30,6 @@ def sorting_mechanism(files):
         elif file.startswith("Q Learning"):
             q_learning_files.append(file)
         elif file.startswith("Zap Q Learning"):
-            if dont_compare: continue
             zap_q_learning_files.append(file)
         elif file.startswith("Speedy Q Learning"):
             if dont_compare: continue

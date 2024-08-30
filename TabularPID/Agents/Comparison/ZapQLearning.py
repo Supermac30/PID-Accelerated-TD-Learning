@@ -32,7 +32,7 @@ class ZapQLearning(Agent):
         self.alpha_lr = lambda n: 1/n
         self.gamma_lr = lambda n: n ** (-a) 
 
-    def estimate_value_function(self, follow_trajectory=True, num_iterations=1000, test_function=None, reset=True, reset_environment=True, stop_if_diverging=True):
+    def estimate_value_function(self, follow_trajectory=True, num_iterations=1000, test_function=None, reset=True, reset_environment=True, stop_if_diverging=True, measure_time=True):
         """Estimate the value function of the current policy using the TIDBD algorithm
         theta is the meta learning rate
         """
@@ -63,6 +63,9 @@ class ZapQLearning(Agent):
                     # If we are too large, stop learning
                     history[k:] = float('inf')
                     break
+            
+            if measure_time and history[k] / history[0] < 0.2:
+                break
 
         if test_function is None:
             return self.Q

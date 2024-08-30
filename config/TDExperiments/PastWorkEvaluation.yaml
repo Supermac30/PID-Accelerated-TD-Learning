@@ -21,6 +21,7 @@ follow_trajectory: False
 stop_if_diverging: False
 log_plot: False
 normalize: True
+measure_time: True
 
 is_q: False
 
