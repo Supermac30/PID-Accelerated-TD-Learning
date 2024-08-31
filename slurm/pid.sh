@@ -42,7 +42,7 @@ python3 -m Experiments.TDExperiments.SoftTDPolicyEvaluation \
     env="$env" \
     repeat=$repeat \
     debug=$debug \
-    norm=$norm
+    norm=$norm \
     num_iterations=$num_iterations \
     measure_time=False \
     name="TD"

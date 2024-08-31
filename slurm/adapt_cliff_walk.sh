@@ -16,7 +16,7 @@ source slurm/setup.sh
 current_time=$(date "+%Y.%m.%d/%H.%M.%S")
 env="cliff walk"
 gamma=0.999
-repeat=1000
+repeat=6400
 seed=$RANDOM
 num_iterations=20000
 search_steps=20000
