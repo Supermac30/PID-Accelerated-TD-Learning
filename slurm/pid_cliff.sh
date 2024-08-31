@@ -13,7 +13,7 @@ source slurm/setup.sh
 current_time=$(date "+%Y.%m.%d/%H.%M.%S")
 env="cliff walk"
 gamma=0.99
-repeat=80
+repeat=1000
 seed=$RANDOM
 num_iterations=20000
 search_steps=20000
@@ -64,7 +64,7 @@ python3 -m Experiments.TDExperiments.SoftTDPolicyEvaluation --multirun \
     compute_optimal=$compute_optimal \
     get_optimal=$get_optimal \
     debug=$debug \
-    'name="PID TD with kp=1, ki=0.3, kd=0.2"'
+    'name="PID TD with $kp=1$, $ki=0.3$, $kd=0.2$"'
 
 python3 -m Experiments.Plotting.plot_adaptation_experiment \
     hydra.run.dir="$directory" \

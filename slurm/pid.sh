@@ -13,7 +13,8 @@ source slurm/setup.sh
 current_time=$(date "+%Y.%m.%d/%H.%M.%S")
 env="chain walk"
 gamma=0.99
-repeat=1000
+repeat=6400
+norm=1
 seed=$RANDOM
 num_iterations=25000
 search_steps=25000
@@ -41,6 +42,7 @@ python3 -m Experiments.TDExperiments.SoftTDPolicyEvaluation \
     env="$env" \
     repeat=$repeat \
     debug=$debug \
+    norm=$norm
     num_iterations=$num_iterations \
     measure_time=False \
     name="TD"
@@ -63,7 +65,8 @@ python3 -m Experiments.TDExperiments.SoftTDPolicyEvaluation \
     compute_optimal=$compute_optimal \
     get_optimal=$get_optimal \
     debug=$debug \
-    'name="PID TD with $\kappa_p=1$, $kappa_I=-0.4$, $kappa_d=0$"'
+    norm=$norm \
+    'name="PID TD with $\kappa_p=1$, $\kappa_I=-0.4$, $\kappa_d=0$"'
 
 # python3 -m Experiments.TDExperiments.SoftTDPolicyEvaluation --multirun \
 #     hydra.mode=MULTIRUN \
@@ -90,6 +93,7 @@ python3 -m Experiments.Plotting.plot_adaptation_experiment \
     save_dir="$directory" \
     repeat=$repeat \
     env="$env" \
+    norm=$norm \
     is_q=False \
     is_star=False \
     small_name=False \

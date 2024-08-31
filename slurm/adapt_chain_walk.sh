@@ -16,7 +16,8 @@ source slurm/setup.sh
 current_time=$(date "+%Y.%m.%d/%H.%M.%S")
 env="chain walk"
 gamma=0.99
-repeat=1000
+repeat=6400
+norm=1
 seed=$RANDOM
 num_iterations=25000
 search_steps=25000
@@ -64,6 +65,7 @@ python3 -m Experiments.AdaptationExperiments.AdaptiveAgentExperiment --multirun 
     epsilon=$epsilon  \
     alpha=0.95 \
     beta=0.05 \
+    norm=$norm \
     env="$env" \
     gamma=$gamma \
     repeat=$repeat \
@@ -86,6 +88,7 @@ python3 -m Experiments.TDExperiments.SoftTDPolicyEvaluation \
     kp=1 \
     ki=0 \
     kd=0 \
+    norm=$norm \
     gamma=$gamma \
     env="$env" \
     repeat=$repeat \
@@ -99,7 +102,7 @@ python3 -m Experiments.Plotting.plot_adaptation_experiment \
     save_dir="$directory" \
     repeat=$repeat \
     env="$env" \
-    norm=1 \
+    norm=$norm \
     small_name=True \
     is_q=False \
     plot_best=False

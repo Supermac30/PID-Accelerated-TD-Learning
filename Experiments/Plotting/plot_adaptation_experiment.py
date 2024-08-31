@@ -48,6 +48,7 @@ def create_plots(cfg):
     """Plot all of the data in the npy folder from the runs of the adaptive agent."""
     # Create a figure that will be used to plot the history of each agent
     # Min history
+    repeat = cfg['repeat']
     min_final_history = np.inf
     min_history = None
     min_history_file = None
@@ -90,8 +91,8 @@ def create_plots(cfg):
             gain_values_kp = history[:, 0]
             std_dev_values_kp = std_dev[:, 0]
             ax1.plot(x_axis(gain_values_kp), gain_values_kp - 1, label='$\kappa_p - 1$', color='blue')
-            ax1.fill_between(x_axis(gain_values_kp), gain_values_kp - 1 - std_dev_values_kp / sqrt(80), 
-                            gain_values_kp - 1 + std_dev_values_kp / sqrt(80), alpha=0.2, color='lightblue')
+            ax1.fill_between(x_axis(gain_values_kp), gain_values_kp - 1 - std_dev_values_kp / sqrt(repeat), 
+                            gain_values_kp - 1 + std_dev_values_kp / sqrt(repeat), alpha=0.2, color='lightblue')
 
             # Reduce the title font size
             ax1.set_title('PID Gain Values Over Time', fontsize=titlefontsize)
@@ -100,15 +101,15 @@ def create_plots(cfg):
             gain_values_ki = history[:, 1]
             std_dev_values_ki = std_dev[:, 1]
             ax1.plot(x_axis(gain_values_ki), gain_values_ki, label='$\kappa_I$', color='orange')
-            ax1.fill_between(x_axis(gain_values_ki), gain_values_ki - std_dev_values_ki / sqrt(80), 
-                            gain_values_ki + std_dev_values_ki / sqrt(80), alpha=0.2, color='moccasin')
+            ax1.fill_between(x_axis(gain_values_ki), gain_values_ki - std_dev_values_ki / sqrt(repeat), 
+                            gain_values_ki + std_dev_values_ki / sqrt(repeat), alpha=0.2, color='moccasin')
 
             # Plot kd with its standard deviation on the right y-axis
             gain_values_kd = history[:, 2]
             std_dev_values_kd = std_dev[:, 2]
             ax1.plot(x_axis(gain_values_kd), gain_values_kd, label='$\kappa_d$', color='green')
-            ax1.fill_between(x_axis(gain_values_kd), gain_values_kd - std_dev_values_kd / sqrt(80), 
-                            gain_values_kd + std_dev_values_kd / sqrt(80), alpha=0.2, color='honeydew')
+            ax1.fill_between(x_axis(gain_values_kd), gain_values_kd - std_dev_values_kd / sqrt(repeat), 
+                            gain_values_kd + std_dev_values_kd / sqrt(repeat), alpha=0.2, color='honeydew')
 
             ax1.tick_params(axis='y', labelcolor='black')
 
@@ -174,7 +175,7 @@ def create_plots(cfg):
             else:
                 plot_name = name.replace("Q Learning", "Q-Learning").replace("kp=", "\kappa_p=").replace("ki=", "\kappa_I=").replace("kd=", "\kappa_d=")
             ax0.plot(x_axis(history), normalize(history), label=plot_name)
-            ax0.fill_between(x_axis(history), normalize(history) - std_dev / sqrt(80), normalize(history) + std_dev / sqrt(80), alpha=0.2)
+            ax0.fill_between(x_axis(history), normalize(history) - std_dev / sqrt(repeat), normalize(history) + std_dev / sqrt(repeat), alpha=0.2)
 
     if cfg['plot_best']:
         logging.info(f"Best final history: {min_history_file}")
@@ -188,7 +189,7 @@ def create_plots(cfg):
             min_std_dev /= min_history[0]
         max_y = max(max_y, np.max(normalize(min_history) + min_std_dev))
         ax0.plot(x_axis(min_history), normalize(min_history), label=r"{}".format(name))
-        ax0.fill_between(x_axis(min_history), normalize(min_history) - min_std_dev / sqrt(80), normalize(min_history) + min_std_dev / sqrt(80), alpha=0.2)
+        ax0.fill_between(x_axis(min_history), normalize(min_history) - min_std_dev / sqrt(repeat), normalize(min_history) + min_std_dev / sqrt(repeat), alpha=0.2)
 
     ax0.set_title(f"{cfg['env'].title()}", fontsize=titlefontsize)
     ax0.set_xlabel('Steps (t)')
