@@ -11,11 +11,11 @@
 
 source slurm/setup.sh
 
-directory="outputs/q_adaptation_experiment/chain walk/Final Result 0.999"
-is_q=True
+directory="outputs/adaptation_experiment/cliff walk/Final Convergent Cliff Walk"
+is_q=False
 repeat=20
-norm="fro"
-env="chain walk"
+norm="1"
+env="cliff walk"
 
 python3 -m Experiments.Plotting.plot_adaptation_experiment \
     hydra.run.dir="$directory" \

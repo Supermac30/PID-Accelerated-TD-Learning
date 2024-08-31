@@ -12,11 +12,11 @@
 source slurm/setup.sh
 current_time=$(date "+%Y.%m.%d/%H.%M.%S")
 env="cliff walk"
-gamma=0.999
-repeat=1
+gamma=0.99
+repeat=80
 seed=$RANDOM
-num_iterations=75000
-search_steps=75000
+num_iterations=20000
+search_steps=20000
 directory=outputs/pid_experiment/$env/$current_time
 echo "Saving to $directory"
 mkdir -p "$directory"
@@ -53,8 +53,8 @@ python3 -m Experiments.TDExperiments.SoftTDPolicyEvaluation --multirun \
     save_dir="$directory" \
     seed=$seed \
     kp=1 \
-    ki="-0.4" \
-    kd=0 \
+    ki="0.3" \
+    kd="0.2" \
     gamma=$gamma \
     env="$env" \
     repeat=$repeat \

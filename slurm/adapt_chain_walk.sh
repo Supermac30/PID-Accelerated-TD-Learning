@@ -16,7 +16,7 @@ source slurm/setup.sh
 current_time=$(date "+%Y.%m.%d/%H.%M.%S")
 env="chain walk"
 gamma=0.99
-repeat=300
+repeat=1000
 seed=$RANDOM
 num_iterations=25000
 search_steps=25000

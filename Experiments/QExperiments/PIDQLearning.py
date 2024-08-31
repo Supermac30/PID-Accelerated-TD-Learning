@@ -36,7 +36,7 @@ def soft_policy_evaluation_experiment(cfg):
         all_time_taken = [time_taken]
     else:
         # Create a psuedo random number generator with seed seed
-        num_chunks = mp.cpu_count()
+        num_chunks = cfg['repeat']
         logging.info(f"Running experiments {num_chunks} times")
         # Run the following agent.estimate_value_function 80 times and take an average of the histories
         pool = mp.Pool()

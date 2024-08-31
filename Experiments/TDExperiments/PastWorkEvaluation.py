@@ -43,7 +43,7 @@ def past_work(cfg):
         all_histories = [history]
         all_time_taken = [time_taken]
     else:
-        num_chunks = mp.cpu_count()
+        num_chunks = cfg['repeat']
         logging.info(f"Running experiments {num_chunks} times")
         # Run the following agent.estimate_value_function 80 times and take an average of the histories
         pool = mp.Pool()
