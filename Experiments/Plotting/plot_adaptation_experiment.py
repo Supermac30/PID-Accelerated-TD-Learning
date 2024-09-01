@@ -15,6 +15,7 @@ def sorting_mechanism(files):
     """Order files so that a file starting with "TD" or "Q Learning" or "Zap Q Learning" or "Speedy Q Learning" or "TIDBD" goes after anything else,
     and sort those files in the corresponding order they appear afterwards.
     """
+    gain_adaptation_files = []
     td_files = []
     q_learning_files = []
     zap_q_learning_files = []
@@ -25,7 +26,9 @@ def sorting_mechanism(files):
     dont_compare = False
 
     for file in files:
-        if file.startswith("TD"):
+        if "Gain Adaptation" in file:
+            gain_adaptation_files.append(file)
+        elif file.startswith("TD"):
             td_files.append(file)
         elif file.startswith("Q Learning"):
             q_learning_files.append(file)
@@ -40,7 +43,7 @@ def sorting_mechanism(files):
         else:
             other_files.append(file)
 
-    return other_files + td_files + q_learning_files + zap_q_learning_files + speedy_q_learning_files + tidbd_files
+    return gain_adaptation_files + other_files + td_files + q_learning_files + zap_q_learning_files + speedy_q_learning_files + tidbd_files
 
 
 @hydra.main(version_base=None, config_path="../../config", config_name="plot")

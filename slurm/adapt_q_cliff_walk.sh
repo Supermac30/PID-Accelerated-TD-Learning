@@ -4,7 +4,7 @@
 #SBATCH --cpus-per-task=64
 #SBATCH --tasks-per-node=1
 #SBATCH --time=40:00:00
-#SBATCH --mem=8GB
+#SBATCH --mem=64GB
 #SBATCH --job-name=adapt_q
 #SBATCH --output=slurm/logs/%x_%j.out
 #SBATCH --error=slurm/errors/%x_%j.err
@@ -64,9 +64,9 @@ debug=False
 #     debug=$debug \
 #     name="Speedy Q Learning"
 
-for meta_lr in 8e-9
+for meta_lr in 2e-8
 do
-for epsilon in 1e-3
+for epsilon in 1e-1
 do
 python3 -m Experiments.AdaptationExperiments.AdaptiveQAgentExperiment --multirun \
     hydra.mode=MULTIRUN \

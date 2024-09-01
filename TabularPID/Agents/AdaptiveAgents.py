@@ -51,7 +51,7 @@ class AbstractAdaptiveAgent(Agent):
 
         self.gain_updater.set_agent(self)
 
-    def estimate_value_function(self, num_iterations=1000, test_function=None, initial_V=None, stop_if_diverging=True, follow_trajectory=True, reset_environment=True, visualize=False, measure_time=True):
+    def estimate_value_function(self, num_iterations=1000, test_function=None, initial_V=None, stop_if_diverging=True, follow_trajectory=True, reset_environment=True, visualize=False, measure_time=False):
         self.reset(reset_environment)
         # V is the current value function, Vp is the previous value function
         # Vp stores the previous value of the x state when it was last changed

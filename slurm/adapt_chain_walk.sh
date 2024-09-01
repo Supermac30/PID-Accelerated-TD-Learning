@@ -19,8 +19,8 @@ gamma=0.99
 repeat=6400
 norm=1
 seed=$RANDOM
-num_iterations=25000
-search_steps=25000
+num_iterations=50000
+search_steps=50000
 recompute_optimal=True
 compute_optimal=True  # False when we need to debug, so there is no multiprocessing
 get_optimal=True  # False when we need to debug with a specific learning rate
@@ -47,9 +47,9 @@ mkdir -p "$directory"
 #     is_q=False \
 #     name="TIDBD"
 
-for meta_lr in 5e-7
+for meta_lr in 1e-7
 do
-for epsilon in 1e-3
+for epsilon in 1e-1
 do
 python3 -m Experiments.AdaptationExperiments.AdaptiveAgentExperiment --multirun \
     hydra.mode=MULTIRUN \
@@ -96,6 +96,27 @@ python3 -m Experiments.TDExperiments.SoftTDPolicyEvaluation \
     num_iterations=$num_iterations \
     measure_time=False \
     name="TD"
+
+python3 -m Experiments.TDExperiments.SoftTDPolicyEvaluation \
+    hydra.mode=MULTIRUN \
+    hydra.run.dir="$directory" \
+    hydra.sweep.dir="$directory" \
+    save_dir="$directory" \
+    seed=$seed \
+    kp=1 \
+    ki="-0.4" \
+    kd=0 \
+    gamma=$gamma \
+    env="$env" \
+    repeat=$repeat \
+    num_iterations=$num_iterations \
+    search_steps=$search_steps \
+    recompute_optimal=$recompute_optimal \
+    compute_optimal=$compute_optimal \
+    get_optimal=$get_optimal \
+    debug=$debug \
+    norm=$norm \
+    'name="PID TD with $\kappa_p=1$, $\kappa_I=-0.4$, $\kappa_d=0$"'
 
 python3 -m Experiments.Plotting.plot_adaptation_experiment \
     hydra.run.dir="$directory" \

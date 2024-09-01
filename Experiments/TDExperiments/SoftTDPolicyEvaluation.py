@@ -11,7 +11,7 @@ def soft_policy_evaluation_experiment(cfg):
     agent_name, kp, ki, kd, alpha, beta = cfg['agent_name'], cfg['kp'], cfg['ki'], cfg['kd'], cfg['alpha'], cfg['beta']
 
     if cfg['compute_optimal']:
-        get_optimal_pid_rates(agent_name, cfg['env'], kp, ki, kd, alpha, beta, cfg['gamma'], cfg['recompute_optimal'], cfg['search_steps'])
+        get_optimal_pid_rates(agent_name, cfg['env'], kp, ki, kd, alpha, beta, cfg['gamma'], recompute=cfg['recompute_optimal'], search_steps=cfg['search_steps'])
     agent, env, policy = build_agent_and_env((agent_name, kp, ki, kd, alpha, beta), cfg['env'], cfg['get_optimal'], seed, cfg['gamma'])
     V_pi = find_Vpi(env, policy, cfg['gamma'])
     test_function = build_test_function(cfg['norm'], V_pi)
@@ -38,6 +38,8 @@ def soft_policy_evaluation_experiment(cfg):
         results = pool.map(run_test, [prg.randint(0, 1000000) for _ in range(num_chunks)])
         pool.close()
         pool.join()
+
+        logging.info(results)
 
         all_histories = list(map(lambda n: results[n][0], range(len(results[0]))))
 

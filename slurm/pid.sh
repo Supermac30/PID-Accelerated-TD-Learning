@@ -16,8 +16,8 @@ gamma=0.99
 repeat=6400
 norm=1
 seed=$RANDOM
-num_iterations=25000
-search_steps=25000
+num_iterations=50000
+search_steps=50000
 directory=outputs/pid_experiment/$env/$current_time
 echo "Saving to $directory"
 mkdir -p "$directory"
@@ -32,7 +32,7 @@ python3 -m Experiments.TDExperiments.SoftTDPolicyEvaluation \
     save_dir="$directory" \
     seed=$seed \
     search_steps=$search_steps \
-    recompute_optimal=$recompute_search \
+    recompute_optimal=$recompute_optimal \
     compute_optimal=$compute_optimal \
     get_optimal=$get_optimal \
     kp=1 \

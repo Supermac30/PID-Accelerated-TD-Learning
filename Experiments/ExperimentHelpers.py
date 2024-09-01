@@ -53,7 +53,7 @@ def build_test_function(norm, V_pi):
         return lambda V, Vp, BR: np.linalg.norm(V - V_pi, ord=norm)
 
 
-def find_optimal_learning_rates(agent, value_function_estimator, learning_rates={}, update_I_rates={}, update_D_rates={}, verbose=False, repeat=3):
+def find_optimal_learning_rates(agent, value_function_estimator, learning_rates={}, update_I_rates={}, update_D_rates={}, verbose=False, repeat=10):
     """Run a grid search for values of N and alpha that makes the
     value_function_estimator have the lowest possible error.
 
@@ -271,6 +271,8 @@ def save_time(num_states, mean, std_dev, directory, model_name, subdir="time"):
     path = f"{directory}/{subdir}/{model_name}.pkl"
     if not os.path.isdir(f"{directory}/{subdir}"):
         Path(f"{directory}/{subdir}").mkdir(parents=True, exist_ok=True)
+        time_data = {num_states: (mean, std_dev)}
+    elif not os.path.isfile(path):
         time_data = {num_states: (mean, std_dev)}
     else:
         with open(path, 'rb') as file:
